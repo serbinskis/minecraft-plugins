@@ -1,0 +1,9 @@
+main: me.wobbychip.perplayerkeepinventory.Main
+name: PerPlayerKeepInventory
+version: 1.0
+author: WobbyChip
+
+commands:
+  PPKI:
+    description: Keep player inventory if player has specific permissions!
+    usage: "Usage: /<command> [on | off | reload]"

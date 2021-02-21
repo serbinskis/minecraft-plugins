@@ -1,0 +1,5 @@
+main: me.wobbychip.chunkloader.Main
+name: ChunkLoader
+api-version: 1.13
+version: 1.0
+author: WobbyChip

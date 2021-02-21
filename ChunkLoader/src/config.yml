@@ -1,0 +1,10 @@
+enableMessage: '&9[ChunkLoader] ChunkLoader has loaded!'
+permissionMessage: '&cYou do not have permissions!'
+notOwner: '&cYou are not the owner of this Chunk Loader!'
+openedMessage: '&cSomeone is already using this Chunk Loader!'
+
+minimumArea: 1
+maximumArea: 8
+arrowIncrement: 1
+
+debug: true

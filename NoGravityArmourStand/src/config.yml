@@ -1,0 +1,13 @@
+enableMessage: '&9[NoGravityArmourStand] NoGravityArmourStand has loaded!'
+permissionMessage: '&cYou do not have permissions!'
+incorrectArgument: '&cIncorrect Argument!'
+reloadMessage: '&9Reloaded NoGravityArmourStand.'
+usageMessage: '&9Usage /NoGravityArmourStand [on | off | reload]'
+
+onMessage: '&9NoGravityArmourStand is now on.'
+alreadyOnMessage: '&9NoGravityArmourStand is already on.'
+offMessage: '&9NoGravityArmourStand is now off.'
+alreadyOffMessage: '&9NoGravityArmourStand is already off.'
+
+MaximumDistance: 5
+Enabled: true

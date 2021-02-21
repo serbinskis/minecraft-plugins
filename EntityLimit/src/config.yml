@@ -1,0 +1,20 @@
+enableMessage: '&9[EntityLimit] EntityLimit has loaded!'
+permissionMessage: '&cYou do not have permissions!'
+incorrectArgument: '&cIncorrect Argument!'
+reloadMessage: '&9Reloaded EntityLimit.'
+usageMessage: '&9Usage /EntityLimit [on | off | reload | limit | distance]'
+
+onMessage: '&9EntityLimit is now on.'
+alreadyOnMessage: '&9EntityLimit is already on.'
+offMessage: '&9EntityLimit is now off.'
+alreadyOffMessage: '&9EntityLimit is already off.'
+
+limitMessage: '&9Entity limit set to %value%.'
+distanceMessage: '&9Maximum distance set to %value%.'
+tooManyEntity: '&cTo many mobs in same area: %value%.'
+
+Limit: 100
+MaximumDistance: 16
+Enabled: true
+
+ExcludeReason: ["NATURAL", "NETHER_PORTAL", "DEFAULT"]

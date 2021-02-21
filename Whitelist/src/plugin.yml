@@ -1,0 +1,9 @@
+main: me.wobbychip.whitelist.Main
+name: Whitelist
+version: 1.0
+author: WobbyChip
+
+commands:
+  wl:
+    description: Allows you to use whitelist on cracked servers.
+    usage: "Usage: /<command> [on | off | reload | save | add | remove | list]"
