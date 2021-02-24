@@ -124,14 +124,19 @@ public class Utilities {
 
 	@SuppressWarnings("deprecation")
 	static String LocationToString(Location location) {
-		return location.getWorld().getName() + "#" + new Integer((int)(location.getX())).toString() + "#" + new Integer((int)(location.getY())).toString() + "#" +  new Integer((int)(location.getZ())).toString();
+		return location.getWorld().getName() + Main.Delimiter + new Integer((int)(location.getX())).toString() + Main.Delimiter + new Integer((int)(location.getY())).toString() + Main.Delimiter +  new Integer((int)(location.getZ())).toString();
 	}
 
 	public static Location StringToLocation(String locationString) {
-		String[] splited = locationString.split("#", 0);
+		String[] splited = locationString.split(Main.Delimiter, 0);
 		World world = Main.plugin.getServer().getWorld(splited[0]);
 		Location location = new Location(world, Double.parseDouble(splited[1]), Double.parseDouble(splited[2]), Double.parseDouble(splited[3]));
 		return location;
+	}
+
+	@SuppressWarnings("deprecation")
+	public static String CoordsToString(int X, int Z) {
+		return new Integer((int)(X)).toString() + Main.Delimiter + new Integer((int)(Z)).toString();
 	}
 
 	//Set outline to block
@@ -183,7 +188,6 @@ public class Utilities {
 	}
 
 	public static void ForceUnloadChunk(String world, int X, int Z) {
-        Bukkit.getServer().getWorld(world).loadChunk(X, Z);
         Bukkit.getServer().getWorld(world).setChunkForceLoaded(X, Z, false);
         DebugInfo("&9[ChunkLoader] Unloading chunk (" + X*16 + "," + Z*16 + ") in world '" + world + "'");
 	}
@@ -215,8 +219,8 @@ public class Utilities {
 				Main.ChunksConfig.getConfig().set("chunks." + world, null);
 			} else {
 				for (String chunk : Main.ChunksConfig.getConfig().getConfigurationSection("chunks." + world).getKeys(false)) {
-					int X = Integer.parseInt(chunk.split("#", 0)[0]);
-					int Z = Integer.parseInt(chunk.split("#", 0)[1]);
+					int X = Integer.parseInt(chunk.split(Main.Delimiter, 0)[0]);
+					int Z = Integer.parseInt(chunk.split(Main.Delimiter, 0)[1]);
 					ForceLoadChunk(world, X, Z);
 				}
 			}
@@ -228,7 +232,7 @@ public class Utilities {
 	//Check for chunk loader existence
 	public static void CheckChunkLoaders() {
 		for (String section : Main.LoadersConfig.getConfig().getConfigurationSection("chunkloaders").getKeys(false)) {
-			String[] splited = section.split("#", 0);
+			String[] splited = section.split(Main.Delimiter, 0);
 
 			if (!WorldExists(splited[0])) {
 				ChunkLoader chunkLoader = new ChunkLoader(section);
@@ -251,7 +255,7 @@ public class Utilities {
 		ArrayList<String> worlds = new ArrayList<String>();
 
 		for (String section : Main.LoadersConfig.getConfig().getConfigurationSection("chunkloaders").getKeys(false)) {
-			String world = section.split("#", 0)[0];
+			String world = section.split(Main.Delimiter, 0)[0];
 			if (!worlds.contains(world)) { worlds.add(world); }
 		}
 

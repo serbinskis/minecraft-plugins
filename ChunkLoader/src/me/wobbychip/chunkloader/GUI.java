@@ -23,7 +23,7 @@ public class GUI implements InventoryHolder {
 		activated = chunkLoader.getActivated();
 		area = chunkLoader.getArea();
 		owner = Bukkit.getOfflinePlayer(chunkLoader.getOwner()).getName();
-		managerName = player.getUniqueId().toString() + "#" + locationString;
+		managerName = player.getUniqueId().toString() + Main.Delimiter + locationString;
 
 		inv = Bukkit.createInventory(this, 9, "§aChunk Loader - " + owner);
 		initInventory();

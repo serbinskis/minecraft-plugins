@@ -18,7 +18,7 @@ public class ChunkManager {
 	}
 
 	public ChunkManager(String locationString) {
-		String[] a = locationString.split("#", 0);
+		String[] a = locationString.split(Main.Delimiter, 0);
 		locationWorld = a[0];
 		locationX = (int) Math.floor(Integer.parseInt(a[1])/16);
 		locationZ = (int) Math.floor(Integer.parseInt(a[3])/16);
@@ -56,13 +56,8 @@ public class ChunkManager {
 		Main.ChunksConfig.Save();
 	}
 
-	@SuppressWarnings("deprecation")
-	public String CoordsToString(int X, int Z) {
-		return new Integer((int)(X)).toString() + "#" + new Integer((int)(Z)).toString();
-	}
-
 	private String GetChunkName(int X, int Z) {
-		return "chunks." + locationWorld + "." + CoordsToString(X, Z);
+		return "chunks." + locationWorld + "." + Utilities.CoordsToString(X, Z);
 	}
 
 	public boolean ExistsChunk(int X, int Z) {

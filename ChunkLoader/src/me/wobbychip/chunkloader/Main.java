@@ -20,6 +20,7 @@ public class Main extends JavaPlugin implements Listener {
 	public static Config LoadersConfig;
 	public static Config ChunksConfig;
 	public static HashMap<String, ParticleManager> particleManagers = new HashMap<String, ParticleManager>();
+	public static final String Delimiter = "#";
 
 	//Add config
 	public void AddConfig() {
