@@ -1,0 +1,7 @@
+enableMessage: '&9[IPBind] IPBind has loaded!'
+permissionMessage: '&cYou do not have permissions!'
+kickMessage: '&cIncorrect IP Address.%n Please contact with an administrator.'
+
+playerNotFoundMessage: '&cPlayer not found!'
+bindedAddressMessage: '&9IP address has been binded to %player%.'
+unbindedAddressMessage: '&9IP address has been unbinded from %player%.'
