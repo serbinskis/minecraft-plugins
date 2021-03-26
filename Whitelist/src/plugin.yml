@@ -6,4 +6,4 @@ author: WobbyChip
 commands:
   wl:
     description: Allows you to use whitelist on cracked servers.
-    usage: "Usage: /<command> [on | off | reload | save | add | remove | list]"
+    usage: "Usage: /<command> [on | off | reload | add | remove | list]"
