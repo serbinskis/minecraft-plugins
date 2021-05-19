@@ -1,0 +1,17 @@
+enableMessage: '&9[DiscordWhitelist] Discord whitelist has loaded!'
+loginException: '&9[DiscordWhitelist] There was an error logging in! Plugin has been disabled!'
+permissionMessage: '&cYou do not have permissions!'
+reloadMessage: '&9Reloaded discord whitelist.'
+usageMessage: '&9Usage /dwl [on | off | reload]'
+kickMessage: '&cYou are not whitelisted.%n Please contact with an administrator.'
+
+onMessage: '&9Discord whitelist is now on.'
+alreadyOnMessage: '&9Discord whitelist is already on.'
+offMessage: '&9Discord whitelist is now off.'
+alreadyOffMessage: '&9Discord whitelist is already off.'
+incorrectArgument: '&cIncorrect Argument!'
+
+Enabled: false
+Token: ''
+GuildID: ''
+RoleID: ''
