@@ -47,11 +47,16 @@ public class Utilities {
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 
 	static boolean PlayerWhitelisted(String playerName) {
+		if (Main.guild == null) {
+			Utilities.DebugInfo(Utilities.getString("guildException"));
+			return false;
+		}
+
 		List<Member> members = Main.guild.loadMembers().get();
 
 		for (int i = 0; i < members.size(); i++) {
@@ -61,14 +66,22 @@ public class Utilities {
 				}
 			}
 		}
-		
+
 		return false;
 	}
 
-	static void EnableBot() throws LoginException, InterruptedException {
+	static boolean EnableBot() throws LoginException, InterruptedException {
+		Main.guild = null;
 		Main.jda = JDABuilder.createDefault(getString("Token"), GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MEMBERS).build().awaitReady();
 		Main.guild = Main.jda.getGuildById(getString("GuildID"));
+
+		if (Main.guild == null) {
+			Utilities.DebugInfo(Utilities.getString("guildException"));
+			return false;
+		}
+
 		Main.roleID = getString("RoleID");
 		Main.jda.addEventListener(new DiscordEvents());
+		return true;
 	}
 }

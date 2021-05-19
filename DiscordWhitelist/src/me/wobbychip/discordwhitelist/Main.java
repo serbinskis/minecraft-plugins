@@ -24,8 +24,6 @@ public class Main extends JavaPlugin implements Listener {
 			Utilities.EnableBot();
 		} catch (LoginException | InterruptedException e) {
 			Utilities.DebugInfo(Utilities.getString("loginException"));
-			Bukkit.getPluginManager().disablePlugin(plugin);
-			return;
 		}
 
 		Bukkit.getPluginManager().registerEvents(new LoginEvent(), Main.plugin);

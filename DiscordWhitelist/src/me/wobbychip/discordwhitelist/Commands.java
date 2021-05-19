@@ -2,7 +2,6 @@ package me.wobbychip.discordwhitelist;
 
 import javax.security.auth.login.LoginException;
 
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -41,10 +40,13 @@ public class Commands implements CommandExecutor {
 		Main.plugin.reloadConfig();
 
 		try {
-			Utilities.EnableBot();
+			if (!Utilities.EnableBot()) {
+				Utilities.SendMessage(sender, Utilities.getString("guildException"));
+				return;
+			}
 		} catch (LoginException | InterruptedException e) {
 			Utilities.DebugInfo(Utilities.getString("loginException"));
-			Bukkit.getPluginManager().disablePlugin(Main.plugin);
+			Utilities.SendMessage(sender, Utilities.getString("loginException"));
 			return;
 		}
 

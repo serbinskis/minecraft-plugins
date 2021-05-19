@@ -1,5 +1,6 @@
 enableMessage: '&9[DiscordWhitelist] Discord whitelist has loaded!'
-loginException: '&9[DiscordWhitelist] There was an error logging in! Plugin has been disabled!'
+loginException: '&9[DiscordWhitelist] There was an error logging in!'
+guildException: '&9[DiscordWhitelist] Could not find the guild!'
 permissionMessage: '&cYou do not have permissions!'
 reloadMessage: '&9Reloaded discord whitelist.'
 usageMessage: '&9Usage /dwl [on | off | reload]'
