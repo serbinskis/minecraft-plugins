@@ -1,5 +1,8 @@
 package me.wobbychip.discordwhitelist;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.security.auth.login.LoginException;
 
 import org.bukkit.Bukkit;
@@ -14,6 +17,7 @@ public class Main extends JavaPlugin implements Listener {
 	public static JDA jda;
 	public static Guild guild;
 	public static String roleID;
+	public static List<String> allowed = new ArrayList<String>();
 
 	@Override
 	public void onEnable() {
