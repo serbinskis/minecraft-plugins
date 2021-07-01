@@ -1,17 +1,7 @@
 enableMessage: '&9[RepairWithXP] RepairWithXP has loaded!'
-permissionMessage: '&cYou do not have permissions!'
-incorrectArgument: '&cIncorrect Argument!'
-usageMessage: '&9Usage /RepairWithXP [on | off | reload | perTicks | perXP]'
-
 reloadMessage: '&9Reloaded RepairWithXP.'
-onMessage: '&9RepairWithXP is now on.'
-alreadyOnMessage: '&9RepairWithXP is already on.'
-offMessage: '&9RepairWithXP is now off.'
-alreadyOffMessage: '&9RepairWithXP is already off.'
-
-setPerTicksMessage: '&9Set update speed to %value%.'
-setPerXPMessage: '&9Set repair cost to %value%.'
+permissionMessage: '&cYou do not have permissions!'
+usageMessage: '&9Usage /RepairWithXP reload'
 
 perXP: 5
 perTicks: 5
-Enabled: true
