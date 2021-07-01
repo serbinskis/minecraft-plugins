@@ -7,7 +7,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.ShapedRecipe;
@@ -15,10 +18,13 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin implements Listener {
+	public NamespacedKey key;
+	
 	@Override
 	public void onEnable() {
 		if (getServer().getPluginManager().getPlugin("GMusic") == null) {
 			Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&c[GMusicJukeBoxCrafting] GMusic is missing!"));
+			Bukkit.getPluginManager().disablePlugin(this);
 			return;
 		}
 
@@ -30,7 +36,7 @@ public class Main extends JavaPlugin implements Listener {
 		meta.setLore(Arrays.asList("§aJukeBox, which allows", "§aplaying special Music!"));
 		item.setItemMeta(meta);
 
-		NamespacedKey key = new NamespacedKey(this, "gmusic_jukebox");
+		key = new NamespacedKey(this, "gmusic_jukebox");
 		ShapedRecipe recipe = new ShapedRecipe(key, item);
 
 		List<Material> planks = Arrays.asList(Material.OAK_PLANKS, Material.ACACIA_PLANKS, Material.BIRCH_PLANKS,
@@ -42,6 +48,12 @@ public class Main extends JavaPlugin implements Listener {
 		recipe.setIngredient('N', Material.NETHER_STAR);
 
 		Bukkit.addRecipe(recipe);
+		Bukkit.getPluginManager().registerEvents(this, this);
 		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&9[GMusicJukeBoxCrafting] GMusicJukeBoxCrafting has loaded!"));
 	}
+
+    @EventHandler(priority=EventPriority.NORMAL)
+    private void onPlayerJoin(PlayerJoinEvent event) {
+		event.getPlayer().discoverRecipe(key);
+    }
 }
