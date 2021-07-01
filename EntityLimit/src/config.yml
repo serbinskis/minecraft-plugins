@@ -14,7 +14,7 @@ distanceMessage: '&9Maximum distance set to %value%.'
 tooManyEntity: '&cTo many mobs in same area: %value%.'
 
 Limit: 100
-MaximumDistance: 16
+maximumDistance: 16
 Enabled: true
 
-ExcludeReason: ["NATURAL", "NETHER_PORTAL", "DEFAULT"]
+excludeReason: ["NATURAL", "NETHER_PORTAL", "DEFAULT"]
