@@ -18,7 +18,7 @@ public class InventoryEvents implements Listener {
 	public void onInventoryClose(InventoryCloseEvent event) {
 		Inventory inv = event.getInventory();
 		if (inv == null) { return; }
-		if (!(inv.getHolder() instanceof InventoryManager)) { return; }
+		if (!(inv.getHolder() instanceof InventoryManager)) { return; } //This also not working, fix later
 
 		InventoryManager inventoryManager = (InventoryManager) inv.getHolder();
 		if ((!inventoryManager.isDestroyed) && (inventoryManager.getViewers() <= 1)) {
@@ -28,6 +28,7 @@ public class InventoryEvents implements Listener {
 		Utilities.DebugInfo("onInventoryClose");
 	}
 
+	//? Why did I add this, hmm, welp fuck it, I dont remember
 	@EventHandler(priority=EventPriority.NORMAL)
 	public void onInventoryClick(InventoryClickEvent event) {
 		Main.plugin.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {

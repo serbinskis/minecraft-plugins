@@ -11,25 +11,19 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
 public class InventoryManager implements InventoryHolder {
 	public boolean isDestroyed = false;
 	private Inventory inv;
+	private InventoryView playerInv;
 	private Location location;
 	private File file;
 
 	public InventoryManager(String locationString) {
-		//CraftingInventory craft = (CraftingInventory) Bukkit.createInventory(null, InventoryType.CRAFTING);
-		//Bukkit.getPlayer("WobbyChip").openInventory(craft);
-		
-		//if (true) {
-			//return;
-		//}
-		
 		location = Utilities.StringToLocation(locationString);
 		inv = Bukkit.createInventory(null, InventoryType.WORKBENCH);
-		//inv = Bukkit.createInventory(this, InventoryType.DISPENSER, "AutoCrafter");
 		file = new File(Main.plugin.getDataFolder(), "craftingtables/" + locationString + ".bin");
 
 		if (!file.exists()) {
@@ -47,8 +41,11 @@ public class InventoryManager implements InventoryHolder {
 	}
 
 	public void Save() {
-		byte[] bytes = Utilities.inventoryToByteArray(inv);
-		Utilities.writeFile(file, bytes);
+		if (playerInv != null) {
+			inv.setStorageContents(playerInv.getTopInventory().getStorageContents());
+			byte[] bytes = Utilities.inventoryToByteArray(inv);
+			Utilities.writeFile(file, bytes);
+		}
 	}
 
 	public void Load() {
@@ -63,11 +60,21 @@ public class InventoryManager implements InventoryHolder {
 	}
 
 	public int getViewers() {
-		return inv.getViewers().size();
+		if (playerInv != null) {
+			return playerInv.getTopInventory().getViewers().size();
+		} else {
+			return 0;
+		}
 	}
 
+	//Fuck the bukkit for garbage inventory, just why tf createInventory type workbench not handling most of the stuff
 	public void openInventory(Player player) {
-		player.openInventory(inv);
+		if (getViewers() == 0) {
+			playerInv = player.openWorkbench(location, true);
+			//playerInv.getTopInventory().setStorageContents(inv.getStorageContents());
+		} else {
+			player.openInventory(playerInv.getTopInventory()); //Not working
+		}
 	}
 
 	public void closeInventory() {
