@@ -55,7 +55,7 @@ public class Mendfinity extends EcoEnchant {
     		return;
     	}
 
-    	//Disable arrow pickup and dont consume it
+    	//Dont consume arrow and disable it pickup 
         ((Arrow) event.getProjectile()).setPickupStatus(PickupStatus.CREATIVE_ONLY);
         itemStack.setAmount(itemStack.getAmount()+1);
 
