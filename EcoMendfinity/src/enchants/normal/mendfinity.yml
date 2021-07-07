@@ -1,0 +1,23 @@
+#
+# Mendfinity EcoEnchant - Created By WobbyChip
+#
+
+name: "Mendfinity"
+description: Mending and infinity combined
+enabled: true
+
+obtaining:
+  table: true
+  villager: true
+  loot: true
+  rarity: legendary
+
+general-config:
+  targets:
+    - bow
+  grindstoneable: true
+  disabled-in-worlds: [ ]
+  conflicts:
+    - mending
+    - infinity
+  maximum-level: 1
