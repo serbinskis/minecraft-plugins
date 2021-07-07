@@ -10,7 +10,7 @@ obtaining:
   table: true
   villager: true
   loot: true
-  rarity: legendary
+  rarity: special
 
 general-config:
   targets:

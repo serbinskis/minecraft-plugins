@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class Mendfinity extends EcoEnchant {
     public Mendfinity() {
-        super("mendfinity", EnchantmentType.NORMAL);
+        super("mendfinity", EnchantmentType.SPECIAL);
     }
 
     @EventHandler(priority = EventPriority.LOW)
