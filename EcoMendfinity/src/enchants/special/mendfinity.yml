@@ -20,4 +20,5 @@ general-config:
   conflicts:
     - mending
     - infinity
+    - repairing
   maximum-level: 1
