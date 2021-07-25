@@ -7,8 +7,8 @@
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="../spigot.jar"/>
-	<classpathentry kind="lib" path="D:/Temporary/Projects/GitHub/Minecraft-Plugins/EcoMendfinity/lib/jetbrains-annotations.jar"/>
-	<classpathentry kind="lib" path="D:/Temporary/Projects/GitHub/Minecraft-Plugins/EcoMendfinity/lib/eco-5.3.6.jar"/>
-	<classpathentry kind="lib" path="D:/Temporary/Projects/GitHub/Minecraft-Plugins/EcoMendfinity/lib/EcoEnchants v7.4.1.jar"/>
+	<classpathentry kind="lib" path="lib/jetbrains-annotations.jar"/>
+	<classpathentry kind="lib" path="lib/eco-5.3.6.jar"/>
+	<classpathentry kind="lib" path="lib/EcoEnchants v7.4.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
