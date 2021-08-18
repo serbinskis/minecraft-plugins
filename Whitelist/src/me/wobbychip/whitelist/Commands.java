@@ -34,6 +34,7 @@ public class Commands implements CommandExecutor {
 		}
 
 		Main.plugin.getConfig().set("Enabled", false);
+		Main.plugin.saveConfig();
 		Utilities.SendMessage(sender, Utilities.getString("offMessage"));
 	}
 
