@@ -38,7 +38,7 @@ public class Mendfinity extends EcoEnchant {
         }
 
         //Check if bow has enchantment
-        if (!EnchantChecks.mainhand(player, this)) {
+        if (!EnchantChecks.mainhand(player, this) && !EnchantChecks.offhand(player, this)) {
             return;
         }
 
@@ -71,7 +71,7 @@ public class Mendfinity extends EcoEnchant {
 	@EventHandler(priority = EventPriority.LOW)
 	public void onXpPickup(@NotNull final PlayerExpChangeEvent event) {
         //Check if bow has enchantment
-        if (!EnchantChecks.mainhand(event.getPlayer(), this)) {
+        if (!EnchantChecks.mainhand(event.getPlayer(), this) && !EnchantChecks.offhand(event.getPlayer(), this)) {
             return;
         }
 
@@ -80,9 +80,10 @@ public class Mendfinity extends EcoEnchant {
             return;
         }
 
-        //Get item in main hand
+        //Get item in main or off hand
 		ItemStack itemStack = event.getPlayer().getInventory().getItemInMainHand();
-		if (itemStack.getDurability() == 0) { return; }
+		if (itemStack == null || itemStack.getType() != Material.BOW || itemStack.getDurability() == 0) { itemStack = event.getPlayer().getInventory().getItemInOffHand(); }
+		if (itemStack == null || itemStack.getType() != Material.BOW || itemStack.getDurability() == 0) { return; }
 
         //Repair it
 		int j = Math.min(2*event.getAmount(), itemStack.getDurability());
