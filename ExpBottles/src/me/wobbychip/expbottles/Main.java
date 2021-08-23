@@ -16,6 +16,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
@@ -68,6 +69,7 @@ public class Main extends JavaPlugin implements Listener {
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		if (event.getAction() != Action.RIGHT_CLICK_BLOCK) { return; }
 		if (event.getClickedBlock() == null || event.getClickedBlock().getType() != Material.ENCHANTING_TABLE) { return; }
+		if (event.getHand() == EquipmentSlot.OFF_HAND) { event.setUseInteractedBlock(Result.DENY); }
 		if (event.getItem() == null || event.getItem().getType() != Material.GLASS_BOTTLE) { return; }
 
 		Player player = event.getPlayer();
