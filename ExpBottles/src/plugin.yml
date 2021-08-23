@@ -1,4 +1,5 @@
 main: me.wobbychip.expbottles.Main
 name: ExpBottles
+api-version: 1.13
 version: 1.0
 author: WobbyChip
