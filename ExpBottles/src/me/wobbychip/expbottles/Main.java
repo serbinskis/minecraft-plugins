@@ -36,7 +36,7 @@ public class Main extends JavaPlugin implements Listener {
             return (int) (4.5*Math.pow(level,2) - 162.5*level + 2220.0);
         }
     }
- 
+
     //Calculate players current EXP amount
     public static int getPlayerExp(Player player) {
         int level = player.getLevel();
