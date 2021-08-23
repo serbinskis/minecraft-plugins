@@ -66,7 +66,6 @@ public class Main extends JavaPlugin implements Listener {
 
 	@EventHandler(priority=EventPriority.MONITOR)
 	public void onPlayerInteract(PlayerInteractEvent event) {
-		Bukkit.getConsoleSender().sendMessage("PlayerInteractEvent -> " + event.getHand().toString());
 		if (event.getAction() != Action.RIGHT_CLICK_BLOCK) { return; }
 		if (event.getClickedBlock() == null || event.getClickedBlock().getType() != Material.ENCHANTING_TABLE) { return; }
 		if (event.getItem() == null || event.getItem().getType() != Material.GLASS_BOTTLE) { return; }
