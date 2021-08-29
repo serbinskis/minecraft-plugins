@@ -18,7 +18,6 @@ public class Main extends JavaPlugin implements Listener {
 	public static NamespacedKey namespacedKey;
 
 	@Override
-	@SuppressWarnings("deprecation")
 	public void onEnable() {
 		Main.plugin = this;
 
