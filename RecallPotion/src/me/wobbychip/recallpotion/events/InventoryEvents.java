@@ -23,6 +23,9 @@ import me.wobbychip.recallpotion.Main;
 import me.wobbychip.recallpotion.Utilities;
 
 public class InventoryEvents implements Listener {
+	//This event is kinda bugged
+	//Changing item causes brew stand to brew potion again if recipe is valid
+	//So one solution is just run event delayed
 	@EventHandler(priority=EventPriority.MONITOR)
     public void onBrew(BrewEvent event) {
 		if (event.isCancelled()) { return; }
@@ -31,7 +34,7 @@ public class InventoryEvents implements Listener {
 		for (int i = 0; i < 3; i++) {
 			ItemStack item = event.getContents().getItem(i);
 
-			if (Utilities.isPotion(item) && (item.getItemMeta() != null) && (item.getItemMeta().getLocalizedName() != null)) {
+			if (Utilities.isAnyPotion(item) && (item.getItemMeta() != null) && (item.getItemMeta().getLocalizedName() != null)) {
 				String name = item.getItemMeta().getLocalizedName();
 				ItemStack ingredient = event.getContents().getIngredient();
 				PotionData potionData = ((PotionMeta) item.getItemMeta()).getBasePotionData();
@@ -58,12 +61,22 @@ public class InventoryEvents implements Listener {
 
 				//Brewing splash potion
 				if (name.equals(Main.potionItem.getItemMeta().getLocalizedName()) && (ingredient.getType() == Material.GUNPOWDER)) {
-					event.getContents().setItem(i, Main.splashPotionItem);
+					final int slot = i;
+					Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
+				        public void run() {
+				        	event.getContents().setItem(slot, Main.splashPotionItem);
+				        }
+				    }, 1L);
 				}
 
 				//Brewing lingering potion
 				if (name.equals(Main.splashPotionItem.getItemMeta().getLocalizedName()) && (ingredient.getType() == Material.DRAGON_BREATH)) {
-					event.getContents().setItem(i, Main.lingeringPotionItem);
+					final int slot = i;
+					Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
+				        public void run() {
+				        	event.getContents().setItem(slot, Main.lingeringPotionItem);
+				        }
+				    }, 1L);
 				}
 			}
 		}

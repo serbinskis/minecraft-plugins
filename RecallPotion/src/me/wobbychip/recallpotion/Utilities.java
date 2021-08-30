@@ -54,6 +54,10 @@ public class Utilities {
 	}
 
 	public static boolean isPotion(ItemStack itemStack) {
+		return ((itemStack != null) && (itemStack.getType() == Material.POTION));
+	}
+
+	public static boolean isAnyPotion(ItemStack itemStack) {
 		return ((itemStack != null) && ((itemStack.getType() == Material.POTION) || (itemStack.getType() == Material.SPLASH_POTION) || (itemStack.getType() == Material.LINGERING_POTION)));
 	}
 
@@ -61,8 +65,8 @@ public class Utilities {
 		BrewerInventory inv = (BrewerInventory) stand.getInventory();
 		Location location = stand.getLocation();
 
-        //Check if ingredient still exists
-        if (Utilities.isEmpty(inv.getIngredient())) {
+        //Check if ingredient still exists and if its valid
+        if (Utilities.isEmpty(inv.getIngredient()) || (inv.getIngredient().getType() != Main.potionIngredient)) {
         	BrewManager brewManager = Main.brews.get(location);
         	if (brewManager != null) { brewManager.stop(); }
         	return;
