@@ -30,15 +30,15 @@ public class InventoryEvents implements Listener {
 
 		for (int i = 0; i < 3; i++) {
 			ItemStack item = event.getContents().getItem(i);
-			if ((item != null) && (item.getItemMeta() != null) && (item.getItemMeta().getLocalizedName() != null)) {
+
+			if (Utilities.isPotion(item) && (item.getItemMeta() != null) && (item.getItemMeta().getLocalizedName() != null)) {
 				String name = item.getItemMeta().getLocalizedName();
 				ItemStack ingredient = event.getContents().getIngredient();
-				PotionData potionData = null;
-				if (Utilities.isPotion(item)) { potionData = ((PotionMeta) item.getItemMeta()).getBasePotionData(); }
+				PotionData potionData = ((PotionMeta) item.getItemMeta()).getBasePotionData();
 				//If item not potion this causes error ^ - fixed
 
 				//Brewing potion
-				if ((potionData != null) && (potionData.getType() == Main.potionBase) && (ingredient.getType() == Main.potionIngredient)) {
+				if ((potionData.getType() == Main.potionBase) && (ingredient.getType() == Main.potionIngredient)) {
 					switch (item.getType()) {
 						case POTION: {
 							event.getContents().setItem(i, Main.potionItem);
