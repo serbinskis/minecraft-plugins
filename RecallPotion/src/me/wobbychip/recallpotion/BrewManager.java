@@ -63,7 +63,7 @@ public class BrewManager extends BukkitRunnable {
         	this.cancel();
         } else {
         	currentTime++;
-            Utilities.checkBrew(stand);
+            //Utilities.checkBrew(stand);
         }
 	}
 
