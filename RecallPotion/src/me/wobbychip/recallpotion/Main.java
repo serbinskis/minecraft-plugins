@@ -22,7 +22,7 @@ import me.wobbychip.recallpotion.events.PotionEvents;
 public class Main extends JavaPlugin implements Listener {
 	public static Plugin plugin;
 	public static HashMap<Location, BrewManager> brews = new HashMap<Location, BrewManager>();
-	public static int brewTime = 200; //Default 400
+	public static int brewTime = 400; //Default 400
 	public static PotionType potionBase = PotionType.MUNDANE;
 	public static Material potionIngredient = Material.CHORUS_FRUIT;
 	public static ItemStack potionItem = null;
