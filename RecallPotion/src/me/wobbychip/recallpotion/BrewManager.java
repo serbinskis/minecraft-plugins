@@ -33,12 +33,16 @@ public class BrewManager extends BukkitRunnable {
 
 	@Override
 	public void run() {
+        if (cancelTask) {
+        	Main.brews.remove(stand.getLocation());
+        	this.cancel();
+        }
+
         stand.setBrewingTime((int)(400*(1-(double)currentTime/(double)brewTime)));
         if (doUpdate) { stand.update(); } //This causes block to restore inventory
 
 		//Check if brew is done and call event
         if (currentTime >= brewTime) {
-        	cancelTask = true;
         	BrewerInventory bInv = (BrewerInventory) stand.getInventory();
         	BrewEvent brewEvent = new BrewEvent(stand.getBlock(), bInv, stand.getFuelLevel());
         	Bukkit.getPluginManager().callEvent(brewEvent);
@@ -48,14 +52,12 @@ public class BrewManager extends BukkitRunnable {
         	if (!brewEvent.isCancelled() && !Utilities.isEmpty(bInv.getIngredient())) {
         		bInv.getIngredient().setAmount(bInv.getIngredient().getAmount()-1);
         	}
+
+        	Main.brews.remove(stand.getLocation());
+        	this.cancel();
         } else {
         	currentTime++;
             Utilities.checkBrew(stand);
-        }
-
-        if (cancelTask) {
-        	Main.brews.remove(stand.getLocation());
-        	this.cancel();
         }
 	}
 
