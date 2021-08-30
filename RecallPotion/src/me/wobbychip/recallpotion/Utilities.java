@@ -54,10 +54,6 @@ public class Utilities {
 	}
 
 	public static boolean isPotion(ItemStack itemStack) {
-		return ((itemStack != null) && (itemStack.getType() == Material.POTION));
-	}
-
-	public static boolean isAnyPotion(ItemStack itemStack) {
 		return ((itemStack != null) && ((itemStack.getType() == Material.POTION) || (itemStack.getType() == Material.SPLASH_POTION) || (itemStack.getType() == Material.LINGERING_POTION)));
 	}
 

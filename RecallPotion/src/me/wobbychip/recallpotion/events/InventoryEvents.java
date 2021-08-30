@@ -34,7 +34,7 @@ public class InventoryEvents implements Listener {
 		for (int i = 0; i < 3; i++) {
 			ItemStack item = event.getContents().getItem(i);
 
-			if (Utilities.isAnyPotion(item) && (item.getItemMeta() != null) && (item.getItemMeta().getLocalizedName() != null)) {
+			if (Utilities.isPotion(item) && (item.getItemMeta() != null) && (item.getItemMeta().getLocalizedName() != null)) {
 				String name = item.getItemMeta().getLocalizedName();
 				ItemStack ingredient = event.getContents().getIngredient();
 				PotionData potionData = ((PotionMeta) item.getItemMeta()).getBasePotionData();
