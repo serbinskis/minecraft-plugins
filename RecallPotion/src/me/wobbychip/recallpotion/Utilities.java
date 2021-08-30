@@ -53,6 +53,10 @@ public class Utilities {
 		return item1.equals(clone);
 	}
 
+	public static boolean isPotion(ItemStack itemStack) {
+		return ((itemStack != null) && ((itemStack.getType() == Material.POTION) || (itemStack.getType() == Material.SPLASH_POTION) || (itemStack.getType() == Material.LINGERING_POTION)));
+	}
+
 	public static void checkBrew(BrewingStand stand) {
 		BrewerInventory inv = (BrewerInventory) stand.getInventory();
 		Location location = stand.getLocation();
@@ -77,7 +81,8 @@ public class Utilities {
 			ItemStack item = inv.getItem(i);
 			
 			PotionMeta potionMeta = null;
-			if (item != null) { potionMeta = (PotionMeta) item.getItemMeta(); }
+			if (isPotion(item)) { potionMeta = (PotionMeta) item.getItemMeta(); }
+			//If item not potion this causes error ^ - fixed
 
 			PotionData potionData = null;
 			if (potionMeta != null) { potionData = potionMeta.getBasePotionData(); }
