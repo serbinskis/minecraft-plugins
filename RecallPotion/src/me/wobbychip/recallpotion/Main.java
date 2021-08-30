@@ -15,6 +15,10 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionType;
 
+import me.wobbychip.recallpotion.events.BlockEvents;
+import me.wobbychip.recallpotion.events.InventoryEvents;
+import me.wobbychip.recallpotion.events.PotionEvents;
+
 public class Main extends JavaPlugin implements Listener {
 	public static Plugin plugin;
 	public static HashMap<Location, BrewManager> brews = new HashMap<Location, BrewManager>();
@@ -57,6 +61,7 @@ public class Main extends JavaPlugin implements Listener {
 		Main.plugin = this;
 		Bukkit.getPluginManager().registerEvents(new PotionEvents(), Main.plugin);
 		Bukkit.getPluginManager().registerEvents(new InventoryEvents(), Main.plugin);
+		Bukkit.getPluginManager().registerEvents(new BlockEvents(), Main.plugin);
 		Utilities.sendMessage("&9[RecallPotion] RecallPotion has loaded!");
 	}
 }

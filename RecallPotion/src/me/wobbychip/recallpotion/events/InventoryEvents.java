@@ -1,4 +1,4 @@
-package me.wobbychip.recallpotion;
+package me.wobbychip.recallpotion.events;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -7,6 +7,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.BrewEvent;
+import org.bukkit.event.inventory.BrewingStandFuelEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
@@ -16,6 +17,10 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionData;
+
+import me.wobbychip.recallpotion.BrewManager;
+import me.wobbychip.recallpotion.Main;
+import me.wobbychip.recallpotion.Utilities;
 
 public class InventoryEvents implements Listener {
 	@EventHandler(priority=EventPriority.MONITOR)
@@ -79,6 +84,14 @@ public class InventoryEvents implements Listener {
         BrewingStand stand = ((BrewerInventory) inv).getHolder();
         if (stand == null) { return; }
 
+        //Disable block state update to modify inventory
+    	BrewManager brewManager = Main.brews.get(stand.getLocation());
+    	if ((brewManager != null) && (
+    			(clickedInv.getType() == InventoryType.BREWING) ||
+    			(event.getClick() == ClickType.SHIFT_LEFT) ||
+    			(event.getClick() == ClickType.SHIFT_RIGHT)
+    	)) { brewManager.setDoUpdate(false); }
+
         //Handle inventory events
         switch (clickedInv.getType()) {
         	case PLAYER: {
@@ -92,14 +105,13 @@ public class InventoryEvents implements Listener {
         	default: break;
         }
 
-        //Disable block state update to modify inventory
-    	//BrewManager brewManager = Main.brews.get(stand.getLocation());
-    	//if ((brewManager != null) && (clickedInv.getType() == InventoryType.BREWING)) { brewManager.stopUpdate(true); }
-
         //Add a timer if recipe is ok
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
 	        public void run() {
-	        	//if ((brewManager != null) && (clickedInv.getType() == InventoryType.BREWING)) { brewManager.stopUpdate(false); }
+	        	if ((brewManager != null) && !brewManager.getDoUpdate()) {
+	        		brewManager.updateInventory(event.getView().getTopInventory());
+	        		brewManager.setDoUpdate(true);
+	        	}
 	            Utilities.checkBrew(((BrewerInventory) inv).getHolder());
 	        }
 	    }, 1L);
@@ -119,14 +131,30 @@ public class InventoryEvents implements Listener {
         if (stand == null) { return; }
 
         //Disable block state update to modify inventory
-    	//BrewManager brewManager = Main.brews.get(stand.getLocation());
-    	//if (brewManager != null) { brewManager.stopUpdate(true); }
+    	BrewManager brewManager = Main.brews.get(stand.getLocation());
+    	if (brewManager != null) { brewManager.setDoUpdate(false); }
 
     	//Add a timer if recipe is ok
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
 	        public void run() {
-	        	//if (brewManager != null) { brewManager.stopUpdate(false); }
+	        	if ((brewManager != null) && !brewManager.getDoUpdate()) {
+	        		brewManager.updateInventory(inv);
+	        		brewManager.setDoUpdate(true);
+	        	}
 	            Utilities.checkBrew(((BrewerInventory) event.getInventory()).getHolder());
+	        }
+	    }, 1L);
+	}
+
+    //Fuel
+	@EventHandler(priority=EventPriority.MONITOR)
+    public void onBrewingStandFuel(BrewingStandFuelEvent event)  {
+		if (event.isCancelled() || (event.getBlock() == null) || (event.getBlock().getState() == null)) { return; }
+
+    	//Add a timer if recipe is ok
+		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
+	        public void run() {
+	            Utilities.checkBrew((BrewingStand) event.getBlock().getState());
 	        }
 	    }, 1L);
 	}
