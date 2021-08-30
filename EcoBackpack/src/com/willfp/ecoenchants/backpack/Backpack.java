@@ -17,7 +17,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryType;
+//import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.AnvilInventory;
@@ -104,7 +104,7 @@ public class Backpack extends EcoEnchant {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onInventoryClick(@NotNull final InventoryClickEvent  event) {
-    	Inventory inv = event.getWhoClicked().getOpenInventory().getTopInventory();
+    	/*Inventory inv = event.getWhoClicked().getOpenInventory().getTopInventory();
 
     	if (inv != null && inv.getType() == InventoryType.GRINDSTONE) {
         	//Get 1st and 2nd item
@@ -123,7 +123,7 @@ public class Backpack extends EcoEnchant {
         	if (book.getType() != Material.ENCHANTED_BOOK || !item.getType().toString().contains("SHULKER_BOX")) {
         		return;
         	}
-    	}
+    	}*/
     }
 
 	@EventHandler(priority = EventPriority.NORMAL)
