@@ -32,6 +32,16 @@ public class Main extends JavaPlugin implements Listener {
 
 	@Override
 	public void onEnable() {
+    	try {
+    		String version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
+    		CraftPlayer = Class.forName("org.bukkit.craftbukkit." + version + ".entity.CraftPlayer");
+		} catch (ClassNotFoundException e) {
+			Utilities.sendMessage("&9[RecallPotion] Could not load class!");
+        	Bukkit.getPluginManager().disablePlugin(this);
+        	e.printStackTrace();
+        	return;
+		}
+
 		potionItem = new ItemStack(Material.POTION);
 		PotionMeta potionMeta = (PotionMeta) potionItem.getItemMeta();
 		potionMeta.setColor(Color.fromRGB(23, 193, 224));
@@ -58,16 +68,6 @@ public class Main extends JavaPlugin implements Listener {
 		lingeringPotionMeta.setLocalizedName("recall_lingering_potion");
 		lingeringPotionMeta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
 		lingeringPotionItem.setItemMeta(lingeringPotionMeta);
-
-    	try {
-    		String version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
-    		CraftPlayer = Class.forName("org.bukkit.craftbukkit." + version + ".entity.CraftPlayer");
-		} catch (ClassNotFoundException e) {
-			Utilities.sendMessage("&9[RecallPotion] Could not load class!");
-        	Bukkit.getPluginManager().disablePlugin(this);
-        	e.printStackTrace();
-        	return;
-		}
 
 		Main.plugin = this;
 		Bukkit.getPluginManager().registerEvents(new PotionEvents(), Main.plugin);
