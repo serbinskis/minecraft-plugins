@@ -72,6 +72,12 @@ public class Main extends JavaPlugin implements Listener {
 		if (event.getHand() == EquipmentSlot.OFF_HAND) { event.setUseInteractedBlock(Result.DENY); }
 		if (event.getItem() == null || event.getItem().getType() != Material.GLASS_BOTTLE) { return; }
 
+		//Prevent player from using both hands at the same time
+		ItemStack itemMainHand = event.getPlayer().getInventory().getItemInMainHand();
+		if ((event.getHand() == EquipmentSlot.OFF_HAND) && (itemMainHand != null) && (itemMainHand.getType() == Material.GLASS_BOTTLE)) {
+			return;
+		}
+
 		//Make this to avoid twice event glitch
 		//Since replacing item in main hand will trigger to event run again
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
