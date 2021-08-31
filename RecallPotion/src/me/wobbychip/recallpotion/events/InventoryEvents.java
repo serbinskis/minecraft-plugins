@@ -11,6 +11,7 @@ import org.bukkit.event.inventory.BrewingStandFuelEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.BrewerInventory;
 import org.bukkit.inventory.Inventory;
@@ -81,7 +82,7 @@ public class InventoryEvents implements Listener {
 		}
     }
 
-	//Move items
+	//This event is called when a player clicks in an inventory.
     @EventHandler(priority=EventPriority.MONITOR)
     public void onInventoryClick(InventoryClickEvent event) {
     	if (event.isCancelled()) { return; }
@@ -118,7 +119,7 @@ public class InventoryEvents implements Listener {
 	    }, 1L);
     }
 
-    //Drag items
+    //This event is called when the player drags an item in their cursor across the inventory.
 	@EventHandler(priority=EventPriority.MONITOR)
     public void onInventoryDrag(InventoryDragEvent event)  {
 		if (event.isCancelled()) { return; }
@@ -138,7 +139,7 @@ public class InventoryEvents implements Listener {
 	    }, 1L);
 	}
 
-    //Fuel
+    //Called when an ItemStack is about to increase the fuel level of a brewing stand.
 	@EventHandler(priority=EventPriority.MONITOR)
     public void onBrewingStandFuel(BrewingStandFuelEvent event)  {
 		if (event.isCancelled() || (event.getBlock() == null) || (event.getBlock().getState() == null)) { return; }
@@ -151,6 +152,7 @@ public class InventoryEvents implements Listener {
 	    }, 1L);
 	}
 
+	//Used to handle ingredient move with SHIFT click
     public void onPlayerInevntoryClick(InventoryClickEvent event) {
         //Get clicked item
         ItemStack clickedItem = event.getCurrentItem();
@@ -181,6 +183,7 @@ public class InventoryEvents implements Listener {
 		}
 	}
 
+    //Used to handle ingredient move with normal click
 	public void onBrewInevntoryClick(InventoryClickEvent event) {
     	if (event.getSlot() != 3) { return; }
     	ItemStack ingredient = event.getInventory().getItem(3);
@@ -246,5 +249,25 @@ public class InventoryEvents implements Listener {
     			return;
     		}
     	}
+	}
+
+	//Called when some entity or block (e.g. hopper) tries to move items to another inventory.
+	@EventHandler(priority=EventPriority.MONITOR)
+    public void onInventoryMoveItem(InventoryMoveItemEvent event)  {
+		if (event.isCancelled()) { return; }
+		
+    	//Check if moving to brewing stand
+        Inventory inv = event.getDestination();
+        if (inv == null || inv.getType() != InventoryType.BREWING) { return; }
+
+        //Check if holder exists
+        if (((BrewerInventory) inv).getHolder() == null) { return; }
+
+    	//Add a timer if recipe is ok
+		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
+	        public void run() {
+	            Utilities.checkBrew(((BrewerInventory) event.getDestination()).getHolder());
+	        }
+	    }, 1L);
 	}
 }
