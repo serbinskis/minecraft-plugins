@@ -18,7 +18,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionData;
 
-import me.wobbychip.recallpotion.BrewManager;
 import me.wobbychip.recallpotion.Main;
 import me.wobbychip.recallpotion.Utilities;
 
@@ -96,16 +95,7 @@ public class InventoryEvents implements Listener {
         if (clickedInv == null) { return; }
 
         //Check if holder exists
-        BrewingStand stand = ((BrewerInventory) inv).getHolder();
-        if (stand == null) { return; }
-
-        //Disable block state update to modify inventory
-    	BrewManager brewManager = Main.brews.get(stand.getLocation());
-    	if ((brewManager != null) && (
-    			(clickedInv.getType() == InventoryType.BREWING) ||
-    			(event.getClick() == ClickType.SHIFT_LEFT) ||
-    			(event.getClick() == ClickType.SHIFT_RIGHT)
-    	)) { brewManager.setDoUpdate(false); }
+        if (((BrewerInventory) inv).getHolder() == null) { return; }
 
         //Handle inventory events
         switch (clickedInv.getType()) {
@@ -123,10 +113,6 @@ public class InventoryEvents implements Listener {
         //Add a timer if recipe is ok
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
 	        public void run() {
-	        	if ((brewManager != null) && !brewManager.getDoUpdate()) {
-	        		brewManager.updateInventory(event.getView().getTopInventory());
-	        		brewManager.setDoUpdate(true);
-	        	}
 	            Utilities.checkBrew(((BrewerInventory) inv).getHolder());
 	        }
 	    }, 1L);
@@ -142,20 +128,11 @@ public class InventoryEvents implements Listener {
         if (inv == null || inv.getType() != InventoryType.BREWING) { return; }
 
         //Check if holder exists
-        BrewingStand stand = ((BrewerInventory) inv).getHolder();
-        if (stand == null) { return; }
-
-        //Disable block state update to modify inventory
-    	BrewManager brewManager = Main.brews.get(stand.getLocation());
-    	if (brewManager != null) { brewManager.setDoUpdate(false); }
+        if (((BrewerInventory) inv).getHolder() == null) { return; }
 
     	//Add a timer if recipe is ok
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
 	        public void run() {
-	        	if ((brewManager != null) && !brewManager.getDoUpdate()) {
-	        		brewManager.updateInventory(inv);
-	        		brewManager.setDoUpdate(true);
-	        	}
 	            Utilities.checkBrew(((BrewerInventory) event.getInventory()).getHolder());
 	        }
 	    }, 1L);

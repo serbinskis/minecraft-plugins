@@ -1,18 +1,23 @@
 package me.wobbychip.recallpotion;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.block.BrewingStand;
+import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.BrewEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.BrewerInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import net.minecraft.network.protocol.game.PacketPlayOutWindowData;
+import net.minecraft.server.level.EntityPlayer;
+
 public class BrewManager extends BukkitRunnable {
 	private BrewingStand stand;
-	private boolean doUpdate = true;
 	private boolean cancelTask = false;
 	private int currentTime;
 	private int brewTime;
@@ -32,20 +37,14 @@ public class BrewManager extends BukkitRunnable {
 		}
 	}
 
-	//Destroying and replacing block causes duplication
-	//Because block can be breaken between tick, which means no checking was done
-	//The only solution is implement BlockBreakEvent and BlockExplodeEvent
-	//And then remove them by location from HashMap
 	@Override
 	public void run() {
         if (cancelTask) {
         	Main.brews.remove(stand.getLocation());
+        	updateBrewingProgress(0, brewTime);
         	this.cancel();
         	return;
         }
-
-        stand.setBrewingTime((int)(400*(1-(double)currentTime/(double)brewTime)));
-        if (doUpdate) { stand.update(); } //This causes block to restore inventory
 
 		//Check if brew is done and call event
         if (currentTime >= brewTime) {
@@ -59,24 +58,15 @@ public class BrewManager extends BukkitRunnable {
         		bInv.getIngredient().setAmount(bInv.getIngredient().getAmount()-1);
         	}
 
-        	Main.brews.remove(stand.getLocation());
-        	this.cancel();
+        	cancelTask = true;
         } else {
+        	updateBrewingProgress(currentTime, brewTime);
         	currentTime++;
-            //Utilities.checkBrew(stand);
         }
 	}
 
 	public void stop() {
 		this.cancelTask = true;
-	}
-
-	public boolean getDoUpdate() {
-		return this.doUpdate;
-	}
-
-	public void setDoUpdate(Boolean arg0) {
-		this.doUpdate = arg0;
 	}
 
 	public void updatePotions() {
@@ -91,10 +81,24 @@ public class BrewManager extends BukkitRunnable {
 		this.stand.update();
 	}
 
-	public void updateInventory(Inventory inv) {
-		if (inv == null || inv.getType() != InventoryType.BREWING) { return; }
-		this.stand.getInventory().setContents(inv.getContents());
-		this.stand.getSnapshotInventory().setContents(inv.getContents());
-		this.updatePotions();
+	public void updateBrewingProgress(int current, int total) {
+        for (HumanEntity humanEntity : stand.getInventory().getViewers()) {
+        	this.sendBrewingProgress((Player) humanEntity, (int)(400*(1-(double)current/(double)total)));
+        	if (current == 0) { ((Player) humanEntity).updateInventory(); }
+        }
+	}
+
+	public void sendBrewingProgress(Player player, int brewTime) {
+		try {
+	    	if (player == null) { return; }
+	    	Object craftPlayer = Main.CraftPlayer.cast(player);
+	    	EntityPlayer entityPlayer = (EntityPlayer) player.getClass().getDeclaredMethod("getHandle").invoke(craftPlayer);
+
+	    	int windowID = entityPlayer.bV.j; //Current window ID
+	    	PacketPlayOutWindowData brewingTime = new PacketPlayOutWindowData(windowID, 0, brewTime);
+	    	entityPlayer.b.sendPacket(brewingTime);
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+			e.printStackTrace();
+		}
 	}
 }
