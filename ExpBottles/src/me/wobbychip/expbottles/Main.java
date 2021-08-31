@@ -72,17 +72,22 @@ public class Main extends JavaPlugin implements Listener {
 		if (event.getHand() == EquipmentSlot.OFF_HAND) { event.setUseInteractedBlock(Result.DENY); }
 		if (event.getItem() == null || event.getItem().getType() != Material.GLASS_BOTTLE) { return; }
 
-		Player player = event.getPlayer();
-		ItemStack item = event.getItem();
+		//Make this to avoid some twice event glitch
+		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
+	        public void run() {
+	    		Player player = event.getPlayer();
+	    		ItemStack item = event.getItem();
 
-		if (!player.isSneaking() || ((getPlayerExp(player) < 11)) && (player.getGameMode() != GameMode.CREATIVE)) { return; }
-		if (player.getGameMode() != GameMode.CREATIVE) { player.giveExp(RandomRange(4, 11) * -1); }
-		if (player.getGameMode() != GameMode.CREATIVE) { item.setAmount(item.getAmount()-1); }
-		player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0F, 1.0F);
+	    		if (!player.isSneaking() || ((getPlayerExp(player) < 11)) && (player.getGameMode() != GameMode.CREATIVE)) { return; }
+	    		if (player.getGameMode() != GameMode.CREATIVE) { player.giveExp(RandomRange(4, 11) * -1); }
+	    		if (player.getGameMode() != GameMode.CREATIVE) { item.setAmount(item.getAmount()-1); }
+	    		player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0F, 1.0F);
 
-		ItemStack expBootle = new ItemStack(Material.EXPERIENCE_BOTTLE);
-		HashMap<Integer, ItemStack> items = player.getInventory().addItem(expBootle);
-		if (!items.isEmpty()) { dropItem(player, expBootle); }
+	    		ItemStack expBootle = new ItemStack(Material.EXPERIENCE_BOTTLE);
+	    		HashMap<Integer, ItemStack> items = player.getInventory().addItem(expBootle);
+	    		if (!items.isEmpty()) { dropItem(player, expBootle); }
+	        }
+	    }, 1L);
 
 		event.setUseInteractedBlock(Result.DENY);
 	}
