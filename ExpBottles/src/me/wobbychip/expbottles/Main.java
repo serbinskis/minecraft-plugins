@@ -78,7 +78,7 @@ public class Main extends JavaPlugin implements Listener {
 		if (!player.isSneaking() || ((getPlayerExp(player) < 11)) && (player.getGameMode() != GameMode.CREATIVE)) { return; }
 		if (player.getGameMode() != GameMode.CREATIVE) { player.giveExp(RandomRange(4, 11) * -1); }
 		if (player.getGameMode() != GameMode.CREATIVE) { item.setAmount(item.getAmount()-1); }
-		player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 2.0F, 1.0F);
+		player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0F, 1.0F);
 
 		ItemStack expBootle = new ItemStack(Material.EXPERIENCE_BOTTLE);
 		HashMap<Integer, ItemStack> items = player.getInventory().addItem(expBootle);
