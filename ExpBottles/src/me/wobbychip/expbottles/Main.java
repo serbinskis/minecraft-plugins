@@ -69,7 +69,6 @@ public class Main extends JavaPlugin implements Listener {
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		if (event.getAction() != Action.RIGHT_CLICK_BLOCK) { return; }
 		if (event.getClickedBlock() == null || event.getClickedBlock().getType() != Material.ENCHANTING_TABLE) { return; }
-		if (event.getHand() == EquipmentSlot.OFF_HAND) { event.setUseInteractedBlock(Result.DENY); }
 		if (event.getItem() == null || event.getItem().getType() != Material.GLASS_BOTTLE) { return; }
 
 		//Prevent player from using both hands at the same time
