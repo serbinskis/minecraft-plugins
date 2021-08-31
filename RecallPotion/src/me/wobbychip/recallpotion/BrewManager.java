@@ -9,7 +9,6 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.BrewEvent;
 import org.bukkit.inventory.BrewerInventory;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -29,7 +28,7 @@ public class BrewManager extends BukkitRunnable {
 
 		int fuel = this.stand.getFuelLevel();
 		this.stand.setFuelLevel(fuel-1);
-		this.updatePotions();
+		this.stand.update();
 
 		if (fuel > 0) {
 			Main.brews.put(stand.getLocation(), this);
@@ -67,18 +66,6 @@ public class BrewManager extends BukkitRunnable {
 
 	public void stop() {
 		this.cancelTask = true;
-	}
-
-	public void updatePotions() {
-		Inventory inv = this.stand.getInventory();
-		org.bukkit.block.data.type.BrewingStand brewingData = (org.bukkit.block.data.type.BrewingStand) this.stand.getBlockData();
-
-		for (int i = 0; i < 3; i++) {
-			brewingData.setBottle(i, !Utilities.isEmpty(inv.getItem(i)));
-		}
-
-		this.stand.setBlockData(brewingData);
-		this.stand.update();
 	}
 
 	public void updateBrewingProgress(int current, int total) {
