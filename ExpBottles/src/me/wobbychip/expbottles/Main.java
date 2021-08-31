@@ -72,7 +72,7 @@ public class Main extends JavaPlugin implements Listener {
 		if (event.getHand() == EquipmentSlot.OFF_HAND) { event.setUseInteractedBlock(Result.DENY); }
 		if (event.getItem() == null || event.getItem().getType() != Material.GLASS_BOTTLE) { return; }
 
-		//Make this to avoid some twice event glitch
+		//Make this to avoid twice event glitch
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
 	        public void run() {
 	    		Player player = event.getPlayer();
