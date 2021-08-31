@@ -111,7 +111,7 @@ public class InventoryEvents implements Listener {
         	default: break;
         }
 
-        //Add a timer if recipe is ok
+        //Check recipe on next tick
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
 	        public void run() {
 	            Utilities.checkBrew(((BrewerInventory) inv).getHolder());
@@ -131,7 +131,7 @@ public class InventoryEvents implements Listener {
         //Check if holder exists
         if (((BrewerInventory) inv).getHolder() == null) { return; }
 
-    	//Add a timer if recipe is ok
+        //Check recipe on next tick
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
 	        public void run() {
 	            Utilities.checkBrew(((BrewerInventory) event.getInventory()).getHolder());
@@ -144,7 +144,7 @@ public class InventoryEvents implements Listener {
     public void onBrewingStandFuel(BrewingStandFuelEvent event)  {
 		if (event.isCancelled() || (event.getBlock() == null) || (event.getBlock().getState() == null)) { return; }
 
-    	//Add a timer if recipe is ok
+		//Check recipe on next tick
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
 	        public void run() {
 	            Utilities.checkBrew((BrewingStand) event.getBlock().getState());
@@ -170,7 +170,7 @@ public class InventoryEvents implements Listener {
 			return;
 		}
 
-		//Compare if same
+		//Check if same
 		if (!Utilities.isEquals(ingredient, clickedItem)) { return; }
 		int howMuchAdd = (ingredient.getMaxStackSize() - ingredient.getAmount());
 
@@ -263,7 +263,7 @@ public class InventoryEvents implements Listener {
         //Check if holder exists
         if (((BrewerInventory) inv).getHolder() == null) { return; }
 
-    	//Add a timer if recipe is ok
+        //Check recipe on next tick
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
 	        public void run() {
 	            Utilities.checkBrew(((BrewerInventory) event.getDestination()).getHolder());

@@ -24,7 +24,7 @@ public class Main extends JavaPlugin implements Listener {
 	public static Class<?> CraftPlayer;
 	public static HashMap<Location, BrewManager> brews = new HashMap<Location, BrewManager>();
 	public static int brewTime = 400; //Default 400
-	public static PotionType potionBase = PotionType.MUNDANE;
+	public static PotionType potionBase = PotionType.AWKWARD;
 	public static Material potionIngredient = Material.CHORUS_FRUIT;
 	public static ItemStack potionItem = null;
 	public static ItemStack splashPotionItem = null;
@@ -59,7 +59,7 @@ public class Main extends JavaPlugin implements Listener {
 		splashPotionMeta.setLocalizedName("recall_splash_potion");
 		splashPotionMeta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
 		splashPotionItem.setItemMeta(splashPotionMeta);
-	
+
 		lingeringPotionItem = new ItemStack(Material.LINGERING_POTION);
 		PotionMeta lingeringPotionMeta = (PotionMeta) lingeringPotionItem.getItemMeta();
 		lingeringPotionMeta.setColor(Color.fromRGB(23, 193, 224));

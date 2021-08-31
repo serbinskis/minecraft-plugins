@@ -79,7 +79,7 @@ public class Utilities {
         int potionCounter = 0;
 		for (int i = 0; i < 3; i++) {
 			ItemStack item = inv.getItem(i);
-			
+
 			PotionMeta potionMeta = null;
 			if (isPotion(item)) { potionMeta = (PotionMeta) item.getItemMeta(); }
 			//If item not potion this causes error ^ - fixed

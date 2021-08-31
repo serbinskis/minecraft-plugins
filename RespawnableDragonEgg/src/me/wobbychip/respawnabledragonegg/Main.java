@@ -17,7 +17,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class Main extends JavaPlugin implements Listener {
 	@Override
 	public void onEnable() {
-		this.getServer().getPluginManager().registerEvents(this, this);
+		Bukkit.getServer().getPluginManager().registerEvents(this, this);
 		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&9[RespawnableDragonEgg] RespawnableDragonEgg has loaded!"));
 	}
 
@@ -27,7 +27,7 @@ public class Main extends JavaPlugin implements Listener {
 		if (!event.getEntity().getWorld().getEnvironment().equals(Environment.THE_END)) { return; }
 		if (!event.getEntity().getWorld().getEnderDragonBattle().hasBeenPreviouslyKilled()) { return; }
 
-		final World world = event.getEntity().getWorld();
+		World world = event.getEntity().getWorld();
 		Location location = new Location(world, 0, 0, 0);
 		location.setY(location.getWorld().getHighestBlockYAt(0, 0) + 1);
 		Block block = world.getBlockAt(location);
