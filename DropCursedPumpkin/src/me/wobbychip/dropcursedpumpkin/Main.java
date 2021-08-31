@@ -14,7 +14,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class Main extends JavaPlugin implements Listener {
 	@Override
 	public void onEnable() {
-		this.getServer().getPluginManager().registerEvents(this, this);
+		Bukkit.getServer().getPluginManager().registerEvents(this, this);
 		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&9[DropCursedPumpkin] DropCursedPumpkin has loaded!"));
 	}
 
