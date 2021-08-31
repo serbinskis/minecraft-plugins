@@ -18,6 +18,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
@@ -77,18 +78,34 @@ public class Main extends JavaPlugin implements Listener {
 			return;
 		}
 
+		Player player = event.getPlayer();
+		ItemStack item = event.getItem();
+		ItemMeta itemMeta = item.getItemMeta();
+
+		//Part where duplication glitch fixed, weird method, but working.
+		if ((itemMeta != null) && itemMeta.isUnbreakable() && (item.getAmount() <= 1)) { return; }
+
+		if (player.getGameMode() != GameMode.CREATIVE) { 
+			if (!player.isSneaking() || (getPlayerExp(player) < 11)) { return; }
+			player.giveExp(RandomRange(4, 11) * -1);
+
+			//Needed to prevent duplication glitch
+			if (item.getAmount() <= 1) {
+				itemMeta.setUnbreakable(true);
+				item.setItemMeta(itemMeta);
+			} else {
+				item.setAmount(item.getAmount()-1);
+			}
+		}
+
+		player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0F, 1.0F);
+
 		//Make this to avoid twice event glitch
 		//Since replacing item in main hand will trigger event to run again
+		//This also causes duplication glitch if clicking too fast, like with macro fast
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
 	        public void run() {
-	    		Player player = event.getPlayer();
-	    		ItemStack item = event.getItem();
-
-	    		if (!player.isSneaking() || ((getPlayerExp(player) < 11)) && (player.getGameMode() != GameMode.CREATIVE)) { return; }
-	    		if (player.getGameMode() != GameMode.CREATIVE) { player.giveExp(RandomRange(4, 11) * -1); }
-	    		if (player.getGameMode() != GameMode.CREATIVE) { item.setAmount(item.getAmount()-1); }
-	    		player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0F, 1.0F);
-
+	        	if ((player.getGameMode() != GameMode.CREATIVE) && (itemMeta != null) && itemMeta.isUnbreakable()) { item.setAmount(0); }
 	    		ItemStack expBootle = new ItemStack(Material.EXPERIENCE_BOTTLE);
 	    		HashMap<Integer, ItemStack> items = player.getInventory().addItem(expBootle);
 	    		if (!items.isEmpty()) { dropItem(player, expBootle); }
