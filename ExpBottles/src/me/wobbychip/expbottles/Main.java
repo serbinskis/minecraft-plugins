@@ -79,7 +79,7 @@ public class Main extends JavaPlugin implements Listener {
 		}
 
 		//Make this to avoid twice event glitch
-		//Since replacing item in main hand will trigger to event run again
+		//Since replacing item in main hand will trigger event to run again
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
 	        public void run() {
 	    		Player player = event.getPlayer();
