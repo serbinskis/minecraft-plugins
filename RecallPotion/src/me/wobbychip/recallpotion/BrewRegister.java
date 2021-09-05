@@ -37,7 +37,7 @@ public class BrewRegister {
 	}
 
 	public static boolean isRegisterBrewMethod(Method method) {
-		if ((method == null) && (method.getParameterCount() != 3)) { return false; }
+		if ((method == null) || (method.getParameterCount() != 3)) { return false; }
 
 		Class<?>[] parameters = method.getParameterTypes();
 		if (!parameters[0].getName().replaceAll("^.*\\.(.*)$", "$1").equalsIgnoreCase("PotionRegistry")) { return false; }
