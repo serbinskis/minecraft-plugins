@@ -28,12 +28,7 @@ public class BrewRegister {
 
 	public static PotionRegistry findPotion(PotionType potion) {
 		PotionRegistry rPotion = IRegistry.aa.get(MinecraftKey.a(potion.toString().toLowerCase()));
-
-		if (rPotion.b("").equalsIgnoreCase("empty")) {
-			return null;
-		} else {
-			return rPotion;
-		}
+		return rPotion.b("").equalsIgnoreCase("empty") ? null : rPotion;
 	}
 
 	public static boolean isRegisterBrewMethod(Method method) {
