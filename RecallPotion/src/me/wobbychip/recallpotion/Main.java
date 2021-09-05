@@ -1,11 +1,9 @@
 package me.wobbychip.recallpotion;
 
 import java.util.Arrays;
-import java.util.HashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemFlag;
@@ -15,15 +13,11 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionType;
 
-import me.wobbychip.recallpotion.events.BlockEvents;
 import me.wobbychip.recallpotion.events.InventoryEvents;
 import me.wobbychip.recallpotion.events.PotionEvents;
 
 public class Main extends JavaPlugin implements Listener {
 	public static Plugin plugin;
-	public static Class<?> CraftPlayer;
-	public static HashMap<Location, BrewManager> brews = new HashMap<Location, BrewManager>();
-	public static int brewTime = 400; //Default 400
 	public static PotionType potionBase = PotionType.AWKWARD;
 	public static Material potionIngredient = Material.CHORUS_FRUIT;
 	public static ItemStack potionItem = null;
@@ -32,13 +26,9 @@ public class Main extends JavaPlugin implements Listener {
 
 	@Override
 	public void onEnable() {
-    	try {
-    		String version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
-    		CraftPlayer = Class.forName("org.bukkit.craftbukkit." + version + ".entity.CraftPlayer");
-		} catch (ClassNotFoundException e) {
-			Utilities.sendMessage("&9[RecallPotion] Could not load class!");
-        	Bukkit.getPluginManager().disablePlugin(this);
-        	e.printStackTrace();
+		if (!BrewRegister.registerBrewRecipe(potionBase, potionIngredient, potionBase)) {
+			Utilities.sendMessage("&9[RecallPotion] Could not register brew recipe!");
+			Bukkit.getPluginManager().disablePlugin(this);
         	return;
 		}
 
@@ -72,7 +62,6 @@ public class Main extends JavaPlugin implements Listener {
 		Main.plugin = this;
 		Bukkit.getPluginManager().registerEvents(new PotionEvents(), Main.plugin);
 		Bukkit.getPluginManager().registerEvents(new InventoryEvents(), Main.plugin);
-		Bukkit.getPluginManager().registerEvents(new BlockEvents(), Main.plugin);
 		Utilities.sendMessage("&9[RecallPotion] RecallPotion has loaded!");
 	}
 }
