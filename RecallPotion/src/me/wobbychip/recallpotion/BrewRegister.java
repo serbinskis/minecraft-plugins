@@ -2,6 +2,7 @@ package me.wobbychip.recallpotion;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 
 import org.bukkit.Material;
 import org.bukkit.potion.PotionType;
@@ -9,35 +10,47 @@ import org.bukkit.potion.PotionType;
 import net.minecraft.core.IRegistry;
 import net.minecraft.resources.MinecraftKey;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionBrewer;
 import net.minecraft.world.item.alchemy.PotionRegistry;
 
 public class BrewRegister {
-	public static Item findItem(Material material) {
-		String materialKey = material.getKey().toString().replaceFirst("^[^:]*:", "");
-		int itemCount = Items.class.getFields().length;
-
-		for (int i = 0; i < itemCount; i++) {
-			Item item = Item.getById(i);
-			if (item.getName().replaceAll("^.*\\.(.*)$", "$1").equalsIgnoreCase(materialKey)) { return item; }
-		}
-
-		return null;
+	public static MinecraftKey minecraftKey(Material material) {
+		return new MinecraftKey(material.getKey().getNamespace(), material.getKey().getKey());
 	}
 
-	public static PotionRegistry findPotion(PotionType potion) {
-		PotionRegistry rPotion = IRegistry.aa.get(MinecraftKey.a(potion.toString().toLowerCase()));
-		return rPotion.b("").equalsIgnoreCase("empty") ? null : rPotion;
+	public static MinecraftKey minecraftKey(PotionType potionType) {
+		return MinecraftKey.a(potionType.toString().toLowerCase());
+	}
+
+	public static Item findItem(Material material) {
+		Item[] result = {null};
+
+        //IRegistry.ITEM
+        IRegistry.Z.getOptional(minecraftKey(material)).ifPresent((item) -> {
+        	result[0] = item;
+        });
+
+		return result[0];
+	}
+
+	public static PotionRegistry findPotion(PotionType potionType) {
+		PotionRegistry[] result = {null};
+
+        //IRegistry.POTION
+        IRegistry.aa.getOptional(minecraftKey(potionType)).ifPresent((potion) -> {
+        	result[0] = potion;
+        });
+
+		return result[0];
 	}
 
 	public static boolean isRegisterBrewMethod(Method method) {
 		if ((method == null) || (method.getParameterCount() != 3)) { return false; }
 
-		Class<?>[] parameters = method.getParameterTypes();
-		if (!parameters[0].getName().replaceAll("^.*\\.(.*)$", "$1").equalsIgnoreCase("PotionRegistry")) { return false; }
-		if (!parameters[1].getName().replaceAll("^.*\\.(.*)$", "$1").equalsIgnoreCase("Item")) { return false; }
-		if (!parameters[2].getName().replaceAll("^.*\\.(.*)$", "$1").equalsIgnoreCase("PotionRegistry")) { return false; }
+		Type[] parameters = method.getParameterTypes();
+		if (!parameters[0].equals(PotionRegistry.class)) { return false; }
+		if (!parameters[1].equals(Item.class)) { return false; }
+		if (!parameters[2].equals(PotionRegistry.class)) { return false; }
 
 		return true;
 	}
