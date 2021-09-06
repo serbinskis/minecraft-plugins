@@ -34,7 +34,7 @@ public class BrewRegister {
 		return result[0];
 	}
 
-	//This is not working always since potion names doesn't match always
+	//This is not working always since potion names doesn't match
 	public static PotionRegistry findPotion(PotionType potionType) {
 		PotionRegistry[] result = {null};
 
