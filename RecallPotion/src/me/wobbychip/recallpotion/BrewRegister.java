@@ -22,6 +22,7 @@ public class BrewRegister {
 		return MinecraftKey.a(potionType.toString().toLowerCase());
 	}
 
+	//This function is ignoring legacy items since their anyways are deprecated
 	public static Item findItem(Material material) {
 		Item[] result = {null};
 
@@ -33,6 +34,7 @@ public class BrewRegister {
 		return result[0];
 	}
 
+	//This is not working always since potion names doesn't match always
 	public static PotionRegistry findPotion(PotionType potionType) {
 		PotionRegistry[] result = {null};
 
