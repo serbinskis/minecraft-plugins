@@ -16,6 +16,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.alchemy.PotionBrewer;
 import net.minecraft.world.item.alchemy.PotionRegistry;
 import net.minecraft.world.item.alchemy.PotionUtil;
+import net.minecraft.world.item.alchemy.Potions;
 
 public class BrewRegister {
 	public static MinecraftKey minecraftKey(Material material) {
@@ -46,16 +47,18 @@ public class BrewRegister {
 		return result[0];
 	}
 
-	public static PotionRegistry findPotion(PotionType potionType) {
+	public static PotionRegistry findPotion(PotionType potionType, boolean extended, boolean upgraded) {
 		ItemStack potionItemStack = new ItemStack(Material.POTION);
 		PotionMeta potionMeta = (PotionMeta) potionItemStack.getItemMeta();
-		potionMeta.setBasePotionData(new PotionData(potionType));
+		potionMeta.setBasePotionData(new PotionData(potionType, extended, upgraded));
 		potionItemStack.setItemMeta(potionMeta);
 
 		net.minecraft.world.item.ItemStack item = asNMSCopy(potionItemStack);
 		if (item == null) { return null; }
 
-		return PotionUtil.d(item);
+		//Potions.a -> Potions.EMPTY
+		PotionRegistry rPotion = PotionUtil.d(item);
+		return (rPotion != Potions.a) ? rPotion : null;
 	}
 
 	public static Method getRegisterBrewMethod() {
@@ -68,27 +71,26 @@ public class BrewRegister {
 		}
 	}
 
-	public static boolean registerBrewRecipe(PotionType base, Material ingredient, PotionType result) {
-		Item potionIngredient = findItem(ingredient);
-		if (potionIngredient == null) { return false; }
-
+	public static boolean registerBrewRecipe(PotionType base, Material ingredient, PotionType result, boolean baseExtended, boolean baseUpgraded) {
 		Method method = getRegisterBrewMethod();
 		if (method == null) { return false; }
 
-		PotionRegistry potionBase = findPotion(base);
+		Item potionIngredient = findItem(ingredient);
+		if (potionIngredient == null) { return false; }
+
+		PotionRegistry potionBase = findPotion(base, baseExtended, baseUpgraded);
 		if (potionBase == null) { return false; }
 
-		PotionRegistry potionResult = findPotion(result);
+		PotionRegistry potionResult = findPotion(result, false, false);
 		if (potionResult == null) { return false; }
 
 		try {
 			method.setAccessible(true);
 			method.invoke(method, potionBase, potionIngredient, potionResult);
+			return true;
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			e.printStackTrace();
 			return false;
 		}
-
-		return true;
 	}
 }
