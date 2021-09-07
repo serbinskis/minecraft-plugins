@@ -66,7 +66,6 @@ public class Utilities {
 	}
 
     //Check entity 
-    @SuppressWarnings("deprecation")
 	static boolean checkEntityLimit(EntityType type, Location location) {
     	//Get nearest player to entity
     	Player player = NearetPlayer(location);
@@ -82,7 +81,7 @@ public class Utilities {
 	    //Cancel entity if count is over limit
 	    if (NearbyEntities > Main.Limit) {
 	    	if (player != null) {
-				String replacedMessage = Utilities.getString("tooManyEntity").replace("%value%", new Integer(Main.Limit).toString());
+				String replacedMessage = Utilities.getString("tooManyEntity").replace("%value%", String.valueOf(Main.Limit));
 				Utilities.SendMessage(player, replacedMessage);
 	    	}
 

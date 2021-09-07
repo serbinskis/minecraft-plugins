@@ -44,7 +44,6 @@ public class Commands implements CommandExecutor {
 	}
 
 	//Set limit
-	@SuppressWarnings("deprecation")
 	public void SetLimit(CommandSender sender, String[] args) {
 		if (!Utilities.CheckPermissions(sender, "entitylimit.limit")) { return; }
 
@@ -60,12 +59,11 @@ public class Commands implements CommandExecutor {
 		Main.plugin.getConfig().set("Limit", Main.Limit);
 		Main.plugin.saveConfig();
 
-		String replacedMessage = Utilities.getString("limitMessage").replace("%value%", new Integer(Main.Limit).toString());
+		String replacedMessage = Utilities.getString("limitMessage").replace("%value%", String.valueOf(Main.Limit));
 		Utilities.SendMessage(sender, replacedMessage);
 	}
 
 	//Set limit
-	@SuppressWarnings("deprecation")
 	public void SetDistance(CommandSender sender, String[] args) {
 		if (!Utilities.CheckPermissions(sender, "entitylimit.distance")) { return; }
 
@@ -81,7 +79,7 @@ public class Commands implements CommandExecutor {
 		Main.plugin.getConfig().set("maximumDistance", Main.maximumDistance);
 		Main.plugin.saveConfig();
 
-		String replacedMessage = Utilities.getString("distanceMessage").replace("%value%", new Integer(Main.maximumDistance).toString());
+		String replacedMessage = Utilities.getString("distanceMessage").replace("%value%", String.valueOf(Main.maximumDistance));
 		Utilities.SendMessage(sender, replacedMessage);
 	}
 

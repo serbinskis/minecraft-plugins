@@ -47,14 +47,13 @@ public class Utilities {
 		return item;
 	}
 
-	@SuppressWarnings("deprecation")
 	public static ItemStack ActivatedCoreItem(int Area) {
 		ItemStack item = new ItemStack(Material.NETHER_STAR, Area);
 		ItemMeta meta = item.getItemMeta();
 
 		List<String> loreList = new ArrayList<String>();
-		loreList.add("Area: " + new Integer(Area).toString());
-		loreList.add("Chunks: " + new Integer((Area+(Area-1))*(Area+(Area-1))).toString());
+		loreList.add("Area: " + String.valueOf(Area));
+		loreList.add("Chunks: " + String.valueOf((Area+(Area-1))*(Area+(Area-1))));
 
 		meta.setDisplayName("§a§lActivated");
 		meta.setLore(loreList);
@@ -122,9 +121,8 @@ public class Utilities {
 		return item;
 	}
 
-	@SuppressWarnings("deprecation")
 	static String LocationToString(Location location) {
-		return location.getWorld().getName() + Main.Delimiter + new Integer((int)(location.getX())).toString() + Main.Delimiter + new Integer((int)(location.getY())).toString() + Main.Delimiter +  new Integer((int)(location.getZ())).toString();
+		return location.getWorld().getName() + Main.Delimiter + String.valueOf(location.getX()) + Main.Delimiter + String.valueOf(location.getY()) + Main.Delimiter +  String.valueOf(location.getZ());
 	}
 
 	public static Location StringToLocation(String locationString) {
@@ -134,9 +132,8 @@ public class Utilities {
 		return location;
 	}
 
-	@SuppressWarnings("deprecation")
-	public static String CoordsToString(int X, int Z) {
-		return new Integer((int)(X)).toString() + Main.Delimiter + new Integer((int)(Z)).toString();
+	public static String CoordsToString(int x, int z) {
+		return String.valueOf(x) + Main.Delimiter + String.valueOf(z);
 	}
 
 	//Set outline to block
