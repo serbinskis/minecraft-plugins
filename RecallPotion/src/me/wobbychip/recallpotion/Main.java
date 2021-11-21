@@ -27,7 +27,7 @@ public class Main extends JavaPlugin implements Listener {
 	@Override
 	public void onEnable() {
 		if (!BrewRegister.registerBrewRecipe(potionBase, potionIngredient, potionBase, false, false)) {
-			Utilities.sendMessage("&9[RecallPotion] Could not register brew recipe!");
+			Utils.sendMessage("&9[RecallPotion] Could not register brew recipe!");
 			Bukkit.getPluginManager().disablePlugin(this);
         	return;
 		}
@@ -62,6 +62,6 @@ public class Main extends JavaPlugin implements Listener {
 		Main.plugin = this;
 		Bukkit.getPluginManager().registerEvents(new PotionEvents(), Main.plugin);
 		Bukkit.getPluginManager().registerEvents(new InventoryEvents(), Main.plugin);
-		Utilities.sendMessage("&9[RecallPotion] RecallPotion has loaded!");
+		Utils.sendMessage("&9[RecallPotion] RecallPotion has loaded!");
 	}
 }

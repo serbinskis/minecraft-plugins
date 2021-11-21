@@ -16,7 +16,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import me.wobbychip.recallpotion.Main;
-import me.wobbychip.recallpotion.Utilities;
+import me.wobbychip.recallpotion.Utils;
 
 public class PotionEvents implements Listener {
 	@EventHandler(priority=EventPriority.MONITOR)
@@ -24,26 +24,26 @@ public class PotionEvents implements Listener {
 		if (event.isCancelled()) { return; }
 		if (event.getItem().getType() != Material.POTION) { return; }
 		if (!event.getItem().getItemMeta().getLocalizedName().equals(Main.potionItem.getItemMeta().getLocalizedName())) { return; }
-		Utilities.respawnPlayer( event.getPlayer());
+		Utils.respawnPlayer(event.getPlayer());
     }
 
 	@EventHandler(priority=EventPriority.MONITOR)
     public void onPotionSplash(PotionSplashEvent event) {
 		if (event.isCancelled()) { return; }
-		if (event.getEntity().getItem().getItemMeta() == null ) { return; }
+		if (event.getEntity().getItem().getItemMeta() == null) { return; }
 
 		String name = event.getEntity().getItem().getItemMeta().getLocalizedName();
 		if ((name == null) || !name.equals(Main.splashPotionItem.getItemMeta().getLocalizedName())) { return; }
 
 		for (LivingEntity livingEntity : event.getAffectedEntities()) {
-			if (livingEntity instanceof Player) { Utilities.respawnPlayer((Player) livingEntity); }
+			if (livingEntity instanceof Player) { Utils.respawnPlayer((Player) livingEntity); }
 		}
     }
 
 	@EventHandler(priority=EventPriority.MONITOR)
     public void onLingeringPotionSplash(LingeringPotionSplashEvent event) {
 		if (event.isCancelled()) { return; }
-		if (event.getEntity().getItem().getItemMeta() == null ) { return; }
+		if (event.getEntity().getItem().getItemMeta() == null) { return; }
 
 		String name = event.getEntity().getItem().getItemMeta().getLocalizedName();
 		if ((name == null) || !name.equals(Main.lingeringPotionItem.getItemMeta().getLocalizedName())) { return; }
@@ -62,7 +62,7 @@ public class PotionEvents implements Listener {
 		if ((name == null) || !name.equals(Main.lingeringPotionItem.getItemMeta().getLocalizedName())) { return; }
 
 		for (LivingEntity livingEntity : event.getAffectedEntities()) {
-			if (livingEntity instanceof Player) { Utilities.respawnPlayer((Player) livingEntity); }
+			if (livingEntity instanceof Player) { Utils.respawnPlayer((Player) livingEntity); }
 		}
     }
 }
