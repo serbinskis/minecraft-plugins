@@ -1,44 +1,40 @@
 package me.wobbychip.autocraft.events;
 
-import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.inventory.Inventory;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 
-import me.wobbychip.autocraft.InventoryManager;
 import me.wobbychip.autocraft.Main;
-import me.wobbychip.autocraft.Utilities;
 
 public class InventoryEvents implements Listener {
-	@EventHandler(priority=EventPriority.NORMAL)
-	public void onInventoryClose(InventoryCloseEvent event) {
-		Inventory inv = event.getInventory();
-		if (inv == null) { return; }
-		if (!(inv.getHolder() instanceof InventoryManager)) { return; } //This also not working, fix later
-
-		InventoryManager inventoryManager = (InventoryManager) inv.getHolder();
-		if ((!inventoryManager.isDestroyed) && (inventoryManager.getViewers() <= 1)) {
-			inventoryManager.Save();
+	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+	public void onPlayerInteractEvent(PlayerInteractEvent event) {
+		if (event.getAction() != Action.RIGHT_CLICK_BLOCK) {
+			return;
 		}
 
-		Utilities.DebugInfo("onInventoryClose");
-	}
+		if (event.getClickedBlock().getType() != Material.CRAFTING_TABLE) {
+			return;
+		}
 
-	//? Why did I add this, hmm, welp fuck it, I dont remember
-	@EventHandler(priority=EventPriority.NORMAL)
-	public void onInventoryClick(InventoryClickEvent event) {
-		Main.plugin.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
-			@Override
-			public void run() {
-				for (HumanEntity humanEntity : event.getInventory().getViewers()) {
-					Player player = (Player) humanEntity;
-					player.updateInventory();
-			    }
-			}
-		}, 1L);
+		if (event.getHand() != EquipmentSlot.HAND) {
+			return;
+		}
+
+		if (!event.getPlayer().isSneaking()) {
+			return;
+		}
+
+		if (event.getPlayer().getInventory().getItemInMainHand().getType() != Material.AIR) {
+			return;
+		}
+
+		event.setCancelled(true);
+		Main.manager.openWorkbench(event.getPlayer(), event.getClickedBlock().getLocation(), InventoryType.WORKBENCH);
 	}
 }

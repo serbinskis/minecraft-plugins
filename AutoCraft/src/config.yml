@@ -1,3 +1,2 @@
-enableMessage: '&9[AutoCraft] AutoCraft has loaded!'
-
-debug: true
+title: 'Automatic Crafter'
+debug: false
