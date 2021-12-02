@@ -39,7 +39,7 @@ public class CustomMinecart {
 		minecart.setSilent(true);
 		if (!Main.plugin.getConfig().getBoolean("debug")) { hideEntity(); }
 
-		//Put dummy item wich gonna be used trigger item move event
+		//Put dummy item wich gonna be used to trigger item move event
 		StorageMinecart storageMinecart = ((StorageMinecart) minecart);
 		ItemStack dummyItem = new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE);
 		ItemMeta meta = dummyItem.getItemMeta();
@@ -55,6 +55,14 @@ public class CustomMinecart {
 	            }
 	        }, 0L, 1L);
 		}
+	}
+
+	public CustomInventoryCrafting getCrafting() {
+		return crafting;
+	}
+
+	public Entity getEntity() {
+		return minecart;
 	}
 
 	public void move(Location location) {
@@ -78,28 +86,6 @@ public class CustomMinecart {
 		Bukkit.getScheduler().cancelTask(TaskID);
 		Main.mmanager.remove(uuid);
 		minecart.remove();
-	}
-
-	public ItemStack getResult() {
-		return crafting.getResult();
-	}
-
-	public void craft() {
-		for (int i = 0; i < crafting.getContents().size(); i++) {
-			ItemStack item = ReflectionUtils.asBukkitCopy(crafting.getContents().get(i));
-			item.setAmount(item.getAmount()-1);
-			crafting.setItem(i, ReflectionUtils.asNMSCopy(item));
-		}
-	}
-
-	public boolean addItem(ItemStack item) {
-		for (int i = 0; i < crafting.getContents().size(); i++) {
-			if (ReflectionUtils.asBukkitCopy(crafting.getContents().get(i)).getType() == Material.AIR) {
-				crafting.setItem(i, ReflectionUtils.asNMSCopy(item));
-				return true;
-			}
-		}
-		return false;
 	}
 
 	public void hideEntity() {

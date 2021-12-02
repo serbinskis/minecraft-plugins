@@ -90,6 +90,24 @@ public class CustomInventoryCrafting extends InventoryCrafting {
 		return null;
 	}
 
+	public void craft() {
+		for (int i = 0; i < getContents().size(); i++) {
+			org.bukkit.inventory.ItemStack item = ReflectionUtils.asBukkitCopy(getContents().get(i));
+			item.setAmount(item.getAmount()-1);
+			setItem(i, ReflectionUtils.asNMSCopy(item));
+		}
+	}
+
+	public boolean addItem(org.bukkit.inventory.ItemStack item) {
+		for (int i = 0; i < getContents().size(); i++) {
+			if (ReflectionUtils.asBukkitCopy(getContents().get(i)).getType() == Material.AIR) {
+				setItem(i, ReflectionUtils.asNMSCopy(item));
+				return true;
+			}
+		}
+		return false;
+	}
+
 	protected void setItems(List<org.bukkit.inventory.ItemStack> items) {
 		int index = 0;
 		for (org.bukkit.inventory.ItemStack item : items) {
@@ -151,7 +169,7 @@ public class CustomInventoryCrafting extends InventoryCrafting {
 	
 	@Override
 	public void update() {
-		if (!bloc.getBlock().getType().name().equalsIgnoreCase("CRAFTING_TABLE")) {
+		if (bloc.getBlock().getType() != Material.CRAFTING_TABLE) {
 			remove();
 			manager.benches.remove(bloc);
 		} else {

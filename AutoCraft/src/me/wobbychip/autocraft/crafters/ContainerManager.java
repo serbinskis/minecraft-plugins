@@ -25,7 +25,6 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.chat.ChatMessage;
 import net.minecraft.network.protocol.EnumProtocolDirection;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.PacketPlayOutOpenWindow;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.server.level.WorldServer;
@@ -33,7 +32,6 @@ import net.minecraft.server.network.PlayerConnection;
 import net.minecraft.world.TileInventory;
 import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.inventory.Container;
-import net.minecraft.world.inventory.Containers;
 import net.minecraft.world.inventory.InventoryCraftResult;
 
 public class ContainerManager {
@@ -139,18 +137,17 @@ public class ContainerManager {
 			return;
 		}
 
-		TileInventory tileEntity = new TileInventory(new CustomTileEntityContainerWorkbench(this, loc), new ChatMessage("container.crafting", new Object[0]));
+		TileInventory tileEntity = new TileInventory(new CustomTileEntityContainerWorkbench(this, loc), new ChatMessage(Main.plugin.getConfig().getString("title"), new Object[0]));
 		mockPlayer.openContainer(tileEntity);
 		mockPlayer.closeInventory();
 	}
 
 	public void openWorkbench(Player player, Location loc, InventoryType type) {
-		TileInventory tileEntity = new TileInventory(new CustomTileEntityContainerWorkbench(this, loc), new ChatMessage("container.crafting", new Object[0]));
+		TileInventory tileEntity = new TileInventory(new CustomTileEntityContainerWorkbench(this, loc), new ChatMessage(Main.plugin.getConfig().getString("title"), new Object[0]));
 		EntityPlayer entityPlayer = ReflectionUtils.getEntityPlayer(player);
 
+		//How the fuck do I check for regions
 		entityPlayer.openContainer(tileEntity);
-		PacketPlayOutOpenWindow packet = new PacketPlayOutOpenWindow(entityPlayer.bV.j, Containers.l, new ChatMessage(Main.plugin.getConfig().getString("title")));
-		entityPlayer.b.sendPacket(packet);
 	}
 
 	protected static class SelfContainer extends Container {

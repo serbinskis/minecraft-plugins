@@ -52,10 +52,22 @@ public class Utils {
 
 		for (int i = 0; i < inv.getSize(); i++) {
 			ItemStack invItem = inv.getItem(i);
-			if (invItem.isSimilar(item)) {
+			if ((invItem != null) && invItem.isSimilar(item)) {
 				if (invItem.getAmount()+item.getAmount() <= invItem.getMaxStackSize()) {
 					return true;
 				}
+			}
+		}
+
+		return false;
+	}
+
+	public static boolean removeItem(Inventory inv, ItemStack item) {
+		for (int i = 0; i < inv.getSize(); i++) {
+			ItemStack invItem = inv.getItem(i);
+			if ((invItem != null) && invItem.isSimilar(item)) {
+				invItem.setAmount(invItem.getAmount()-1);
+				return true;
 			}
 		}
 

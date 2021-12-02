@@ -20,7 +20,6 @@ import me.wobbychip.autocraft.crafters.MinecartMananger;
 import me.wobbychip.autocraft.events.BlockEvents;
 import me.wobbychip.autocraft.events.ChunkEvents;
 import me.wobbychip.autocraft.events.HopperEvents;
-import me.wobbychip.autocraft.events.InventoryEvents;
 import me.wobbychip.autocraft.events.MinecartEvents;
 
 public class Main extends JavaPlugin implements Listener {
@@ -46,7 +45,6 @@ public class Main extends JavaPlugin implements Listener {
 
 		//Register events
 		Bukkit.getPluginManager().registerEvents(new BlockEvents(), Main.plugin);
-		Bukkit.getPluginManager().registerEvents(new InventoryEvents(), Main.plugin);
 		Bukkit.getPluginManager().registerEvents(new ChunkEvents(), Main.plugin);
 		Bukkit.getPluginManager().registerEvents(new MinecartEvents(), Main.plugin);
 		Bukkit.getPluginManager().registerEvents(new HopperEvents(), Main.plugin);
