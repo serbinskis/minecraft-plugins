@@ -77,8 +77,8 @@ public class PotionManager {
 		if (nmsItem == null) { return null; }
 
 		//Potions.a -> Potions.EMPTY
-		PotionRegistry rPotion = net.minecraft.world.item.alchemy.PotionUtil.d(nmsItem);
-		return (rPotion != Potions.a) ? rPotion : null;
+		PotionRegistry potion = net.minecraft.world.item.alchemy.PotionUtil.d(nmsItem);
+		return (potion != Potions.a) ? potion : null;
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
