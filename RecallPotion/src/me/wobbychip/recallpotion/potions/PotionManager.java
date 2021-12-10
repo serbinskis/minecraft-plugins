@@ -83,6 +83,10 @@ public class PotionManager {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static PotionRegistry registerInstantPotion(String name, int color) {
+		//IRegistry.V -> MobEffectList
+		//MobEffectInfo.c -> MobEffectInfo.NEUTRAL
+		//IRegistry.aa -> PotionRegistry
+		
 		int id = IRegistry.V.keySet().size()+1;
 		InstantMobEffect instantMobEffect = new InstantMobEffect(MobEffectInfo.c, color);
 		MobEffectList mobEffectList = (MobEffectList) IRegistry.a(IRegistry.V, id, name, instantMobEffect);
