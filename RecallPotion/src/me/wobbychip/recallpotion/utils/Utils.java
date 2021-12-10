@@ -1,4 +1,4 @@
-package me.wobbychip.recallpotion;
+package me.wobbychip.recallpotion.utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -36,5 +36,9 @@ public class Utils {
 
 	public static boolean isPotion(ItemStack itemStack) {
 		return ((itemStack != null) && ((itemStack.getType() == Material.POTION) || (itemStack.getType() == Material.SPLASH_POTION) || (itemStack.getType() == Material.LINGERING_POTION)));
+	}
+
+	public static boolean isTippedArrow(ItemStack itemStack) {
+		return ((itemStack != null) && ((itemStack.getType() == Material.TIPPED_ARROW)));
 	}
 }
