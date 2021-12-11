@@ -20,9 +20,7 @@ public class Utils {
 
 		if (location == null) {
 			World world = Bukkit.getServer().getWorlds().get(0);
-			location = world.getSpawnLocation();
-			location.setX(location.getX()+0.5);
-			location.setZ(location.getZ()+0.5);
+			location = world.getSpawnLocation().clone().add(.5, 0, .5);
 			while ((location.getY() >= world.getMinHeight()) && (location.getBlock().getType() == Material.AIR)) { location.setY(location.getY()-1); }
 			while ((location.getY() < world.getMaxHeight()) && (location.getBlock().getType() != Material.AIR)) { location.setY(location.getY()+1); }
 		}
@@ -31,7 +29,7 @@ public class Utils {
 		player.setVelocity(new Vector(0, 0, 0));
 		player.setFallDistance(0);
 		player.teleport(location);
-		player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.0F, 1.0F);
+		player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 1.0f);
 	}
 
 	public static boolean isPotion(ItemStack itemStack) {
