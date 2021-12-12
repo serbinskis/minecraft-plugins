@@ -1,4 +1,4 @@
-package me.wobbychip.recallpotion.utils;
+package me.wobbychip.custompotions.utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

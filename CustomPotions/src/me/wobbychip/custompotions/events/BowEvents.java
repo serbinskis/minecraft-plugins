@@ -1,4 +1,4 @@
-package me.wobbychip.recallpotion.events;
+package me.wobbychip.custompotions.events;
 
 import org.bukkit.entity.Arrow;
 import org.bukkit.event.EventHandler;
@@ -8,8 +8,8 @@ import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerPickupArrowEvent;
 
-import me.wobbychip.recallpotion.Main;
-import me.wobbychip.recallpotion.potions.CustomPotion;
+import me.wobbychip.custompotions.Main;
+import me.wobbychip.custompotions.potions.CustomPotion;
 
 public class BowEvents implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)

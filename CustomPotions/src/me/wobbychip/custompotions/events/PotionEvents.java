@@ -1,4 +1,4 @@
-package me.wobbychip.recallpotion.events;
+package me.wobbychip.custompotions.events;
 
 import org.bukkit.entity.AreaEffectCloud;
 import org.bukkit.event.EventHandler;
@@ -11,8 +11,8 @@ import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import me.wobbychip.recallpotion.Main;
-import me.wobbychip.recallpotion.potions.CustomPotion;
+import me.wobbychip.custompotions.Main;
+import me.wobbychip.custompotions.potions.CustomPotion;
 
 public class PotionEvents implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)

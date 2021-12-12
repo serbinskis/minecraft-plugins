@@ -1,4 +1,4 @@
-package me.wobbychip.recallpotion.events;
+package me.wobbychip.custompotions.events;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -14,8 +14,8 @@ import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import me.wobbychip.recallpotion.Main;
-import me.wobbychip.recallpotion.potions.CustomPotion;
+import me.wobbychip.custompotions.Main;
+import me.wobbychip.custompotions.potions.CustomPotion;
 
 public class InventoryEvents implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)

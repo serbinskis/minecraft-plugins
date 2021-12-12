@@ -1,4 +1,4 @@
-package me.wobbychip.recallpotion.potions;
+package me.wobbychip.custompotions.potions;
 
 import java.util.List;
 
@@ -17,7 +17,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 
-import me.wobbychip.recallpotion.utils.ReflectionUtil;
+import me.wobbychip.custompotions.utils.ReflectionUtil;
 import net.minecraft.world.item.alchemy.PotionRegistry;
 
 public class CustomPotion {
@@ -94,8 +94,9 @@ public class CustomPotion {
 
 	//asBukkitCopy doesn't save custom potion, so I used asCraftMirror
 	public ItemStack setPotionTag(ItemStack item) {
+		//.a() -> .setString()
 		net.minecraft.world.item.ItemStack nmsItem = ReflectionUtil.asNMSCopy(item);
-		nmsItem.getOrCreateTag().setString("Potion", "minecraft:" + name);
+		nmsItem.t().a("Potion", "minecraft:" + name);
 		return ReflectionUtil.asBukkitMirror(nmsItem);
 	}
 

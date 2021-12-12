@@ -1,4 +1,4 @@
-package me.wobbychip.recallpotion.events;
+package me.wobbychip.custompotions.events;
 
 import java.util.HashMap;
 
@@ -14,9 +14,9 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
-import me.wobbychip.recallpotion.Main;
-import me.wobbychip.recallpotion.potions.CustomPotion;
-import me.wobbychip.recallpotion.utils.Utils;
+import me.wobbychip.custompotions.Main;
+import me.wobbychip.custompotions.potions.CustomPotion;
+import me.wobbychip.custompotions.utils.Utils;
 
 public class DispenserEvents implements Listener {
 	HashMap<Location, ItemStack> fuckBukkit = new HashMap<Location, ItemStack>();

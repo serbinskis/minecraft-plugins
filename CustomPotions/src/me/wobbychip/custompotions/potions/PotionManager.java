@@ -1,4 +1,4 @@
-package me.wobbychip.recallpotion.potions;
+package me.wobbychip.custompotions.potions;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -12,8 +12,8 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionType;
 
-import me.wobbychip.recallpotion.utils.ReflectionUtil;
-import me.wobbychip.recallpotion.utils.Utils;
+import me.wobbychip.custompotions.utils.ReflectionUtil;
+import me.wobbychip.custompotions.utils.Utils;
 import net.minecraft.core.IRegistry;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.effect.InstantMobEffect;
@@ -29,6 +29,10 @@ public class PotionManager {
 	protected Map<String, PotionRegistry> registry = new HashMap<String, PotionRegistry>();
 
 	public PotionManager() {}
+
+	public String getPotions() {
+		return String.join(", ", this.potions.keySet());
+	}
 
 	public boolean registerPotion(CustomPotion potion) {
 		potions.put(potion.getName(), potion);
@@ -49,14 +53,19 @@ public class PotionManager {
 		if (potions.containsKey(entity.getCustomName())) { return potions.get(entity.getCustomName()); }
 		NBTTagCompound tag = new NBTTagCompound();
 		ReflectionUtil.getEntity(entity).e(tag);
-		String name = tag.hasKey("Potion") ? tag.get("Potion").asString().replace("minecraft:", "") : "";
+		String name = tag.e("Potion") ? tag.c("Potion").e_().replace("minecraft:", "") : "";
 		return potions.containsKey(name) ? potions.get(name) : null;
 	}
 
 	public CustomPotion getCustomPotion(ItemStack item) {
+		//tag.e() -> tag.hasKey()
+		//tag.c() -> tag.get()
+		//NBTBase.e_() -> NBTBase.asString()
+		//item.t() -> getOrCreateTag()
+
 		if (!Utils.isPotion(item) && !Utils.isTippedArrow(item)) { return null; }
-		NBTTagCompound tag = ReflectionUtil.asNMSCopy(item).getOrCreateTag();
-		String name = tag.hasKey("Potion") ? tag.get("Potion").asString().replace("minecraft:", "") : "";
+		NBTTagCompound tag = ReflectionUtil.asNMSCopy(item).t();
+		String name = tag.e("Potion") ? tag.c("Potion").e_().replace("minecraft:", "") : "";
 
 		if (potions.containsKey(name)) {
 			return potions.get(name);
@@ -83,22 +92,23 @@ public class PotionManager {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static PotionRegistry registerInstantPotion(String name, int color) {
-		//IRegistry.V -> MobEffectList
+		//IRegistry.W -> MobEffectList
+		//IRegistry.W.d() -> keySet()
 		//MobEffectInfo.c -> MobEffectInfo.NEUTRAL
-		//IRegistry.aa -> PotionRegistry
-		
-		int id = IRegistry.V.keySet().size()+1;
+		//IRegistry.ab -> PotionRegistry
+
+		int id = IRegistry.W.d().size()+1;
 		InstantMobEffect instantMobEffect = new InstantMobEffect(MobEffectInfo.c, color);
-		MobEffectList mobEffectList = (MobEffectList) IRegistry.a(IRegistry.V, id, name, instantMobEffect);
+		MobEffectList mobEffectList = (MobEffectList) IRegistry.a(IRegistry.W, id, name, instantMobEffect);
 		PotionRegistry potionRegistry = new PotionRegistry(new MobEffect[]{new MobEffect(mobEffectList, 1)});
-		return (PotionRegistry) IRegistry.a((IRegistry) IRegistry.aa, name, (Object) potionRegistry);
+		return (PotionRegistry) IRegistry.a((IRegistry) IRegistry.ab, name, (Object) potionRegistry);
 	}
 
 	public static boolean registerBrewRecipe(PotionRegistry base, Material ingredient, PotionRegistry result) {
 		Method method = ReflectionUtil.getRegisterBrewMethod();
 		if (method == null) { return false; }
 
-		Item potionIngredient = ReflectionUtil.asNMSCopy(new ItemStack(ingredient)).getItem();
+		Item potionIngredient = ReflectionUtil.asNMSCopy(new ItemStack(ingredient)).c();
 		if (potionIngredient == null) { return false; }
 
 		try {

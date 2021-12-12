@@ -1,4 +1,4 @@
-package me.wobbychip.recallpotion;
+package me.wobbychip.custompotions;
 
 import java.util.Arrays;
 
@@ -12,9 +12,9 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.potion.PotionType;
 
-import me.wobbychip.recallpotion.potions.CustomPotion;
-import me.wobbychip.recallpotion.potions.PotionManager;
-import me.wobbychip.recallpotion.utils.Utils;
+import me.wobbychip.custompotions.potions.CustomPotion;
+import me.wobbychip.custompotions.potions.PotionManager;
+import me.wobbychip.custompotions.utils.Utils;
 
 public class RecallPotion extends CustomPotion {
 	public RecallPotion() {

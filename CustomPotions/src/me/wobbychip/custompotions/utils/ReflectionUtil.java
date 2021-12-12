@@ -1,4 +1,4 @@
-package me.wobbychip.recallpotion.utils;
+package me.wobbychip.custompotions.utils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -10,7 +10,7 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import me.wobbychip.recallpotion.Main;
+import me.wobbychip.custompotions.Main;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.alchemy.PotionBrewer;
 import net.minecraft.world.item.alchemy.PotionRegistry;
