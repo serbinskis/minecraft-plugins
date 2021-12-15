@@ -18,7 +18,7 @@ public class Main extends JavaPlugin implements Listener {
 		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&9[DropCursedPumpkin] DropCursedPumpkin has loaded!"));
 	}
 
-	@EventHandler(priority=EventPriority.MONITOR)
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerDeath(PlayerDeathEvent event) {
 		if (!event.getKeepInventory()) { return; }
 
