@@ -16,7 +16,7 @@ public class Main extends JavaPlugin implements Listener {
 		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&9[AntiEndermanGrief] AntiEndermanGrief has loaded!"));
 	}
 
-	@EventHandler(priority=EventPriority.HIGHEST)
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onEntityChangeBlock(EntityChangeBlockEvent event) {
 		if (event.getEntityType() == EntityType.ENDERMAN) {
 			event.setCancelled(true);

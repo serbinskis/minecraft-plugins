@@ -21,7 +21,7 @@ public class Main extends JavaPlugin implements Listener {
 		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&9[RespawnableDragonEgg] RespawnableDragonEgg has loaded!"));
 	}
 
-	@EventHandler(priority=EventPriority.HIGHEST)
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onEntityDeath(EntityDeathEvent event) {
 		if (!event.getEntityType().equals(EntityType.ENDER_DRAGON)) { return; }
 		if (!event.getEntity().getWorld().getEnvironment().equals(Environment.THE_END)) { return; }
