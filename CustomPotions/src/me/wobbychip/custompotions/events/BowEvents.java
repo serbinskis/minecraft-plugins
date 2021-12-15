@@ -5,7 +5,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityShootBowEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerPickupArrowEvent;
 
 import me.wobbychip.custompotions.Main;
@@ -25,13 +24,6 @@ public class BowEvents implements Listener {
 			projectile.setCustomNameVisible(false);
 			projectile.setColor(customPotion.getColor());
 		}
-    }
-
-	//Dispenser doesn't work because bukkit is again garbage and doesn't even apply metdata from item to arrow
-	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onProjectileHit(ProjectileHitEvent event) {
-		CustomPotion customPotion = Main.manager.getCustomPotion(event.getEntity());
-		if (customPotion != null) { customPotion.onProjectileHit(event); }
     }
 
 	@SuppressWarnings("deprecation")

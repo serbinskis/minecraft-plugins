@@ -17,10 +17,12 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 
+import me.wobbychip.custompotions.Main;
 import me.wobbychip.custompotions.utils.ReflectionUtil;
 import net.minecraft.world.item.alchemy.PotionRegistry;
 
 public class CustomPotion {
+	private boolean enabled = true;
 	private PotionRegistry base;
 	private Material ingredient;
 	private String name;
@@ -37,6 +39,17 @@ public class CustomPotion {
 		this.ingredient = ingredient;
 		this.name = name;
 		this.color = color;
+
+		if (!Main.plugin.getConfig().contains(name.toUpperCase())) {
+			Main.plugin.getConfig().set(name.toUpperCase(), enabled);
+			Main.plugin.saveConfig();
+		} else {
+			this.enabled = Main.plugin.getConfig().getBoolean(name.toUpperCase());
+		}
+	}
+
+	public boolean isEnabled() {
+		return this.enabled;
 	}
 
 	public PotionRegistry getBase() {

@@ -35,6 +35,7 @@ public class PotionManager {
 	}
 
 	public boolean registerPotion(CustomPotion potion) {
+		if (!potion.isEnabled()) { return false; }
 		potions.put(potion.getName(), potion);
 		PotionRegistry result = registerInstantPotion(potion.getName(), potion.getIntColor());
 		registry.put(potion.getName(), result);

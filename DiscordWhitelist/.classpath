@@ -5,7 +5,7 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib/JDA-4.2.1_264-withDependencies.jar"/>
+	<classpathentry kind="lib" path="lib/JDA.jar"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="../spigot.jar"/>
 	<classpathentry kind="output" path="bin"/>

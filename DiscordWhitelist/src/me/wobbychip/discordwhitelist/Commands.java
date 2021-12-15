@@ -9,57 +9,61 @@ import org.bukkit.command.CommandSender;
 public class Commands implements CommandExecutor {
 	//Turn on discord whitelist
 	public void DiscordWhitelistOn(CommandSender sender) {
-		if (!Utilities.CheckPermissions(sender, "dwl.toggle")) { return; }
+		if (!Utils.checkPermissions(sender, "dwl.toggle")) { return; }
 
 		if (Main.plugin.getConfig().getBoolean("Enabled")) {
-			Utilities.SendMessage(sender, Utilities.getString("alreadyOnMessage"));
+			Utils.sendMessage(sender, Utils.getString("alreadyOnMessage"));
 			return;
 		}
 
 		Main.plugin.getConfig().set("Enabled", true);
 		Main.plugin.saveConfig();
-		Utilities.SendMessage(sender, Utilities.getString("onMessage"));
+		Utils.sendMessage(sender, Utils.getString("onMessage"));
 	}
 
 	//Turn on discord whitelist
 	public void DiscordWhitelistOff(CommandSender sender) {
-		if (!Utilities.CheckPermissions(sender, "dwl.toggle")) { return; }
+		if (!Utils.checkPermissions(sender, "dwl.toggle")) { return; }
 
 		if (!Main.plugin.getConfig().getBoolean("Enabled")) {
-			Utilities.SendMessage(sender, Utilities.getString("alreadyOffMessage"));
+			Utils.sendMessage(sender, Utils.getString("alreadyOffMessage"));
 			return;
 		}
 
 		Main.plugin.getConfig().set("Enabled", false);
-		Utilities.SendMessage(sender, Utilities.getString("offMessage"));
+		Utils.sendMessage(sender, Utils.getString("offMessage"));
 	}
 
 	//Reload discord whitelist
 	public void ReloadDiscordWhitelist(CommandSender sender) {
-		if (!Utilities.CheckPermissions(sender, "dwl.reload")) { return; }
+		if (!Utils.checkPermissions(sender, "dwl.reload")) { return; }
 		Main.plugin.reloadConfig();
 
+		if (Main.jda != null) {
+			Main.jda.shutdown();
+		}
+
 		try {
-			if (!Utilities.EnableBot()) {
-				Utilities.SendMessage(sender, Utilities.getString("guildException"));
+			if (!Main.enableBot()) {
+				Utils.sendMessage(sender, Utils.getString("guildException"));
 				return;
 			}
 		} catch (LoginException | InterruptedException e) {
-			Utilities.DebugInfo(Utilities.getString("loginException"));
-			Utilities.SendMessage(sender, Utilities.getString("loginException"));
+			Utils.sendMessage(Utils.getString("loginException"));
+			Utils.sendMessage(sender, Utils.getString("loginException"));
 			return;
 		}
 
-		Utilities.SendMessage(sender, Utilities.getString("reloadMessage"));
+		Utils.sendMessage(sender, Utils.getString("reloadMessage"));
 	}
 
     public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
     	//Check for permissions
-    	if (!Utilities.CheckPermissions(sender, "dwl.use")) { return true; }
+    	if (!Utils.checkPermissions(sender, "dwl.use")) { return true; }
 
     	//Return if no arguments
 		if (args.length == 0) {
-			Utilities.SendMessage(sender, Utilities.getString("usageMessage"));
+			Utils.sendMessage(sender, Utils.getString("usageMessage"));
 			return true;
 		}
 
@@ -81,7 +85,7 @@ public class Commands implements CommandExecutor {
 			return true;
 		}
 
-		Utilities.SendMessage(sender, Utilities.getString("usageMessage"));
+		Utils.sendMessage(sender, Utils.getString("usageMessage"));
         return true;
     }
 }
