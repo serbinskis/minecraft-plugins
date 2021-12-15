@@ -57,7 +57,7 @@ public class Mendfinity extends EcoEnchant {
 
     	//Dont consume arrow and disable it pickup 
         ((Arrow) event.getProjectile()).setPickupStatus(PickupStatus.CREATIVE_ONLY);
-        itemStack.setAmount(itemStack.getAmount()+1);
+        event.setConsumeItem(false);
 
         //Update inventory
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this.getPlugin(), new Runnable() {
