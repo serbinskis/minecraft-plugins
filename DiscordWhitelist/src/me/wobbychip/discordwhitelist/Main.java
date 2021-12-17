@@ -26,7 +26,7 @@ public class Main extends JavaPlugin implements Listener {
 
 		if (System.getenv("WHITELIST_TOKEN") != null) { Main.plugin.getConfig().set("Token", System.getenv("WHITELIST_TOKEN")); }
 		if (System.getenv("WHITELIST_GUILD_ID") != null) { Main.plugin.getConfig().set("GuildID", System.getenv("WHITELIST_GUILD_ID")); }
-		if (System.getenv("WHITELIST_CHANNEL_ID") != null) { Main.plugin.getConfig().set("ChannelID", System.getenv("WHITELIST_CHANNEL_ID")); }
+		if (System.getenv("WHITELIST_ROLE_ID") != null) { Main.plugin.getConfig().set("RoleID", System.getenv("WHITELIST_ROLE_ID")); }
 		Main.plugin.saveConfig();
 
 		try {
