@@ -1,7 +1,9 @@
 package me.wobbychip.pvpdropinventory;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -66,15 +68,18 @@ public class PlayerTimer {
 	}
 
 	private void checkPlayers() {
-		for (UUID uuid : timers.keySet()) {
+		Iterator<Entry<UUID, Integer>> iterator = timers.entrySet().iterator();
+
+		while (iterator.hasNext()) {
+			UUID uuid = iterator.next().getKey();
 			Player player = Bukkit.getPlayer(uuid);
-			if (player != null && player.isOnline()) {
+			if ((player != null) && player.isOnline() && !player.isInvulnerable()) {
 				int seconds = timers.get(uuid)-1;
 				if (seconds > 0) {
 					timers.put(uuid, seconds);
 					sendActionMessage(player);
 				} else {
-					timers.remove(uuid);
+					iterator.remove();
 				}
 			}
 		}

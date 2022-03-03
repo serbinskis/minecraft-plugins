@@ -10,12 +10,14 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 public class Events implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerDeath(PlayerDeathEvent event) {
-		if (!event.getKeepInventory()) { return; }
-		if (!Main.timer.isPlayer(event.getEntity())) { return; }
-		Main.timer.removePlayer(event.getEntity());
-
-		event.setKeepInventory(false);
-		event.setKeepLevel(false);
+		if (Main.timer.isPlayer(event.getEntity())) { 
+			Main.timer.removePlayer(event.getEntity());
+		} else {
+			event.setKeepInventory(true);
+			event.setKeepLevel(true);
+			event.getDrops().clear();
+			event.setDroppedExp(0);
+		}
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
