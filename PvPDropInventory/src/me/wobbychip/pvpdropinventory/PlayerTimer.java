@@ -8,6 +8,8 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -73,8 +75,12 @@ public class PlayerTimer {
 		while (iterator.hasNext()) {
 			UUID uuid = iterator.next().getKey();
 			Player player = Bukkit.getPlayer(uuid);
-			if ((player != null) && player.isOnline() && !player.isInvulnerable()) {
+			if ((player != null) && player.isOnline()) {
 				int seconds = timers.get(uuid)-1;
+				EntityDamageEvent event = new EntityDamageEvent(player, DamageCause.VOID, 0);
+				Bukkit.getServer().getPluginManager().callEvent(event);
+				if (event.isCancelled()) { seconds += 1; }
+
 				if (seconds > 0) {
 					timers.put(uuid, seconds);
 					sendActionMessage(player);
