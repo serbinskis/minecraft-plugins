@@ -22,7 +22,7 @@ public class Events implements Listener {
 	public void onEntityDamageByEntityEvent(EntityDamageByEntityEvent event) {
 		if (!(event.getEntity() instanceof Player)) { return; }
 		if (!(event.getDamager() instanceof Player)) { return; }
-		if (!event.getEntity().getUniqueId().equals(event.getDamager().getUniqueId())) { return; }
+		if (event.getEntity().getUniqueId().equals(event.getDamager().getUniqueId())) { return; }
 
 		Main.timer.addPlayer((Player) event.getEntity(), Main.timeout);
 		Main.timer.sendActionMessage((Player) event.getEntity());
