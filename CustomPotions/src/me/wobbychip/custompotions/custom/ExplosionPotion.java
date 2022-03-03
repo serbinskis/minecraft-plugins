@@ -7,8 +7,8 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.ThrownPotion;
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
-import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.potion.PotionType;
@@ -29,11 +29,6 @@ public class ExplosionPotion extends CustomPotion {
 		world.createExplosion(event.getPlayer().getLocation(), 4.0f);
 	}
 
-	public void onPotionSplash(PotionSplashEvent event) {
-		World world = event.getEntity().getLocation().getWorld();
-		world.createExplosion(event.getEntity().getLocation(), 4.0f);
-	}
-
 	public void onAreaEffectCloudApply(AreaEffectCloudApplyEvent event) {
 		for (LivingEntity livingEntity : event.getAffectedEntities()) {
 			World world = livingEntity.getLocation().getWorld();
@@ -46,6 +41,11 @@ public class ExplosionPotion extends CustomPotion {
 			World world = event.getEntity().getLocation().getWorld();
 			world.createExplosion(event.getEntity().getLocation(), .75f, false, false);
 			event.getEntity().remove();
+		}
+
+		if (event.getEntity() instanceof ThrownPotion) {
+			World world = event.getEntity().getLocation().getWorld();
+			world.createExplosion(event.getEntity().getLocation(), 4.0f);
 		}
 	}
 }
