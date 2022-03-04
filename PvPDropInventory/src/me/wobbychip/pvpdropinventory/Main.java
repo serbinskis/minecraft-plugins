@@ -8,6 +8,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class Main extends JavaPlugin implements Listener {
 	public static Plugin plugin;
 	public static int timeout;
+	public static boolean dropAllXp;
 	public static PlayerTimer timer;
 
 	@Override
@@ -15,6 +16,7 @@ public class Main extends JavaPlugin implements Listener {
 		Main.plugin = this;
 		Main.plugin.saveDefaultConfig();
 		Main.timeout = Main.plugin.getConfig().getInt("PvP_Timeout");
+		Main.dropAllXp = Main.plugin.getConfig().getBoolean("PvP_DropAllXp");
 		Main.timer = new PlayerTimer("players.yml");
 
 		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);

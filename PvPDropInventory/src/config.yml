@@ -1,2 +1,3 @@
 PvP_Timeout: 60
+PvP_DropAllXp: true
 PvP_ActionBar: "You are in PvP mode!"
