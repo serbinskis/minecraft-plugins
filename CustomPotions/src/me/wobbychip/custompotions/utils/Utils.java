@@ -15,6 +15,14 @@ public class Utils {
 		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', arg0));
 	}
 
+	/* public static World getRespawnWorld(Player player) {
+		//Player -> EntityPlayer -> getRespawnDimension()
+		//Player -> EntityPlayer -> server -> getLevel() -> serverLevelData -> getLevelName()
+		EntityPlayer entityPlayer = ReflectionUtil.getEntityPlayer(player);
+		WorldServer worldServer = entityPlayer.c.a(entityPlayer.P());
+		return Bukkit.getServer().getWorld(worldServer.N.g());
+	} */
+
 	public static void respawnPlayer(Player player) {
 		Location location = player.getBedSpawnLocation();
 
