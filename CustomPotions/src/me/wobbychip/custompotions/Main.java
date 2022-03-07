@@ -6,6 +6,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import me.wobbychip.custompotions.custom.ExplosionPotion;
 import me.wobbychip.custompotions.custom.RecallPotion;
+import me.wobbychip.custompotions.custom.Unbinding;
 import me.wobbychip.custompotions.custom.VoidPotion;
 import me.wobbychip.custompotions.events.BowEvents;
 import me.wobbychip.custompotions.events.DispenserEvents;
@@ -24,9 +25,10 @@ public class Main extends JavaPlugin {
 		Main.plugin.saveDefaultConfig();
 
 		manager = new PotionManager();
-		manager.registerPotion(new RecallPotion());
-		manager.registerPotion(new VoidPotion());
 		manager.registerPotion(new ExplosionPotion());
+		manager.registerPotion(new RecallPotion());
+		manager.registerPotion(new Unbinding());
+		manager.registerPotion(new VoidPotion());
 
 		Bukkit.getPluginManager().registerEvents(new PotionEvents(), Main.plugin);
 		Bukkit.getPluginManager().registerEvents(new InventoryEvents(), Main.plugin);

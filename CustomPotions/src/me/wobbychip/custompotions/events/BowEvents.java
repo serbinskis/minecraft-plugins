@@ -16,7 +16,7 @@ public class BowEvents implements Listener {
 		if (!(event.getProjectile() instanceof Arrow)) { return; }
 		CustomPotion customPotion = Main.manager.getCustomPotion(event.getConsumable());
 		if (customPotion == null) { return; }
-		customPotion.onEntityShootBowEvent(event);
+		if (customPotion.isEnabled()) { customPotion.onEntityShootBowEvent(event); }
 
 		if (!event.isCancelled()) {
 			Arrow projectile = (Arrow) event.getProjectile();
@@ -31,7 +31,7 @@ public class BowEvents implements Listener {
     public void onPlayerPickupArrow(PlayerPickupArrowEvent event) {
 		CustomPotion customPotion = Main.manager.getCustomPotion(event.getArrow());
 		if (customPotion == null) { return; }
-		customPotion.onPlayerPickupArrow(event);
+		if (customPotion.isEnabled()) { customPotion.onPlayerPickupArrow(event); }
 
 		if (!event.isCancelled()) {
 			 event.getItem().setItemStack(customPotion.getTippedArrow(true, 1));

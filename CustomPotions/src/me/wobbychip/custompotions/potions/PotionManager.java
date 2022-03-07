@@ -28,17 +28,17 @@ public class PotionManager {
 	protected Map<String, CustomPotion> potions = new HashMap<String, CustomPotion>();
 	protected Map<String, PotionRegistry> registry = new HashMap<String, PotionRegistry>();
 
-	public PotionManager() {}
-
 	public String getPotions() {
 		return String.join(", ", this.potions.keySet());
 	}
 
 	public boolean registerPotion(CustomPotion potion) {
-		if (!potion.isEnabled()) { return false; }
 		potions.put(potion.getName(), potion);
 		PotionRegistry result = registerInstantPotion(potion.getName(), potion.getIntColor());
 		registry.put(potion.getName(), result);
+
+		//If potion disabled register it, but don't add brew recipe
+		if (!potion.isEnabled()) { return false; }
 		return registerBrewRecipe(potion.getBase(), potion.getMaterial(), result);
 	}
 

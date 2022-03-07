@@ -86,16 +86,16 @@ public class CustomPotion {
 	}
 
 	public boolean getAllowTippedArrow() {
-		return this.allowTippedArrow;
+		return (this.enabled && this.allowTippedArrow);
 	}
 
 	public ItemStack getTippedArrow(boolean ignoreAllow, int amount) {
-		if (this.allowTippedArrow || ignoreAllow) {
+		if (this.getAllowTippedArrow() || ignoreAllow) {
 			ItemStack item = new ItemStack(Material.TIPPED_ARROW, amount);
 			PotionMeta potionMeta = (PotionMeta) item.getItemMeta();
-			potionMeta.setColor(color);
-			if (tippedArrowName != null) { potionMeta.setDisplayName(tippedArrowName); }
-			if (lore != null) { potionMeta.setLore(lore); }
+			potionMeta.setColor(this.color);
+			if (this.tippedArrowName != null) { potionMeta.setDisplayName(this.tippedArrowName); }
+			if (this.lore != null) { potionMeta.setLore(this.lore); }
 			potionMeta.setLocalizedName(this.name);
 			potionMeta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
 			item.setItemMeta(potionMeta);
@@ -105,8 +105,9 @@ public class CustomPotion {
 		}
 	}
 
-	//asBukkitCopy doesn't save custom potion, so I used asCraftMirror
+	//asBukkitCopy doesn't save custom potion tag, so I used asCraftMirror
 	public ItemStack setPotionTag(ItemStack item) {
+		//.t() -> NBTTagCompound
 		//.a() -> .setString()
 		net.minecraft.world.item.ItemStack nmsItem = ReflectionUtil.asNMSCopy(item);
 		nmsItem.t().a("Potion", "minecraft:" + name);
@@ -115,9 +116,9 @@ public class CustomPotion {
 
 	public ItemStack setProperties(ItemStack item) {		
 		PotionMeta potionMeta = (PotionMeta) item.getItemMeta();
-		potionMeta.setColor(color);
-		if (displayName != null) { potionMeta.setDisplayName(displayName); }
-		if (lore != null) { potionMeta.setLore(lore); }
+		potionMeta.setColor(this.color);
+		if (this.displayName != null) { potionMeta.setDisplayName(this.displayName); }
+		if (this.lore != null) { potionMeta.setLore(this.lore); }
 		potionMeta.setLocalizedName(this.name);
 		potionMeta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
 		potionMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);

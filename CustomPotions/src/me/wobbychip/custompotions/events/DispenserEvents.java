@@ -52,7 +52,7 @@ public class DispenserEvents implements Listener {
 			ItemStack item = fuckBukkit.remove(block.getLocation());
 			CustomPotion customPotion = Main.manager.getCustomPotion(item);
 			if (customPotion != null) { event.getEntity().setCustomName(customPotion.getName()); }
-			if (event.isCancelled()) { return; }
+			if (event.isCancelled() || !customPotion.isEnabled()) { return; }
 			customPotion.onProjectileLaunch(event);
 		}
     }

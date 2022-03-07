@@ -6,7 +6,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 
 public class Events implements Listener {
-	@EventHandler(priority=EventPriority.HIGH)
+	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onCreatureSpawnn(CreatureSpawnEvent event) {
 		//Return if disabled or spawn reason is excluded
 		if (!Main.pluginEnabled || Main.excludeReason.contains(event.getSpawnReason().toString())) {

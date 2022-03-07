@@ -1,0 +1,10 @@
+main: me.wobbychip.smptweaks.Main
+name: SMPTweaks
+api-version: 1.13
+version: 1.0
+author: WobbyChip
+
+commands:
+  SMPTweaks:
+    description: Tweak some settings!
+    usage: "Usage: /<command> <tweak> <setting>"

@@ -26,7 +26,7 @@ public class ExplosionPotion extends CustomPotion {
 
 	public void onPotionConsume(PlayerItemConsumeEvent event) {
 		World world = event.getPlayer().getLocation().getWorld();
-		world.createExplosion(event.getPlayer().getLocation(), 4.0f);
+		world.createExplosion(event.getPlayer().getLocation(), 2.0f);
 	}
 
 	public void onAreaEffectCloudApply(AreaEffectCloudApplyEvent event) {
@@ -44,8 +44,9 @@ public class ExplosionPotion extends CustomPotion {
 		}
 
 		if (event.getEntity() instanceof ThrownPotion) {
+			if (((ThrownPotion) event.getEntity()).getItem().getType() != Material.SPLASH_POTION) { return; }
 			World world = event.getEntity().getLocation().getWorld();
-			world.createExplosion(event.getEntity().getLocation(), 4.0f);
+			world.createExplosion(event.getEntity().getLocation(), 2.0f);
 		}
 	}
 }
