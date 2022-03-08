@@ -107,10 +107,14 @@ public class CustomPotion {
 
 	//asBukkitCopy doesn't save custom potion tag, so I used asCraftMirror
 	public ItemStack setPotionTag(ItemStack item) {
+		return CustomPotion.setPotionTag(item, "minecraft:" + name);
+	}
+
+	public static ItemStack setPotionTag(ItemStack item, String name) {
 		//.t() -> NBTTagCompound
 		//.a() -> .setString()
 		net.minecraft.world.item.ItemStack nmsItem = ReflectionUtil.asNMSCopy(item);
-		nmsItem.t().a("Potion", "minecraft:" + name);
+		nmsItem.t().a("Potion", name);
 		return ReflectionUtil.asBukkitMirror(nmsItem);
 	}
 

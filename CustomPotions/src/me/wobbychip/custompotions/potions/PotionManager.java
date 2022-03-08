@@ -1,8 +1,10 @@
 package me.wobbychip.custompotions.potions;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 
 import org.bukkit.Material;
@@ -14,7 +16,10 @@ import org.bukkit.potion.PotionType;
 
 import me.wobbychip.custompotions.utils.ReflectionUtil;
 import me.wobbychip.custompotions.utils.Utils;
+import net.minecraft.core.Holder;
 import net.minecraft.core.IRegistry;
+import net.minecraft.core.RegistryBlocks;
+import net.minecraft.core.RegistryMaterials;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.effect.InstantMobEffect;
 import net.minecraft.world.effect.MobEffect;
@@ -93,16 +98,58 @@ public class PotionManager {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static PotionRegistry registerInstantPotion(String name, int color) {
-		//IRegistry.W -> MobEffectList
-		//IRegistry.W.d() -> keySet()
 		//MobEffectInfo.c -> MobEffectInfo.NEUTRAL
-		//IRegistry.ab -> PotionRegistry
+		//IRegistry.W.d() -> keySet()
+		//IRegistry.Y -> PotionRegistry
+		//IRegistry.T -> MobEffectList
+		//IRegistry.a -> registerMapping(IRegistry<V> iregistry, int i, String s, T t0)
+		//j() -> freeze()
 
-		int id = IRegistry.W.d().size()+1;
+		unfreezeRegistry();
+
+		int id = IRegistry.T.d().size()+1;
 		InstantMobEffect instantMobEffect = new InstantMobEffect(MobEffectInfo.c, color);
-		MobEffectList mobEffectList = (MobEffectList) IRegistry.a(IRegistry.W, id, name, instantMobEffect);
+		MobEffectList mobEffectList = (MobEffectList) IRegistry.a(IRegistry.T, id, name, instantMobEffect);
 		PotionRegistry potionRegistry = new PotionRegistry(new MobEffect[]{new MobEffect(mobEffectList, 1)});
-		return (PotionRegistry) IRegistry.a((IRegistry) IRegistry.ab, name, (Object) potionRegistry);
+		potionRegistry =  (PotionRegistry) IRegistry.a((IRegistry) IRegistry.Y, name, (Object) potionRegistry);
+
+		IRegistry.T.j();
+		IRegistry.Y.j();
+		return potionRegistry;
+	}
+
+	@SuppressWarnings("rawtypes")
+	public static void unfreezeRegistry() {
+		//RegistryMaterials.bN (private) -> intrusiveHolderCache
+		//RegistryMaterials.bL (private) -> frozen
+
+        try {
+        	RegistryMaterials rmaterials = (RegistryMaterials) IRegistry.T;
+            Field intrusiveHolderCache = RegistryMaterials.class.getDeclaredField("bN");
+            intrusiveHolderCache.setAccessible(true);
+            intrusiveHolderCache.set(rmaterials, new IdentityHashMap<IRegistry<MobEffectList>, Holder.c<IRegistry<MobEffectList>>>());
+
+            Field frozen = RegistryMaterials.class.getDeclaredField("bL");
+            frozen.setAccessible(true);
+            frozen.set(rmaterials, false);
+        } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        try {
+        	RegistryMaterials rmaterials = (RegistryMaterials) IRegistry.Y;
+            Field intrusiveHolderCache = RegistryMaterials.class.getDeclaredField("bN");
+            intrusiveHolderCache.setAccessible(true);
+            intrusiveHolderCache.set(rmaterials, new IdentityHashMap<RegistryBlocks<PotionRegistry>, Holder.c<RegistryBlocks<PotionRegistry>>>());
+
+            Field frozen = RegistryMaterials.class.getDeclaredField("bL");
+            frozen.setAccessible(true);
+            frozen.set(rmaterials, false);
+        } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+            e.printStackTrace();
+            return;
+        }
 	}
 
 	public static boolean registerBrewRecipe(PotionRegistry base, Material ingredient, PotionRegistry result) {
