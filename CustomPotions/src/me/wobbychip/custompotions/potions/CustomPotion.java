@@ -1,5 +1,6 @@
 package me.wobbychip.custompotions.potions;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.Color;
@@ -56,6 +57,10 @@ public class CustomPotion {
 		return base;
 	}
 
+	public String getBaseName() {
+		return base.b("");
+	}
+
 	public Material getMaterial() {
 		return ingredient;
 	}
@@ -76,8 +81,16 @@ public class CustomPotion {
 		this.displayName = displayName;
 	}
 
+	public String getDisplayName() {
+		return (this.displayName != null) ? this.displayName : "";
+	}
+
 	public void setLore(List<String> lore) {
 		this.lore = lore;
+	}
+
+	public List<String> getLore() {
+		return (this.lore != null) ? this.lore : Arrays.asList("");
 	}
 
 	public void setTippedArrow(boolean allow, String displayName) {

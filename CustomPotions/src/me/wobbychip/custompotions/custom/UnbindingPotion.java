@@ -18,8 +18,8 @@ import org.bukkit.potion.PotionType;
 import me.wobbychip.custompotions.potions.CustomPotion;
 import me.wobbychip.custompotions.potions.PotionManager;
 
-public class Unbinding extends CustomPotion {
-	public Unbinding() {
+public class UnbindingPotion extends CustomPotion {
+	public UnbindingPotion() {
 		super(PotionManager.getPotion(PotionType.AWKWARD, false, false), Material.HONEY_BLOCK, "unbinding", Color.fromRGB(255, 128, 0));
 		this.setDisplayName("§r§fPotion of Unbinding");
 		this.setLore(Arrays.asList("§9Drops armour with curse of binding"));

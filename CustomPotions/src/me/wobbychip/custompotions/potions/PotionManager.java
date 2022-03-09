@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
@@ -35,6 +36,10 @@ public class PotionManager {
 
 	public String getPotions() {
 		return String.join(", ", this.potions.keySet());
+	}
+
+	public Set<String> getPotionSet() {
+		return this.potions.keySet();
 	}
 
 	public boolean registerPotion(CustomPotion potion) {

@@ -8,6 +8,7 @@ import me.wobbychip.smptweaks.custom.disableinvulnerability.DisableInvulnerabili
 import me.wobbychip.smptweaks.custom.dropcursedpumpkin.DropCursedPumpkin;
 import me.wobbychip.smptweaks.custom.entitylimit.EntityLimit;
 import me.wobbychip.smptweaks.custom.expbottles.ExpBottles;
+import me.wobbychip.smptweaks.custom.preventdropcentering.PreventDropCentering;
 import me.wobbychip.smptweaks.custom.pvpdropinventory.PvPDropInventory;
 import me.wobbychip.smptweaks.custom.respawnabledragonegg.RespawnableDragonEgg;
 import me.wobbychip.smptweaks.tweaks.TweakManager;
@@ -27,6 +28,7 @@ public class Main extends JavaPlugin implements Listener {
 		manager.addTweak(new DropCursedPumpkin());
 		manager.addTweak(new EntityLimit());
 		manager.addTweak(new ExpBottles());
+		manager.addTweak(new PreventDropCentering());
 		manager.addTweak(new PvPDropInventory());
 		manager.addTweak(new RespawnableDragonEgg());
 

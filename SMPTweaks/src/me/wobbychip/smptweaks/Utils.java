@@ -31,10 +31,20 @@ public class Utils {
 		return config.getConfig().getString(arg0);
 	}
 
-	//Generate random range number
+	//Generate random range integer
 	public static int randomRange(int min, int max) {
-        return min + (int)(Math.random() * (max - min+1));
+        return min + (int) (Math.random() * (max - min+1));
     }
+
+	//Generate random range double
+	public static double randomRange(double min, double max) {
+		return min + Math.random() * (max - min);
+    }
+
+	//Return number after decimal, not precise tho
+	public static double afterDecimal(double x) {
+		return x - Math.floor(x);
+	}
 
     //Calculate total experience up to a level
     public static int getExpAtLevel(int level) {
@@ -85,8 +95,7 @@ public class Utils {
 	//Check if player has permissions
 	public static boolean hasPermissions(CommandSender sender, String permission, Config config) {
 		if (sender instanceof Player) {
-			Player player = (Player) sender;
-			if (!player.hasPermission(permission)) {
+			if (!((Player) sender).hasPermission(permission)) {
 				sendMessage(sender, getString("permissionMessage", config));
 				return false;
 			}
@@ -113,8 +122,8 @@ public class Utils {
 	}
 
 	//Get nearest entities
-	public static Collection<Entity> getNearestEntities(Location location, EntityType type, int distance) {
-    	int height = location.getWorld().getMaxHeight()*2;
+	public static Collection<Entity> getNearestEntities(Location location, EntityType type, double distance, boolean maxHeight) {
+		double height = maxHeight ? location.getWorld().getMaxHeight()*2 : distance;
     	Collection<Entity> nearbyEntites = location.getWorld().getNearbyEntities(location, distance, height, distance);
 		Iterator<Entity> iterator = nearbyEntites.iterator();
 

@@ -2,17 +2,42 @@ package me.wobbychip.custompotions.utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.World;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.Vector;
 
 public class Utils {
-	public static void sendMessage(String arg0) {
-		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', arg0));
+	public static void sendMessage(String message) {
+		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+	}
+
+	public static void sendMessage(CommandSender sender, String message) {
+		sender.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+	}
+
+	public static boolean hasPermissions(CommandSender sender, String permission) {
+		if (sender instanceof Player) {
+			return ((Player) sender).hasPermission(permission);
+		}
+
+		return true;
+	}
+
+	public static double randomRange(double min, double max) {
+		return min + Math.random() * (max - min);
+    }
+
+	public static boolean isPotion(ItemStack itemStack) {
+		return ((itemStack != null) && ((itemStack.getType() == Material.POTION) || (itemStack.getType() == Material.SPLASH_POTION) || (itemStack.getType() == Material.LINGERING_POTION)));
+	}
+
+	public static boolean isTippedArrow(ItemStack itemStack) {
+		return ((itemStack != null) && ((itemStack.getType() == Material.TIPPED_ARROW)));
+	}
+
+	public static String getMaterialName(Material material) {
+		return toTitleCase(material.name().replace("_", " "));
 	}
 
 	/* public static World getRespawnWorld(Player player) {
@@ -23,28 +48,23 @@ public class Utils {
 		return Bukkit.getServer().getWorld(worldServer.N.g());
 	} */
 
-	public static void respawnPlayer(Player player) {
-		Location location = player.getBedSpawnLocation();
+	public static String toTitleCase(String s) {
+		if (s == null || s.isEmpty()) { return ""; }
+		if (s.length() == 1) { return s.toUpperCase(); }
 
-		if (location == null) {
-			World world = Bukkit.getServer().getWorlds().get(0);
-			location = world.getSpawnLocation().clone().add(.5, 0, .5);
-			while ((location.getY() >= world.getMinHeight()) && (location.getBlock().getType() == Material.AIR)) { location.setY(location.getY()-1); }
-			while ((location.getY() < world.getMaxHeight()) && (location.getBlock().getType() != Material.AIR)) { location.setY(location.getY()+1); }
+		String[] parts = s.split(" ");
+		StringBuilder sb = new StringBuilder(s.length());
+        
+		for (String part : parts) {
+			if (part.length() > 1) {
+				sb.append(part.substring(0, 1).toUpperCase()).append(part.substring(1).toLowerCase());                
+			} else {
+				sb.append(part.toUpperCase());
+			}
+
+			sb.append(" ");
 		}
 
-		location.setDirection(player.getLocation().getDirection());
-		player.setVelocity(new Vector(0, 0, 0));
-		player.setFallDistance(0);
-		player.teleport(location);
-		player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 1.0f);
-	}
-
-	public static boolean isPotion(ItemStack itemStack) {
-		return ((itemStack != null) && ((itemStack.getType() == Material.POTION) || (itemStack.getType() == Material.SPLASH_POTION) || (itemStack.getType() == Material.LINGERING_POTION)));
-	}
-
-	public static boolean isTippedArrow(ItemStack itemStack) {
-		return ((itemStack != null) && ((itemStack.getType() == Material.TIPPED_ARROW)));
+		return sb.toString().trim();
 	}
 }
