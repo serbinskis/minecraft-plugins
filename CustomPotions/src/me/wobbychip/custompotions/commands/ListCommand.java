@@ -14,11 +14,10 @@ public class ListCommand {
 	public static int MAX_TEXT_LENGTH = 1000;
 
 	public static boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
-		Set<String> potions = Main.manager.getPotionSet();
 		Set<String> names = new HashSet<String>();
 		int size = 0;
 
-		for (String name : potions) {
+		for (String name : Main.manager.getPotionSet()) {
 			if (size+name.length() >= MAX_TEXT_LENGTH) { break; }
 			size += name.length()+2;
 			names.add(Utils.toTitleCase(name));
