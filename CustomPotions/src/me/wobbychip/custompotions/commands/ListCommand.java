@@ -20,7 +20,7 @@ public class ListCommand {
 
 		for (String name : potions) {
 			if (size+name.length() >= MAX_TEXT_LENGTH) { break; }
-			size += name.length();
+			size += name.length()+2;
 			names.add(Utils.toTitleCase(name));
 		}
 
