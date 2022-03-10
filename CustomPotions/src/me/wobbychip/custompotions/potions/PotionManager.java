@@ -64,7 +64,7 @@ public class PotionManager {
 		if (potions.containsKey(entity.getCustomName())) { return potions.get(entity.getCustomName()); }
 		NBTTagCompound tag = new NBTTagCompound();
 		ReflectionUtil.getEntity(entity).e(tag);
-		String name = tag.e("Potion") ? tag.c("Potion").e_().replace("minecraft:", "") : "";
+		String name = ((tag != null) && tag.e("Potion")) ? tag.c("Potion").e_().replace("minecraft:", "") : "";
 		return potions.containsKey(name) ? potions.get(name) : null;
 	}
 
@@ -76,7 +76,7 @@ public class PotionManager {
 
 		if (!Utils.isPotion(item) && !Utils.isTippedArrow(item)) { return null; }
 		NBTTagCompound tag = ReflectionUtil.asNMSCopy(item).t();
-		String name = tag.e("Potion") ? tag.c("Potion").e_().replace("minecraft:", "") : "";
+		String name = ((tag != null) && tag.e("Potion")) ? tag.c("Potion").e_().replace("minecraft:", "") : "";
 
 		if (potions.containsKey(name)) {
 			return potions.get(name);
