@@ -19,19 +19,19 @@ import me.wobbychip.custompotions.Main;
 import me.wobbychip.custompotions.potions.CustomPotion;
 import me.wobbychip.custompotions.utils.Utils;
 
-public class DispenserEvents implements Listener {
+public class ProjectileEvents implements Listener {
 	HashMap<Location, ItemStack> fuckBukkit = new HashMap<Location, ItemStack>();
 	//Since bukkit again is shit and not including ItemStack in ProjectileLaunchEvent I have to do workaround
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onBlockDispenseEvent(BlockDispenseEvent event) {
+	public void onBlockDispenseEvent(BlockDispenseEvent event) {
 		if (!Utils.isTippedArrow(event.getItem()) || (event.getBlock().getType() != Material.DISPENSER)) { return; }
 		CustomPotion customPotion = Main.manager.getCustomPotion(event.getItem());
 		if (customPotion != null) { fuckBukkit.put(event.getBlock().getLocation(), event.getItem()); }
-    }
+	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
-    public void onProjectileLaunch(ProjectileLaunchEvent event) {
+	public void onProjectileLaunch(ProjectileLaunchEvent event) {
 		if (event.getEntity() instanceof Arrow) {
 			//Just really fuck bukkit, even entity.getFacing() not working correctly
 			Block block = event.getEntity().getLocation().getBlock();
@@ -39,7 +39,7 @@ public class DispenserEvents implements Listener {
 			double x = Math.abs(vector.getX());
 			double y = Math.abs(vector.getY());
 			double z = Math.abs(vector.getZ());
-	
+
 			if (x >= y && x >= z) {
 				block = block.getRelative((int) -Math.round(vector.getX()), 0, 0);
 			} else if (y >= x && y >= z) {
@@ -47,7 +47,7 @@ public class DispenserEvents implements Listener {
 			} else {
 				block = block.getRelative(0, 0, (int) -Math.round(vector.getZ()));
 			}
-	
+
 			if (fuckBukkit.containsKey(block.getLocation())) {
 				ItemStack item = fuckBukkit.remove(block.getLocation());
 				CustomPotion customPotion = Main.manager.getCustomPotion(item);
@@ -60,11 +60,16 @@ public class DispenserEvents implements Listener {
 		if (event.getEntity() instanceof ThrownPotion) {
 			//Some plugins don't work with custom potion tag, e.g. WorldGuard
 			//Since potion name is also saved in LocName, we can set potion tag back to empty
-			//Technically these tags are only needed in brewing moments
+			//Technically these tags are only needed in brewing stand
 
 			ThrownPotion potion = (ThrownPotion) event.getEntity();
 			if ((potion.getItem() == null) || (potion.getItem().getType() != Material.SPLASH_POTION)) { return; }
+
+			CustomPotion customPotion = Main.manager.getCustomPotion(potion.getItem());
+			if (customPotion == null) { return; }
+
 			potion.setItem(CustomPotion.setPotionTag(potion.getItem(), "minecraft:empty"));
+			customPotion.onProjectileLaunch(event);
 		}
-    }
+	}
 }

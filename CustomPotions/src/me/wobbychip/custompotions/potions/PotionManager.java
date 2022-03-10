@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,9 +16,7 @@ import org.bukkit.potion.PotionType;
 
 import me.wobbychip.custompotions.utils.ReflectionUtil;
 import me.wobbychip.custompotions.utils.Utils;
-import net.minecraft.core.Holder;
 import net.minecraft.core.IRegistry;
-import net.minecraft.core.RegistryBlocks;
 import net.minecraft.core.RegistryMaterials;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.effect.InstantMobEffect;
@@ -110,7 +107,8 @@ public class PotionManager {
 		//IRegistry.a -> registerMapping(IRegistry<V> iregistry, int i, String s, T t0)
 		//j() -> freeze()
 
-		unfreezeRegistry();
+		setRegistryFrozen(IRegistry.T, false);
+		setRegistryFrozen(IRegistry.Y, false);
 
 		int id = IRegistry.T.d().size()+1;
 		InstantMobEffect instantMobEffect = new InstantMobEffect(MobEffectInfo.c, color);
@@ -118,39 +116,19 @@ public class PotionManager {
 		PotionRegistry potionRegistry = new PotionRegistry(new MobEffect[]{new MobEffect(mobEffectList, 1)});
 		potionRegistry =  (PotionRegistry) IRegistry.a((IRegistry) IRegistry.Y, name, (Object) potionRegistry);
 
-		IRegistry.T.j();
-		IRegistry.Y.j();
+		setRegistryFrozen(IRegistry.T, true);
+		setRegistryFrozen(IRegistry.Y, true);
 		return potionRegistry;
 	}
 
-	@SuppressWarnings("rawtypes")
-	public static void unfreezeRegistry() {
+	public static void setRegistryFrozen(Object registry, boolean frozen) {
 		//RegistryMaterials.bN (private) -> intrusiveHolderCache
 		//RegistryMaterials.bL (private) -> frozen
 
         try {
-        	RegistryMaterials rmaterials = (RegistryMaterials) IRegistry.T;
-            Field intrusiveHolderCache = RegistryMaterials.class.getDeclaredField("bN");
-            intrusiveHolderCache.setAccessible(true);
-            intrusiveHolderCache.set(rmaterials, new IdentityHashMap<IRegistry<MobEffectList>, Holder.c<IRegistry<MobEffectList>>>());
-
-            Field frozen = RegistryMaterials.class.getDeclaredField("bL");
-            frozen.setAccessible(true);
-            frozen.set(rmaterials, false);
-        } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-            e.printStackTrace();
-            return;
-        }
-
-        try {
-        	RegistryMaterials rmaterials = (RegistryMaterials) IRegistry.Y;
-            Field intrusiveHolderCache = RegistryMaterials.class.getDeclaredField("bN");
-            intrusiveHolderCache.setAccessible(true);
-            intrusiveHolderCache.set(rmaterials, new IdentityHashMap<RegistryBlocks<PotionRegistry>, Holder.c<RegistryBlocks<PotionRegistry>>>());
-
-            Field frozen = RegistryMaterials.class.getDeclaredField("bL");
-            frozen.setAccessible(true);
-            frozen.set(rmaterials, false);
+            Field field = RegistryMaterials.class.getDeclaredField("bL");
+            field.setAccessible(true);
+            field.set(registry, frozen);
         } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
             e.printStackTrace();
             return;

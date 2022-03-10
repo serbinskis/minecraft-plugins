@@ -13,7 +13,7 @@ import me.wobbychip.custompotions.custom.RecallPotion;
 import me.wobbychip.custompotions.custom.UnbindingPotion;
 import me.wobbychip.custompotions.custom.VoidPotion;
 import me.wobbychip.custompotions.events.BowEvents;
-import me.wobbychip.custompotions.events.DispenserEvents;
+import me.wobbychip.custompotions.events.ProjectileEvents;
 import me.wobbychip.custompotions.events.InventoryEvents;
 import me.wobbychip.custompotions.events.PotionEvents;
 import me.wobbychip.custompotions.potions.PotionManager;
@@ -40,7 +40,7 @@ public class Main extends JavaPlugin {
 		Bukkit.getPluginManager().registerEvents(new PotionEvents(), Main.plugin);
 		Bukkit.getPluginManager().registerEvents(new InventoryEvents(), Main.plugin);
 		Bukkit.getPluginManager().registerEvents(new BowEvents(), Main.plugin);
-		Bukkit.getPluginManager().registerEvents(new DispenserEvents(), Main.plugin);
+		Bukkit.getPluginManager().registerEvents(new ProjectileEvents(), Main.plugin);
 
 		Main.plugin.getCommand("cpotions").setExecutor(new Commands());
 		Main.plugin.getCommand("cpotions").setTabCompleter(new TabCompletion());
