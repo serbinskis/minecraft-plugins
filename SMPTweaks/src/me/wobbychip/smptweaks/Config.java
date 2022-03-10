@@ -37,7 +37,7 @@ public class Config {
 	}
 
 	public FileConfiguration getConfig() {
-		return customConfig;
+		return this.customConfig;
 	}
 
     public void Save() {

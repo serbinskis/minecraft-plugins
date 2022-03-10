@@ -1,5 +1,10 @@
 package me.wobbychip.smptweaks;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -134,5 +139,21 @@ public class Utils {
 		}
 
         return nearbyEntites;
+	}
+
+	public static File saveResource(String configPath, String savePath) {
+		File file = new File(Main.plugin.getDataFolder() + savePath);
+
+		if (!file.exists()) {
+        	try {
+        		file.getParentFile().mkdirs();
+            	InputStream inputStream = Main.plugin.getResource(configPath);
+				Files.copy(inputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+        }
+
+		return file;
 	}
 }
