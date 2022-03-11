@@ -1,21 +1,22 @@
 package me.wobbychip.custompotions;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.google.common.reflect.ClassPath;
+
 import me.wobbychip.custompotions.commands.Commands;
 import me.wobbychip.custompotions.commands.TabCompletion;
-import me.wobbychip.custompotions.custom.ExplosionPotion;
-import me.wobbychip.custompotions.custom.FirePotion;
-import me.wobbychip.custompotions.custom.LaunchPotion;
-import me.wobbychip.custompotions.custom.LightingPotion;
-import me.wobbychip.custompotions.custom.RecallPotion;
-import me.wobbychip.custompotions.custom.UnbindingPotion;
-import me.wobbychip.custompotions.custom.VoidPotion;
 import me.wobbychip.custompotions.events.BowEvents;
 import me.wobbychip.custompotions.events.ProjectileEvents;
 import me.wobbychip.custompotions.events.InventoryEvents;
 import me.wobbychip.custompotions.events.PotionEvents;
+import me.wobbychip.custompotions.potions.CustomPotion;
 import me.wobbychip.custompotions.potions.PotionManager;
 import me.wobbychip.custompotions.utils.Utils;
 
@@ -27,15 +28,11 @@ public class Main extends JavaPlugin {
 	public void onEnable() {
 		Main.plugin = this;
 		Main.plugin.saveDefaultConfig();
-
 		manager = new PotionManager();
-		manager.registerPotion(new ExplosionPotion());
-		manager.registerPotion(new FirePotion());
-		manager.registerPotion(new LaunchPotion());
-		manager.registerPotion(new LightingPotion());
-		manager.registerPotion(new RecallPotion());
-		manager.registerPotion(new UnbindingPotion());
-		manager.registerPotion(new VoidPotion());
+
+		for (CustomPotion potion : getPotions("me.wobbychip.custompotions.custom")) {
+			manager.registerPotion(potion);
+		}
 
 		Bukkit.getPluginManager().registerEvents(new PotionEvents(), Main.plugin);
 		Bukkit.getPluginManager().registerEvents(new InventoryEvents(), Main.plugin);
@@ -47,5 +44,22 @@ public class Main extends JavaPlugin {
 
 		Utils.sendMessage("&9[CustomPotions] CustomPotions has loaded!");
 		Utils.sendMessage("&9[CustomPotions] Potions: " + manager.getPotions());
+	}
+
+	public List<CustomPotion> getPotions(String pacakgeName) {
+		List<CustomPotion> potions = new ArrayList<>();
+
+		try {
+			ClassPath classpath = ClassPath.from(Main.plugin.getClassLoader());
+
+			for (ClassPath.ClassInfo classInfo : classpath.getTopLevelClasses(pacakgeName)) {
+				Class<?> clazz = Class.forName(classInfo.getName(), true, Main.plugin.getClassLoader());
+				potions.add((CustomPotion) clazz.getConstructor().newInstance());
+			}
+		} catch (IOException | ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+			e.printStackTrace();
+		}
+
+		return potions;
 	}
 }
