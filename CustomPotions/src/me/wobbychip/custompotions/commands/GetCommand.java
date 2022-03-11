@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -17,19 +18,21 @@ import me.wobbychip.custompotions.utils.Utils;
 public class GetCommand {
 	public static List<String> arguments = Arrays.asList("potion", "splash", "lingering", "arrow");
 	public static String USAGE_MESSAGE = "&9Usage /cpotions get <potion_name> [potion | splash | lingering | arrow]";
-	public static String NO_CONSOLE = "&9This command can only be executed by player!";
+	public static String NO_CONSOLE = "&9This command can only be executed by the player!";
 
 	public static boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
-    	if (!Utils.hasPermissions(sender, "cpotions.get")) {
-			Utils.sendMessage(sender, Commands.NO_PERMISSIONS);
-			return true;
-    	}
-    	
+		boolean isCreative = ((sender instanceof Player) && (((Player) sender).getGameMode() == GameMode.CREATIVE));
+
     	if (!(sender instanceof Player)) {
 			Utils.sendMessage(sender, NO_CONSOLE);
 			return true;
 		}
-    	
+
+    	if (!Utils.hasPermissions(sender, "cpotions.get") && !isCreative) {
+			Utils.sendMessage(sender, Commands.NO_PERMISSIONS);
+			return true;
+    	}
+
     	if (args.length < 2) {
 			Utils.sendMessage(sender, USAGE_MESSAGE);
 			return true;
@@ -69,7 +72,9 @@ public class GetCommand {
 	}
 
 	public static List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-    	if (!Utils.hasPermissions(sender, "cpotions.get")) {
+		boolean isCreative = ((sender instanceof Player) && (((Player) sender).getGameMode() == GameMode.CREATIVE));
+
+    	if (!Utils.hasPermissions(sender, "cpotions.get") && !isCreative) {
 			return null;
     	}
 
