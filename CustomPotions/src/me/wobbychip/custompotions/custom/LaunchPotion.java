@@ -16,7 +16,6 @@ import org.bukkit.util.Vector;
 
 import me.wobbychip.custompotions.potions.CustomPotion;
 import me.wobbychip.custompotions.potions.PotionManager;
-import me.wobbychip.custompotions.utils.Utils;
 
 public class LaunchPotion extends CustomPotion {
 	public LaunchPotion() {
@@ -27,32 +26,32 @@ public class LaunchPotion extends CustomPotion {
 	}
 
 	public void onPotionConsume(PlayerItemConsumeEvent event) {
-		launchEntity(event.getPlayer(), 5);
+		launchEntity(event.getPlayer(), 2);
 	}
 
 	public void onPotionSplash(PotionSplashEvent event) {
-		for (LivingEntity livingEntity : event.getAffectedEntities()) {
-			launchEntity(livingEntity, 5);
-		}
-	}
-
-	public void onAreaEffectCloudApply(AreaEffectCloudApplyEvent event) {
 		for (LivingEntity livingEntity : event.getAffectedEntities()) {
 			launchEntity(livingEntity, 2);
 		}
 	}
 
+	public void onAreaEffectCloudApply(AreaEffectCloudApplyEvent event) {
+		for (LivingEntity livingEntity : event.getAffectedEntities()) {
+			launchEntity(livingEntity, 1);
+		}
+	}
+
 	public void onProjectileHit(ProjectileHitEvent event) {
 		if (event.getEntity() instanceof Arrow) {
-			launchEntity(event.getHitEntity(), 2);
+			launchEntity(event.getHitEntity(), 1);
 		}
 	}
 
 	public void launchEntity(Entity entity, double power) {
 		if (entity == null) { return; }
-        double x = Utils.randomRange(-power, power);
-        double y = Utils.randomRange(0, power/2);
-        double z = Utils.randomRange(-power, power);
+        double x = entity.getVelocity().getX();
+        double y = entity.getVelocity().getY() + power;
+        double z = entity.getVelocity().getZ();
         entity.setVelocity(new Vector(x, y, z));
 	}
 }

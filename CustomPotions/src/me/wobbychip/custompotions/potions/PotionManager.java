@@ -45,7 +45,7 @@ public class PotionManager {
 		registry.put(potion.getName(), result);
 
 		//If potion disabled register it, but don't add brew recipe
-		if (!potion.isEnabled()) { return false; }
+		if (!potion.isEnabled()) { return (result != null); }
 		return registerBrewRecipe(potion.getBase(), potion.getMaterial(), result);
 	}
 
