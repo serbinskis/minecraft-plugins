@@ -13,12 +13,21 @@ import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.AnimalTamer;
+import org.bukkit.entity.AreaEffectCloud;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
+import org.bukkit.entity.TNTPrimed;
+import org.bukkit.entity.Tameable;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Vector;
+
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 
 public class Utils {
 	//Send message to console
@@ -29,6 +38,11 @@ public class Utils {
 	//Send message to sender
 	public static void sendMessage(CommandSender sender, String message) {
 		sender.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+	}
+
+	//Send message to action bar
+	public static void sendActionMessage(Player player, String message) {
+		player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(message));
 	}
 
 	//Get string from config
@@ -141,6 +155,34 @@ public class Utils {
         return nearbyEntites;
 	}
 
+	//Get attacker from entity
+	public static Player getAttacker(Entity entity) {
+		if (entity instanceof Player) { return ((Player) entity); }
+
+		if ((entity instanceof Projectile)) {
+			ProjectileSource attacker = ((Projectile) entity).getShooter();
+			if ((attacker instanceof Player)) { return ((Player) attacker); }
+		}
+
+		if ((entity instanceof AreaEffectCloud)) {
+			ProjectileSource attacker = ((AreaEffectCloud) entity).getSource();
+			if ((attacker instanceof Player)) { return ((Player) attacker); }
+		}
+
+		if ((entity instanceof TNTPrimed)) {
+			Entity attacker = ((TNTPrimed) entity).getSource();
+			if ((attacker instanceof Player)) { return ((Player) attacker); }
+		}
+
+		if ((entity instanceof Tameable)) {
+			AnimalTamer attacker = ((Tameable) entity).getOwner();
+			if ((attacker instanceof Player)) { return ((Player) attacker); }
+		}
+
+		return null;
+	}
+
+	//Save resource to file
 	public static File saveResource(String configPath, String savePath) {
 		File file = new File(Main.plugin.getDataFolder() + savePath);
 

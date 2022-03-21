@@ -12,6 +12,7 @@ import me.wobbychip.smptweaks.tweaks.CustomTweak;
 public class PvPDropInventory extends CustomTweak {
 	public static int timeout;
 	public static boolean dropAllXp;
+	public static boolean elytraAllowed;
 	public static String actionBarMessage;
 	public static PlayerTimer timer;
 	public static Config config;
@@ -44,6 +45,7 @@ public class PvPDropInventory extends CustomTweak {
 
 		PvPDropInventory.timeout = PvPDropInventory.config.getConfig().getInt("PvP_Timeout");
 		PvPDropInventory.dropAllXp = PvPDropInventory.config.getConfig().getBoolean("PvP_DropAllXp");
+		PvPDropInventory.elytraAllowed = PvPDropInventory.config.getConfig().getBoolean("PvP_ElytraAllowed");
 		PvPDropInventory.actionBarMessage = PvPDropInventory.config.getConfig().getString("PvP_ActionBar");
 	}
 }

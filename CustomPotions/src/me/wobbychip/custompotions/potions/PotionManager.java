@@ -4,8 +4,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
@@ -28,6 +30,7 @@ import net.minecraft.world.item.alchemy.PotionRegistry;
 import net.minecraft.world.item.alchemy.Potions;
 
 public class PotionManager {
+	protected Map<CustomPotion, String> waiting = new HashMap<CustomPotion, String>();
 	protected Map<String, CustomPotion> potions = new HashMap<String, CustomPotion>();
 	protected Map<String, PotionRegistry> registry = new HashMap<String, PotionRegistry>();
 
@@ -39,18 +42,44 @@ public class PotionManager {
 		return this.potions.keySet();
 	}
 
-	public boolean registerPotion(CustomPotion potion) {
+	public void registerPotion(CustomPotion potion) {
+		//If base of potion is custom and not yet registered, save it for later
+		if ((potion.getBase() == null) && !registry.containsKey(potion.getBaseName())) {
+			Utils.sendMessage("Potion '" + potion.getName() + "' is waiting for base '" + potion.getBaseName() + "'");
+			waiting.put(potion, potion.getBaseName());
+			return;
+		} else if (potion.getBase() == null) {
+			potion.setBase(registry.get(potion.getBaseName()));
+		}
+
 		potions.put(potion.getName(), potion);
 		PotionRegistry result = registerInstantPotion(potion.getName(), potion.getIntColor());
 		registry.put(potion.getName(), result);
 
+		//Register potions that are based on current potion
+		Iterator<Entry<CustomPotion, String>> iterator = waiting.entrySet().iterator();
+
+		while (iterator.hasNext()) {
+			Entry<CustomPotion, String> entry = iterator.next();
+			if (entry.getValue().equals(potion.getName())) {
+				entry.getKey().setBase(result);
+				Utils.sendMessage("Registering '" + entry.getKey().getName() + "' with the base '" + potion.getName() + "'");
+				registerPotion(entry.getKey());
+				iterator.remove();
+			}
+		}
+
 		//If potion disabled register it, but don't add brew recipe
-		if (!potion.isEnabled()) { return (result != null); }
-		return registerBrewRecipe(potion.getBase(), potion.getMaterial(), result);
+		if (!potion.isEnabled()) { return; }
+		registerBrewRecipe(potion.getBase(), potion.getMaterial(), result);
 	}
 
 	public PotionRegistry getPotionRegistry(CustomPotion potion) {
 		return registry.containsKey(potion.getName()) ? registry.get(potion.getName()) : null;
+	}
+
+	public PotionRegistry getPotionRegistry(String name) {
+		return registry.containsKey(name) ? registry.get(name) : null;
 	}
 
 	public CustomPotion getCustomPotion(String name) {

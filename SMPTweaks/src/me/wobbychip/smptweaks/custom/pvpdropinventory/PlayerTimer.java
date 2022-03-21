@@ -1,7 +1,9 @@
 package me.wobbychip.smptweaks.custom.pvpdropinventory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
@@ -13,12 +15,12 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
 import me.wobbychip.smptweaks.Config;
 import me.wobbychip.smptweaks.Main;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
+import me.wobbychip.smptweaks.Utils;
 
 public class PlayerTimer {
 	protected Config config;
 	protected Map<UUID, Integer> timers = new HashMap<UUID, Integer>();
+	protected List<UUID> tried = new ArrayList<>();
 	protected int taskId;
 	protected String actionBarMessage;
 
@@ -59,16 +61,30 @@ public class PlayerTimer {
 		timers.put(player.getUniqueId(), seconds);
 	}
 
+	public void addPlayers(Player player1, Player player2) {
+		if ((player1 == null) || (player2 == null)) { return; }
+		if (player1.getUniqueId().equals(player2.getUniqueId())) { return; }
+
+		PvPDropInventory.timer.addPlayer(player1, PvPDropInventory.timeout);
+		Utils.sendActionMessage(player1, PvPDropInventory.timer.actionBarMessage);
+		if (!PvPDropInventory.elytraAllowed) { player1.setGliding(false); }
+
+		PvPDropInventory.timer.addPlayer(player2, PvPDropInventory.timeout);
+		Utils.sendActionMessage(player2, PvPDropInventory.timer.actionBarMessage);
+		if (!PvPDropInventory.elytraAllowed) { player2.setGliding(false); }
+	}
+
+	public void addTried(Player player) {
+		tried.remove(player.getUniqueId());
+		tried.add(player.getUniqueId());
+	}
+
 	public void removePlayer(Player player) {
 		timers.remove(player.getUniqueId());
 	}
 
 	public boolean isPlayer(Player player) {
 		return timers.containsKey(player.getUniqueId());
-	}
-
-	public void sendActionMessage(Player player) {
-		player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(actionBarMessage));
 	}
 
 	private void checkPlayers() {
@@ -85,7 +101,11 @@ public class PlayerTimer {
 
 				if (seconds > 0) {
 					timers.put(uuid, seconds);
-					sendActionMessage(player);
+					if (!tried.contains(uuid)) {
+						Utils.sendActionMessage(player, actionBarMessage);
+					} else {
+						tried.remove(uuid);
+					}
 				} else {
 					iterator.remove();
 				}

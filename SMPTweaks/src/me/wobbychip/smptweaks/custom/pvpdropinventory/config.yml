@@ -1,3 +1,5 @@
 PvP_Timeout: 60
 PvP_DropAllXp: true
+PvP_ElytraAllowed: false
+PvP_ElytraMessage: "Elytra is disabled in PvP mode!"
 PvP_ActionBar: "You are in PvP mode!"

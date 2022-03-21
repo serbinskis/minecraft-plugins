@@ -14,14 +14,12 @@ import org.bukkit.entity.ThrownPotion;
 import org.bukkit.event.entity.LingeringPotionSplashEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
-import org.bukkit.potion.PotionType;
 
 import me.wobbychip.custompotions.potions.CustomPotion;
-import me.wobbychip.custompotions.potions.PotionManager;
 
 public class VoidPotion extends CustomPotion {
 	public VoidPotion() {
-		super(PotionManager.getPotion(PotionType.AWKWARD, false, false), Material.NETHER_STAR, "void", Color.fromRGB(0, 0, 0));
+		super("base", Material.CRYING_OBSIDIAN, "void", Color.fromRGB(0, 0, 0));
 		this.setDisplayName("§r§fPotion of Void");
 		this.setLore(Arrays.asList("§9Destroys bedrock"));
 		this.setTippedArrow(true, "§r§fArrow of Void");

@@ -7,6 +7,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
+
 public class Utils {
 	public static void sendMessage(String message) {
 		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', message));
@@ -14,6 +17,10 @@ public class Utils {
 
 	public static void sendMessage(CommandSender sender, String message) {
 		sender.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+	}
+
+	public static void sendActionMessage(Player player, String message) {
+		player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(message));
 	}
 
 	public static boolean hasPermissions(CommandSender sender, String permission) {
@@ -39,14 +46,6 @@ public class Utils {
 	public static String getMaterialName(Material material) {
 		return toTitleCase(material.name().replace("_", " "));
 	}
-
-	/* public static World getRespawnWorld(Player player) {
-		//Player -> EntityPlayer -> getRespawnDimension()
-		//Player -> EntityPlayer -> server -> getLevel() -> serverLevelData -> getLevelName()
-		EntityPlayer entityPlayer = ReflectionUtil.getEntityPlayer(player);
-		WorldServer worldServer = entityPlayer.c.a(entityPlayer.P());
-		return Bukkit.getServer().getWorld(worldServer.N.g());
-	} */
 
 	public static String toTitleCase(String s) {
 		if (s == null || s.isEmpty()) { return ""; }

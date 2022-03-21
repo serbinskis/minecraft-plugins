@@ -25,15 +25,21 @@ import net.minecraft.world.item.alchemy.PotionRegistry;
 public class CustomPotion {
 	private boolean enabled = true;
 	private PotionRegistry base;
+	private String cbase;
 	private Material ingredient;
 	private String name;
 	private Color color;
 
-	private String displayName = null;
+	private String displayName = "";
 	private List<String> lore = null;
 
 	private boolean allowTippedArrow = false;
 	private String tippedArrowName = null;
+
+	public CustomPotion(String base, Material ingredient, String name, Color color) {
+		this((PotionRegistry) null, ingredient, name, color);
+		this.cbase = base;
+	}
 
 	public CustomPotion(PotionRegistry base, Material ingredient, String name, Color color) {
 		this.base = base;
@@ -58,7 +64,22 @@ public class CustomPotion {
 	}
 
 	public String getBaseName() {
-		return base.b("");
+		return (base != null) ? base.b("") : cbase;
+	}
+
+	public String getPrefix(Material material) {
+		String result = "";
+
+		for (int i = 0 ; i < displayName.length() ; i++) {
+			if ((displayName.charAt(i) == '§') && (i+1 < displayName.length())) {
+				result += displayName.substring(i, i+2);
+				i += 1;
+			} else { break; }
+		}
+
+		if (material == Material.SPLASH_POTION) { return result + "Splash "; }
+		if (material == Material.LINGERING_POTION) { return result + "Lingering "; }
+		return "";
 	}
 
 	public Material getMaterial() {
@@ -77,12 +98,16 @@ public class CustomPotion {
 		return new java.awt.Color(color.getRed(), color.getGreen(), color.getBlue()).getRGB();
 	}
 
+	public void setBase(PotionRegistry base) {
+		this.base = base;
+	}
+
 	public void setDisplayName(String displayName) {
 		this.displayName = displayName;
 	}
 
 	public String getDisplayName() {
-		return (this.displayName != null) ? this.displayName : "";
+		return this.displayName;
 	}
 
 	public void setLore(List<String> lore) {
@@ -134,7 +159,7 @@ public class CustomPotion {
 	public ItemStack setProperties(ItemStack item) {		
 		PotionMeta potionMeta = (PotionMeta) item.getItemMeta();
 		potionMeta.setColor(this.color);
-		if (this.displayName != null) { potionMeta.setDisplayName(this.displayName); }
+		potionMeta.setDisplayName(getPrefix(item.getType()) + this.displayName);
 		if (this.lore != null) { potionMeta.setLore(this.lore); }
 		potionMeta.setLocalizedName(this.name);
 		potionMeta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
