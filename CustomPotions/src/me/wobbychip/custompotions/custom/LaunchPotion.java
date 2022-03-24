@@ -21,23 +21,23 @@ public class LaunchPotion extends CustomPotion {
 	public LaunchPotion() {
 		super(PotionManager.getPotion(PotionType.AWKWARD, false, false), Material.SLIME_BLOCK, "launch", Color.fromRGB(0, 255, 0));
 		this.setDisplayName("§r§fPotion of Launch");
-		this.setLore(Arrays.asList("§9Yeet"));
+		this.setLore(Arrays.asList("§9Launches up"));
 		this.setTippedArrow(true, "§r§fArrow of Launch");
 	}
 
 	public void onPotionConsume(PlayerItemConsumeEvent event) {
-		launchEntity(event.getPlayer(), 2);
+		launchEntity(event.getPlayer(), 1.5);
 	}
 
 	public void onPotionSplash(PotionSplashEvent event) {
 		for (LivingEntity livingEntity : event.getAffectedEntities()) {
-			launchEntity(livingEntity, 2);
+			launchEntity(livingEntity, 1.5);
 		}
 	}
 
 	public void onAreaEffectCloudApply(AreaEffectCloudApplyEvent event) {
 		for (LivingEntity livingEntity : event.getAffectedEntities()) {
-			launchEntity(livingEntity, 1);
+			launchEntity(livingEntity, 1.5);
 		}
 	}
 
@@ -50,7 +50,7 @@ public class LaunchPotion extends CustomPotion {
 	public void launchEntity(Entity entity, double power) {
 		if (entity == null) { return; }
         double x = entity.getVelocity().getX();
-        double y = entity.getVelocity().getY() + power;
+        double y = power;
         double z = entity.getVelocity().getZ();
         entity.setVelocity(new Vector(x, y, z));
 	}
