@@ -15,15 +15,13 @@ import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
-import org.bukkit.potion.PotionType;
 import org.bukkit.util.Vector;
 
 import me.wobbychip.custompotions.potions.CustomPotion;
-import me.wobbychip.custompotions.potions.PotionManager;
 
 public class RecallPotion extends CustomPotion {
 	public RecallPotion() {
-		super(PotionManager.getPotion(PotionType.AWKWARD, false, false), Material.CHORUS_FRUIT, "recall", Color.fromRGB(23, 193, 224));
+		super("base", Material.CHORUS_FRUIT, "recall", Color.fromRGB(23, 193, 224));
 		this.setDisplayName("§r§fPotion of Recalling");
 		this.setLore(Arrays.asList("§9Teleport to Spawnpoint"));
 		this.setTippedArrow(true, "§r§fArrow of Recalling");

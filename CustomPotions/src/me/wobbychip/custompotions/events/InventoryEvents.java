@@ -31,7 +31,7 @@ public class InventoryEvents implements Listener {
 		}, 1L);
     }
 
-	//Fix potion tag, cuz bukkit is trash and don't support custom potions
+	//Fix potion tag, cuz bukkit is trash and don't support custom potions tag
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onInventoryClick(InventoryClickEvent event) {
 		if (event.getView().getTopInventory() == null) { return; }
