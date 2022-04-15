@@ -2,6 +2,7 @@ package me.wobbychip.custompotions.utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -34,6 +35,13 @@ public class Utils {
 	public static double randomRange(double min, double max) {
 		return min + Math.random() * (max - min);
     }
+
+	public static double distance(Location l1, Location l2) {
+		double x = Math.pow(l1.getX()-l2.getX(), 2);
+		double y = Math.pow(l1.getY()-l2.getY(), 2);
+		double z = Math.pow(l1.getZ()-l2.getZ(), 2);
+		return Math.sqrt(x+y+z);
+	}
 
 	public static boolean isPotion(ItemStack itemStack) {
 		return ((itemStack != null) && ((itemStack.getType() == Material.POTION) || (itemStack.getType() == Material.SPLASH_POTION) || (itemStack.getType() == Material.LINGERING_POTION)));

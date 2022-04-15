@@ -19,7 +19,7 @@ import me.wobbychip.custompotions.potions.CustomPotion;
 
 public class InventoryEvents implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onBrew(BrewEvent event) {
+	public void onBrew(BrewEvent event) {
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
 			public void run() {
 				for (int i = 0; i < 3; i++) {
@@ -29,20 +29,20 @@ public class InventoryEvents implements Listener {
 				}
 			}
 		}, 1L);
-    }
+	}
 
 	//Fix potion tag, cuz bukkit is trash and don't support custom potion tag
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onInventoryClick(InventoryClickEvent event) {
+	public void onInventoryClick(InventoryClickEvent event) {
 		if (event.getView().getTopInventory() == null) { return; }
 		if (event.getView().getTopInventory().getType() != InventoryType.BREWING) { return; }
 
 		CustomPotion customPotion = Main.manager.getCustomPotion(event.getCurrentItem());
 		if (customPotion != null) { event.setCurrentItem(customPotion.setPotionTag(event.getCurrentItem())); }
-    }
+	}
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onInventoryDrag(InventoryDragEvent event) {
+	public void onInventoryDrag(InventoryDragEvent event) {
 		if (event.getView().getTopInventory() == null) { return; }
 		if (event.getView().getTopInventory().getType() != InventoryType.BREWING) { return; }
 
@@ -55,10 +55,10 @@ public class InventoryEvents implements Listener {
 				}
 			}
 		}, 1L);
-    }
+	}
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onInventoryMoveItem(InventoryMoveItemEvent event) {
+	public void onInventoryMoveItem(InventoryMoveItemEvent event) {
 		if (event.getDestination().getType() != InventoryType.BREWING) { return; }
 
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
@@ -70,15 +70,15 @@ public class InventoryEvents implements Listener {
 				}
 			}
 		}, 1L);
-    }
+	}
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onPrepareItemCraft(PrepareItemCraftEvent event) {
+	public void onPrepareItemCraft(PrepareItemCraftEvent event) {
 		ItemStack result = event.getInventory().getResult();
 		if ((result == null) || (result.getType() != Material.TIPPED_ARROW)) { return; }
 
 		ItemStack item = event.getInventory().getMatrix()[4];
 		CustomPotion customPotion = Main.manager.getCustomPotion(item);
 		if (customPotion != null) { event.getInventory().setResult(customPotion.getTippedArrow(false, 8)); }
-    }
+	}
 }

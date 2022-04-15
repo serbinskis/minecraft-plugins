@@ -12,7 +12,7 @@ import me.wobbychip.custompotions.potions.CustomPotion;
 
 public class BowEvents implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onEntityShootBowEvent(EntityShootBowEvent event) {
+	public void onEntityShootBowEvent(EntityShootBowEvent event) {
 		if (!(event.getProjectile() instanceof Arrow)) { return; }
 		CustomPotion customPotion = Main.manager.getCustomPotion(event.getConsumable());
 		if (customPotion == null) { return; }
@@ -24,11 +24,11 @@ public class BowEvents implements Listener {
 			projectile.setCustomNameVisible(false);
 			projectile.setColor(customPotion.getColor());
 		}
-    }
+	}
 
 	@SuppressWarnings("deprecation")
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onPlayerPickupArrow(PlayerPickupArrowEvent event) {
+	public void onPlayerPickupArrow(PlayerPickupArrowEvent event) {
 		CustomPotion customPotion = Main.manager.getCustomPotion(event.getArrow());
 		if (customPotion == null) { return; }
 		if (customPotion.isEnabled()) { customPotion.onPlayerPickupArrow(event); }
@@ -36,5 +36,5 @@ public class BowEvents implements Listener {
 		if (!event.isCancelled()) {
 			 event.getItem().setItemStack(customPotion.getTippedArrow(true, 1));
 		}
-    }
+	}
 }

@@ -18,21 +18,21 @@ import me.wobbychip.custompotions.potions.CustomPotion;
 
 public class PotionEvents implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onPlayerItemConsume(PlayerItemConsumeEvent event) {
+	public void onPlayerItemConsume(PlayerItemConsumeEvent event) {
 		CustomPotion customPotion = Main.manager.getCustomPotion(event.getItem());
 		if ((customPotion == null) || !customPotion.isEnabled()) { return; }
 		customPotion.onPotionConsume(event);
-    }
+	}
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onPotionSplash(PotionSplashEvent event) {
+	public void onPotionSplash(PotionSplashEvent event) {
 		CustomPotion customPotion = Main.manager.getCustomPotion(event.getEntity().getItem());
 		if ((customPotion == null) || !customPotion.isEnabled()) { return; }
 		customPotion.onPotionSplash(event);
-    }
+	}
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onLingeringPotionSplash(LingeringPotionSplashEvent event) {		
+	public void onLingeringPotionSplash(LingeringPotionSplashEvent event) {		
 		CustomPotion customPotion = Main.manager.getCustomPotion(event.getEntity().getItem());
 		if (customPotion == null) { return; }
 		if (customPotion.isEnabled()) { customPotion.onLingeringPotionSplash(event); }
@@ -44,18 +44,18 @@ public class PotionEvents implements Listener {
 			effectCloud.setCustomNameVisible(false);
 			effectCloud.setColor(customPotion.getColor());
 		}
-    }
+	}
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onAreaEffectCloudApply(AreaEffectCloudApplyEvent event) {
+	public void onAreaEffectCloudApply(AreaEffectCloudApplyEvent event) {
 		CustomPotion customPotion = Main.manager.getCustomPotion(event.getEntity().getCustomName());
 		if ((customPotion == null) || !customPotion.isEnabled()) { return; }
 		customPotion.onAreaEffectCloudApply(event);
-    }
+	}
 
 	//Dispenser doesn't work because bukkit is again garbage and doesn't even apply metadata from item to arrow
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onProjectileHit(ProjectileHitEvent event) {
+	public void onProjectileHit(ProjectileHitEvent event) {
 		if (event.getEntity() instanceof ThrownPotion) {
 			CustomPotion customPotion = Main.manager.getCustomPotion(((ThrownPotion) event.getEntity()).getItem());
 			if (customPotion != null) { event.getEntity().setCustomName(customPotion.getName()); }
@@ -64,5 +64,5 @@ public class PotionEvents implements Listener {
 		CustomPotion customPotion = Main.manager.getCustomPotion(event.getEntity());
 		if ((customPotion == null) || !customPotion.isEnabled()) { return; }
 		customPotion.onProjectileHit(event);
-    }
+	}
 }
