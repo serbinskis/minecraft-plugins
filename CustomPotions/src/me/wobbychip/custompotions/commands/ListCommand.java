@@ -18,6 +18,7 @@ public class ListCommand {
 		int size = 0;
 
 		for (String name : Main.manager.getPotionSet()) {
+			if (!Main.manager.getCustomPotion(name).isEnabled()) { continue; }
 			if (size+name.length() >= MAX_TEXT_LENGTH) { break; }
 			size += name.length()+2;
 			names.add(Utils.toTitleCase(name));

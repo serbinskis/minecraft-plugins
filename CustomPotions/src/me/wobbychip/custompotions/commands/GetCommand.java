@@ -79,7 +79,14 @@ public class GetCommand {
     	}
 
 		if (args.length == 2) {
-			return new ArrayList<String>(Main.manager.getPotionSet());
+			ArrayList<String> potions = new ArrayList<String>();
+
+			for (String name : Main.manager.getPotionSet()) {
+				if (!Main.manager.getCustomPotion(name).isEnabled()) { continue; }
+				potions.add(name);
+			}
+
+			return potions;
 		}
 
 		if (args.length == 3) {

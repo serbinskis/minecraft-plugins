@@ -19,9 +19,9 @@ import me.wobbychip.custompotions.utils.Utils;
 public class TrackingPotion extends CustomPotion {
 	public TrackingPotion() {
 		super("base", Material.ENDER_EYE, "tracking", Color.fromRGB(50, 100, 100));
-		this.setDisplayName("Â§rÂ§fPotion of Tracking");
-		this.setLore(Arrays.asList("Â§9Tracks nearest player"));
-		this.setTippedArrow(false, "Â§rÂ§fArrow of Tracking");
+		this.setDisplayName("§r§fPotion of Tracking");
+		this.setLore(Arrays.asList("§9Tracks nearest player"));
+		this.setTippedArrow(false, "§r§fArrow of Tracking");
 	}
 
 	public void onPotionConsume(PlayerItemConsumeEvent event) {

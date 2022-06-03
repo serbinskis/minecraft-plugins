@@ -22,7 +22,7 @@ public class InfoCommand {
 
     	CustomPotion potion = Main.manager.getCustomPotion(args[0].toLowerCase());
 
-		if (potion == null) {
+		if ((potion == null) || !potion.isEnabled()) {
 			Utils.sendMessage(sender, Commands.NO_POTION);
 			return true;
 		}
@@ -47,7 +47,14 @@ public class InfoCommand {
 
 	public static List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
 		if (args.length == 2) {
-			return new ArrayList<String>(Main.manager.getPotionSet());
+			ArrayList<String> potions = new ArrayList<String>();
+
+			for (String name : Main.manager.getPotionSet()) {
+				if (!Main.manager.getCustomPotion(name).isEnabled()) { continue; }
+				potions.add(name);
+			}
+
+			return potions;
 		}
 
 		return null;

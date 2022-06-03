@@ -24,9 +24,9 @@ public class LeadPotion extends CustomPotion {
 
 	public LeadPotion() {
 		super("base", Material.LEAD, "lead", Color.fromRGB(164, 102, 60));
-		this.setDisplayName("Â§rÂ§fPotion of Lead");
-		this.setLore(Arrays.asList("Â§9Leads nearby mobs"));
-		this.setTippedArrow(true, "Â§rÂ§fArrow of Lead");
+		this.setDisplayName("§r§fPotion of Lead");
+		this.setLore(Arrays.asList("§9Leads nearby mobs"));
+		this.setTippedArrow(true, "§r§fArrow of Lead");
 	}
 
 	public void onPotionSplash(PotionSplashEvent event) {
