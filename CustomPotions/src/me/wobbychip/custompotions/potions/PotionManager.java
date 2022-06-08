@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionData;
@@ -87,6 +88,7 @@ public class PotionManager {
 	}
 
 	public CustomPotion getCustomPotion(Entity entity) {
+		if (entity.getType() == EntityType.DRAGON_FIREBALL) { return null; } //This shit has no method getHandle()
 		if (potions.containsKey(entity.getCustomName())) { return potions.get(entity.getCustomName()); }
 		NBTTagCompound tag = new NBTTagCompound();
 		ReflectionUtil.getEntity(entity).e(tag);

@@ -1,7 +1,0 @@
-enableMessage: '&9[RepairWithXP] RepairWithXP has loaded!'
-reloadMessage: '&9Reloaded RepairWithXP.'
-permissionMessage: '&cYou do not have permissions!'
-usageMessage: '&9Usage /RepairWithXP reload'
-
-perXP: 5
-perTicks: 5
