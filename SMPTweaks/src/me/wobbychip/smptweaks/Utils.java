@@ -41,6 +41,7 @@ public class Utils {
 	}
 
 	//Send message to action bar
+	@SuppressWarnings("deprecation")
 	public static void sendActionMessage(Player player, String message) {
 		player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(message));
 	}
@@ -197,5 +198,14 @@ public class Utils {
         }
 
 		return file;
+	}
+
+	public static boolean isPaper() {
+		try {
+		    Class.forName("com.destroystokyo.paper.ParticleBuilder");
+		    return true;
+		} catch (ClassNotFoundException e) {}
+
+		return false;
 	}
 }

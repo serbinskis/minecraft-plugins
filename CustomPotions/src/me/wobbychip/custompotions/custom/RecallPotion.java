@@ -21,7 +21,7 @@ import me.wobbychip.custompotions.potions.CustomPotion;
 
 public class RecallPotion extends CustomPotion {
 	public RecallPotion() {
-		super("base", Material.CHORUS_FRUIT, "recall", Color.fromRGB(23, 193, 224));
+		super("amethyst", Material.CHORUS_FRUIT, "recall", Color.fromRGB(23, 193, 224));
 		this.setDisplayName("§r§fPotion of Recalling");
 		this.setLore(Arrays.asList("§9Teleport to Spawnpoint"));
 		this.setTippedArrow(true, "§r§fArrow of Recalling");
