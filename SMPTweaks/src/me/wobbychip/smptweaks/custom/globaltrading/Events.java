@@ -10,8 +10,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 
-import com.destroystokyo.paper.entity.villager.Reputation;
-import com.destroystokyo.paper.entity.villager.ReputationType;
+import me.wobbychip.smptweaks.PaperUtils;
 
 public class Events implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
@@ -20,36 +19,30 @@ public class Events implements Listener {
 		Villager villager = (Villager) event.getRightClicked();
 		if (villager.getProfession() == Profession.NONE) { return; }
 
-		copyReputation(event.getPlayer(), villager, ReputationType.MAJOR_POSITIVE);
-		copyReputation(event.getPlayer(), villager, ReputationType.MINOR_POSITIVE);
+		copyReputation(event.getPlayer(), villager, "MAJOR_POSITIVE");
+		copyReputation(event.getPlayer(), villager, "MINOR_POSITIVE");
 	}
 
-	private void copyReputation(Player player, Villager villager, ReputationType type) {
+	private void copyReputation(Player player, Villager villager, String type) {
 		if (hasReputation(player, villager, type)) { return; }
 		int amount = getReputation(villager, type);
 		if (amount <= 0) { return; }
-		Reputation reputaion = new Reputation();
-		reputaion.setReputation(type, amount);
-		villager.setReputation(player.getUniqueId(), reputaion);
+		PaperUtils.setReputation(villager, player.getUniqueId(), type, amount);
 	}
 
-	private boolean hasReputation(Player player, Villager villager, ReputationType type) {
-		Reputation reputaion = villager.getReputation(player.getUniqueId());
-		if (reputaion == null) { return false; }
-		return reputaion.getReputation(type) > 0;
+	private boolean hasReputation(Player player, Villager villager, String type) {
+		return PaperUtils.getReputation(villager, player.getUniqueId(), type) > 0;
 	}
 
-	private int getReputation(Villager villager, ReputationType type) {
+	private int getReputation(Villager villager, String type) {
 		for (Player player : Bukkit.getOnlinePlayers()) {
-			Reputation reputaion = villager.getReputation(player.getUniqueId());
-			if ((reputaion == null) || (reputaion.getReputation(type) <= 0)) { continue; }
-			return reputaion.getReputation(type);
+			int amount = PaperUtils.getReputation(villager, player.getUniqueId(), type);
+			if (amount > 0) { return amount; }
 		}
 
 		for (OfflinePlayer player : Bukkit.getOfflinePlayers()) {
-			Reputation reputaion = villager.getReputation(player.getUniqueId());
-			if ((reputaion == null) || (reputaion.getReputation(type) <= 0)) { continue; }
-			return reputaion.getReputation(type);
+			int amount = PaperUtils.getReputation(villager, player.getUniqueId(), type);
+			if (amount > 0) { return amount; }
 		}
 
 		return -1;

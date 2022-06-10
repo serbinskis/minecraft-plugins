@@ -8,7 +8,6 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import me.wobbychip.smptweaks.Utils;
 
 public class Events implements Listener {
-	@SuppressWarnings("deprecation")
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerDeath(PlayerDeathEvent event) {
 		if (FunnyMessages.messages.size() == 0) { return; }
