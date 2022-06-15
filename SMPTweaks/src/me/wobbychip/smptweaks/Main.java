@@ -10,6 +10,7 @@ import me.wobbychip.smptweaks.custom.disableinvulnerability.DisableInvulnerabili
 import me.wobbychip.smptweaks.custom.dropcursedpumpkin.DropCursedPumpkin;
 import me.wobbychip.smptweaks.custom.entitylimit.EntityLimit;
 import me.wobbychip.smptweaks.custom.expbottles.ExpBottles;
+import me.wobbychip.smptweaks.custom.fastcuring.FastCuring;
 import me.wobbychip.smptweaks.custom.funnymessages.FunnyMessages;
 import me.wobbychip.smptweaks.custom.globaltrading.GlobalTrading;
 import me.wobbychip.smptweaks.custom.preventdropcentering.PreventDropCentering;
@@ -35,6 +36,7 @@ public class Main extends JavaPlugin implements Listener {
 		manager.addTweak(new DropCursedPumpkin());
 		manager.addTweak(new EntityLimit());
 		manager.addTweak(new ExpBottles());
+		manager.addTweak(new FastCuring());
 		manager.addTweak(new FunnyMessages());
 		manager.addTweak(new GlobalTrading());
 		manager.addTweak(new PreventDropCentering());
