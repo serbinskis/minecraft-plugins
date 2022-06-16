@@ -1,6 +1,7 @@
 package me.wobbychip.smptweaks.custom.fastcuring;
 
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ZombieVillager;
 import org.bukkit.event.EventHandler;
@@ -19,7 +20,10 @@ public class Events implements Listener {
 
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
             public void run() {
-            	if (villager.isConverting()) { villager.setConversionTime(FastCuring.intervalTicks); }
+            	if (!villager.isConverting()) { return; }
+            	OfflinePlayer player = villager.getConversionPlayer();
+            	villager.setConversionTime(FastCuring.intervalTicks);
+            	villager.setConversionPlayer(player);
             }
         }, 1);
 	}
