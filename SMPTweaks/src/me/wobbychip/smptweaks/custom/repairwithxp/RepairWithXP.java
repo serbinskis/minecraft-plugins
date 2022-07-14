@@ -42,8 +42,8 @@ public class RepairWithXP extends CustomTweak {
 	}
 
 	public static void loadConfig() {
-        List<String> list = Arrays.asList(RepairWithXP.class.getCanonicalName().split("\\."));
-        String configPath = String.join("/", list.subList(0, list.size()-1)) + "/config.yml";
+		List<String> list = Arrays.asList(RepairWithXP.class.getCanonicalName().split("\\."));
+		String configPath = String.join("/", list.subList(0, list.size()-1)) + "/config.yml";
 		RepairWithXP.config = new Config(configPath, "/tweaks/RepairWithXP/config.yml");
 
 		RepairWithXP.amountXP = RepairWithXP.config.getConfig().getInt("amountXP");

@@ -90,21 +90,13 @@ public class PotionManager {
 	public CustomPotion getCustomPotion(Entity entity) {
 		if (entity.getType() == EntityType.DRAGON_FIREBALL) { return null; } //This shit has no method getHandle()
 		if (potions.containsKey(entity.getCustomName())) { return potions.get(entity.getCustomName()); }
-		NBTTagCompound tag = new NBTTagCompound();
-		ReflectionUtil.getEntity(entity).e(tag);
-		String name = ((tag != null) && tag.e("Potion")) ? tag.c("Potion").e_().replace("minecraft:", "") : "";
+		String name = getPotionTag(entity);
 		return potions.containsKey(name) ? potions.get(name) : null;
 	}
 
 	public CustomPotion getCustomPotion(ItemStack item) {
-		//tag.e() -> tag.hasKey()
-		//tag.c() -> tag.get()
-		//NBTBase.e_() -> NBTBase.asString()
-		//item.t() -> getOrCreateTag()
-
 		if (!Utils.isPotion(item) && !Utils.isTippedArrow(item)) { return null; }
-		NBTTagCompound tag = ReflectionUtil.asNMSCopy(item).t();
-		String name = ((tag != null) && tag.e("Potion")) ? tag.c("Potion").e_().replace("minecraft:", "") : "";
+		String name = getPotionTag(item);
 
 		if (potions.containsKey(name)) {
 			return potions.get(name);
@@ -113,6 +105,26 @@ public class PotionManager {
 		if (item.getItemMeta() == null) { return null; }
 		name = item.getItemMeta().getLocalizedName();
 		return potions.containsKey(name) ? potions.get(name) : null;
+	}
+
+	public static String getPotionTag(Object object) {
+		//tag.e() -> tag.hasKey()
+		//tag.c() -> tag.get()
+		//NBTBase.e_() -> NBTBase.asString()
+		//item.t() -> getOrCreateTag()
+
+		if (object instanceof Entity) {
+			NBTTagCompound tag = new NBTTagCompound();
+			ReflectionUtil.getEntity((Entity) object).e(tag);
+			return ((tag != null) && tag.e("Potion")) ? tag.c("Potion").e_().replace("minecraft:", "") : "";
+		}
+
+		if (object instanceof ItemStack) {
+			NBTTagCompound tag = ReflectionUtil.asNMSCopy((ItemStack) object).t();
+			return ((tag != null) && tag.e("Potion")) ? tag.c("Potion").e_().replace("minecraft:", "") : "";
+		}
+
+		return "";
 	}
 
 	public static PotionRegistry getPotion(PotionType potionType, boolean extended, boolean upgraded) {

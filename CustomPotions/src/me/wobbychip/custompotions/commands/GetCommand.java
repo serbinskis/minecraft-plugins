@@ -41,7 +41,7 @@ public class GetCommand {
 		ItemStack item = new ItemStack(Material.AIR);
 		CustomPotion potion = Main.manager.getCustomPotion(args[0].toLowerCase());
 
-		if (potion == null) {
+		if ((potion == null) || !potion.isEnabled()) {
 			Utils.sendMessage(sender, Commands.NO_POTION);
 			return true;
 		}

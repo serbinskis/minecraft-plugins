@@ -5,7 +5,6 @@ import org.bukkit.Bukkit;
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.PaperUtils;
 import me.wobbychip.smptweaks.Utils;
-import me.wobbychip.smptweaks.custom.globaltrading.Events;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
 
 public class PreventDropCentering extends CustomTweak {

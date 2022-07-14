@@ -1,8 +1,10 @@
 package me.wobbychip.smptweaks.tweaks;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import org.bukkit.command.Command;
@@ -13,6 +15,16 @@ public class TweakManager {
 
 	public void addTweak(CustomTweak tweak) {
 		tweaks.put(tweak.getName(), tweak);
+	}
+
+	public String getTweaks() {
+		Set<String> names = new HashSet<String>();
+
+		for (CustomTweak tweak : tweaks.values()) {
+			if (tweak.isEnabled()) { names.add(tweak.getName()); }
+		}
+
+		return String.join(", ", names);
 	}
 
 	public void disableAll() {
