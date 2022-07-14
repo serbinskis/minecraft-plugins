@@ -46,7 +46,10 @@ public class ScreamerPotion extends CustomPotion {
 
 	public void onAreaEffectCloudApply(AreaEffectCloudApplyEvent event) {
 		for (LivingEntity livingEntity : event.getAffectedEntities()) {
-			if (livingEntity instanceof Player) { screamerPlayer((Player) livingEntity); }
+			if (livingEntity instanceof Player) {
+				event.getEntity().setDuration(0);;
+				screamerPlayer((Player) livingEntity);
+			}
 		}
 	}
 

@@ -19,7 +19,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 
 import me.wobbychip.custompotions.Main;
-import me.wobbychip.custompotions.utils.ReflectionUtil;
+import me.wobbychip.custompotions.utils.NMSTool;
 import net.minecraft.world.item.alchemy.PotionRegistry;
 
 public class CustomPotion {
@@ -64,7 +64,7 @@ public class CustomPotion {
 	}
 
 	public String getBaseName() {
-		return (base != null) ? base.b("") : cbase;
+		return (base != null) ? NMSTool.getBaseName(base) : cbase;
 	}
 
 	public String getPrefix(Material material) {
@@ -145,15 +145,7 @@ public class CustomPotion {
 
 	//asBukkitCopy doesn't save custom potion tag, so I used asCraftMirror
 	public ItemStack setPotionTag(ItemStack item) {
-		return CustomPotion.setPotionTag(item, "minecraft:" + name);
-	}
-
-	public static ItemStack setPotionTag(ItemStack item, String name) {
-		//.t() -> NBTTagCompound
-		//.a() -> .setString()
-		net.minecraft.world.item.ItemStack nmsItem = ReflectionUtil.asNMSCopy(item);
-		nmsItem.t().a("Potion", name);
-		return ReflectionUtil.asBukkitMirror(nmsItem);
+		return NMSTool.setPotionTag(item, "minecraft:" + name);
 	}
 
 	public ItemStack setProperties(ItemStack item) {		

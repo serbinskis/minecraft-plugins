@@ -17,6 +17,7 @@ import org.bukkit.util.Vector;
 
 import me.wobbychip.custompotions.Main;
 import me.wobbychip.custompotions.potions.CustomPotion;
+import me.wobbychip.custompotions.utils.NMSTool;
 import me.wobbychip.custompotions.utils.Utils;
 
 public class ProjectileEvents implements Listener {
@@ -68,7 +69,7 @@ public class ProjectileEvents implements Listener {
 			CustomPotion customPotion = Main.manager.getCustomPotion(potion.getItem());
 			if (customPotion == null) { return; }
 
-			potion.setItem(CustomPotion.setPotionTag(potion.getItem(), "minecraft:empty"));
+			potion.setItem(NMSTool.setPotionTag(potion.getItem(), "minecraft:empty"));
 			customPotion.onProjectileLaunch(event);
 		}
 	}
