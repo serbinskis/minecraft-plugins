@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
@@ -40,7 +39,7 @@ public class PotionManager {
 		}
 
 		potions.put(potion.getName(), potion);
-		PotionRegistry result = registerInstantPotion(potion.getName(), potion.getIntColor());
+		PotionRegistry result = NMSTool.registerInstantPotion(potion.getName(), potion.getIntColor());
 		registry.put(potion.getName(), result);
 
 		//Register potions that are based on current potion
@@ -58,7 +57,7 @@ public class PotionManager {
 
 		//If potion disabled register it, but don't add brew recipe
 		if (!potion.isEnabled()) { return; }
-		registerBrewRecipe(potion.getBase(), potion.getMaterial(), result);
+		NMSTool.registerBrewRecipe(potion.getBase(), potion.getMaterial(), result);
 	}
 
 	public PotionRegistry getPotionRegistry(CustomPotion potion) {
@@ -95,17 +94,5 @@ public class PotionManager {
 
 	public static PotionRegistry getPotion(PotionType potionType, boolean extended, boolean upgraded) {
 		return NMSTool.getPotion(potionType, extended, upgraded);
-	}
-
-	public static PotionRegistry registerInstantPotion(String name, int color) {
-		return NMSTool.registerInstantPotion(name, color);
-	}
-
-	public static void setRegistryFrozen(Object registry, boolean frozen) {
-		NMSTool.setRegistryFrozen(registry, frozen);
-	}
-
-	public static boolean registerBrewRecipe(PotionRegistry base, Material ingredient, PotionRegistry result) {
-		return NMSTool.registerBrewRecipe(base, ingredient, result);
 	}
 }
