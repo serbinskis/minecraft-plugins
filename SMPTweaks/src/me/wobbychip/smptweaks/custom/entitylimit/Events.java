@@ -8,12 +8,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 
 import me.wobbychip.smptweaks.Utils;
+import net.md_5.bungee.api.ChatColor;
 
 public class Events implements Listener {
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onCreatureSpawnn(CreatureSpawnEvent event) {
 		//Return if disabled or spawn reason is excluded
-		if (!EntityLimit.pluginEnabled || EntityLimit.excludeReason.contains(event.getSpawnReason().toString())) {
+		if (EntityLimit.excludeReason.contains(event.getSpawnReason().toString())) {
 			return;
 		}
 
@@ -30,13 +31,12 @@ public class Events implements Listener {
 	    int nearbyEntities = Utils.getNearestEntities(entity.getLocation(), entity.getType(), EntityLimit.maximumDistance, true).size();
 
 	    //Cancel entity if count is over limit
-	    if (nearbyEntities > EntityLimit.limit) {
-	    	if (player != null) {
-				String replacedMessage = Utils.getString("tooManyEntity", EntityLimit.config).replace("%value%", String.valueOf(EntityLimit.limit));
-				Utils.sendMessage(player, replacedMessage);
-	    	}
-
+	    if (nearbyEntities >= EntityLimit.limit) {
 	    	event.setCancelled(true);
+	    	if (player == null) { return; }
+
+			String replacedMessage = Utils.getString("tooManyEntity", EntityLimit.config).replace("%value%", String.valueOf(EntityLimit.limit));
+			Utils.sendActionMessage(ChatColor.RED, player, replacedMessage);
 	    }
 	}
 }

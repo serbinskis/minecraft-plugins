@@ -12,8 +12,8 @@ import org.bukkit.inventory.meta.SkullMeta;
 public class Events implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerDeathEvent(PlayerDeathEvent event) {
-		Player player = event.getEntity().getKiller();
-		if ((player == null) || player.getUniqueId().equals(player.getUniqueId())) { return; }
+		Player killer = event.getEntity().getKiller();
+		if ((killer == null) || killer.getUniqueId().equals(event.getEntity().getUniqueId())) { return; }
 
         ItemStack playerHead = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta skullMeta = (SkullMeta) playerHead.getItemMeta();

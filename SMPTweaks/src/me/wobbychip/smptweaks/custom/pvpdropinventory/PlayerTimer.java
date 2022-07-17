@@ -66,11 +66,11 @@ public class PlayerTimer {
 		if (player1.getUniqueId().equals(player2.getUniqueId())) { return; }
 
 		PvPDropInventory.timer.addPlayer(player1, PvPDropInventory.timeout);
-		Utils.sendActionMessage(player1, PvPDropInventory.timer.actionBarMessage);
+		Utils.sendActionMessage(null, player1, PvPDropInventory.timer.actionBarMessage);
 		if (!PvPDropInventory.elytraAllowed) { player1.setGliding(false); }
 
 		PvPDropInventory.timer.addPlayer(player2, PvPDropInventory.timeout);
-		Utils.sendActionMessage(player2, PvPDropInventory.timer.actionBarMessage);
+		Utils.sendActionMessage(null, player2, PvPDropInventory.timer.actionBarMessage);
 		if (!PvPDropInventory.elytraAllowed) { player2.setGliding(false); }
 	}
 
@@ -102,7 +102,7 @@ public class PlayerTimer {
 				if (seconds > 0) {
 					timers.put(uuid, seconds);
 					if (!tried.contains(uuid)) {
-						Utils.sendActionMessage(player, actionBarMessage);
+						Utils.sendActionMessage(null, player, actionBarMessage);
 					} else {
 						tried.remove(uuid);
 					}

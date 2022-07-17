@@ -41,8 +41,10 @@ public class Utils {
 	}
 
 	//Send message to action bar
-	public static void sendActionMessage(Player player, String message) {
-		player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(message));
+	public static void sendActionMessage(net.md_5.bungee.api.ChatColor color, Player player, String message) {
+		TextComponent text = new TextComponent(message);
+		if (color != null) { text.setColor(color); }
+		player.spigot().sendMessage(ChatMessageType.ACTION_BAR, text);
 	}
 
 	//Get string from config
@@ -147,7 +149,7 @@ public class Utils {
 		Iterator<Entity> iterator = nearbyEntites.iterator();
 
 		while (iterator.hasNext()) {
-			if (iterator.next().getType() == type) {
+			if (iterator.next().getType() != type) {
 				iterator.remove();
 			}
 		}
