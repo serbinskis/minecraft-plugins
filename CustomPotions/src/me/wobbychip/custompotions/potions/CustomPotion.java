@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
@@ -48,11 +49,14 @@ public class CustomPotion {
 		this.name = name;
 		this.color = color;
 
-		if (!Main.plugin.getConfig().contains(name.toUpperCase())) {
-			Main.plugin.getConfig().set(name.toUpperCase(), enabled);
+		if (!Main.plugin.getConfig().isConfigurationSection("potions")) { Main.plugin.getConfig().createSection("potions"); }
+		ConfigurationSection section = Main.plugin.getConfig().getConfigurationSection("potions");
+
+		if (!section.contains(name.toUpperCase())) {
+			section.set(name.toUpperCase(), enabled);
 			Main.plugin.saveConfig();
 		} else {
-			this.enabled = Main.plugin.getConfig().getBoolean(name.toUpperCase());
+			this.enabled = section.getBoolean(name.toUpperCase());
 		}
 	}
 

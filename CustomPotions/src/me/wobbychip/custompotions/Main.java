@@ -31,7 +31,10 @@ public class Main extends JavaPlugin {
 		Main.plugin.saveDefaultConfig();
 		manager = new PotionManager();
 
+		boolean allowVillagerTrading = Main.plugin.getConfig().getConfigurationSection("config").getBoolean("allowVillagerTrading");
+
 		for (CustomPotion potion : getPotions("me.wobbychip.custompotions.custom")) {
+			if (!allowVillagerTrading) { potion.setAllowVillagerTrades(allowVillagerTrading); }
 			manager.registerPotion(potion);
 		}
 
