@@ -5,13 +5,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.AreaEffectCloud;
@@ -145,7 +149,7 @@ public class Utils {
 	//Get nearest entities
 	public static Collection<Entity> getNearestEntities(Location location, EntityType type, double distance, boolean maxHeight) {
 		double height = maxHeight ? location.getWorld().getMaxHeight()*2 : distance;
-    	Collection<Entity> nearbyEntites = location.getWorld().getNearbyEntities(location, distance, height, distance);
+		Collection<Entity> nearbyEntites = location.getWorld().getNearbyEntities(location, distance, height, distance);
 		Iterator<Entity> iterator = nearbyEntites.iterator();
 
 		while (iterator.hasNext()) {
@@ -154,7 +158,27 @@ public class Utils {
 			}
 		}
 
-        return nearbyEntites;
+		return nearbyEntites;
+	}
+
+	//Get nearest blocks
+	public static List<Block> getNearestBlocks(Location location, Material type, double radius) {
+		List<Block> nearbyBlock = new ArrayList<>();
+
+		double pX = location.getX();
+		double pY = location.getY();
+		double pZ = location.getZ();
+
+		for (double x = -radius; x <= radius; x++) {
+			for (double y = -radius; y <= radius; y++) {
+				for (double z = -radius; z <= radius; z++) {
+					Block block = location.getWorld().getBlockAt((int) (pX+x), (int) (pY+y), (int) (pZ+z));
+					if (block.getType() == type) { nearbyBlock.add(block); }
+				}
+			}
+		}
+
+		return nearbyBlock;
 	}
 
 	//Get attacker from entity

@@ -1,7 +1,9 @@
 package me.wobbychip.custompotions.potions;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
@@ -20,12 +22,22 @@ public class PotionManager {
 	protected Map<String, CustomPotion> potions = new HashMap<String, CustomPotion>();
 	protected Map<String, PotionRegistry> registry = new HashMap<String, PotionRegistry>();
 
-	public String getPotions() {
-		return String.join(", ", this.potions.keySet());
+	public List<CustomPotion> getPotions(boolean includeDisabled) {
+		List<CustomPotion> result = new ArrayList<>();
+
+		for (CustomPotion potion : potions.values()) {
+			if (includeDisabled || potion.isEnabled()) { result.add(potion); }
+		}
+
+		return result;
+	}
+
+	public String getPotionsString() {
+		return String.join(", ", potions.keySet());
 	}
 
 	public Set<String> getPotionSet() {
-		return this.potions.keySet();
+		return potions.keySet();
 	}
 
 	public void registerPotion(CustomPotion potion) {

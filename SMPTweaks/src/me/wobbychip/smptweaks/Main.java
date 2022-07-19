@@ -20,6 +20,7 @@ import me.wobbychip.smptweaks.custom.preventdropcentering.PreventDropCentering;
 import me.wobbychip.smptweaks.custom.pvpdropinventory.PvPDropInventory;
 import me.wobbychip.smptweaks.custom.repairwithxp.RepairWithXP;
 import me.wobbychip.smptweaks.custom.respawnabledragonegg.RespawnableDragonEgg;
+import me.wobbychip.smptweaks.custom.shriekercansummon.ShriekerCanSummon;
 import me.wobbychip.smptweaks.tweaks.TweakManager;
 
 public class Main extends JavaPlugin implements Listener {
@@ -51,6 +52,7 @@ public class Main extends JavaPlugin implements Listener {
 		manager.addTweak(new PvPDropInventory());
 		manager.addTweak(new RepairWithXP());
 		manager.addTweak(new RespawnableDragonEgg());
+		manager.addTweak(new ShriekerCanSummon());
 
 		Main.plugin.getCommand("smptweaks").setExecutor(new Commands());
 	}

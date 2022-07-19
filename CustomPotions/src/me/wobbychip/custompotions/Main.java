@@ -14,6 +14,7 @@ import me.wobbychip.custompotions.commands.Commands;
 import me.wobbychip.custompotions.commands.TabCompletion;
 import me.wobbychip.custompotions.events.BowEvents;
 import me.wobbychip.custompotions.events.ProjectileEvents;
+import me.wobbychip.custompotions.events.VillagerEvents;
 import me.wobbychip.custompotions.events.InventoryEvents;
 import me.wobbychip.custompotions.events.PotionEvents;
 import me.wobbychip.custompotions.potions.CustomPotion;
@@ -38,12 +39,13 @@ public class Main extends JavaPlugin {
 		Bukkit.getPluginManager().registerEvents(new InventoryEvents(), Main.plugin);
 		Bukkit.getPluginManager().registerEvents(new BowEvents(), Main.plugin);
 		Bukkit.getPluginManager().registerEvents(new ProjectileEvents(), Main.plugin);
+		Bukkit.getPluginManager().registerEvents(new VillagerEvents(), Main.plugin);
 
 		Main.plugin.getCommand("cpotions").setExecutor(new Commands());
 		Main.plugin.getCommand("cpotions").setTabCompleter(new TabCompletion());
 
 		Utils.sendMessage("&9[CustomPotions] CustomPotions has loaded!");
-		Utils.sendMessage("&9[CustomPotions] Potions: " + manager.getPotions());
+		Utils.sendMessage("&9[CustomPotions] Potions: " + manager.getPotionsString());
 	}
 
 	public List<CustomPotion> getPotions(String pacakgeName) {
