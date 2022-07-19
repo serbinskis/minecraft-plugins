@@ -22,6 +22,7 @@ public class LightingPotion extends CustomPotion {
 		this.setDisplayName("§r§fPotion of Lighting");
 		this.setLore(Arrays.asList("§9Summons lighting"));
 		this.setTippedArrow(true, "§r§fArrow of Lighting");
+		this.setAllowVillagerTrades(true);
 	}
 
 	public void onPotionConsume(PlayerItemConsumeEvent event) {

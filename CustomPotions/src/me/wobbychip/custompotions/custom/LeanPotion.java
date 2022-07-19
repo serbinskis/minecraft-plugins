@@ -23,6 +23,7 @@ public class LeanPotion extends CustomPotion {
 		this.setDisplayName("§r§fPotion of Lean");
 		this.setLore(Arrays.asList("§9Lean is tasty"));
 		this.setTippedArrow(true, "§r§fArrow of Lean");
+		this.setAllowVillagerTrades(true);
 	}
 
 	public void onPotionConsume(PlayerItemConsumeEvent event) {

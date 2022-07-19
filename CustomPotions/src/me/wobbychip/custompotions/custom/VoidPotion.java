@@ -23,6 +23,7 @@ public class VoidPotion extends CustomPotion {
 		this.setDisplayName("§r§fPotion of Void");
 		this.setLore(Arrays.asList("§9Destroys bedrock"));
 		this.setTippedArrow(true, "§r§fArrow of Void");
+		this.setAllowVillagerTrades(false);
 	}
 
 	public void onPotionConsume(PlayerItemConsumeEvent event) {

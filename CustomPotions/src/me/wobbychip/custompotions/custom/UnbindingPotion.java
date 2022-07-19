@@ -24,6 +24,7 @@ public class UnbindingPotion extends CustomPotion {
 		this.setDisplayName("§r§fPotion of Unbinding");
 		this.setLore(Arrays.asList("§9Drops armour with curse of binding"));
 		this.setTippedArrow(true, "§r§fArrow of Unbinding");
+		this.setAllowVillagerTrades(true);
 	}
 
 	public void onPotionConsume(PlayerItemConsumeEvent event) {

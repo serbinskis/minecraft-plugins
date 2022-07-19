@@ -15,5 +15,6 @@ public class AmethystPotion extends CustomPotion {
 		this.setDisplayName("§r§fPotion of Amethyst");
 		this.setLore(Arrays.asList("§9Used as base for other potions"));
 		this.setTippedArrow(false, "§r§fArrow of Amethyst");
+		this.setAllowVillagerTrades(true);
 	}
 }

@@ -26,6 +26,7 @@ public class WormholePotion extends CustomPotion {
 		this.setDisplayName("§r§fPotion of Wormhole");
 		this.setLore(Arrays.asList("§9Shoot a player and then use the potion."));
 		this.setTippedArrow(true, "§r§fArrow of Wormhole");
+		this.setAllowVillagerTrades(true);
 	}
 
 	public void onPotionConsume(PlayerItemConsumeEvent event) {

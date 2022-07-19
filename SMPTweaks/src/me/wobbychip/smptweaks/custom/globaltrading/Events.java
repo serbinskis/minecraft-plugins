@@ -14,7 +14,7 @@ import me.wobbychip.smptweaks.PaperUtils;
 
 public class Events implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
-	private void onPlayerInteractEntityEvent(PlayerInteractEntityEvent event) {
+	public void onPlayerInteractEntityEvent(PlayerInteractEntityEvent event) {
 		if (!(event.getRightClicked() instanceof Villager)) { return; }
 		Villager villager = (Villager) event.getRightClicked();
 		if (villager.getProfession() == Profession.NONE) { return; }
@@ -23,28 +23,24 @@ public class Events implements Listener {
 		copyReputation(event.getPlayer(), villager, "MINOR_POSITIVE");
 	}
 
-	private void copyReputation(Player player, Villager villager, String type) {
+	public void copyReputation(Player player, Villager villager, String type) {
 		if (hasReputation(player, villager, type)) { return; }
 		int amount = getReputation(villager, type);
-		if (amount <= 0) { return; }
-		PaperUtils.setReputation(villager, player.getUniqueId(), type, amount);
+		if (amount > 0) { PaperUtils.setReputation(villager, player.getUniqueId(), type, amount); }
 	}
 
-	private boolean hasReputation(Player player, Villager villager, String type) {
+	public boolean hasReputation(Player player, Villager villager, String type) {
 		return PaperUtils.getReputation(villager, player.getUniqueId(), type) > 0;
 	}
 
-	private int getReputation(Villager villager, String type) {
-		for (Player player : Bukkit.getOnlinePlayers()) {
-			int amount = PaperUtils.getReputation(villager, player.getUniqueId(), type);
-			if (amount > 0) { return amount; }
-		}
+	public int getReputation(Villager villager, String type) {
+		int result = 0;
 
 		for (OfflinePlayer player : Bukkit.getOfflinePlayers()) {
 			int amount = PaperUtils.getReputation(villager, player.getUniqueId(), type);
-			if (amount > 0) { return amount; }
+			if (amount > result) { result = amount; }
 		}
 
-		return -1;
+		return result;
 	}
 }

@@ -21,6 +21,7 @@ public class FirePotion extends CustomPotion {
 		this.setDisplayName("§r§fPotion of Fire");
 		this.setLore(Arrays.asList("§9Fire In The Hole"));
 		this.setTippedArrow(true, "§r§fArrow of Fire");
+		this.setAllowVillagerTrades(true);
 	}
 
 	public void onPotionConsume(PlayerItemConsumeEvent event) {

@@ -42,7 +42,8 @@ public class Events implements Listener {
 		if ((event.getPlayer().getGameMode() != GameMode.CREATIVE) && (event.getItem().getAmount() < 2)) { return; }
 		if (event.getClickedBlock().getType() != Material.SCULK_SHRIEKER) { return; }
 
-		if (getCanSummon(event.getClickedBlock())) { return; }
+		if (canSummon(event.getClickedBlock())) { return; }
+		if (!isPlayerPlaced(event.getClickedBlock())) { setIsPlayerPlaced(event.getClickedBlock()); }
 		setCanSummon(event.getClickedBlock(), true);
 		event.setCancelled(true);
 
@@ -63,7 +64,7 @@ public class Events implements Listener {
 		Collection<Block> blocks = Utils.getNearestBlocks(creature.getLocation(), Material.SCULK_SHRIEKER, WARDEN_SPAWN_DISATNCE);
 
 		for (Block block : blocks) {
-			if (getIsPlayerPlaced(block)) {
+			if (isPlayerPlaced(block) && canSummon(block)) {
 				setCanSummon(block, false);
 				break;
 			}
@@ -76,12 +77,12 @@ public class Events implements Listener {
 		block.setBlockData(shrieker);
 	}
 
-	public boolean getCanSummon(Block block) {
+	public boolean canSummon(Block block) {
 		SculkShrieker shrieker = (SculkShrieker) block.getBlockData();
 		return shrieker.isCanSummon();
 	}
 
-	public boolean getIsPlayerPlaced(Block block) {
+	public boolean isPlayerPlaced(Block block) {
 		TileState tileState = (TileState) block.getState();
 		return tileState.getPersistentDataContainer().has(namespacedKey, PersistentDataType.INTEGER);
 	}

@@ -22,6 +22,7 @@ public class ExplosionPotion extends CustomPotion {
 		this.setDisplayName("§r§fPotion of Explosion");
 		this.setLore(Arrays.asList("§9Explodes"));
 		this.setTippedArrow(true, "§r§fArrow of Explosion");
+		this.setAllowVillagerTrades(true);
 	}
 
 	public void onPotionConsume(PlayerItemConsumeEvent event) {

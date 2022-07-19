@@ -33,12 +33,14 @@ public class InfoCommand {
 		String ingredient = Utils.getMaterialName(potion.getMaterial());
 		String basePotion = Utils.toTitleCase(potion.getBaseName());
 		String allowArrow = potion.getAllowTippedArrow() ? "Yes" : "No";
+		String allowTrade = potion.getAllowVillagerTrades() ? "Yes" : "No";
 
 		String message = "&a&lCustomPotions &8» &7" + name + "\n" +
 				"&9Display Name: &f" + displayName + "\n" +
 				"&9Description: &f" + description + "\n" +
 				"&9Ingredient: &f" + ingredient + "\n" +
 				"&9Base Potion: &f" + basePotion + "\n" +
+				"&9Can villagers trade: &f" + allowTrade + "\n" +
 				"&9Can craft arrows: &f" + allowArrow;
 
 		Utils.sendMessage(sender, message);

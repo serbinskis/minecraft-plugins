@@ -32,6 +32,7 @@ public class ScreamerPotion extends CustomPotion {
 		this.setDisplayName("§r§fPotion of Screamer");
 		this.setLore(Arrays.asList("§9Drop this on a friend"));
 		this.setTippedArrow(true, "§r§fArrow of Screamer");
+		this.setAllowVillagerTrades(true);
 	}
 
 	public void onPotionConsume(PlayerItemConsumeEvent event) {

@@ -15,5 +15,6 @@ public class BasePotion extends CustomPotion {
 		this.setDisplayName("§r§fPotion of Base");
 		this.setLore(Arrays.asList("§9Used as base for other potions"));
 		this.setTippedArrow(false, "§r§fArrow of Base");
+		this.setAllowVillagerTrades(false);
 	}
 }

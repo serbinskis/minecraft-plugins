@@ -27,6 +27,7 @@ public class LeadPotion extends CustomPotion {
 		this.setDisplayName("§r§fPotion of Lead");
 		this.setLore(Arrays.asList("§9Leads nearby mobs"));
 		this.setTippedArrow(true, "§r§fArrow of Lead");
+		this.setAllowVillagerTrades(true);
 	}
 
 	public void onPotionSplash(PotionSplashEvent event) {

@@ -33,6 +33,7 @@ public class CustomPotion {
 	private String displayName = "";
 	private List<String> lore = null;
 
+	private boolean allowVillagerTrades = false;
 	private boolean allowTippedArrow = false;
 	private String tippedArrowName = null;
 
@@ -56,7 +57,7 @@ public class CustomPotion {
 	}
 
 	public boolean isEnabled() {
-		return this.enabled;
+		return enabled;
 	}
 
 	public PotionRegistry getBase() {
@@ -107,7 +108,7 @@ public class CustomPotion {
 	}
 
 	public String getDisplayName() {
-		return this.displayName;
+		return displayName;
 	}
 
 	public void setLore(List<String> lore) {
@@ -115,26 +116,34 @@ public class CustomPotion {
 	}
 
 	public List<String> getLore() {
-		return (this.lore != null) ? this.lore : Arrays.asList("");
+		return (lore != null) ? lore : Arrays.asList("");
+	}
+
+	public void setAllowVillagerTrades(boolean allow) {
+		allowVillagerTrades = allow;
+	}
+
+	public boolean getAllowVillagerTrades() {
+		return (enabled && allowVillagerTrades);
 	}
 
 	public void setTippedArrow(boolean allow, String displayName) {
-		this.allowTippedArrow = allow;
-		this.tippedArrowName = displayName;
+		allowTippedArrow = allow;
+		tippedArrowName = displayName;
 	}
 
 	public boolean getAllowTippedArrow() {
-		return (this.enabled && this.allowTippedArrow);
+		return (enabled && allowTippedArrow);
 	}
 
 	public ItemStack getTippedArrow(boolean ignoreAllow, int amount) {
-		if (this.getAllowTippedArrow() || ignoreAllow) {
+		if (getAllowTippedArrow() || ignoreAllow) {
 			ItemStack item = new ItemStack(Material.TIPPED_ARROW, amount);
 			PotionMeta potionMeta = (PotionMeta) item.getItemMeta();
-			potionMeta.setColor(this.color);
-			if (this.tippedArrowName != null) { potionMeta.setDisplayName(this.tippedArrowName); }
-			if (this.lore != null) { potionMeta.setLore(this.lore); }
-			potionMeta.setLocalizedName(this.name);
+			potionMeta.setColor(color);
+			if (tippedArrowName != null) { potionMeta.setDisplayName(tippedArrowName); }
+			if (lore != null) { potionMeta.setLore(lore); }
+			potionMeta.setLocalizedName(name);
 			potionMeta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
 			item.setItemMeta(potionMeta);
 			return item;
@@ -150,10 +159,10 @@ public class CustomPotion {
 
 	public ItemStack setProperties(ItemStack item) {		
 		PotionMeta potionMeta = (PotionMeta) item.getItemMeta();
-		potionMeta.setColor(this.color);
-		potionMeta.setDisplayName(getPrefix(item.getType()) + this.displayName);
-		if (this.lore != null) { potionMeta.setLore(this.lore); }
-		potionMeta.setLocalizedName(this.name);
+		potionMeta.setColor(color);
+		potionMeta.setDisplayName(getPrefix(item.getType()) + displayName);
+		if (lore != null) { potionMeta.setLore(lore); }
+		potionMeta.setLocalizedName(name);
 		potionMeta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
 		potionMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 		potionMeta.addEnchant(Enchantment.DURABILITY, 1, true);

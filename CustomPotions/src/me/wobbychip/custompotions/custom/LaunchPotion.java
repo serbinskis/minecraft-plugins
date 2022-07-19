@@ -23,6 +23,7 @@ public class LaunchPotion extends CustomPotion {
 		this.setDisplayName("§r§fPotion of Launch");
 		this.setLore(Arrays.asList("§9Launches up"));
 		this.setTippedArrow(true, "§r§fArrow of Launch");
+		this.setAllowVillagerTrades(true);
 	}
 
 	public void onPotionConsume(PlayerItemConsumeEvent event) {

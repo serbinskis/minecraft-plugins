@@ -32,9 +32,6 @@ public class BowEvents implements Listener {
 		CustomPotion customPotion = Main.manager.getCustomPotion(event.getArrow());
 		if (customPotion == null) { return; }
 		if (customPotion.isEnabled()) { customPotion.onPlayerPickupArrow(event); }
-
-		if (!event.isCancelled()) {
-			 event.getItem().setItemStack(customPotion.getTippedArrow(true, 1));
-		}
+		event.getItem().setItemStack(customPotion.getTippedArrow(true, 1));
 	}
 }

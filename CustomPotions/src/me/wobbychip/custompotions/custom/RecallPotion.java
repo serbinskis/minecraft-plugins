@@ -25,6 +25,7 @@ public class RecallPotion extends CustomPotion {
 		this.setDisplayName("§r§fPotion of Recalling");
 		this.setLore(Arrays.asList("§9Teleport to Spawnpoint"));
 		this.setTippedArrow(true, "§r§fArrow of Recalling");
+		this.setAllowVillagerTrades(true);
 	}
 
 	public void onPotionConsume(PlayerItemConsumeEvent event) {

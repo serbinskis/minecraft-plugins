@@ -52,9 +52,9 @@ public class Main extends JavaPlugin {
 		List<CustomPotion> potions = new ArrayList<>();
 
 		try {
-			ClassPath classpath = ClassPath.from(Main.plugin.getClassLoader());
+			ClassPath classPath = ClassPath.from(Main.plugin.getClassLoader());
 
-			for (ClassPath.ClassInfo classInfo : classpath.getTopLevelClasses(pacakgeName)) {
+			for (ClassPath.ClassInfo classInfo : classPath.getTopLevelClasses(pacakgeName)) {
 				Class<?> clazz = Class.forName(classInfo.getName(), true, Main.plugin.getClassLoader());
 				potions.add((CustomPotion) clazz.getConstructor().newInstance());
 			}

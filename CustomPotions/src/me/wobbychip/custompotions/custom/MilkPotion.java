@@ -22,6 +22,7 @@ public class MilkPotion extends CustomPotion {
 		this.setDisplayName("§r§fPotion of Milk");
 		this.setLore(Arrays.asList("§9Removes all effects"));
 		this.setTippedArrow(true, "§r§fArrow of Milk");
+		this.setAllowVillagerTrades(true);
 	}
 
 	public void onPotionConsume(PlayerItemConsumeEvent event) {

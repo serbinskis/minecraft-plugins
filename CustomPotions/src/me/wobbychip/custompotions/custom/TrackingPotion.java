@@ -22,6 +22,7 @@ public class TrackingPotion extends CustomPotion {
 		this.setDisplayName("§r§fPotion of Tracking");
 		this.setLore(Arrays.asList("§9Tracks nearest player"));
 		this.setTippedArrow(false, "§r§fArrow of Tracking");
+		this.setAllowVillagerTrades(false);
 	}
 
 	public void onPotionConsume(PlayerItemConsumeEvent event) {
