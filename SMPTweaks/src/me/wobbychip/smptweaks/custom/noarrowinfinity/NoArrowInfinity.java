@@ -53,14 +53,14 @@ public class NoArrowInfinity extends CustomTweak {
 		if (isInfinityBow(mainahnd) || (isInfinityBow(offhand) && (mainahnd.getType() != Material.BOW) && (mainahnd.getType() != Material.CROSSBOW))) {
 			ReflectionUtils.setInstantBuild(player, !hasArrow(player), true, false);
 		} else {
+			if (ReflectionUtils.isUsingItem(player)) { return; }
 			ReflectionUtils.setInstantBuild(player, false, true, true);
 		}
 	}
 
 	public static boolean isInfinityBow(ItemStack item) {
 		if ((item == null) || (item.getType() != Material.BOW)) { return false; }
-		if (!checkEnchantments(item)) { return false; }
-		return true;
+		return checkEnchantments(item);
 	}
 
 	public static boolean checkEnchantments(ItemStack item) {

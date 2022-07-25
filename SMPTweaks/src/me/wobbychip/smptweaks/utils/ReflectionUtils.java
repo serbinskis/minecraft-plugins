@@ -210,7 +210,6 @@ public class ReflectionUtils {
 	}
 
 	public static void setInstantBuild(Player player, boolean instantbuild, boolean clientSide, boolean serverSide) {
-		Utils.sendMessage("setInstantBuild -> " + String.valueOf(instantbuild) + " | " + String.valueOf(clientSide) + " | " + String.valueOf(serverSide));
 		//net.minecraft.world.entity.player.Abilities ->
 		//    boolean instabuild -> d
 
@@ -277,7 +276,7 @@ public class ReflectionUtils {
 		}
 
 		//Yes bellow one solution is much easier, but I don't want to update it every time
-		//so I will better search for everything by types and use reflection
+		//So I will better search for everything by types and use reflection
 
 		//net.minecraft.world.entity.LivingEntity ->
 		//    boolean isUsingItem() -> eU
