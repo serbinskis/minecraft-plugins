@@ -46,6 +46,7 @@ public class VillagerEvents implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onVillagerAcquireTradeEvent(VillagerAcquireTradeEvent event) {
+		if (!(event.getEntity() instanceof Villager)) { return; }
 		if (((Villager) event.getEntity()).getProfession() == Profession.FLETCHER) { villagerAcquireTradeFletcher(event); }
 		if (((Villager) event.getEntity()).getProfession() == Profession.CLERIC) { villagerAcquireTradeCleric(event); }
 	}

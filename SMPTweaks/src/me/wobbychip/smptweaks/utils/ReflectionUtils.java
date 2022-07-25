@@ -23,6 +23,7 @@ import net.minecraft.server.network.PlayerConnection;
 import net.minecraft.world.entity.EntityLiving;
 import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.entity.player.PlayerAbilities;
+import net.minecraft.world.item.Item;
 
 public class ReflectionUtils {
 	private static DataWatcherObject<Byte> DATA_LIVING_ENTITY_FLAGS = null;
@@ -40,7 +41,9 @@ public class ReflectionUtils {
 	private static Field playerAbilities = null;
 	private static Method sendPacket = null;
 	private static Method getEntityData = null;
-	private static Method entityDataGet = null;
+	private static Method entityData_get = null;
+	private static Method item_get = null;
+	private static Method item_releaseUsing = null;
 
 	static {
 		version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
@@ -238,10 +241,10 @@ public class ReflectionUtils {
 			}
 		}
 
-		if (entityDataGet == null) {
+		if (entityData_get == null) {
 			for (Method method : DataWatcher.class.getMethods()) {
-				if ((method.getParameterCount() == 1) && method.getParameterTypes()[0].equals(DataWatcherObject.class) && !method.getReturnType().equals(Void.class)) {
-					entityDataGet = method;
+				if ((method.getParameterCount() == 1) && method.getParameterTypes()[0].equals(DataWatcherObject.class) && !method.getReturnType().equals(Void.TYPE)) {
+					entityData_get = method;
 					break;
 				}
 			}
@@ -268,7 +271,7 @@ public class ReflectionUtils {
 
 		try {
 			DataWatcher entityData = (DataWatcher) getEntityData.invoke(getEntityPlayer(player));
-			Byte entityFalgs = (Byte) entityDataGet.invoke(entityData, DATA_LIVING_ENTITY_FLAGS);
+			Byte entityFalgs = (Byte) entityData_get.invoke(entityData, DATA_LIVING_ENTITY_FLAGS);
 			return (entityFalgs & LIVING_ENTITY_FLAG_IS_USING) > 0;
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			e.printStackTrace();
@@ -281,5 +284,39 @@ public class ReflectionUtils {
 		//net.minecraft.world.entity.LivingEntity ->
 		//    boolean isUsingItem() -> eU
 		//return getEntityPlayer(player).eU();*/
+	}
+
+	public static void shootBow(Player player, ItemStack bow, int ticks) {
+		if (item_get == null) {
+			for (Method method : Item.class.getMethods()) {
+				if (method.getParameterCount() != 1) { continue; }
+				if (!method.getReturnType().equals(Item.class)) { continue; }
+				if (!method.getParameterTypes()[0].equals(int.class)) { continue; }
+				item_get = method;
+				break;
+			}
+		}
+
+		if (item_releaseUsing == null) {
+			for (Method method : Item.class.getMethods()) {
+				if (method.getParameterCount() != 4) { continue; }
+				if (!method.getReturnType().equals(Void.TYPE)) { continue; }
+				if (!method.getParameterTypes()[0].equals(net.minecraft.world.item.ItemStack.class)) { continue; }
+				if (!method.getParameterTypes()[1].equals(net.minecraft.world.level.World.class)) { continue; }
+				if (!method.getParameterTypes()[2].equals(net.minecraft.world.entity.EntityLiving.class)) { continue; }
+				if (!method.getParameterTypes()[3].equals(int.class)) { continue; }
+				item_releaseUsing = method;
+				break;
+			}
+		}
+
+		try {
+			net.minecraft.world.item.ItemStack item = ReflectionUtils.asNMSCopy(bow);
+			net.minecraft.world.level.World world = ReflectionUtils.getWorld(player.getWorld());
+			EntityPlayer entityPlayer = ReflectionUtils.getEntityPlayer(player);
+			item_releaseUsing.invoke(item_get.invoke(null, 718), item, world, entityPlayer, (72000 - ticks));
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			e.printStackTrace();
+		}
 	}
 }

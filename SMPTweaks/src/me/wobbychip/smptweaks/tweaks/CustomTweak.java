@@ -22,11 +22,11 @@ public class CustomTweak {
 	}
 
 	public String getName() {
-		return this.name;
+		return name;
 	}
 
 	public boolean isEnabled() {
-		return this.enabled;
+		return enabled;
 	}
 
 	public void printMessage(String message) {
