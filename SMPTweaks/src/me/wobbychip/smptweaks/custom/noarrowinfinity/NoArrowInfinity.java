@@ -17,7 +17,6 @@ import me.wobbychip.smptweaks.utils.ReflectionUtils;
 
 public class NoArrowInfinity extends CustomTweak {
 	public static String isCreativeOnly = "isCreativeOnly";
-	public static String isTriggered = "isTriggered";
 	public static List<String> infinity = Arrays.asList("mendfinity", "infinity");
 
 	public NoArrowInfinity() {
@@ -54,6 +53,7 @@ public class NoArrowInfinity extends CustomTweak {
 		if (isInfinityBow(mainahnd) || (isInfinityBow(offhand) && (mainahnd.getType() != Material.BOW) && (mainahnd.getType() != Material.CROSSBOW))) {
 			ReflectionUtils.setInstantBuild(player, !hasArrow(player), true, false);
 		} else {
+			if (ReflectionUtils.isUsingItem(player)) { return; }
 			ReflectionUtils.setInstantBuild(player, false, true, true);
 		}
 	}

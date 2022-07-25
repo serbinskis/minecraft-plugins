@@ -85,7 +85,7 @@ public class Events implements Listener {
 		int[] task = { 0 };
 		task[0] = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
 	        public void run() {
-	        	if (!player.isOnline() || !ReflectionUtils.isUsingItem(player)) {
+	        	if (!ReflectionUtils.isUsingItem(player)) {
 	        		ReflectionUtils.setInstantBuild(player, false, false, true);
 	        		Bukkit.getServer().getScheduler().cancelTask(task[0]);
 	        	}
