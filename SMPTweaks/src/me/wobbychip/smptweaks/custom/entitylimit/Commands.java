@@ -3,7 +3,7 @@ package me.wobbychip.smptweaks.custom.entitylimit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
-import me.wobbychip.smptweaks.Utils;
+import me.wobbychip.smptweaks.utils.Utils;
 
 public class Commands {
     public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {

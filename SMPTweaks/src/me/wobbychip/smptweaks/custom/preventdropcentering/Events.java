@@ -11,7 +11,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.util.Vector;
 
 import me.wobbychip.smptweaks.Main;
-import me.wobbychip.smptweaks.Utils;
+import me.wobbychip.smptweaks.utils.Utils;
 
 public class Events implements Listener {
 	public double ITEM_HEIGHT = 0.25F;

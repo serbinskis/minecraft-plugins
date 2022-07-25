@@ -48,7 +48,7 @@ public class Utils {
 	}
 
 	public static boolean isTippedArrow(ItemStack itemStack) {
-		return ((itemStack != null) && ((itemStack.getType() == Material.TIPPED_ARROW)));
+		return ((itemStack != null) && (itemStack.getType() == Material.TIPPED_ARROW));
 	}
 
 	public static String getMaterialName(Material material) {

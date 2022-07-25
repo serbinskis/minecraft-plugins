@@ -6,6 +6,9 @@ import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
 
 public class ShriekerCanSummon extends CustomTweak {
+	public static String isPlayerPlaced = "isPlayerPlaced";
+	public static int WARDEN_SPAWN_DISATNCE = 10;
+
 	public ShriekerCanSummon() {
 		super("ShriekerCanSummon");
 

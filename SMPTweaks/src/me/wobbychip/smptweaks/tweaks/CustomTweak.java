@@ -4,7 +4,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
 import me.wobbychip.smptweaks.Main;
-import me.wobbychip.smptweaks.Utils;
+import me.wobbychip.smptweaks.utils.Utils;
 
 public class CustomTweak {
 	private String name;

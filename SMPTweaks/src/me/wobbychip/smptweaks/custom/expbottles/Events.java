@@ -18,7 +18,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import me.wobbychip.smptweaks.Main;
-import me.wobbychip.smptweaks.Utils;
+import me.wobbychip.smptweaks.utils.Utils;
 
 public class Events implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

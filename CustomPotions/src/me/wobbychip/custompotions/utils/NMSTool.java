@@ -64,10 +64,10 @@ public class NMSTool {
 
 	public static PotionRegistry getPotion(PotionType potionType, boolean extended, boolean upgraded) {
 		//net.minecraft.world.item.alchemy.PotionUtils ->
-		//	    net.minecraft.world.item.alchemy.Potion getPotion(net.minecraft.world.item.ItemStack) -> d
+		//    net.minecraft.world.item.alchemy.Potion getPotion(net.minecraft.world.item.ItemStack) -> d
 
 		//net.minecraft.world.item.alchemy.Potions ->
-		//	    net.minecraft.world.item.alchemy.Potion EMPTY -> a
+		//    net.minecraft.world.item.alchemy.Potion EMPTY -> a
 
 		ItemStack item = new ItemStack(Material.POTION);
 		PotionMeta potionMeta = (PotionMeta) item.getItemMeta();

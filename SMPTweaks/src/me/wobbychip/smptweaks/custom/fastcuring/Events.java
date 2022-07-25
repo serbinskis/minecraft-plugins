@@ -12,7 +12,7 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import me.wobbychip.smptweaks.Main;
 
 public class Events implements Listener {
-	@EventHandler(priority = EventPriority.MONITOR)
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onPlayerInteractEntityEvent(PlayerInteractEntityEvent event) {
 		if (event.getRightClicked().getType() != EntityType.ZOMBIE_VILLAGER) { return; }
 		ZombieVillager villager = (ZombieVillager) event.getRightClicked();

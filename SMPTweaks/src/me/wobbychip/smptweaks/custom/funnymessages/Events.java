@@ -5,7 +5,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 
-import me.wobbychip.smptweaks.Utils;
+import me.wobbychip.smptweaks.utils.Utils;
 
 public class Events implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)

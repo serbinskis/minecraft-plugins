@@ -18,53 +18,53 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 public class Mendfinity extends EcoEnchant {
-    public Mendfinity() {
-        super("mendfinity", EnchantmentType.SPECIAL);
-    }
+	public Mendfinity() {
+		super("mendfinity", EnchantmentType.SPECIAL);
+	}
 
-    @EventHandler(priority = EventPriority.LOW)
-    public void onBowShoot(@NotNull final EntityShootBowEvent event) {
-        //Other mobs also can shoot
-        if (!(event.getEntity() instanceof Player)) {
-            return;
-        }
+	@EventHandler(priority = EventPriority.LOW)
+	public void onBowShoot(@NotNull final EntityShootBowEvent event) {
+		//Other mobs also can shoot
+		if (!(event.getEntity() instanceof Player)) {
+			return;
+		}
 
-        //Get player
-        Player player = (Player) event.getEntity();
+		//Get player
+		Player player = (Player) event.getEntity();
 
-        //Check if gamemode is not creative
-        if (player.getGameMode() == GameMode.CREATIVE) {
-        	return;
-        }
+		//Check if gamemode is not creative
+		if (player.getGameMode() == GameMode.CREATIVE) {
+			return;
+		}
 
-        //Check if bow has enchantment
-        if (!EnchantChecks.mainhand(player, this) && !EnchantChecks.offhand(player, this)) {
-            return;
-        }
+		//Check if bow has enchantment
+		if (!EnchantChecks.item(event.getBow(), this)) {
+			return;
+		}
 
-        //Check for disabled worlds
-        if (this.getDisabledWorlds().contains(player.getWorld())) {
-            return;
-        }
+		//Check for disabled worlds
+		if (this.getDisabledWorlds().contains(player.getWorld())) {
+			return;
+		}
 
-        //Get arrow itemstack
-        ItemStack itemStack = event.getConsumable();
+		//Get arrow itemstack
+		ItemStack itemStack = event.getConsumable();
 
-        //Check if shooting arrow is standart arrow
-    	if (itemStack.getType() != Material.ARROW) {
-    		return;
-    	}
+		//Check if shooting arrow is standart arrow
+		if (itemStack.getType() != Material.ARROW) {
+			return;
+		}
 
-    	//Dont consume arrow and disable it pickup 
-        ((Arrow) event.getProjectile()).setPickupStatus(PickupStatus.CREATIVE_ONLY);
-        event.setConsumeItem(false);
+		//Dont consume arrow and disable it pickup 
+		((Arrow) event.getProjectile()).setPickupStatus(PickupStatus.CREATIVE_ONLY);
+		event.setConsumeItem(false);
 
-        //Update inventory
+		//Update inventory
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this.getPlugin(), new Runnable() {
-            public void run() {
-            	player.updateInventory();
-            }
-        }, 1L);
+			public void run() {
+				player.updateInventory();
+			}
+		}, 1L);
     }
 
 	@SuppressWarnings("deprecation")

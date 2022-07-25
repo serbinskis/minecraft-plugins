@@ -6,19 +6,15 @@ import com.willfp.ecoenchants.enchantments.EcoEnchant;
 import org.jetbrains.annotations.NotNull;
 
 public class MendfinityMain extends Extension {
-    public static final EcoEnchant MENDFINITY = new Mendfinity();
+	public static final EcoEnchant MENDFINITY = new Mendfinity();
 
-    public MendfinityMain(@NotNull final EcoPlugin plugin) {
-        super(plugin);
-    }
+	public MendfinityMain(@NotNull final EcoPlugin plugin) {
+		super(plugin);
+	}
 
-    @Override
-    public void onEnable() {
-        // Handled by super
-    }
+	@Override
+	public void onEnable() {}
 
     @Override
-    public void onDisable() {
-        // Handled by super
-    }
+	public void onDisable() {}
 }

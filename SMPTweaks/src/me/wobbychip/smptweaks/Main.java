@@ -16,12 +16,14 @@ import me.wobbychip.smptweaks.custom.fastcuring.FastCuring;
 import me.wobbychip.smptweaks.custom.funnymessages.FunnyMessages;
 import me.wobbychip.smptweaks.custom.globaltrading.GlobalTrading;
 import me.wobbychip.smptweaks.custom.headdrops.HeadDrops;
+import me.wobbychip.smptweaks.custom.noarrowinfinity.NoArrowInfinity;
 import me.wobbychip.smptweaks.custom.preventdropcentering.PreventDropCentering;
 import me.wobbychip.smptweaks.custom.pvpdropinventory.PvPDropInventory;
 import me.wobbychip.smptweaks.custom.repairwithxp.RepairWithXP;
 import me.wobbychip.smptweaks.custom.respawnabledragonegg.RespawnableDragonEgg;
 import me.wobbychip.smptweaks.custom.shriekercansummon.ShriekerCanSummon;
 import me.wobbychip.smptweaks.tweaks.TweakManager;
+import me.wobbychip.smptweaks.utils.Utils;
 
 public class Main extends JavaPlugin implements Listener {
 	public static Main plugin;
@@ -48,6 +50,7 @@ public class Main extends JavaPlugin implements Listener {
 		manager.addTweak(new FunnyMessages());
 		manager.addTweak(new GlobalTrading());
 		manager.addTweak(new HeadDrops());
+		manager.addTweak(new NoArrowInfinity());
 		manager.addTweak(new PreventDropCentering());
 		manager.addTweak(new PvPDropInventory());
 		manager.addTweak(new RepairWithXP());

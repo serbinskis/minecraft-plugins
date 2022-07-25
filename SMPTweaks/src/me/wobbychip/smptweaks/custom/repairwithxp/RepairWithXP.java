@@ -12,8 +12,8 @@ import org.bukkit.inventory.ItemStack;
 
 import me.wobbychip.smptweaks.Config;
 import me.wobbychip.smptweaks.Main;
-import me.wobbychip.smptweaks.Utils;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
+import me.wobbychip.smptweaks.utils.Utils;
 
 public class RepairWithXP extends CustomTweak {
 	public static int amountXP;

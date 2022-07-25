@@ -15,7 +15,7 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
 import me.wobbychip.smptweaks.Config;
 import me.wobbychip.smptweaks.Main;
-import me.wobbychip.smptweaks.Utils;
+import me.wobbychip.smptweaks.utils.Utils;
 
 public class PlayerTimer {
 	protected Config config;
