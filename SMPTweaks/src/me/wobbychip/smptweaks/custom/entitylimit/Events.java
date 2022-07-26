@@ -18,25 +18,25 @@ public class Events implements Listener {
 			return;
 		}
 
-    	//Get nearest player to entity
+		//Get nearest player to entity
 		LivingEntity entity = event.getEntity();
-    	Player player = Utils.getNearetPlayer(entity.getLocation());
+		Player player = Utils.getNearetPlayer(entity.getLocation());
 
-    	//Check if player has bypass permissions
-    	if ((player != null) && player.hasPermission("entitylimit.bypass")) {
-    		return;
-    	}
+		//Check if player has bypass permissions
+		if ((player != null) && player.hasPermission("entitylimit.bypass")) {
+			return;
+		}
 
-    	//Get entity count
-	    int nearbyEntities = Utils.getNearestEntities(entity.getLocation(), entity.getType(), EntityLimit.maximumDistance, true).size();
+		//Get entity count
+		int nearbyEntities = Utils.getNearestEntities(entity.getLocation(), entity.getType(), EntityLimit.maximumDistance, true).size();
 
-	    //Cancel entity if count is over limit
-	    if (nearbyEntities >= EntityLimit.limit) {
-	    	event.setCancelled(true);
-	    	if (player == null) { return; }
+		//Cancel entity if count is over limit
+		if (nearbyEntities >= EntityLimit.limit) {
+			event.setCancelled(true);
+			if (player == null) { return; }
 
 			String replacedMessage = Utils.getString("tooManyEntity", EntityLimit.config).replace("%value%", String.valueOf(EntityLimit.limit));
 			Utils.sendActionMessage(ChatColor.RED, player, replacedMessage);
-	    }
+		}
 	}
 }

@@ -19,13 +19,13 @@ public class AllCraftingRecipes extends CustomTweak {
 
 		if (this.isEnabled()) {
 			Bukkit.getServer().recipeIterator().forEachRemaining(recipe -> {
-		        if (recipe instanceof ShapelessRecipe) {
-		            recipeKeys.add(((ShapelessRecipe) recipe).getKey());
-		        }
+				if (recipe instanceof ShapelessRecipe) {
+					recipeKeys.add(((ShapelessRecipe) recipe).getKey());
+				}
 
-		        if (recipe instanceof ShapedRecipe) {
-		        	recipeKeys.add(((ShapedRecipe) recipe).getKey());
-		        }
+				if (recipe instanceof ShapedRecipe) {
+					recipeKeys.add(((ShapedRecipe) recipe).getKey());
+				}
 			});
 			
 			Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);

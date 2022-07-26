@@ -36,19 +36,19 @@ public class Loader {
 
 		//Prevent some interaction with fake player
 		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
-	        public void run() {
-	        	if (player != null) { player.getBukkitEntity().teleport(location.clone().add(0.5, 0, 0.5)); }
-	        	if (player != null) { player.getBukkitEntity().setCollidable(false); }
-	        }
-	    }, 5L, 5L);
+			public void run() {
+				if (player != null) { player.getBukkitEntity().teleport(location.clone().add(0.5, 0, 0.5)); }
+				if (player != null) { player.getBukkitEntity().setCollidable(false); }
+			}
+		}, 5L, 5L);
 
 		//Fix visual bug when adding nether star to powered block
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
-	        public void run() {
-	    		ItemFrame frame = getItemFrame();
-	    		if (frame != null) { frame.setItem(frame.getItem()); }
-	        }
-	    }, 1L);
+			public void run() {
+				ItemFrame frame = getItemFrame();
+				if (frame != null) { frame.setItem(frame.getItem()); }
+		}
+		}, 1L);
 	}
 
 	public Location getLocation() {

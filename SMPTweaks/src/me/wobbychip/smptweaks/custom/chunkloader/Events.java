@@ -29,10 +29,10 @@ import me.wobbychip.smptweaks.utils.Utils;
 public class Events implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockExplodeEvent(BlockExplodeEvent event) {
-    	for (Block block : event.blockList()) {
-    		if (block.getType() != Material.LODESTONE) { continue; }
-    		ChunkLoader.manager.removeLoader(block);
-        }
+		for (Block block : event.blockList()) {
+			if (block.getType() != Material.LODESTONE) { continue; }
+			ChunkLoader.manager.removeLoader(block);
+		}
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

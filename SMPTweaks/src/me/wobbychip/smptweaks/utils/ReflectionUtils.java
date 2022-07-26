@@ -160,16 +160,16 @@ public class ReflectionUtils {
 	}
 
 	public static Class<?> loadClass(String arg0) {
-    	try {
-    		return Class.forName(arg0);
+		try {
+			return Class.forName(arg0);
 		} catch (ClassNotFoundException e) {
-        	e.printStackTrace();
-        	return null;
+			e.printStackTrace();
+			return null;
 		}
 	}
 
 	public static Method getMethod(Class<?> clazz, String name, Class<?>... parameters) {
-    	try {
+		try {
 			return clazz.getDeclaredMethod(name, parameters);
 		} catch (NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
@@ -218,32 +218,32 @@ public class ReflectionUtils {
 	}
 
 	public static net.minecraft.world.item.ItemStack asNMSCopy(ItemStack itemStack) {
-    	try {
-    		Method method = CraftItemStack.getDeclaredMethod("asNMSCopy", ItemStack.class);
-    		return (net.minecraft.world.item.ItemStack) method.invoke(method, itemStack);
-    	} catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException e) {
-        	e.printStackTrace();
-        	return null;
+		try {
+			Method method = CraftItemStack.getDeclaredMethod("asNMSCopy", ItemStack.class);
+			return (net.minecraft.world.item.ItemStack) method.invoke(method, itemStack);
+		} catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException e) {
+			e.printStackTrace();
+			return null;
 		}
 	}
 
 	public static ItemStack asBukkitCopy(net.minecraft.world.item.ItemStack itemStack) {
-    	try {
-    		Method method = CraftItemStack.getDeclaredMethod("asBukkitCopy", net.minecraft.world.item.ItemStack.class);
-    		return (ItemStack) method.invoke(method, itemStack);
-    	} catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException e) {
-        	e.printStackTrace();
-        	return null;
+		try {
+			Method method = CraftItemStack.getDeclaredMethod("asBukkitCopy", net.minecraft.world.item.ItemStack.class);
+			return (ItemStack) method.invoke(method, itemStack);
+		} catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException e) {
+			e.printStackTrace();
+			return null;
 		}
 	}
 
 	public static ItemStack asBukkitMirror(net.minecraft.world.item.ItemStack itemStack) {
-    	try {
-    		Method method = CraftItemStack.getDeclaredMethod("asCraftMirror", net.minecraft.world.item.ItemStack.class);
-    		return (ItemStack) method.invoke(method, itemStack);
-    	} catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException e) {
-        	e.printStackTrace();
-        	return null;
+		try {
+			Method method = CraftItemStack.getDeclaredMethod("asCraftMirror", net.minecraft.world.item.ItemStack.class);
+			return (ItemStack) method.invoke(method, itemStack);
+		} catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException e) {
+			e.printStackTrace();
+			return null;
 		}
 	}
 

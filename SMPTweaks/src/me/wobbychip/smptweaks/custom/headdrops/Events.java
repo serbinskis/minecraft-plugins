@@ -17,9 +17,9 @@ public class Events implements Listener {
 
 		ItemStack playerHead = new ItemStack(Material.PLAYER_HEAD);
 		SkullMeta skullMeta = (SkullMeta) playerHead.getItemMeta();
-        skullMeta.setOwningPlayer(event.getEntity());
-        skullMeta.setOwnerProfile(event.getEntity().getPlayerProfile());
-        playerHead.setItemMeta(skullMeta);
+		skullMeta.setOwningPlayer(event.getEntity());
+		skullMeta.setOwnerProfile(event.getEntity().getPlayerProfile());
+		playerHead.setItemMeta(skullMeta);
 
 		event.getDrops().add(playerHead);
 	}

@@ -27,10 +27,10 @@ public class Manager {
 		}
 
 		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
-	        public void run() {
-	        	updateAll();
-	        }
-	    }, 20L, 5L);
+			public void run() {
+				updateAll();
+			}
+		}, 20L, 5L);
 	}
 
 	public Border getBorder(Player player) {

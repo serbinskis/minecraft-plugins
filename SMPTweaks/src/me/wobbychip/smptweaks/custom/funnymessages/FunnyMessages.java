@@ -29,10 +29,10 @@ public class FunnyMessages extends CustomTweak {
 	}
 
 	public static void loadConfig() {
-        try {
-            List<String> list = Arrays.asList(FunnyMessages.class.getCanonicalName().split("\\."));
-            String configPath = String.join("/", list.subList(0, list.size()-1)) + "/messages.txt";
-            File file = Utils.saveResource(configPath, "/tweaks/FunnyMessages/messages.txt");
+		try {
+			List<String> list = Arrays.asList(FunnyMessages.class.getCanonicalName().split("\\."));
+			String configPath = String.join("/", list.subList(0, list.size()-1)) + "/messages.txt";
+			File file = Utils.saveResource(configPath, "/tweaks/FunnyMessages/messages.txt");
 
 			for (String line : Files.readString(file.toPath()).split("\\r?\\n")) {
 				if (line.contains("<player>")) { messages.add(line); }

@@ -32,7 +32,7 @@ public class RepairWithXP extends CustomTweak {
 					for (Player player : Bukkit.getOnlinePlayers()) {
 						checkPlayer(player);
 					}
-	            }
+				}
 			}, 0L, intervalTicks);
 
 			this.printEnabled();

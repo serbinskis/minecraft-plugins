@@ -157,7 +157,7 @@ public class Crafters {
 
 		Block crafter = entity.getLocation().getBlock().getRelative(((ItemFrame) entity).getAttachedFace());
 		if (crafter.getType() != Material.DISPENSER) { return null; }
-        return crafter;
+		return crafter;
 	}
 
 	public boolean isDisabled(Block block) {

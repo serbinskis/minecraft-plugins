@@ -30,8 +30,8 @@ public class PaperUtils {
 
 	public static boolean isPaper() {
 		try {
-		    Class.forName("com.destroystokyo.paper.ParticleBuilder");
-		    return true;
+			Class.forName("com.destroystokyo.paper.ParticleBuilder");
+			return true;
 		} catch (ClassNotFoundException e) {}
 
 		return false;

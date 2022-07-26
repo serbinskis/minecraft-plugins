@@ -22,10 +22,10 @@ public class Border {
 		this.center = center;
 
 		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
-	        public void run() {
-	        	update();
-	        }
-	    }, 1L, 5L);
+			public void run() {
+				update();
+			}
+		}, 1L, 5L);
 	}
 
 	public boolean containsPlayer(Player player) {

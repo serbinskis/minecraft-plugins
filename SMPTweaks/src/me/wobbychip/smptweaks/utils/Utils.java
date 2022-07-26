@@ -62,37 +62,51 @@ public class Utils {
 
 	//Generate random range integer
 	public static int randomRange(int min, int max) {
-        return min + (int) (Math.random() * (max - min+1));
-    }
+		return min + (int) (Math.random() * (max - min+1));
+	}
 
 	//Generate random range double
 	public static double randomRange(double min, double max) {
 		return min + Math.random() * (max - min);
-    }
+	}
 
 	//Return number after decimal, not precise tho
 	public static double afterDecimal(double x) {
 		return x - Math.floor(x);
 	}
 
-    //Calculate total experience up to a level
-    public static int getExpAtLevel(int level) {
-        if (level <= 16) {
-            return (int) (Math.pow(level,2) + 6*level);
-        } else if (level <= 31) {
-            return (int) (2.5*Math.pow(level,2) - 40.5*level + 360.0);
-        } else {
-            return (int) (4.5*Math.pow(level,2) - 162.5*level + 2220.0);
-        }
-    }
+	//Calculate total experience up to a level
+	public static int getExpAtLevel(int level) {
+		if (level <= 16) {
+			return (int) (Math.pow(level,2) + 6*level);
+		} else if (level <= 31) {
+			return (int) (2.5*Math.pow(level,2) - 40.5*level + 360.0);
+		} else {
+			return (int) (4.5*Math.pow(level,2) - 162.5*level + 2220.0);
+		}
+	}
 
-    //Calculate players current EXP amount
-    public static int getPlayerExp(Player player) {
-        int level = player.getLevel();
-        int exp = getExpAtLevel(level);
-        exp += Math.round(player.getExpToLevel() * player.getExp());
-        return exp;
-    }
+	//Calculate players current EXP amount
+	public static int getPlayerExp(Player player) {
+		int level = player.getLevel();
+		int exp = getExpAtLevel(level);
+		exp += Math.round(player.getExpToLevel() * player.getExp());
+		return exp;
+	}
+
+	//Calculate experience reward on death
+	public static int getExperienceReward(Player player, boolean dropAllXp) {
+		if (player.getGameMode() != GameMode.SPECTATOR) {
+			if (dropAllXp) {
+				return getPlayerExp(player);
+			} else {
+				int i = player.getLevel() * 7;
+				return i > 100 ? 100 : i;
+			}
+		}
+
+		return 0;
+	}
 
 	//Drop item from player position
 	public static void dropItem(Player player, ItemStack item) {
@@ -106,20 +120,6 @@ public class Utils {
 		itemDropped.setVelocity(vector);
 		itemDropped.setPickupDelay(40);
 	}
-
-	//Calculate experience reward on death
-	public static int getExperienceReward(Player player, boolean dropAllXp) {
-        if (player.getGameMode() != GameMode.SPECTATOR) {
-        	if (dropAllXp) {
-        		return getPlayerExp(player);
-        	} else {
-                int i = player.getLevel() * 7;
-                return i > 100 ? 100 : i;
-        	}
-        }
-
-		return 0;
-    }
 
 	//Check if player has permissions
 	public static boolean hasPermissions(CommandSender sender, String permission, Config config) {
@@ -135,19 +135,19 @@ public class Utils {
 
 	//Get nearest player to entity
 	public static Player getNearetPlayer(Location location) {
-    	Player best = null;
-        double bestDistance = Double.MAX_VALUE;
+		Player best = null;
+		double bestDistance = Double.MAX_VALUE;
 
-        for (Player player : location.getWorld().getPlayers()) {
-        	double distance = location.distance(player.getLocation());
+		for (Player player : location.getWorld().getPlayers()) {
+			double distance = location.distance(player.getLocation());
 
-        	if (distance < bestDistance) {
-            	best = player;
-                bestDistance = distance;
-            }
-        }
+			if (distance < bestDistance) {
+				best = player;
+				bestDistance = distance;
+			}
+		}
 
-        return best;
+		return best;
 	}
 
 	//Get nearest entities
@@ -217,11 +217,11 @@ public class Utils {
 		Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
 		Team team;
 
-        if (!scoreboard.getTeams().stream().map(Team::getName).toList().contains(Main.prefix + color.name())) {
-            team = scoreboard.registerNewTeam(Main.prefix + color.name());
-        } else {
-            team = scoreboard.getTeam(Main.prefix + color.name());
-        }
+		if (!scoreboard.getTeams().stream().map(Team::getName).toList().contains(Main.prefix + color.name())) {
+			team = scoreboard.registerNewTeam(Main.prefix + color.name());
+		} else {
+			team = scoreboard.getTeam(Main.prefix + color.name());
+		}
 
 		team.setColor(color);
 		team.addEntry(entity.getUniqueId().toString());
@@ -233,14 +233,14 @@ public class Utils {
 		File file = new File(Main.plugin.getDataFolder() + savePath);
 
 		if (!file.exists()) {
-        	try {
-        		file.getParentFile().mkdirs();
-            	InputStream inputStream = Main.plugin.getResource(configPath);
+			try {
+				file.getParentFile().mkdirs();
+				InputStream inputStream = Main.plugin.getResource(configPath);
 				Files.copy(inputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-        }
+		}
 
 		return file;
 	}

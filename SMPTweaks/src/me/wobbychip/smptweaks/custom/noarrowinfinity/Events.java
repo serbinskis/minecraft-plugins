@@ -29,7 +29,7 @@ public class Events implements Listener {
 	//So instead I implemented my own way of handling CREATIVE_ONLY arrows
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onEntityShootBowEvent(EntityShootBowEvent event) {
+	public void onEntityShootBowEvent(EntityShootBowEvent event) {
 		if (!(event.getEntity() instanceof Player)) { return; }
 		if (!(event.getProjectile() instanceof Arrow) || (event.getConsumable() == null)) { return; }
 		Player player = (Player) event.getEntity();

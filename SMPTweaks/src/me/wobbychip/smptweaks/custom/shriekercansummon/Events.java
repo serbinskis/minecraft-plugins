@@ -24,7 +24,7 @@ import me.wobbychip.smptweaks.utils.Utils;
 
 public class Events implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onBlockPlace(BlockPlaceEvent event)  {
+	public void onBlockPlace(BlockPlaceEvent event)  {
 		if (event.getBlock().getType() == Material.SCULK_SHRIEKER) {
 			PersistentUtils.setPersistentDataBoolean(event.getBlock(), ShriekerCanSummon.isPlayerPlaced, true);
 		}
