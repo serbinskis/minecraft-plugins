@@ -30,7 +30,7 @@ public class Border {
 
 	public boolean containsPlayer(Player player) {
 		for (Player player1 : players) {
-			if (player1.getUniqueId().equals(player1.getUniqueId())) { return true; }
+			if (player1.getUniqueId().equals(player.getUniqueId())) { return true; }
 		}
 
 		return false;
@@ -40,14 +40,14 @@ public class Border {
 		if (containsPlayer(player)) { return; }
 		players.add(player);
 		Utils.sendActionMessage(null, player, "Virtual border is now visible.");
-		player.getWorld().playSound(center, Sound.BLOCK_END_PORTAL_FRAME_FILL, 1, 1);
+		player.playSound(player.getLocation(), Sound.BLOCK_END_PORTAL_FRAME_FILL, 1, 1);
 	}
 
 	public void removePlayer(Player player) {
 		players.remove(player);
 		player.setWorldBorder(center.getWorld().getWorldBorder());
 		Utils.sendActionMessage(null, player, "Virtual border is now hidden.");
-		player.getWorld().playSound(center, Sound.BLOCK_END_PORTAL_FRAME_FILL, 1, 1);
+		player.playSound(player.getLocation(), Sound.BLOCK_END_PORTAL_FRAME_FILL, 1, 1);
 	}
 
 	public void togglePlayer(Player player) {
