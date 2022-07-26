@@ -9,6 +9,7 @@ import me.wobbychip.smptweaks.custom.anticreepergrief.AntiCreeperGrief;
 import me.wobbychip.smptweaks.custom.antiendermangrief.AntiEndermanGrief;
 import me.wobbychip.smptweaks.custom.autocraft.AutoCraft;
 import me.wobbychip.smptweaks.custom.chunkloader.ChunkLoader;
+import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
 import me.wobbychip.smptweaks.custom.disableinvulnerability.DisableInvulnerability;
 import me.wobbychip.smptweaks.custom.dropcursedpumpkin.DropCursedPumpkin;
 import me.wobbychip.smptweaks.custom.entitylimit.EntityLimit;
@@ -29,12 +30,14 @@ import me.wobbychip.smptweaks.utils.Utils;
 public class Main extends JavaPlugin implements Listener {
 	public static Main plugin;
 	public static TweakManager manager;
+	public static ClassLoader classLoader;
 	public static String prefix = "SMPTweaks-";
 
 	@Override
 	public void onEnable() {
 		Main.plugin = this;
 		Main.plugin.saveDefaultConfig();
+		Main.classLoader = Main.plugin.getClassLoader();
 
 		String version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
 		Utils.sendMessage("&9[SMPTweaks] Server Version: " + version);
@@ -59,6 +62,7 @@ public class Main extends JavaPlugin implements Listener {
 		manager.addTweak(new RepairWithXP());
 		manager.addTweak(new RespawnableDragonEgg());
 		manager.addTweak(new ShriekerCanSummon());
+		manager.addTweak(new CustomPotions());
 
 		Main.plugin.getCommand("smptweaks").setExecutor(new Commands());
 	}

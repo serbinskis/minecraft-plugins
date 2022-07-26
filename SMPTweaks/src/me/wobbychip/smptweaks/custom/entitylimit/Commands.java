@@ -15,7 +15,11 @@ public class Commands {
 
 		//Reload plugin
 		if (args[0].equalsIgnoreCase("reload")) {
-			if (!Utils.hasPermissions(sender, "entitylimit.reload", EntityLimit.config)) { return true; }
+			if (!Utils.hasPermissions(sender, "entitylimit.reload")) {
+				Utils.sendMessage(sender, Utils.getString("permissionMessage",  EntityLimit.config));
+				return true;
+			}
+
 			EntityLimit.loadConfig();
 			Utils.sendMessage(sender, Utils.getString("reloadMessage", EntityLimit.config));
 			return true;

@@ -33,10 +33,12 @@ import net.minecraft.world.entity.Entity.RemovalReason;
 import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.entity.player.PlayerAbilities;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.alchemy.PotionBrewer;
+import net.minecraft.world.item.alchemy.PotionRegistry;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class ReflectionUtils {
-	private static DataWatcherObject<Byte> DATA_LIVING_ENTITY_FLAGS = null;
+	public static DataWatcherObject<Byte> DATA_LIVING_ENTITY_FLAGS;
 	public static int LIVING_ENTITY_FLAG_IS_USING = 1;
 
 	public static String version;
@@ -47,15 +49,16 @@ public class ReflectionUtils {
 	public static Class<?> CraftEntity;
 	public static Class<?> CraftItemStack;
 
-	private static Field playerConnection = null;
-	private static Field playerAbilities = null;
-	private static Method sendPacket = null;
-	private static Method getEntityData = null;
-	private static Method entityData_get = null;
-	private static Method item_get = null;
-	private static Method item_releaseUsing = null;
-	private static Method addPlayer = null;
-	private static Method removePlayer = null;
+	public static Field playerConnection;
+	public static Field playerAbilities;
+	public static Method registerBrewMethod;
+	public static Method sendPacket;
+	public static Method getEntityData;
+	public static Method entityData_get;
+	public static Method item_get;
+	public static Method item_releaseUsing;
+	public static Method addPlayer;
+	public static Method removePlayer;
 
 	static {
 		version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
@@ -80,6 +83,16 @@ public class ReflectionUtils {
 		for (Field field : EntityPlayer.class.getDeclaredFields()) {
 			if (!field.getType().equals(PlayerConnection.class)) { continue; }
 			playerConnection = field;
+			break;
+		}
+
+		for (Method method : PotionBrewer.class.getMethods()) {
+			if (method.getParameterCount() != 3) { continue; }
+			if (!method.getParameterTypes()[0].equals(PotionRegistry.class)) { continue; }
+			if (!method.getParameterTypes()[1].equals(Item.class)) { continue; }
+			if (!method.getParameterTypes()[2].equals(PotionRegistry.class)) { continue; }
+			registerBrewMethod = method;
+			registerBrewMethod.setAccessible(true);
 			break;
 		}
 

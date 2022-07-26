@@ -8,3 +8,6 @@ commands:
   SMPTweaks:
     description: Tweak some settings!
     usage: "Usage: /<command> <tweak> <setting>"
+  cpotions:
+    description: Allows you to check custom potion
+    usage: "Usage: /<command>"

@@ -121,16 +121,57 @@ public class Utils {
 		itemDropped.setPickupDelay(40);
 	}
 
-	//Check if player has permissions
-	public static boolean hasPermissions(CommandSender sender, String permission, Config config) {
+	//Check for permissions
+	public static boolean hasPermissions(CommandSender sender, String permission) {
 		if (sender instanceof Player) {
-			if (!((Player) sender).hasPermission(permission)) {
-				sendMessage(sender, getString("permissionMessage", config));
-				return false;
-			}
+			return ((Player) sender).hasPermission(permission);
 		}
 
 		return true;
+	}
+
+	//Get distance between two locations
+	public static double distance(Location l1, Location l2) {
+		double x = Math.pow(l1.getX()-l2.getX(), 2);
+		double y = Math.pow(l1.getY()-l2.getY(), 2);
+		double z = Math.pow(l1.getZ()-l2.getZ(), 2);
+		return Math.sqrt(x+y+z);
+	}
+
+	//Check if itemstack is a potion
+	public static boolean isPotion(ItemStack itemStack) {
+		return ((itemStack != null) && ((itemStack.getType() == Material.POTION) || (itemStack.getType() == Material.SPLASH_POTION) || (itemStack.getType() == Material.LINGERING_POTION)));
+	}
+
+	//Check if itemstack is a tipped arrow
+	public static boolean isTippedArrow(ItemStack itemStack) {
+		return ((itemStack != null) && (itemStack.getType() == Material.TIPPED_ARROW));
+	}
+
+	//Get material name
+	public static String getMaterialName(Material material) {
+		return toTitleCase(material.name().replace("_", " "));
+	}
+
+	//Convert string to title case
+	public static String toTitleCase(String s) {
+		if (s == null || s.isEmpty()) { return ""; }
+		if (s.length() == 1) { return s.toUpperCase(); }
+
+		String[] parts = s.split(" ");
+		StringBuilder sb = new StringBuilder(s.length());
+        
+		for (String part : parts) {
+			if (part.length() > 1) {
+				sb.append(part.substring(0, 1).toUpperCase()).append(part.substring(1).toLowerCase());                
+			} else {
+				sb.append(part.toUpperCase());
+			}
+
+			sb.append(" ");
+		}
+
+		return sb.toString().trim();
 	}
 
 	//Get nearest player to entity
