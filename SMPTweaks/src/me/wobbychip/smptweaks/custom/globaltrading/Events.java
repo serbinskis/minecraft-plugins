@@ -24,13 +24,8 @@ public class Events implements Listener {
 	}
 
 	public void copyReputation(Player player, Villager villager, String type) {
-		if (hasReputation(player, villager, type)) { return; }
 		int amount = getReputation(villager, type);
 		if (amount > 0) { PaperUtils.setReputation(villager, player.getUniqueId(), type, amount); }
-	}
-
-	public boolean hasReputation(Player player, Villager villager, String type) {
-		return PaperUtils.getReputation(villager, player.getUniqueId(), type) > 0;
 	}
 
 	public int getReputation(Villager villager, String type) {
