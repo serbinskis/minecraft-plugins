@@ -24,12 +24,12 @@ public class NoArrowInfinity extends CustomTweak {
 
 		if (this.isEnabled()) {
 			Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
-	            public void run() {
-	                for (Player player : Bukkit.getOnlinePlayers()) {
-	                	checkPlayer(player);
-	                }
-	            }
-	        }, 0L, 1L);
+				public void run() {
+					for (Player player : Bukkit.getOnlinePlayers()) {
+						checkPlayer(player);
+					}
+				}
+			}, 0L, 1L);
 
 			Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 			this.printEnabled();
