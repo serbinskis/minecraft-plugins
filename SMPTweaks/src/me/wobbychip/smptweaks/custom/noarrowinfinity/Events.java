@@ -84,12 +84,12 @@ public class Events implements Listener {
 		//In case if player don't shoot make a timer and do checks
 		int[] task = { 0 };
 		task[0] = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
-	        public void run() {
-	        	if (!ReflectionUtils.isUsingItem(player)) {
-	        		ReflectionUtils.setInstantBuild(player, false, false, true);
-	        		Bukkit.getServer().getScheduler().cancelTask(task[0]);
-	        	}
-	        }
-	    }, 1L, 1L);
+			public void run() {
+				if (!ReflectionUtils.isUsingItem(player)) {
+					ReflectionUtils.setInstantBuild(player, false, false, true);
+					Bukkit.getServer().getScheduler().cancelTask(task[0]);
+				}
+			}
+		}, 1L, 1L);
 	}
 }

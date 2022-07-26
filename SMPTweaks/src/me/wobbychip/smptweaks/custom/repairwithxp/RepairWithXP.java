@@ -28,12 +28,12 @@ public class RepairWithXP extends CustomTweak {
 			loadConfig();
 
 			Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
-	            public void run() {
-	                for (Player player : Bukkit.getOnlinePlayers()) {
-	                	checkPlayer(player);
-	                }
+				public void run() {
+					for (Player player : Bukkit.getOnlinePlayers()) {
+						checkPlayer(player);
+					}
 	            }
-	        }, 0L, intervalTicks);
+			}, 0L, intervalTicks);
 
 			this.printEnabled();
 		} else {

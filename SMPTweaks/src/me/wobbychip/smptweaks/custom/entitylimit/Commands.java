@@ -23,6 +23,6 @@ public class Commands {
 
 		//Send usage command
 		Utils.sendMessage(sender, Utils.getString("usageMessage", EntityLimit.config));
-        return true;
-    }
+		return true;
+	}
 }

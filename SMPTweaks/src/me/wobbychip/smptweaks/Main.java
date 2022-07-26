@@ -8,6 +8,7 @@ import me.wobbychip.smptweaks.custom.allcraftingrecipes.AllCraftingRecipes;
 import me.wobbychip.smptweaks.custom.anticreepergrief.AntiCreeperGrief;
 import me.wobbychip.smptweaks.custom.antiendermangrief.AntiEndermanGrief;
 import me.wobbychip.smptweaks.custom.autocraft.AutoCraft;
+import me.wobbychip.smptweaks.custom.chunkloader.ChunkLoader;
 import me.wobbychip.smptweaks.custom.disableinvulnerability.DisableInvulnerability;
 import me.wobbychip.smptweaks.custom.dropcursedpumpkin.DropCursedPumpkin;
 import me.wobbychip.smptweaks.custom.entitylimit.EntityLimit;
@@ -28,6 +29,7 @@ import me.wobbychip.smptweaks.utils.Utils;
 public class Main extends JavaPlugin implements Listener {
 	public static Main plugin;
 	public static TweakManager manager;
+	public static String prefix = "SMPTweaks-";
 
 	@Override
 	public void onEnable() {
@@ -42,6 +44,7 @@ public class Main extends JavaPlugin implements Listener {
 		manager.addTweak(new AntiCreeperGrief());
 		manager.addTweak(new AntiEndermanGrief());
 		manager.addTweak(new AutoCraft());
+		manager.addTweak(new ChunkLoader());
 		manager.addTweak(new DisableInvulnerability());
 		manager.addTweak(new DropCursedPumpkin());
 		manager.addTweak(new EntityLimit());

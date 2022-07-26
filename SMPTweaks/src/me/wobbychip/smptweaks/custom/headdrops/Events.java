@@ -15,8 +15,8 @@ public class Events implements Listener {
 		Player killer = event.getEntity().getKiller();
 		if ((killer == null) || killer.getUniqueId().equals(event.getEntity().getUniqueId())) { return; }
 
-        ItemStack playerHead = new ItemStack(Material.PLAYER_HEAD);
-        SkullMeta skullMeta = (SkullMeta) playerHead.getItemMeta();
+		ItemStack playerHead = new ItemStack(Material.PLAYER_HEAD);
+		SkullMeta skullMeta = (SkullMeta) playerHead.getItemMeta();
         skullMeta.setOwningPlayer(event.getEntity());
         skullMeta.setOwnerProfile(event.getEntity().getPlayerProfile());
         playerHead.setItemMeta(skullMeta);

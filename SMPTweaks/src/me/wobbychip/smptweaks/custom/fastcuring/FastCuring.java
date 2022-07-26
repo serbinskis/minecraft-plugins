@@ -26,8 +26,8 @@ public class FastCuring extends CustomTweak {
 	}
 
 	public static void loadConfig() {
-        List<String> list = Arrays.asList(FastCuring.class.getCanonicalName().split("\\."));
-        String configPath = String.join("/", list.subList(0, list.size()-1)) + "/config.yml";
+		List<String> list = Arrays.asList(FastCuring.class.getCanonicalName().split("\\."));
+		String configPath = String.join("/", list.subList(0, list.size()-1)) + "/config.yml";
 		FastCuring.config = new Config(configPath, "/tweaks/FastCuring/config.yml");
 		FastCuring.intervalTicks = FastCuring.config.getConfig().getInt("intervalTicks");
 	}

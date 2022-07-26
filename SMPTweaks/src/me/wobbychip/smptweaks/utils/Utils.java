@@ -28,6 +28,8 @@ import org.bukkit.entity.TNTPrimed;
 import org.bukkit.entity.Tameable;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.projectiles.ProjectileSource;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
 
 import me.wobbychip.smptweaks.Config;
@@ -208,6 +210,22 @@ public class Utils {
 		}
 
 		return null;
+	}
+
+	//Set glow color entity
+	public static void setGlowColor(Entity entity, ChatColor color) {
+		Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
+		Team team;
+
+        if (!scoreboard.getTeams().stream().map(Team::getName).toList().contains(Main.prefix + color.name())) {
+            team = scoreboard.registerNewTeam(Main.prefix + color.name());
+        } else {
+            team = scoreboard.getTeam(Main.prefix + color.name());
+        }
+
+		team.setColor(color);
+		team.addEntry(entity.getUniqueId().toString());
+		entity.setGlowing(!color.equals(ChatColor.RESET));
 	}
 
 	//Save resource to file

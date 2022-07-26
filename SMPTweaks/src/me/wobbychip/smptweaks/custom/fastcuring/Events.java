@@ -19,12 +19,12 @@ public class Events implements Listener {
 		if (villager.isConverting()) { return; }
 
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
-            public void run() {
-            	if (!villager.isConverting()) { return; }
-            	OfflinePlayer player = villager.getConversionPlayer();
-            	villager.setConversionTime(FastCuring.intervalTicks);
-            	villager.setConversionPlayer(player);
-            }
-        }, 1);
+			public void run() {
+				if (!villager.isConverting()) { return; }
+				OfflinePlayer player = villager.getConversionPlayer();
+				villager.setConversionTime(FastCuring.intervalTicks);
+				villager.setConversionPlayer(player);
+			}
+		}, 1);
 	}
 }

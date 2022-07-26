@@ -36,11 +36,11 @@ public class PvPDropInventory extends CustomTweak {
 	}
 
 	public static void loadConfig() {
-        List<String> list = Arrays.asList(PvPDropInventory.class.getCanonicalName().split("\\."));
-        String configPath = String.join("/", list.subList(0, list.size()-1)) + "/config.yml";
+		List<String> list = Arrays.asList(PvPDropInventory.class.getCanonicalName().split("\\."));
+		String configPath = String.join("/", list.subList(0, list.size()-1)) + "/config.yml";
 		PvPDropInventory.config = new Config(configPath, "/tweaks/PvPDropInventory/config.yml");
 
-        configPath = String.join("/", list.subList(0, list.size()-1)) + "/players.yml";
+		configPath = String.join("/", list.subList(0, list.size()-1)) + "/players.yml";
 		PvPDropInventory.playerConfig = new Config(configPath, "/tweaks/PvPDropInventory/players.yml");
 
 		PvPDropInventory.timeout = PvPDropInventory.config.getConfig().getInt("PvP_Timeout");

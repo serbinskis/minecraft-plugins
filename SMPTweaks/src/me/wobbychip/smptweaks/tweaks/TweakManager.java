@@ -9,7 +9,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
 public class TweakManager {
-	protected Map<String, CustomTweak> tweaks = new HashMap<String, CustomTweak>();
+	protected Map<String, CustomTweak> tweaks = new HashMap<>();
 
 	public void addTweak(CustomTweak tweak) {
 		tweaks.put(tweak.getName(), tweak);
