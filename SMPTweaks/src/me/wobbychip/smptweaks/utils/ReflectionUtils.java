@@ -311,7 +311,7 @@ public class ReflectionUtils {
 
 		//net.minecraft.world.entity.LivingEntity ->
 		//    boolean isUsingItem() -> eU
-		//return getEntityPlayer(player).eU();*/
+		//return getEntityPlayer(player).eU();
 	}
 
 	public static void shootBow(Player player, ItemStack bow, int ticks) {
