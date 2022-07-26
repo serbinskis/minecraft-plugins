@@ -306,7 +306,7 @@ public class ReflectionUtils {
 			return false;
 		}
 
-		//Yes bellow one solution is much easier, but I don't want to update it every time
+		//Yes solution bellow is much easier, but I don't want to update it every time
 		//So I will better search for everything by types and use reflection
 
 		//net.minecraft.world.entity.LivingEntity ->
