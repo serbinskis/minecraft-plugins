@@ -61,21 +61,21 @@ public class NMSUtils {
 		//    net.minecraft.world.effect.MobEffectCategory NEUTRAL -> c
 
 		//net.minecraft.core.Registry ->
-		//    net.minecraft.core.Registry MOB_EFFECT -> U
-		//    net.minecraft.core.DefaultedRegistry POTION -> Z
+		//    net.minecraft.core.Registry MOB_EFFECT ->
+		//    net.minecraft.core.DefaultedRegistry POTION ->
 		//    java.lang.Object registerMapping(net.minecraft.core.Registry,int,java.lang.String,java.lang.Object) -> a
 
-		ReflectionUtils.setRegistryFrozen(IRegistry.U, false);
-		ReflectionUtils.setRegistryFrozen(IRegistry.Z, false);
+		ReflectionUtils.setRegistryFrozen(ReflectionUtils.MOB_EFFECT, false);
+		ReflectionUtils.setRegistryFrozen(ReflectionUtils.POTION, false);
 
-		int id = IRegistry.U.d().size()+1;
+		int id = ReflectionUtils.MOB_EFFECT.d().size()+1;
 		InstantMobEffect instantMobEffect = new InstantMobEffect(MobEffectInfo.c, color);
-		MobEffectList mobEffectList = (MobEffectList) IRegistry.a(IRegistry.U, id, name, instantMobEffect);
+		MobEffectList mobEffectList = (MobEffectList) IRegistry.a(ReflectionUtils.MOB_EFFECT, id, name, instantMobEffect);
 		PotionRegistry potionRegistry = new PotionRegistry(new MobEffect[]{new MobEffect(mobEffectList, 1)});
-		potionRegistry =  (PotionRegistry) IRegistry.a((IRegistry) IRegistry.Z, name, (Object) potionRegistry);
+		potionRegistry = (PotionRegistry) IRegistry.a((IRegistry) ReflectionUtils.POTION, name, (Object) potionRegistry);
 
-		ReflectionUtils.setRegistryFrozen(IRegistry.U, true);
-		ReflectionUtils.setRegistryFrozen(IRegistry.Z, true);
+		ReflectionUtils.setRegistryFrozen(ReflectionUtils.MOB_EFFECT, true);
+		ReflectionUtils.setRegistryFrozen(ReflectionUtils.POTION, true);
 		return potionRegistry;
 	}
 

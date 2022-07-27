@@ -21,6 +21,8 @@ import org.bukkit.potion.PotionType;
 
 import com.mojang.authlib.GameProfile;
 
+import net.minecraft.core.IRegistry;
+import net.minecraft.core.RegistryBlocks;
 import net.minecraft.core.RegistryMaterials;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.protocol.EnumProtocolDirection;
@@ -33,6 +35,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.server.level.WorldServer;
 import net.minecraft.server.network.PlayerConnection;
+import net.minecraft.world.effect.MobEffectList;
 import net.minecraft.world.entity.EntityLiving;
 import net.minecraft.world.entity.Entity.RemovalReason;
 import net.minecraft.world.entity.player.EntityHuman;
@@ -47,6 +50,9 @@ import net.minecraft.world.item.alchemy.Potions;
 public class ReflectionUtils {
 	public static DataWatcherObject<Byte> DATA_LIVING_ENTITY_FLAGS;
 	public static int LIVING_ENTITY_FLAG_IS_USING = 1;
+
+	public static IRegistry<MobEffectList> MOB_EFFECT;;
+	public static RegistryBlocks<PotionRegistry> POTION;
 
 	public static String version;
 	public static Class<?> CraftPlayer;
@@ -80,6 +86,9 @@ public class ReflectionUtils {
 		CraftEntity = loadClass("org.bukkit.craftbukkit." + version + ".entity.CraftEntity");
 		CraftItemStack = loadClass("org.bukkit.craftbukkit." + version + ".inventory.CraftItemStack");
 		CraftMagicNumbers = loadClass("org.bukkit.craftbukkit." + version + ".util.CraftMagicNumbers");
+
+		MOB_EFFECT = (IRegistry<MobEffectList>) getRegistry(IRegistry.class, MobEffectList.class);
+		POTION = (RegistryBlocks<PotionRegistry>) getRegistry(RegistryBlocks.class, PotionRegistry.class);
 
 		//Fuck it I am not interested in updating stuff every time
 		//So I will just search fields and methods by their types and arguments
@@ -440,6 +449,25 @@ public class ReflectionUtils {
 			return (potion != Potions.a) ? potion : null;
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+	public static Object getRegistry(Class rType, Class gType) {
+		for (Field field : IRegistry.class.getDeclaredFields()) {
+			if (!field.getType().equals(rType)) { continue; }
+			Type genericType = field.getGenericType();
+			if (!(genericType instanceof ParameterizedType)) { continue; }
+			Type[] argTypes = ((ParameterizedType) genericType).getActualTypeArguments();
+			if ((argTypes.length == 0) || !(argTypes[0] instanceof Class)) { continue; }
+			if (!((Class) argTypes[0]).equals(gType)) { continue; }
+
+			try {
+				return field.get(null);
+			} catch (IllegalArgumentException | IllegalAccessException e) {
+				e.printStackTrace();
+			}
 		}
 
 		return null;
