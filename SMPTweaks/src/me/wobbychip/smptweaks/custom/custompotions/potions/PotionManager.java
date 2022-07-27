@@ -52,7 +52,6 @@ public class PotionManager {
 			potion.setBase(registry.get(potion.getBaseName()));
 		}
 
-		Bukkit.getPluginManager().registerEvents(potion, Main.plugin);
 		PotionRegistry result = NMSUtils.registerInstantPotion(potion.getName(), potion.getIntColor());
 		potions.put(potion.getName(), potion);
 		registry.put(potion.getName(), result);
@@ -72,6 +71,7 @@ public class PotionManager {
 
 		//If potion disabled register it, but don't add brew recipe
 		if (!potion.isEnabled()) { return; }
+		Bukkit.getPluginManager().registerEvents(potion, Main.plugin);
 		NMSUtils.registerBrewRecipe(potion.getBase(), potion.getMaterial(), result);
 	}
 

@@ -9,14 +9,19 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.PotionData;
+import org.bukkit.potion.PotionType;
 
 import com.mojang.authlib.GameProfile;
 
+import net.minecraft.core.RegistryMaterials;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.protocol.EnumProtocolDirection;
 import net.minecraft.network.protocol.Packet;
@@ -35,6 +40,8 @@ import net.minecraft.world.entity.player.PlayerAbilities;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.alchemy.PotionBrewer;
 import net.minecraft.world.item.alchemy.PotionRegistry;
+import net.minecraft.world.item.alchemy.PotionUtil;
+import net.minecraft.world.item.alchemy.Potions;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class ReflectionUtils {
@@ -48,10 +55,13 @@ public class ReflectionUtils {
 	public static Class<?> CraftHumanEntity;
 	public static Class<?> CraftEntity;
 	public static Class<?> CraftItemStack;
+	public static Class<?> CraftMagicNumbers;
 
 	public static Field playerConnection;
 	public static Field playerAbilities;
+	public static Field registryFrozen;
 	public static Method registerBrewMethod;
+	public static Method getPotion;
 	public static Method sendPacket;
 	public static Method getEntityData;
 	public static Method entityData_get;
@@ -69,6 +79,7 @@ public class ReflectionUtils {
 		CraftHumanEntity = loadClass("org.bukkit.craftbukkit." + version + ".entity.CraftHumanEntity");
 		CraftEntity = loadClass("org.bukkit.craftbukkit." + version + ".entity.CraftEntity");
 		CraftItemStack = loadClass("org.bukkit.craftbukkit." + version + ".inventory.CraftItemStack");
+		CraftMagicNumbers = loadClass("org.bukkit.craftbukkit." + version + ".util.CraftMagicNumbers");
 
 		//Fuck it I am not interested in updating stuff every time
 		//So I will just search fields and methods by their types and arguments
@@ -86,13 +97,29 @@ public class ReflectionUtils {
 			break;
 		}
 
-		for (Method method : PotionBrewer.class.getMethods()) {
+		for (Field field : RegistryMaterials.class.getDeclaredFields()) {
+			if (!field.getType().equals(boolean.class)) { continue; }
+			registryFrozen = field;
+			registryFrozen.setAccessible(true);
+			break;
+		}
+
+		for (Method method : PotionBrewer.class.getDeclaredMethods()) {
 			if (method.getParameterCount() != 3) { continue; }
+			if (!method.getReturnType().equals(Void.TYPE)) { continue; }
 			if (!method.getParameterTypes()[0].equals(PotionRegistry.class)) { continue; }
 			if (!method.getParameterTypes()[1].equals(Item.class)) { continue; }
 			if (!method.getParameterTypes()[2].equals(PotionRegistry.class)) { continue; }
 			registerBrewMethod = method;
 			registerBrewMethod.setAccessible(true);
+			break;
+		}
+
+		for (Method method : PotionUtil.class.getMethods()) {
+			if (method.getParameterCount() != 1) { continue; }
+			if (!method.getReturnType().equals(PotionRegistry.class)) { continue; }
+			if (!method.getParameterTypes()[0].equals(net.minecraft.world.item.ItemStack.class)) { continue; }
+			getPotion = method;
 			break;
 		}
 
@@ -260,6 +287,17 @@ public class ReflectionUtils {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
+	public static Item getItem(ItemStack itemStack) {
+		try {
+			Method method = CraftMagicNumbers.getDeclaredMethod("getItem", Material.class, short.class);
+			return (Item) method.invoke(method, itemStack.getType(), itemStack.getDurability());
+		} catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
 	public static PlayerAbilities getPlayerAbilities(Player player) {
 		try {
 			return (PlayerAbilities) playerAbilities.get(getEntityPlayer(player));
@@ -363,5 +401,47 @@ public class ReflectionUtils {
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | SecurityException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static void setRegistryFrozen(Object registry, boolean frozen) {
+        try {
+            registryFrozen.set(registry, frozen);
+        } catch (SecurityException | IllegalArgumentException | IllegalAccessException e) {
+            e.printStackTrace();
+            return;
+        }
+	}
+
+	public static boolean registerBrewRecipe(PotionRegistry base, Material ingredient, PotionRegistry result) {
+		try {
+			Item potionIngredient = getItem(new ItemStack(ingredient));
+			registerBrewMethod.invoke(registerBrewMethod, base, potionIngredient, result);
+			return true;
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	public static PotionRegistry getPotion(PotionType potionType, boolean extended, boolean upgraded) {
+		//net.minecraft.world.item.alchemy.Potions ->
+		//    net.minecraft.world.item.alchemy.Potion EMPTY -> a
+
+		ItemStack item = new ItemStack(Material.POTION);
+		PotionMeta potionMeta = (PotionMeta) item.getItemMeta();
+		potionMeta.setBasePotionData(new PotionData(potionType, extended, upgraded));
+		item.setItemMeta(potionMeta);
+
+		net.minecraft.world.item.ItemStack nmsItem = asNMSCopy(item);
+		if (nmsItem == null) { return null; }
+
+		try {
+			PotionRegistry potion = (PotionRegistry) getPotion.invoke(getPotion, nmsItem);
+			return (potion != Potions.a) ? potion : null;
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			e.printStackTrace();
+		}
+
+		return null;
 	}
 }
