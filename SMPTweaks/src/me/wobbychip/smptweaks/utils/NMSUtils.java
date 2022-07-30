@@ -25,6 +25,7 @@ import net.minecraft.world.item.alchemy.PotionRegistry;
 //    java.lang.String getString(java.lang.String) -> l
 
 public class NMSUtils {
+	//asBukkitCopy doesn't save custom potion tag, so I used asCraftMirror
 	public static ItemStack setPotionTag(ItemStack item, String name) {
 		net.minecraft.world.item.ItemStack nmsItem = ReflectionUtils.asNMSCopy(item);
 		nmsItem.v().a("Potion", name);

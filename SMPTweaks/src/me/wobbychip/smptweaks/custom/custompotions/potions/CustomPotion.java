@@ -157,7 +157,6 @@ public class CustomPotion implements Listener {
 		}
 	}
 
-	//asBukkitCopy doesn't save custom potion tag, so I used asCraftMirror
 	public ItemStack setPotionTag(ItemStack item) {
 		return NMSUtils.setPotionTag(item, "minecraft:" + name);
 	}

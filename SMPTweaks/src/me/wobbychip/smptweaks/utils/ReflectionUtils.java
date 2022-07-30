@@ -44,7 +44,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.alchemy.PotionBrewer;
 import net.minecraft.world.item.alchemy.PotionRegistry;
 import net.minecraft.world.item.alchemy.PotionUtil;
-import net.minecraft.world.item.alchemy.Potions;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class ReflectionUtils {
@@ -63,6 +62,7 @@ public class ReflectionUtils {
 	public static Class<?> CraftItemStack;
 	public static Class<?> CraftMagicNumbers;
 
+	public static Field invulnerableTicks = null;
 	public static Field playerConnection;
 	public static Field playerAbilities;
 	public static Field registryFrozen;
@@ -307,6 +307,27 @@ public class ReflectionUtils {
 		}
 	}
 
+	public static void setInvulnerableTicks(Player player, int ticks) {
+		EntityPlayer entityPlayer = getEntityPlayer(player);
+
+		if (invulnerableTicks == null) {
+			for (Field field : EntityPlayer.class.getDeclaredFields()) {
+				try {
+					if (!field.getType().equals(int.class)) { continue; }
+					if (((int) field.get(entityPlayer)) != 60) { continue; }
+					invulnerableTicks = field;
+					break;
+				} catch (IllegalArgumentException | IllegalAccessException e) {}
+			}
+		}
+
+		try {
+			invulnerableTicks.set(entityPlayer, ticks);
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static PlayerAbilities getPlayerAbilities(Player player) {
 		try {
 			return (PlayerAbilities) playerAbilities.get(getEntityPlayer(player));
@@ -433,8 +454,7 @@ public class ReflectionUtils {
 	}
 
 	public static PotionRegistry getPotion(PotionType potionType, boolean extended, boolean upgraded) {
-		//net.minecraft.world.item.alchemy.Potions ->
-		//    net.minecraft.world.item.alchemy.Potion EMPTY -> a
+		if (potionType == PotionType.UNCRAFTABLE) { return null; }
 
 		ItemStack item = new ItemStack(Material.POTION);
 		PotionMeta potionMeta = (PotionMeta) item.getItemMeta();
@@ -445,8 +465,7 @@ public class ReflectionUtils {
 		if (nmsItem == null) { return null; }
 
 		try {
-			PotionRegistry potion = (PotionRegistry) getPotion.invoke(getPotion, nmsItem);
-			return (potion != Potions.a) ? potion : null;
+			return (PotionRegistry) getPotion.invoke(getPotion, nmsItem);
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			e.printStackTrace();
 		}
