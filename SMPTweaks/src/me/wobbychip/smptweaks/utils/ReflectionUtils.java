@@ -380,7 +380,7 @@ public class ReflectionUtils {
 	public static Player addFakePlayer(Location location, boolean hideOnline, boolean hideWorld) {
 		MinecraftServer server = MinecraftServer.getServer();
 		WorldServer world = (WorldServer) getWorld(location.getWorld());
-		EntityPlayer entityPlayer = new EntityPlayer(server, world, new GameProfile(UUID.randomUUID(), ""), null);
+		EntityPlayer entityPlayer = new EntityPlayer(server, world, new GameProfile(UUID.randomUUID(), " ".repeat(5)), null);
 		PlayerConnection connection = new PlayerConnection(server, new NetworkManager(EnumProtocolDirection.b), entityPlayer) {};
 		Player player = entityPlayer.getBukkitEntity();
 

@@ -25,7 +25,7 @@ public class Manager {
 
 		for (String loader : config.getConfig().getStringList("chunkloaders")) {
 			Location location = Utils.stringToLocation(loader);
-			String message = String.format("Loading at World: %s, X: %s Y: %s Z: %s", location.getWorld().getName(), location.getX(), location.getY(), location.getZ());
+			String message = String.format("Loading at %s: X: %s Y: %s Z: %s", location.getWorld().getName(), location.getX(), location.getY(), location.getZ());
 			ChunkLoader.tweak.printMessage(message, true);
 			addLoader(location.getBlock(), false);
 		}
