@@ -9,7 +9,7 @@ import me.wobbychip.smptweaks.utils.Utils;
 public class CustomTweak {
 	private String name;
 	private boolean enabled = true;
-	
+
 	public CustomTweak(String name) {
 		if (!Main.plugin.getConfig().contains(name.toUpperCase())) {
 			Main.plugin.getConfig().set(name.toUpperCase(), enabled);
@@ -29,8 +29,8 @@ public class CustomTweak {
 		return enabled;
 	}
 
-	public void printMessage(String message) {
-		Utils.sendMessage(String.format("&9[SMPTweaks] %s ", message));
+	public void printMessage(String message, boolean useName) {
+		Utils.sendMessage(String.format("&9[%s] %s ", (useName ? name : "SMPTweaks"), message));
 	}
 
 	public void printEnabled() {

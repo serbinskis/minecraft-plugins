@@ -38,6 +38,8 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 
 public class Utils {
+	public static String delimiter = "#";
+
 	//Send message to console
 	public static void sendMessage(String message) {
 		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', message));
@@ -267,6 +269,17 @@ public class Utils {
 		team.setColor(color);
 		team.addEntry(entity.getUniqueId().toString());
 		entity.setGlowing(!color.equals(ChatColor.RESET));
+	}
+
+	//Convert location to string
+	public static String locationToString(Location location) {
+		return location.getWorld().getName() + delimiter + String.valueOf(location.getX()) + delimiter + String.valueOf(location.getY()) + delimiter +  String.valueOf(location.getZ());
+	}
+
+	//String to location
+	public static Location stringToLocation(String location) {
+		String[] splited = location.split(delimiter, 0);
+		return new Location(Bukkit.getWorld(splited[0]), Double.parseDouble(splited[1]), Double.parseDouble(splited[2]), Double.parseDouble(splited[3]));
 	}
 
 	//Save resource to file

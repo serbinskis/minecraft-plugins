@@ -16,47 +16,34 @@ import org.bukkit.inventory.ItemStack;
 
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.utils.PersistentUtils;
-import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import me.wobbychip.smptweaks.utils.Utils;
-import net.minecraft.server.level.EntityPlayer;
 
 public class Loader {
-	public EntityPlayer player = null;
+	public FakePlayer fakePlayer;
 	public Location location;
 	public Outline outline;
 	public Border border;
 	public boolean previous = false;
 
 	public Loader(Block block) {
-		location = block.getLocation();
-		outline = new Outline(location);
-		border = new Border(Bukkit.getServer().getViewDistance(), location);
-		location.getWorld().playSound(location, Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1, 1);
-		update(true);
-
-		//Prevent some interaction with fake player
-		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
-			public void run() {
-				if (player != null) { player.getBukkitEntity().teleport(location.clone().add(0.5, 0, 0.5)); }
-				if (player != null) { player.getBukkitEntity().setCollidable(false); }
-			}
-		}, 5L, 5L);
+		this.location = block.getLocation();
+		this.outline = new Outline(location);
+		this.border = new Border(ChunkLoader.viewDistance, location);
+		this.location.getWorld().playSound(location, Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1, 1);
+		this.fakePlayer = new FakePlayer(location.clone().add(0.5, 0, 0.5));
+		this.update(true);
 
 		//Fix visual bug when adding nether star to powered block
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
 			public void run() {
 				ItemFrame frame = getItemFrame();
 				if (frame != null) { frame.setItem(frame.getItem()); }
-		}
+			}
 		}, 1L);
 	}
 
 	public Location getLocation() {
 		return location;
-	}
-
-	public Outline getOutline() {
-		return outline;
 	}
 
 	public Border getBorder() {
@@ -73,9 +60,9 @@ public class Loader {
 	public void remove(boolean disable) {
 		outline.removeShulker();
 		border.remove();
+		fakePlayer.remove();
 
 		if (disable) { return; }
-		if (player != null) { ReflectionUtils.removeFakePlayer(player); }
 		location.getWorld().playSound(location, Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1, 1);
 
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
@@ -95,13 +82,8 @@ public class Loader {
 		boolean isPowered = (block.isBlockIndirectlyPowered() || block.isBlockPowered());
 		if ((previous == isPowered) && !force) { return; } else { previous = isPowered; }
 		if (!force) { location.getWorld().playSound(location, Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1, 1); }
-
-		if (isPowered) {
-			if (player == null) { player = ReflectionUtils.addFakePlayer(location.clone().add(0.5, 0, 0.5)); }
-		} else {
-			if (player != null) { ReflectionUtils.removeFakePlayer(player); }
-			player = null;
-		}
+		fakePlayer.setEnabled(isPowered);
+		Chunks.markChunks(location, ChunkLoader.viewDistance, isPowered);
 
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
 			public void run() {

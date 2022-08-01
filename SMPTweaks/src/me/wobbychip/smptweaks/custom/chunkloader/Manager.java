@@ -13,24 +13,28 @@ import org.bukkit.entity.Player;
 
 import me.wobbychip.smptweaks.Config;
 import me.wobbychip.smptweaks.Main;
+import me.wobbychip.smptweaks.utils.Utils;
 
 public class Manager {
-	public static final String delimiter = "#";
 	public Config config;
-	protected Map<String, Loader> loaders = new HashMap<>();
+	public int taskId;
+	public Map<String, Loader> loaders = new HashMap<>();
 
 	public Manager(Config config) {
 		this.config = config;
 
-		for (String location : config.getConfig().getStringList("chunkloaders")) {
-			addLoader(stringToLocation(location).getBlock(), false);
+		for (String loader : config.getConfig().getStringList("chunkloaders")) {
+			Location location = Utils.stringToLocation(loader);
+			String message = String.format("Loading at World: %s, X: %s Y: %s Z: %s", location.getWorld().getName(), location.getX(), location.getY(), location.getZ());
+			ChunkLoader.tweak.printMessage(message, true);
+			addLoader(location.getBlock(), false);
 		}
 
-		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
+		taskId = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
 			public void run() {
 				updateAll();
 			}
-		}, 20L, 5L);
+		}, 5L, 5L);
 	}
 
 	public Border getBorder(Player player) {
@@ -43,7 +47,7 @@ public class Manager {
 
 	public void addLoader(Block block, boolean doSave) {
 		if (block.getType() != Material.LODESTONE) { return; }
-		String location = locationToString(block.getLocation());
+		String location = Utils.locationToString(block.getLocation());
 		if (loaders.containsKey(location)) { return; }
 		if (!block.getChunk().isLoaded()) { block.getChunk().load(); }
 		loaders.put(location, new Loader(block));
@@ -51,21 +55,21 @@ public class Manager {
 	}
 
 	public void removeLoader(Block block) {
-		String location = locationToString(block.getLocation());
+		String location = Utils.locationToString(block.getLocation());
 		if (!loaders.containsKey(location)) { return; }
 		loaders.remove(location).remove(false);
 		saveAll();
 	}
 
 	public Loader getLoader(Block block) {
-		String location = locationToString(block.getLocation());
+		String location = Utils.locationToString(block.getLocation());
 		if (loaders.containsKey(location)) { return loaders.get(location); }
 		return null;
 	}
 
 	public void updateLoader(Block block) {
 		if (block.getType() != Material.LODESTONE) { return; }
-		String location = locationToString(block.getLocation());
+		String location = Utils.locationToString(block.getLocation());
 		if (loaders.containsKey(location)) { loaders.get(location).update(false); }
 	}
 
@@ -73,6 +77,7 @@ public class Manager {
 		List<Block> remove = new ArrayList<>();
 		
 		for (Loader loader : loaders.values()) {
+			if (!loader.getLocation().getChunk().isEntitiesLoaded()) { continue; }
 			if (!loader.isLoader()) { remove.add(loader.getLocation().getBlock()); }
 		}
 
@@ -81,7 +86,9 @@ public class Manager {
 		}
 	}
 
-	public void disableAll() {		
+	public void onDisable() {
+		Bukkit.getServer().getScheduler().cancelTask(taskId);
+
 		for (Loader loader : loaders.values()) {
 			loader.remove(true);
 		}
@@ -90,14 +97,5 @@ public class Manager {
 	public void saveAll() {
 		config.getConfig().set("chunkloaders", new ArrayList<>(loaders.keySet()));
 		config.Save();
-	}
-
-	public static String locationToString(Location location) {
-		return location.getWorld().getName() + delimiter + String.valueOf(location.getX()) + delimiter + String.valueOf(location.getY()) + delimiter +  String.valueOf(location.getZ());
-	}
-
-	public static Location stringToLocation(String location) {
-		String[] splited = location.split(delimiter, 0);
-		return new Location(Bukkit.getWorld(splited[0]), Double.parseDouble(splited[1]), Double.parseDouble(splited[2]), Double.parseDouble(splited[3]));
 	}
 }

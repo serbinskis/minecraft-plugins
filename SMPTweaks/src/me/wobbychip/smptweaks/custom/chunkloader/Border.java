@@ -13,7 +13,7 @@ import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.utils.Utils;
 
 public class Border {
-	public int viewDistance = 0;
+	public int viewDistance;
 	public Location center;
 	List<Player> players = new ArrayList<>();
 
@@ -29,11 +29,7 @@ public class Border {
 	}
 
 	public boolean containsPlayer(Player player) {
-		for (Player player1 : players) {
-			if (player1.getUniqueId().equals(player.getUniqueId())) { return true; }
-		}
-
-		return false;
+		return players.stream().anyMatch(e -> e.getUniqueId().equals(player.getUniqueId()));
 	}
 
 	public void addPlayer(Player player) {
@@ -65,8 +61,10 @@ public class Border {
 			if (!player.isOnline()) { remove.add(player); }
 			if (!center.getWorld().equals(player.getWorld())) { continue; }
 			WorldBorder border = Bukkit.getServer().createWorldBorder();
-			border.setCenter(center.clone().add(0.5, 0.5, 0.5));
-			border.setSize(viewDistance*16*2);
+			int x = center.getChunk().getX()*16+8;
+			int z = center.getChunk().getZ()*16+8;
+			border.setCenter(new Location(center.getWorld(), x, center.getY(), z));
+			border.setSize(viewDistance*16*2+16);
 			border.setDamageAmount(0);
 			border.setWarningDistance(-1);
 			border.setWarningTime(-1);

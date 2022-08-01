@@ -43,7 +43,7 @@ public class Events implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockPhysicsEvent(BlockPhysicsEvent event) {
-		Collection<Block> blocks = Utils.getNearestBlocks(event.getBlock().getLocation(), Material.LODESTONE, 1);
+		Collection<Block> blocks = Utils.getNearestBlocks(event.getBlock().getLocation(), Material.LODESTONE, 2);
 		ChunkLoader.manager.updateLoader(event.getBlock());
 
 		for (Block block : blocks) {
