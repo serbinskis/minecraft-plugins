@@ -14,7 +14,7 @@ public class FakePlayer {
 
 	public FakePlayer(Location location) {
 		this.location = location;
-		this.player = ReflectionUtils.addFakePlayer(location, true, true, false);
+		this.setEnabled(true);
 
 		this.task = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
 			public void run() {
@@ -35,19 +35,26 @@ public class FakePlayer {
 
 	public void update() {
 		if (player == null) { return; }
+		boolean isValid = player.isValid();
 
-		if (!player.isValid()) {
-			ReflectionUtils.removeFakePlayer(player);
-			player = ReflectionUtils.addFakePlayer(location, true, true, false);
+		boolean isSleeping = false;
+		for (Player player : player.getWorld().getPlayers()) {
+			if (player.isSleeping()) { isSleeping = true; }
+			if (isValid && !player.isOp()) { player.hidePlayer(Main.plugin, this.player); }
 		}
 
-		for (Player player : Bukkit.getOnlinePlayers()) {
-			if (!player.isOp()) { player.hidePlayer(Main.plugin, this.player); }
-		}
+		if (!isValid && !isSleeping) { setEnabled(true); }
+		isValid = player.isValid();
 
-		player.teleport(location);
-		player.setCollidable(false);
-		ReflectionUtils.updateFakePlayer(player);
+		if (isValid) { player.teleport(location); }
+		if (isValid) { player.setCollidable(false); }
+		if (isValid) { ReflectionUtils.updateFakePlayer(player); }
+
+		if (isSleeping) {
+			if (isValid) { ReflectionUtils.removeFakePlayer(player); }
+		} else {
+			if (!isValid) { ReflectionUtils.addFakePlayer(location, true, true, false); }
+		}
 	}
 
 	public void remove() {
