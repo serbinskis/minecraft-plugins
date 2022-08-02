@@ -1,14 +1,9 @@
 package me.wobbychip.smptweaks.custom.custompotions;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.Bukkit;
-
-import com.google.common.reflect.ClassPath;
 
 import me.wobbychip.smptweaks.Config;
 import me.wobbychip.smptweaks.Main;
@@ -25,6 +20,9 @@ import me.wobbychip.smptweaks.tweaks.CustomTweak;
 import me.wobbychip.smptweaks.utils.Utils;
 
 public class CustomPotions extends CustomTweak {
+	public static String customTag = "CustomPotion";
+	public static int tradingPotionChance = 5;
+	public static int tradingArrowChance = 5;
 	public static Config config;
 	public static PotionManager manager;
 
@@ -43,7 +41,7 @@ public class CustomPotions extends CustomTweak {
 		manager = new PotionManager();
 		boolean allowVillagerTrading = CustomPotions.config.getConfig().getConfigurationSection("config").getBoolean("allowVillagerTrading");
 
-		for (CustomPotion potion : getPotions("me.wobbychip.smptweaks.custom.custompotions.custom")) {
+		for (CustomPotion potion : manager.getPotions(Main.classLoader, "me.wobbychip.smptweaks.custom.custompotions.custom")) {
 			if (!allowVillagerTrading) { potion.setAllowVillagerTrades(allowVillagerTrading); }
 			manager.registerPotion(potion);
 		}
@@ -61,26 +59,12 @@ public class CustomPotions extends CustomTweak {
 		Utils.sendMessage("&9[CustomPotions] Potions: " + manager.getPotionsString());
 	}
 
-	public List<CustomPotion> getPotions(String pacakgeName) {
-		List<CustomPotion> potions = new ArrayList<>();
-
-		try {
-			ClassPath classPath = ClassPath.from(Main.classLoader);
-
-			for (ClassPath.ClassInfo classInfo : classPath.getTopLevelClasses(pacakgeName)) {
-				Class<?> clazz = Class.forName(classInfo.getName(), true, Main.classLoader);
-				potions.add((CustomPotion) clazz.getConstructor().newInstance());
-			}
-		} catch (IOException | ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-			e.printStackTrace();
-		}
-
-		return potions;
-	}
-
 	public static void loadConfig() {
 		List<String> list = Arrays.asList(CustomPotions.class.getCanonicalName().split("\\."));
 		String configPath = String.join("/", list.subList(0, list.size()-1)) + "/config.yml";
 		CustomPotions.config = new Config(configPath, "/tweaks/CustomPotions/config.yml");
+
+		CustomPotions.tradingPotionChance = CustomPotions.config.getConfig().getInt("tradingPotionChance");
+		CustomPotions.tradingArrowChance = CustomPotions.config.getConfig().getInt("tradingArrowChance");
 	}
 }

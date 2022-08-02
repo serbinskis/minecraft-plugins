@@ -66,51 +66,51 @@ public class ScreamerPotion extends CustomPotion {
 		player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 2*20, 1));
 
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
-	        public void run() {
-	        	Vector view = getDirection(player.getLocation().getYaw(), 0).normalize().multiply(10);
-	        	Location spawn = player.getLocation().clone().add(view.getX(), 0, view.getZ());
-	        	spawn.setDirection(spawn.getDirection().multiply(-1));
+			public void run() {
+				Vector view = getDirection(player.getLocation().getYaw(), 0).normalize().multiply(10);
+				Location spawn = player.getLocation().clone().add(view.getX(), 0, view.getZ());
+				spawn.setDirection(spawn.getDirection().multiply(-1));
 
-	        	ArmorStand stand = (ArmorStand) player.getWorld().spawnEntity(spawn, EntityType.ARMOR_STAND);
-	        	stand.setCanPickupItems(false);
-	        	stand.setPersistent(false);
-	        	stand.setGravity(false);
-	        	stand.setInvulnerable(true);
-	        	stand.setInvisible(true);
-	        	stand.setCustomName(stand.getUniqueId().toString());
-	        	stand.setCustomNameVisible(false);
+				ArmorStand stand = (ArmorStand) player.getWorld().spawnEntity(spawn, EntityType.ARMOR_STAND);
+				stand.setCanPickupItems(false);
+				stand.setPersistent(false);
+				stand.setGravity(false);
+				stand.setInvulnerable(true);
+				stand.setInvisible(true);
+				stand.setCustomName(stand.getUniqueId().toString());
+				stand.setCustomNameVisible(false);
  
-	        	String command = "minecraft:data modify entity @e[type=minecraft:armor_stand,name=" + stand.getCustomName() + ",limit=1] DisabledSlots set value 2039583";
-	        	Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command);
+				String command = "minecraft:data modify entity @e[type=minecraft:armor_stand,name=" + stand.getCustomName() + ",limit=1] DisabledSlots set value 2039583";
+				Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command);
 
-	        	stand.getEquipment().setHelmet(new ItemStack(Material.WITHER_SKELETON_SKULL));
-	        	stand.getEquipment().setChestplate(makeColoredArmour(Material.LEATHER_CHESTPLATE, 0));
-	        	stand.getEquipment().setLeggings(makeColoredArmour(Material.LEATHER_LEGGINGS, 0));
-	        	stand.getEquipment().setBoots(makeColoredArmour(Material.LEATHER_BOOTS, 0));
+				stand.getEquipment().setHelmet(new ItemStack(Material.WITHER_SKELETON_SKULL));
+				stand.getEquipment().setChestplate(makeColoredArmour(Material.LEATHER_CHESTPLATE, 0));
+				stand.getEquipment().setLeggings(makeColoredArmour(Material.LEATHER_LEGGINGS, 0));
+				stand.getEquipment().setBoots(makeColoredArmour(Material.LEATHER_BOOTS, 0));
 
-	        	moveEntity(stand, player, 5);
-	        	player.playSound(player, Sound.ENTITY_ENDERMAN_DEATH, 3, 1);
-	        }
-	    }, 3L);
+				moveEntity(stand, player, 5);
+				player.playSound(player, Sound.ENTITY_ENDERMAN_DEATH, 3, 1);
+			}
+		}, 3L);
 	}
 
-    public Vector getDirection(float yaw, float pitch) {
-        Vector vector = new Vector();
-        vector.setY(-Math.sin(Math.toRadians(pitch)));
+	public Vector getDirection(float yaw, float pitch) {
+		Vector vector = new Vector();
+		vector.setY(-Math.sin(Math.toRadians(pitch)));
 
-        double xz = Math.cos(Math.toRadians(pitch));
-        vector.setX(-xz * Math.sin(Math.toRadians(yaw)));
-        vector.setZ(xz * Math.cos(Math.toRadians(yaw)));
+		double xz = Math.cos(Math.toRadians(pitch));
+		vector.setX(-xz * Math.sin(Math.toRadians(yaw)));
+		vector.setZ(xz * Math.cos(Math.toRadians(yaw)));
 
-        return vector;
-    }
+		return vector;
+	}
 
 	public ItemStack makeColoredArmour(Material material, int color) {
-    	ItemStack item = new ItemStack(material);
-    	LeatherArmorMeta meta = (LeatherArmorMeta) item.getItemMeta();
-    	meta.setColor(Color.fromBGR(color));
-    	item.setItemMeta(meta);
-    	return item;
+		ItemStack item = new ItemStack(material);
+		LeatherArmorMeta meta = (LeatherArmorMeta) item.getItemMeta();
+		meta.setColor(Color.fromBGR(color));
+		item.setItemMeta(meta);
+		return item;
 	}
 
 	public void moveEntity(Entity entity, Player player, int time) {

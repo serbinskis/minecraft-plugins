@@ -20,12 +20,11 @@ import org.bukkit.inventory.MerchantRecipe;
 
 import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
 import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
-import me.wobbychip.smptweaks.utils.NMSUtils;
+import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import me.wobbychip.smptweaks.utils.Utils;
 
 public class VillagerEvents implements Listener {
-	public int POTION_CHANCE = 10;
-	List<Material> potionType = Arrays.asList(Material.POTION, Material.SPLASH_POTION, Material.LINGERING_POTION);
+	List<Material> potionTypes = Arrays.asList(Material.POTION, Material.SPLASH_POTION, Material.LINGERING_POTION);
 	public List<String> vanilla = Arrays.asList(
 			"night_vision",
 			"invisibility",
@@ -67,7 +66,9 @@ public class VillagerEvents implements Listener {
 
 	public void villagerAcquireTradeFletcher(VillagerAcquireTradeEvent event) {
 		if (event.getRecipe().getResult().getType() != Material.TIPPED_ARROW) { return; }
-		if (event.getRecipe().getResult().hasItemMeta()) { return; }
+		boolean isCustom = !event.getRecipe().getResult().hasItemMeta();
+		boolean isChance = !(new Random().nextInt(100)+1 >= CustomPotions.tradingArrowChance);
+		if (!isChance && !isCustom) { return; }
 
 		List<CustomPotion> potions = CustomPotions.manager.getPotions(false);
 		Iterator<CustomPotion> iterator = potions.iterator();
@@ -78,12 +79,12 @@ public class VillagerEvents implements Listener {
 			if (!potion.getAllowTippedArrow() || !potion.getAllowVillagerTrades()) { iterator.remove(); };
 		}
 
-		if (potions.size() > 0) {
+		if ((potions.size() > 0) && isChance) {
 			CustomPotion customPotion = potions.get(new Random().nextInt(potions.size()));
 			arrow = customPotion.getTippedArrow(true, event.getRecipe().getResult().getAmount());
 		} else {
 			String vanillaPotion = vanilla.get(new Random().nextInt(vanilla.size()));
-			arrow = NMSUtils.setPotionTag(event.getRecipe().getResult(), "minecraft:" + vanillaPotion);
+			arrow = ReflectionUtils.setPotionTag(event.getRecipe().getResult(), "minecraft:" + vanillaPotion);
 		}
 
 		int uses = event.getRecipe().getUses();
@@ -101,7 +102,7 @@ public class VillagerEvents implements Listener {
 
 	public void villagerAcquireTradeCleric(VillagerAcquireTradeEvent event) {
 		if (event.getRecipe().getResult().getType() != Material.EXPERIENCE_BOTTLE) { return; }
-		if (new Random().nextInt(100)+1 >= POTION_CHANCE) { return; }
+		if (new Random().nextInt(100)+1 >= CustomPotions.tradingPotionChance) { return; }
 
 		List<CustomPotion> potions = CustomPotions.manager.getPotions(false);
 		Iterator<CustomPotion> iterator = potions.iterator();
@@ -112,7 +113,7 @@ public class VillagerEvents implements Listener {
 
 		if (potions.size() == 0) { return; }
 		CustomPotion customPotion = potions.get(new Random().nextInt(potions.size()));
-		ItemStack potion = customPotion.setProperties(new ItemStack(potionType.get(new Random().nextInt(potionType.size()))));
+		ItemStack potion = customPotion.setProperties(new ItemStack(potionTypes.get(new Random().nextInt(potionTypes.size()))));
 
 		int uses = event.getRecipe().getUses();
 		int maxUses = event.getRecipe().getMaxUses();

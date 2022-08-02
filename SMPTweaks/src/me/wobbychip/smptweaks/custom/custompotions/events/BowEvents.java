@@ -9,6 +9,7 @@ import org.bukkit.event.player.PlayerPickupArrowEvent;
 
 import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
 import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
+import me.wobbychip.smptweaks.utils.PersistentUtils;
 
 public class BowEvents implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -20,8 +21,7 @@ public class BowEvents implements Listener {
 
 		if (!event.isCancelled()) {
 			Arrow projectile = (Arrow) event.getProjectile();
-			projectile.setCustomName(customPotion.getName());
-			projectile.setCustomNameVisible(false);
+			PersistentUtils.setPersistentDataString(projectile, CustomPotions.customTag, customPotion.getName());
 			projectile.setColor(customPotion.getColor());
 		}
 	}

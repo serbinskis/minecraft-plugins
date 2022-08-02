@@ -21,7 +21,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 
 import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
-import me.wobbychip.smptweaks.utils.NMSUtils;
+import me.wobbychip.smptweaks.utils.PersistentUtils;
+import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import net.minecraft.world.item.alchemy.PotionRegistry;
 
 public class CustomPotion implements Listener {
@@ -70,7 +71,7 @@ public class CustomPotion implements Listener {
 	}
 
 	public String getBaseName() {
-		return (base != null) ? NMSUtils.getBaseName(base) : cbase;
+		return (base != null) ? ReflectionUtils.getPotionRegistryName(base) : cbase;
 	}
 
 	public String getPrefix(Material material) {
@@ -148,9 +149,9 @@ public class CustomPotion implements Listener {
 			potionMeta.setColor(color);
 			if (tippedArrowName != null) { potionMeta.setDisplayName(tippedArrowName); }
 			if (lore != null) { potionMeta.setLore(lore); }
-			potionMeta.setLocalizedName(name);
 			potionMeta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
 			item.setItemMeta(potionMeta);
+			PersistentUtils.setPersistentDataString(item, CustomPotions.customTag, name);
 			return item;
 		} else {
 			return new ItemStack(Material.AIR);
@@ -158,7 +159,7 @@ public class CustomPotion implements Listener {
 	}
 
 	public ItemStack setPotionTag(ItemStack item) {
-		return NMSUtils.setPotionTag(item, "minecraft:" + name);
+		return ReflectionUtils.setPotionTag(item, "minecraft:" + name);
 	}
 
 	public ItemStack setProperties(ItemStack item) {		
@@ -166,11 +167,11 @@ public class CustomPotion implements Listener {
 		potionMeta.setColor(color);
 		potionMeta.setDisplayName(getPrefix(item.getType()) + displayName);
 		if (lore != null) { potionMeta.setLore(lore); }
-		potionMeta.setLocalizedName(name);
 		potionMeta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
 		potionMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 		potionMeta.addEnchant(Enchantment.DURABILITY, 1, true);
 		item.setItemMeta(potionMeta);
+		PersistentUtils.setPersistentDataString(item, CustomPotions.customTag, name);
 
 		return setPotionTag(item);
 	}

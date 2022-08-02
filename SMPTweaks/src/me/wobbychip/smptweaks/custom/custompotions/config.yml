@@ -1,2 +1,4 @@
 config:
     allowVillagerTrading: false
+    tradingPotionChance: 5
+    tradingArrowChance: 5

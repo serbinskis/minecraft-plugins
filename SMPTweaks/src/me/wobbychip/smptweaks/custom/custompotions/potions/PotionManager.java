@@ -1,5 +1,7 @@
 package me.wobbychip.smptweaks.custom.custompotions.potions;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -10,12 +12,15 @@ import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionType;
 
+import com.google.common.reflect.ClassPath;
+
 import me.wobbychip.smptweaks.Main;
-import me.wobbychip.smptweaks.utils.NMSUtils;
+import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
+import me.wobbychip.smptweaks.utils.PersistentUtils;
+import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import me.wobbychip.smptweaks.utils.Utils;
 import net.minecraft.world.item.alchemy.PotionRegistry;
 
@@ -23,6 +28,23 @@ public class PotionManager {
 	protected Map<CustomPotion, String> waiting = new HashMap<CustomPotion, String>();
 	protected Map<String, CustomPotion> potions = new HashMap<String, CustomPotion>();
 	protected Map<String, PotionRegistry> registry = new HashMap<String, PotionRegistry>();
+
+	public List<CustomPotion> getPotions(ClassLoader loader, String pacakgeName) {
+		List<CustomPotion> potions = new ArrayList<>();
+
+		try {
+			ClassPath classPath = ClassPath.from(Main.classLoader);
+
+			for (ClassPath.ClassInfo classInfo : classPath.getTopLevelClasses(pacakgeName)) {
+				Class<?> clazz = Class.forName(classInfo.getName(), true, loader);
+				potions.add((CustomPotion) clazz.getConstructor().newInstance());
+			}
+		} catch (IOException | ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+			e.printStackTrace();
+		}
+
+		return potions;
+	}
 
 	public List<CustomPotion> getPotions(boolean includeDisabled) {
 		List<CustomPotion> result = new ArrayList<>();
@@ -52,7 +74,7 @@ public class PotionManager {
 			potion.setBase(registry.get(potion.getBaseName()));
 		}
 
-		PotionRegistry result = NMSUtils.registerInstantPotion(potion.getName(), potion.getIntColor());
+		PotionRegistry result = ReflectionUtils.registerInstantPotion(potion.getName(), potion.getIntColor());
 		potions.put(potion.getName(), potion);
 		registry.put(potion.getName(), result);
 
@@ -72,7 +94,7 @@ public class PotionManager {
 		//If potion disabled register it, but don't add brew recipe
 		if (!potion.isEnabled()) { return; }
 		Bukkit.getPluginManager().registerEvents(potion, Main.plugin);
-		NMSUtils.registerBrewRecipe(potion.getBase(), potion.getMaterial(), result);
+		ReflectionUtils.registerBrewRecipe(potion.getBase(), potion.getMaterial(), result);
 	}
 
 	public PotionRegistry getPotionRegistry(CustomPotion potion) {
@@ -88,26 +110,27 @@ public class PotionManager {
 	}
 
 	public CustomPotion getCustomPotion(Entity entity) {
-		if (entity.getType() == EntityType.DRAGON_FIREBALL) { return null; } //This shit has no method getHandle()
-		if (potions.containsKey(entity.getCustomName())) { return potions.get(entity.getCustomName()); }
-		String name = NMSUtils.getPotionTag(entity);
+		if (!PersistentUtils.hasPersistentDataString(entity, CustomPotions.customTag)) { return null; }
+		String name = PersistentUtils.getPersistentDataString(entity, CustomPotions.customTag);
 		return potions.containsKey(name) ? potions.get(name) : null;
 	}
 
 	public CustomPotion getCustomPotion(ItemStack item) {
 		if (!Utils.isPotion(item) && !Utils.isTippedArrow(item)) { return null; }
-		String name = NMSUtils.getPotionTag(item);
+		String name = ReflectionUtils.getPotionTag(item);
 
 		if (potions.containsKey(name)) {
 			return potions.get(name);
 		}
 
-		if (item.getItemMeta() == null) { return null; }
-		name = item.getItemMeta().getLocalizedName();
+		if (PersistentUtils.hasPersistentDataString(item, CustomPotions.customTag)) {
+			name = PersistentUtils.getPersistentDataString(item, CustomPotions.customTag);
+		}
+
 		return potions.containsKey(name) ? potions.get(name) : null;
 	}
 
 	public static PotionRegistry getPotion(PotionType potionType, boolean extended, boolean upgraded) {
-		return NMSUtils.getPotion(potionType, extended, upgraded);
+		return ReflectionUtils.getPotion(potionType, extended, upgraded);
 	}
 }

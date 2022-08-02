@@ -162,10 +162,10 @@ public class Utils {
 
 		String[] parts = s.split(" ");
 		StringBuilder sb = new StringBuilder(s.length());
-        
+
 		for (String part : parts) {
 			if (part.length() > 1) {
-				sb.append(part.substring(0, 1).toUpperCase()).append(part.substring(1).toLowerCase());                
+				sb.append(part.substring(0, 1).toUpperCase()).append(part.substring(1).toLowerCase());
 			} else {
 				sb.append(part.toUpperCase());
 			}

@@ -15,12 +15,12 @@ public class InfoCommand {
 	public static String USAGE_MESSAGE = "&9Usage /cpotions info <potion_name>";
 
 	public static boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
-    	if (args.length == 0) {
+		if (args.length == 0) {
 			Utils.sendMessage(sender, USAGE_MESSAGE);
 			return true;
 		}
 
-    	CustomPotion potion = CustomPotions.manager.getCustomPotion(args[0].toLowerCase());
+		CustomPotion potion = CustomPotions.manager.getCustomPotion(args[0].toLowerCase());
 
 		if ((potion == null) || !potion.isEnabled()) {
 			Utils.sendMessage(sender, Commands.NO_POTION);

@@ -17,7 +17,8 @@ import org.bukkit.util.Vector;
 
 import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
 import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
-import me.wobbychip.smptweaks.utils.NMSUtils;
+import me.wobbychip.smptweaks.utils.PersistentUtils;
+import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import me.wobbychip.smptweaks.utils.Utils;
 
 public class ProjectileEvents implements Listener {
@@ -52,7 +53,7 @@ public class ProjectileEvents implements Listener {
 			if (fuckBukkit.containsKey(block.getLocation())) {
 				ItemStack item = fuckBukkit.remove(block.getLocation());
 				CustomPotion customPotion = CustomPotions.manager.getCustomPotion(item);
-				if (customPotion != null) { event.getEntity().setCustomName(customPotion.getName()); }
+				if (customPotion != null) { PersistentUtils.setPersistentDataString(event.getEntity(), CustomPotions.customTag, customPotion.getName()); }
 				if (event.isCancelled() || !customPotion.isEnabled()) { return; }
 				customPotion.onProjectileLaunch(event);
 			}
@@ -69,7 +70,7 @@ public class ProjectileEvents implements Listener {
 			CustomPotion customPotion = CustomPotions.manager.getCustomPotion(potion.getItem());
 			if (customPotion == null) { return; }
 
-			potion.setItem(NMSUtils.setPotionTag(potion.getItem(), "minecraft:empty"));
+			potion.setItem(ReflectionUtils.setPotionTag(potion.getItem(), "minecraft:empty"));
 			customPotion.onProjectileLaunch(event);
 		}
 	}

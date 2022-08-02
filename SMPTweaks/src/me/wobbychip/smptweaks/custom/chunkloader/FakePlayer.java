@@ -14,7 +14,7 @@ public class FakePlayer {
 
 	public FakePlayer(Location location) {
 		this.location = location;
-		this.player = ReflectionUtils.addFakePlayer(location, true, false);
+		this.player = ReflectionUtils.addFakePlayer(location, true, true, false);
 
 		this.task = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
 			public void run() {
@@ -26,7 +26,7 @@ public class FakePlayer {
 	public void setEnabled(boolean isEnabled) {
 		if (isEnabled) {
 			if (player != null) { ReflectionUtils.removeFakePlayer(player); }
-			player = ReflectionUtils.addFakePlayer(location, true, false);
+			player = ReflectionUtils.addFakePlayer(location, true, true, false);
 		} else {
 			if (player != null) { ReflectionUtils.removeFakePlayer(player); }
 			player = null;
@@ -38,11 +38,11 @@ public class FakePlayer {
 
 		if (!player.isValid()) {
 			ReflectionUtils.removeFakePlayer(player);
-			player = ReflectionUtils.addFakePlayer(location, true, false);
+			player = ReflectionUtils.addFakePlayer(location, true, true, false);
 		}
 
 		for (Player player : Bukkit.getOnlinePlayers()) {
-			player.hidePlayer(Main.plugin, this.player);
+			if (!player.isOp()) { player.hidePlayer(Main.plugin, this.player); }
 		}
 
 		player.teleport(location);

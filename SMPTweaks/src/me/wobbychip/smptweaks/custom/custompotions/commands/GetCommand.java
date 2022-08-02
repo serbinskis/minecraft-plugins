@@ -24,17 +24,17 @@ public class GetCommand {
 	public static boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
 		boolean isCreative = ((sender instanceof Player) && (((Player) sender).getGameMode() == GameMode.CREATIVE));
 
-    	if (!(sender instanceof Player)) {
+		if (!(sender instanceof Player)) {
 			Utils.sendMessage(sender, NO_CONSOLE);
 			return true;
 		}
 
-    	if (!Utils.hasPermissions(sender, "cpotions.get") && !isCreative) {
+		if (!Utils.hasPermissions(sender, "cpotions.get") && !isCreative) {
 			Utils.sendMessage(sender, Commands.NO_PERMISSIONS);
 			return true;
-    	}
+		}
 
-    	if (args.length < 2) {
+		if (args.length < 2) {
 			Utils.sendMessage(sender, USAGE_MESSAGE);
 			return true;
 		}
@@ -76,9 +76,9 @@ public class GetCommand {
 	public static List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
 		boolean isCreative = ((sender instanceof Player) && (((Player) sender).getGameMode() == GameMode.CREATIVE));
 
-    	if (!Utils.hasPermissions(sender, "cpotions.get") && !isCreative) {
+		if (!Utils.hasPermissions(sender, "cpotions.get") && !isCreative) {
 			return null;
-    	}
+		}
 
 		if (args.length == 2) {
 			ArrayList<String> potions = new ArrayList<String>();

@@ -44,6 +44,21 @@ public class PersistentUtils {
 		setPersistentDataInteger(entity, name, value ? 1 : 0);
 	}
 
+	public static boolean hasPersistentDataString(Entity entity, String name) {
+		NamespacedKey namespacedKey = new NamespacedKey(Main.plugin, name);
+		return entity.getPersistentDataContainer().has(namespacedKey, PersistentDataType.STRING);
+	}
+
+	public static String getPersistentDataString(Entity entity, String name) {
+		NamespacedKey namespacedKey = new NamespacedKey(Main.plugin, name);
+		return entity.getPersistentDataContainer().get(namespacedKey, PersistentDataType.STRING);
+	}
+
+	public static void setPersistentDataString(Entity entity, String name, String value) {
+		NamespacedKey namespacedKey = new NamespacedKey(Main.plugin, name);
+		entity.getPersistentDataContainer().set(namespacedKey, PersistentDataType.STRING, value);
+	}
+
 	//Block - not all
 	public static void removePersistentData(Block block, String name) {
 		NamespacedKey namespacedKey = new NamespacedKey(Main.plugin, name);
@@ -83,6 +98,25 @@ public class PersistentUtils {
 		setPersistentDataInteger(block, name, value ? 1 : 0);
 	}
 
+	public static boolean hasPersistentDataString(Block block, String name) {
+		NamespacedKey namespacedKey = new NamespacedKey(Main.plugin, name);
+		TileState tileState = (TileState) block.getState();
+		return tileState.getPersistentDataContainer().has(namespacedKey, PersistentDataType.STRING);
+	}
+
+	public static String getPersistentDataString(Block block, String name) {
+		NamespacedKey namespacedKey = new NamespacedKey(Main.plugin, name);
+		TileState tileState = (TileState) block.getState();
+		return tileState.getPersistentDataContainer().get(namespacedKey, PersistentDataType.STRING);
+	}
+
+	public static void setPersistentDataString(Block block, String name, String value) {
+		NamespacedKey namespacedKey = new NamespacedKey(Main.plugin, name);
+		TileState tileState = (TileState) block.getState();
+		tileState.getPersistentDataContainer().set(namespacedKey, PersistentDataType.STRING, value);
+		tileState.update();
+	}
+
 	//ItemStack
 	public static void removePersistentData(ItemStack item, String name) {
 		NamespacedKey namespacedKey = new NamespacedKey(Main.plugin, name);
@@ -118,5 +152,22 @@ public class PersistentUtils {
 
 	public static void setPersistentDataBoolean(ItemStack item, String name, boolean value) {
 		setPersistentDataInteger(item, name, value ? 1 : 0);
+	}
+
+	public static boolean hasPersistentDataString(ItemStack item, String name) {
+		NamespacedKey namespacedKey = new NamespacedKey(Main.plugin, name);
+		return item.getItemMeta().getPersistentDataContainer().has(namespacedKey, PersistentDataType.STRING);
+	}
+
+	public static String getPersistentDataString(ItemStack item, String name) {
+		NamespacedKey namespacedKey = new NamespacedKey(Main.plugin, name);
+		return item.getItemMeta().getPersistentDataContainer().get(namespacedKey, PersistentDataType.STRING);
+	}
+
+	public static void setPersistentDataString(ItemStack item, String name, String value) {
+		NamespacedKey namespacedKey = new NamespacedKey(Main.plugin, name);
+		ItemMeta itemMeta = item.getItemMeta();
+		itemMeta.getPersistentDataContainer().set(namespacedKey, PersistentDataType.STRING, value);
+		item.setItemMeta(itemMeta);
 	}
 }

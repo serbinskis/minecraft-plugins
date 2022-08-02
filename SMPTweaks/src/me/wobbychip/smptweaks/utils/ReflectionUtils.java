@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -25,6 +26,7 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.core.IRegistry;
 import net.minecraft.core.RegistryBlocks;
 import net.minecraft.core.RegistryMaterials;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.protocol.EnumProtocolDirection;
 import net.minecraft.network.protocol.Packet;
@@ -32,12 +34,16 @@ import net.minecraft.network.protocol.game.PacketPlayOutAbilities;
 import net.minecraft.network.protocol.game.PacketPlayOutSetSlot;
 import net.minecraft.network.syncher.DataWatcher;
 import net.minecraft.network.syncher.DataWatcherObject;
+import net.minecraft.resources.MinecraftKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkProviderServer;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.server.level.WorldServer;
 import net.minecraft.server.network.PlayerConnection;
 import net.minecraft.server.players.PlayerList;
+import net.minecraft.world.effect.InstantMobEffect;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInfo;
 import net.minecraft.world.effect.MobEffectList;
 import net.minecraft.world.entity.EntityLiving;
 import net.minecraft.world.entity.Entity.RemovalReason;
@@ -65,24 +71,32 @@ public class ReflectionUtils {
 	public static Class CraftItemStack;
 	public static Class CraftMagicNumbers;
 
-	public static Field EntityPlayer_invulnerableTicks = null;
-	public static Field EntityPlayer_playerConnection;
 	public static Field EntityHuman_playerAbilities;
-	public static Field RegistryMaterials_frozen;
+	public static Field EntityPlayer_invulnerableTicks;
+	public static Field EntityPlayer_playerConnection;
 	public static Field MinecraftServer_playerList;
 	public static Field PlayerList_players;
+	public static Field RegistryMaterials_frozen;
 	public static Field WorldServer_players;
-	public static Method PotionBrewer_register;
-	public static Method PotionUtil_getPotion;
-	public static Method PlayerConnection_sendPacket;
-	public static Method Entity_getEntityData;
+	public static Field ItemStack_tag;
+
+	public static Method ChunkProviderServer_move;
 	public static Method EntityData_get;
+	public static Method Entity_getEntityData;
+	public static Method IRegistry_keySet;
+	public static Method IRegistry_register;
+	public static Method IRegistry_registerMapping;
 	public static Method Item_get;
 	public static Method Item_releaseUsing;
+	public static Method PlayerConnection_sendPacket;
+	public static Method PotionBrewer_register;
+	public static Method PotionRegistry_getName;
+	public static Method PotionUtil_getPotion;
 	public static Method WorldServer_addPlayer;
-	public static Method WorldServer_removePlayer;
 	public static Method WorldServer_getChunkProviderServer;
-	public static Method ChunkProviderServer_move;
+	public static Method WorldServer_removePlayer;
+	public static Method NBTTagCompound_putString;
+	public static Method NBTTagCompound_getString;
 
 	static {
 		version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
@@ -95,31 +109,38 @@ public class ReflectionUtils {
 		CraftItemStack = loadClass("org.bukkit.craftbukkit." + version + ".inventory.CraftItemStack");
 		CraftMagicNumbers = loadClass("org.bukkit.craftbukkit." + version + ".util.CraftMagicNumbers");
 
-		MOB_EFFECT = (IRegistry<MobEffectList>) getValue(getParameterizedField(IRegistry.class, IRegistry.class, MobEffectList.class), null);
-		POTION = (RegistryBlocks<PotionRegistry>) getValue(getParameterizedField(IRegistry.class, RegistryBlocks.class, PotionRegistry.class), null);
-		DATA_LIVING_ENTITY_FLAGS = (DataWatcherObject<Byte>) getValue(getParameterizedField(EntityLiving.class, DataWatcherObject.class, Byte.class), null);
-
 		//Fuck it I am not interested in updating stuff every time
 		//So I will just search fields and methods by their types and arguments
 
-		EntityPlayer_playerConnection = getField(EntityPlayer.class, PlayerConnection.class);
+		DATA_LIVING_ENTITY_FLAGS = (DataWatcherObject<Byte>) getValue(getParameterizedField(EntityLiving.class, DataWatcherObject.class, Byte.class), null);
+		MOB_EFFECT = (IRegistry<MobEffectList>) getValue(getParameterizedField(IRegistry.class, IRegistry.class, MobEffectList.class), null);
+		POTION = (RegistryBlocks<PotionRegistry>) getValue(getParameterizedField(IRegistry.class, RegistryBlocks.class, PotionRegistry.class), null);
+
 		EntityHuman_playerAbilities = getField(EntityHuman.class, PlayerAbilities.class);
-		RegistryMaterials_frozen = getField(RegistryMaterials.class, boolean.class);
+		EntityPlayer_playerConnection = getField(EntityPlayer.class, PlayerConnection.class);
 		MinecraftServer_playerList = getField(MinecraftServer.class, PlayerList.class);
 		PlayerList_players = getParameterizedField(PlayerList.class, List.class, EntityPlayer.class);
+		RegistryMaterials_frozen = getField(RegistryMaterials.class, boolean.class);
 		WorldServer_players = getParameterizedField(WorldServer.class, List.class, EntityPlayer.class);
+		ItemStack_tag = getField(net.minecraft.world.item.ItemStack.class, NBTTagCompound.class);
 
-		PotionBrewer_register = findMethod(true, PotionBrewer.class, Void.TYPE, PotionRegistry.class, Item.class, PotionRegistry.class);
-		PotionUtil_getPotion = findMethod(false, PotionUtil.class, PotionRegistry.class, net.minecraft.world.item.ItemStack.class);
-		PlayerConnection_sendPacket = findMethod(false, PlayerConnection.class, null, Packet.class);
-		Entity_getEntityData = findMethod(false, net.minecraft.world.entity.Entity.class, DataWatcher.class);
-		EntityData_get = findMethod(false, DataWatcher.class, Object.class, DataWatcherObject.class);
-		Item_get = findMethod(false, Item.class, Item.class, int.class);
-		Item_releaseUsing = findMethod(false, Item.class, Void.TYPE, net.minecraft.world.item.ItemStack.class, net.minecraft.world.level.World.class, net.minecraft.world.entity.EntityLiving.class, int.class);
-		WorldServer_addPlayer = findMethod(false, WorldServer.class, Void.TYPE, EntityPlayer.class);
-		WorldServer_removePlayer = findMethod(false, WorldServer.class, Void.TYPE, EntityPlayer.class, RemovalReason.class);
-		WorldServer_getChunkProviderServer = findMethod(false, WorldServer.class, ChunkProviderServer.class);
-		ChunkProviderServer_move = findMethod(false, ChunkProviderServer.class, Void.TYPE, EntityPlayer.class);
+		ChunkProviderServer_move = findMethod(false, ChunkProviderServer.class, Void.TYPE, null, EntityPlayer.class);
+		EntityData_get = findMethod(false, DataWatcher.class, Object.class, null, DataWatcherObject.class);
+		Entity_getEntityData = findMethod(false, net.minecraft.world.entity.Entity.class, DataWatcher.class, null);
+		IRegistry_keySet = findMethod(false, IRegistry.class, Set.class, MinecraftKey.class);
+		IRegistry_register = findMethod(false, IRegistry.class, null, null, IRegistry.class, String.class, Object.class);
+		IRegistry_registerMapping = findMethod(false, IRegistry.class, null, null, IRegistry.class, int.class, String.class, Object.class);
+		Item_get = findMethod(false, Item.class, Item.class, null, int.class);
+		Item_releaseUsing = findMethod(false, Item.class, Void.TYPE, null, net.minecraft.world.item.ItemStack.class, net.minecraft.world.level.World.class, net.minecraft.world.entity.EntityLiving.class, int.class);
+		PlayerConnection_sendPacket = findMethod(false, PlayerConnection.class, null, null, Packet.class);
+		PotionBrewer_register = findMethod(true, PotionBrewer.class, Void.TYPE, null, PotionRegistry.class, Item.class, PotionRegistry.class);
+		PotionRegistry_getName = findMethod(false, PotionRegistry.class, String.class, null, String.class);
+		PotionUtil_getPotion = findMethod(false, PotionUtil.class, PotionRegistry.class, null, net.minecraft.world.item.ItemStack.class);
+		WorldServer_addPlayer = findMethod(false, WorldServer.class, Void.TYPE, null, EntityPlayer.class);
+		WorldServer_getChunkProviderServer = findMethod(false, WorldServer.class, ChunkProviderServer.class, null);
+		WorldServer_removePlayer = findMethod(false, WorldServer.class, Void.TYPE, null, EntityPlayer.class, RemovalReason.class);
+		NBTTagCompound_putString = findMethod(false, NBTTagCompound.class, Void.TYPE, null, String.class, String.class);
+		NBTTagCompound_getString = findMethod(false, NBTTagCompound.class, String.class, null, String.class);
 	}
 
 	public static Class loadClass(String arg0) {
@@ -142,10 +163,23 @@ public class ReflectionUtils {
 		}
 	}
 
-	public static Method findMethod(boolean isPrivate, Class clazz, Class rType, Class... parameters) {
+	//isPrivate - Is method private, if so use getDeclaredMethods() and then make method accessible
+	//clazz - Class in which search
+	//rType - Return type, if null then any is ok
+	//gType - Generic type of return type, if null then ignored
+	//parameters - Method argument classes
+	public static Method findMethod(boolean isPrivate, Class clazz, Class rType, Class gType, Class... parameters) {
 		for (Method method : isPrivate ? clazz.getDeclaredMethods() : clazz.getMethods()) {
 			if (method.getParameterCount() != parameters.length) { continue; }
 			if ((rType != null) && !method.getReturnType().equals(rType)) { continue; }
+
+			if (gType != null) {
+				Type genericType = method.getGenericReturnType();
+				if (!(genericType instanceof ParameterizedType)) { continue; }
+				Type[] argTypes = ((ParameterizedType) genericType).getActualTypeArguments();
+				if ((argTypes.length == 0) || !(argTypes[0] instanceof Class)) { continue; }
+				if (!((Class) argTypes[0]).equals(gType)) { continue; }
+			}
 
 			boolean match = true;
 			for (int i = 0; i < parameters.length; i++) {
@@ -356,20 +390,13 @@ public class ReflectionUtils {
 			e.printStackTrace();
 			return false;
 		}
-
-		//Yes solution bellow is much easier, but I don't want to update it every time
-		//So I will better search for everything by types and use reflection
-
-		//net.minecraft.world.entity.LivingEntity ->
-		//    boolean isUsingItem() -> eU
-		//return getEntityPlayer(player).eU();
 	}
 
 	public static void shootBow(Player player, ItemStack bow, int ticks) {
 		try {
-			net.minecraft.world.item.ItemStack item = ReflectionUtils.asNMSCopy(bow);
-			net.minecraft.world.level.World world = ReflectionUtils.getWorld(player.getWorld());
-			EntityPlayer entityPlayer = ReflectionUtils.getEntityPlayer(player);
+			net.minecraft.world.item.ItemStack item = asNMSCopy(bow);
+			net.minecraft.world.level.World world = getWorld(player.getWorld());
+			EntityPlayer entityPlayer = getEntityPlayer(player);
 			Item_releaseUsing.invoke(Item_get.invoke(null, 718), item, world, entityPlayer, (72000 - ticks));
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			e.printStackTrace();
@@ -377,7 +404,11 @@ public class ReflectionUtils {
 	}
 
 	@SuppressWarnings("deprecation")
-	public static Player addFakePlayer(Location location, boolean hideOnline, boolean hideWorld) {
+	public static Player addFakePlayer(Location location, boolean addPlayer, boolean hideOnline, boolean hideWorld) {
+		//net.minecraft.network.protocol.PacketFlow ->
+		//    net.minecraft.network.protocol.PacketFlow SERVERBOUND -> a
+		//    net.minecraft.network.protocol.PacketFlow CLIENTBOUND -> b
+
 		MinecraftServer server = MinecraftServer.getServer();
 		WorldServer world = (WorldServer) getWorld(location.getWorld());
 		EntityPlayer entityPlayer = new EntityPlayer(server, world, new GameProfile(UUID.randomUUID(), " ".repeat(5)), null);
@@ -386,17 +417,17 @@ public class ReflectionUtils {
 
 		try {
 			EntityPlayer_playerConnection.set(entityPlayer, connection);
-			WorldServer_addPlayer.invoke(world, entityPlayer);
+			if (addPlayer) { WorldServer_addPlayer.invoke(world, entityPlayer); }
 
 			//Will hide from Bukkit.getOnlinePlayers()
-			if (hideOnline) {
+			if (addPlayer && hideOnline) {
 				Object playerList = MinecraftServer_playerList.get(server);
 				List<EntityPlayer> players = (List<EntityPlayer>) PlayerList_players.get(playerList);
 				players.removeIf(e -> e.getBukkitEntity().getUniqueId().equals(player.getUniqueId()));
 			}
 
 			//Will hide from World.getPlayers(), but also will prevent mob spawning
-			if (hideWorld) {
+			if (addPlayer && hideWorld) {
 				List<EntityPlayer> players = (List<EntityPlayer>) WorldServer_players.get(world);
 				players.removeIf(e -> e.getBukkitEntity().getUniqueId().equals(player.getUniqueId()));
 			}
@@ -409,6 +440,9 @@ public class ReflectionUtils {
 	}
 
 	public static void removeFakePlayer(Player player) {
+		//net.minecraft.world.entity.Entity$RemovalReason ->
+		///    net.minecraft.world.entity.Entity$RemovalReason DISCARDED -> b
+
 		try {
 			EntityPlayer entityPlayer = getEntityPlayer(player);
 			WorldServer world = (WorldServer) getWorld(player.getWorld());
@@ -427,14 +461,6 @@ public class ReflectionUtils {
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			e.printStackTrace();
 		}
-	}
-
-	public static void setRegistryFrozen(Object registry, boolean frozen) {
-        try {
-        	RegistryMaterials_frozen.set(registry, frozen);
-        } catch (SecurityException | IllegalArgumentException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
 	}
 
 	public static boolean registerBrewRecipe(PotionRegistry base, Material ingredient, PotionRegistry result) {
@@ -461,6 +487,87 @@ public class ReflectionUtils {
 
 		try {
 			return (PotionRegistry) PotionUtil_getPotion.invoke(PotionUtil_getPotion, nmsItem);
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+	public static String getPotionRegistryName(PotionRegistry potion) {
+		try {
+			return (String) PotionRegistry_getName.invoke(potion, "");
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+	public static String getPotionTag(ItemStack item) {
+		try {
+			net.minecraft.world.item.ItemStack nmsItem = asNMSCopy(item);
+			NBTTagCompound tag = (NBTTagCompound) ItemStack_tag.get(nmsItem);
+			if (tag == null) { return ""; }
+			String potion = (String) NBTTagCompound_getString.invoke(tag, "Potion");
+			return potion.replace("minecraft:", "");
+		} catch (SecurityException | IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
+			e.printStackTrace();
+		}
+
+		return "";
+	}
+
+	public static ItemStack setPotionTag(ItemStack item, String name) {
+		try {
+			net.minecraft.world.item.ItemStack nmsItem = asNMSCopy(item);
+			NBTTagCompound tag = (NBTTagCompound) ItemStack_tag.get(nmsItem);
+			if (tag == null) { tag = new NBTTagCompound(); }
+			NBTTagCompound_putString.invoke(tag, "Potion", name);
+			ItemStack_tag.set(nmsItem, tag);
+			return asBukkitMirror(nmsItem);
+		} catch (SecurityException | IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+	public static void setRegistryFrozen(Object registry, boolean frozen) {
+		try {
+			RegistryMaterials_frozen.set(registry, frozen);
+		} catch (SecurityException | IllegalArgumentException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static int getRegistrySize(IRegistry registry) {
+		try {
+			return ((Set<MinecraftKey>) IRegistry_keySet.invoke(registry)).size();
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			e.printStackTrace();
+		}
+
+		return 0;
+	}
+
+	public static PotionRegistry registerInstantPotion(String name, int color) {
+		//net.minecraft.world.effect.MobEffectCategory ->
+		//    net.minecraft.world.effect.MobEffectCategory NEUTRAL -> c
+
+		try {
+			setRegistryFrozen(MOB_EFFECT, false);
+			setRegistryFrozen(POTION, false);
+
+			int id = getRegistrySize(MOB_EFFECT)+1;
+			InstantMobEffect instantMobEffect = new InstantMobEffect(MobEffectInfo.c, color);
+			MobEffectList mobEffectList = (MobEffectList) IRegistry_registerMapping.invoke(IRegistry_registerMapping, MOB_EFFECT, id, name, instantMobEffect);
+			PotionRegistry potionRegistry = new PotionRegistry(new MobEffect[] { new MobEffect(mobEffectList, 1) });
+			potionRegistry = (PotionRegistry) IRegistry_register.invoke(IRegistry_register, POTION, name, potionRegistry);
+
+			setRegistryFrozen(MOB_EFFECT, true);
+			setRegistryFrozen(POTION, true);
+			return potionRegistry;
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			e.printStackTrace();
 		}
