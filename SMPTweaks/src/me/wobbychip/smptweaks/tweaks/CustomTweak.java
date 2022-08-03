@@ -30,7 +30,7 @@ public class CustomTweak {
 	}
 
 	public void printMessage(String message, boolean useName) {
-		Utils.sendMessage(String.format("&9[%s] %s ", (useName ? name : "SMPTweaks"), message));
+		Utils.sendMessage(String.format("&9[%s] %s", (useName ? name : "SMPTweaks"), message));
 	}
 
 	public void printEnabled() {
