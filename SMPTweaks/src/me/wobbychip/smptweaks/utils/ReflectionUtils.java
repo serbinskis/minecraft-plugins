@@ -365,7 +365,7 @@ public class ReflectionUtils {
 
 	public static void setInstantBuild(Player player, boolean instantbuild, boolean clientSide, boolean serverSide) {
 		//net.minecraft.world.entity.player.Abilities ->
-		//    boolean instabuild -> d
+		//	boolean instabuild -> d
 
 		PlayerAbilities abilities = getPlayerAbilities(player);
 
@@ -406,8 +406,8 @@ public class ReflectionUtils {
 	@SuppressWarnings("deprecation")
 	public static Player addFakePlayer(Location location, boolean addPlayer, boolean hideOnline, boolean hideWorld) {
 		//net.minecraft.network.protocol.PacketFlow ->
-		//    net.minecraft.network.protocol.PacketFlow SERVERBOUND -> a
-		//    net.minecraft.network.protocol.PacketFlow CLIENTBOUND -> b
+		//	net.minecraft.network.protocol.PacketFlow SERVERBOUND -> a
+		//	net.minecraft.network.protocol.PacketFlow CLIENTBOUND -> b
 
 		MinecraftServer server = MinecraftServer.getServer();
 		WorldServer world = (WorldServer) getWorld(location.getWorld());
@@ -441,7 +441,7 @@ public class ReflectionUtils {
 
 	public static void removeFakePlayer(Player player) {
 		//net.minecraft.world.entity.Entity$RemovalReason ->
-		///    net.minecraft.world.entity.Entity$RemovalReason DISCARDED -> b
+		//	net.minecraft.world.entity.Entity$RemovalReason DISCARDED -> b
 
 		try {
 			EntityPlayer entityPlayer = getEntityPlayer(player);
@@ -553,7 +553,7 @@ public class ReflectionUtils {
 
 	public static PotionRegistry registerInstantPotion(String name, int color) {
 		//net.minecraft.world.effect.MobEffectCategory ->
-		//    net.minecraft.world.effect.MobEffectCategory NEUTRAL -> c
+		//	net.minecraft.world.effect.MobEffectCategory NEUTRAL -> c
 
 		try {
 			setRegistryFrozen(MOB_EFFECT, false);
