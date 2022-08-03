@@ -17,6 +17,7 @@ import me.wobbychip.smptweaks.custom.expbottles.ExpBottles;
 import me.wobbychip.smptweaks.custom.fastcuring.FastCuring;
 import me.wobbychip.smptweaks.custom.funnymessages.FunnyMessages;
 import me.wobbychip.smptweaks.custom.globaltrading.GlobalTrading;
+import me.wobbychip.smptweaks.custom.gravitycontrol.GravityControl;
 import me.wobbychip.smptweaks.custom.headdrops.HeadDrops;
 import me.wobbychip.smptweaks.custom.noarrowinfinity.NoArrowInfinity;
 import me.wobbychip.smptweaks.custom.preventdropcentering.PreventDropCentering;
@@ -55,6 +56,7 @@ public class Main extends JavaPlugin implements Listener {
 		manager.addTweak(new FastCuring());
 		manager.addTweak(new FunnyMessages());
 		manager.addTweak(new GlobalTrading());
+		manager.addTweak(new GravityControl());
 		manager.addTweak(new HeadDrops());
 		manager.addTweak(new NoArrowInfinity());
 		manager.addTweak(new PreventDropCentering());

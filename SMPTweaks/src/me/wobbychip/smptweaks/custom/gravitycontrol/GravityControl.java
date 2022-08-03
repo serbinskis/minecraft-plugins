@@ -1,4 +1,4 @@
-package me.wobbychip.smptweaks.custom.preventdropcentering;
+package me.wobbychip.smptweaks.custom.gravitycontrol;
 
 import org.bukkit.Bukkit;
 
@@ -6,9 +6,9 @@ import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
 import me.wobbychip.smptweaks.utils.PaperUtils;
 
-public class PreventDropCentering extends CustomTweak {
-	public PreventDropCentering() {
-		super("PreventDropCentering");
+public class GravityControl extends CustomTweak {
+	public GravityControl() {
+		super("GravityControl");
 
 		if (this.isEnabled()) {
 			if (PaperUtils.isPaper) {
