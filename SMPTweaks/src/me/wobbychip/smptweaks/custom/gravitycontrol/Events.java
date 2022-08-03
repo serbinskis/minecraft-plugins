@@ -7,7 +7,6 @@ import java.util.UUID;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World.Environment;
 import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.FallingBlock;
@@ -64,7 +63,6 @@ public class Events implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onEntityPortalExitEvent(EntityPortalExitEvent event) {
 		if (event.getEntity().getType() != EntityType.FALLING_BLOCK) { return; }
-		if (!event.getTo().getWorld().getEnvironment().equals(Environment.THE_END)) { return; }
 		if (!uuids.contains(event.getEntity().getUniqueId())) { return; }
 
 		uuids.remove(event.getEntity().getUniqueId());
