@@ -7,13 +7,10 @@ import me.wobbychip.smptweaks.tweaks.CustomTweak;
 
 public class DropCursedPumpkin extends CustomTweak {
 	public DropCursedPumpkin() {
-		super("DropCursedPumpkin");
+		super(DropCursedPumpkin.class.getSimpleName(), false);
+	}
 
-		if (this.isEnabled()) {
-			Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
-			this.printEnabled();
-		} else {
-			this.printDisabled();
-		}
+	public void onEnable() {
+		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 	}
 }

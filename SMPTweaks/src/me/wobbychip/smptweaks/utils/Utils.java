@@ -51,10 +51,8 @@ public class Utils {
 	}
 
 	//Send message to action bar
-	public static void sendActionMessage(net.md_5.bungee.api.ChatColor color, Player player, String message) {
-		TextComponent text = new TextComponent(message);
-		if (color != null) { text.setColor(color); }
-		player.spigot().sendMessage(ChatMessageType.ACTION_BAR, text);
+	public static void sendActionMessage(Player player, String message) {
+		player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(message));
 	}
 
 	//Get string from config
@@ -276,7 +274,7 @@ public class Utils {
 		return location.getWorld().getName() + delimiter + String.valueOf(location.getX()) + delimiter + String.valueOf(location.getY()) + delimiter +  String.valueOf(location.getZ());
 	}
 
-	//String to location
+	//Convert string to location
 	public static Location stringToLocation(String location) {
 		String[] splited = location.split(delimiter, 0);
 		return new Location(Bukkit.getWorld(splited[0]), Double.parseDouble(splited[1]), Double.parseDouble(splited[2]), Double.parseDouble(splited[3]));

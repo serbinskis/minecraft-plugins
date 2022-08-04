@@ -17,15 +17,12 @@ public class FunnyMessages extends CustomTweak {
 	public static List<String> messages = new ArrayList<>();
 
 	public FunnyMessages() {
-		super("FunnyMessages");
+		super(FunnyMessages.class.getSimpleName(), false);
+	}
 
-		if (this.isEnabled()) {
-			loadConfig();
-			Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
-			this.printEnabled();
-		} else {
-			this.printDisabled();
-		}
+	public void onEnable() {
+		loadConfig();
+		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 	}
 
 	public static void loadConfig() {

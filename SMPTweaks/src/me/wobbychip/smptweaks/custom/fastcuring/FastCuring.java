@@ -14,15 +14,11 @@ public class FastCuring extends CustomTweak {
 	public static Config config;
 
 	public FastCuring() {
-		super("FastCuring");
+		super(FastCuring.class.getSimpleName(), false);
+	}
 
-		if (this.isEnabled()) {
-			loadConfig();
-			Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
-			this.printEnabled();
-		} else {
-			this.printDisabled();
-		}
+	public void onEnable() {
+		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 	}
 
 	public static void loadConfig() {

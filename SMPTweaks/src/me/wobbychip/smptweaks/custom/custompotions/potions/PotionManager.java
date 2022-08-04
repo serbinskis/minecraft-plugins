@@ -67,7 +67,7 @@ public class PotionManager {
 	public void registerPotion(CustomPotion potion) {
 		//If base of potion is custom and not yet registered, save it for later
 		if ((potion.getBase() == null) && !registry.containsKey(potion.getBaseName())) {
-			Utils.sendMessage("&9[CustomPotions] Potion '" + potion.getName() + "' is waiting for base '" + potion.getBaseName() + "'");
+			CustomPotions.tweak.printMessage("Potion '" + potion.getName() + "' is waiting for base '" + potion.getBaseName() + "'", true);
 			waiting.put(potion, potion.getBaseName());
 			return;
 		} else if (potion.getBase() == null) {
@@ -85,7 +85,7 @@ public class PotionManager {
 			Entry<CustomPotion, String> entry = iterator.next();
 			if (entry.getValue().equals(potion.getName())) {
 				entry.getKey().setBase(result);
-				Utils.sendMessage("&9[CustomPotions] Registering '" + entry.getKey().getName() + "' with the base '" + potion.getName() + "'");
+				CustomPotions.tweak.printMessage("Registering '" + entry.getKey().getName() + "' with the base '" + potion.getName() + "'", true);
 				registerPotion(entry.getKey());
 				iterator.remove();
 			}

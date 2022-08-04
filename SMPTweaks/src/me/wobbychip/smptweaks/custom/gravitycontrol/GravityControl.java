@@ -4,21 +4,13 @@ import org.bukkit.Bukkit;
 
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
-import me.wobbychip.smptweaks.utils.PaperUtils;
 
 public class GravityControl extends CustomTweak {
 	public GravityControl() {
-		super("GravityControl");
+		super(GravityControl.class.getSimpleName(), true);
+	}
 
-		if (this.isEnabled()) {
-			if (PaperUtils.isPaper) {
-				Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
-				this.printEnabled();
-			} else {
-				this.printMessage("Ment only for PaperMC.", true);
-			}
-		} else {
-			this.printDisabled();
-		}
+	public void onEnable() {
+		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 	}
 }

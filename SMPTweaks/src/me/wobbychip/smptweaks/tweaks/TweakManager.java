@@ -8,11 +8,25 @@ import java.util.Set;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
+import me.wobbychip.smptweaks.utils.PaperUtils;
+
 public class TweakManager {
 	protected Map<String, CustomTweak> tweaks = new HashMap<>();
 
 	public void addTweak(CustomTweak tweak) {
 		tweaks.put(tweak.getName(), tweak);
+
+		if (tweak.isEnabled()) {
+			if (PaperUtils.isPaper || !tweak.requiresPaper()) {
+				tweak.onEnable();
+				tweak.printEnabled();
+			} else {
+				tweak.setEnabled(false);
+				tweak.printMessage("Requires PaperMC.", true);
+			}
+		} else {
+			tweak.printDisabled();
+		}
 	}
 
 	public String getTweaks() {

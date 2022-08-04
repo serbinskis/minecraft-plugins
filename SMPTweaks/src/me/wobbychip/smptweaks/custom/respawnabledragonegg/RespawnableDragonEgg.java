@@ -7,13 +7,10 @@ import me.wobbychip.smptweaks.tweaks.CustomTweak;
 
 public class RespawnableDragonEgg extends CustomTweak {
 	public RespawnableDragonEgg() {
-		super("RespawnableDragonEgg");
+		super(RespawnableDragonEgg.class.getSimpleName(), false);
+	}
 
-		if (this.isEnabled()) {
-			Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
-			this.printEnabled();
-		} else {
-			this.printDisabled();
-		}
+	public void onEnable() {
+		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 	}
 }

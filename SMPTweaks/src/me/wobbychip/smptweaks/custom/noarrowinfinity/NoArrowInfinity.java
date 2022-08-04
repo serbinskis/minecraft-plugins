@@ -21,22 +21,19 @@ public class NoArrowInfinity extends CustomTweak {
 	public static List<String> infinity = Arrays.asList("mendfinity", "infinity");
 
 	public NoArrowInfinity() {
-		super("NoArrowInfinity");
+		super(NoArrowInfinity.class.getSimpleName(), false);
+	}
 
-		if (this.isEnabled()) {
-			Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
-				public void run() {
-					for (Player player : Bukkit.getOnlinePlayers()) {
-						checkPlayer(player);
-					}
+	public void onEnable() {
+		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
+			public void run() {
+				for (Player player : Bukkit.getOnlinePlayers()) {
+					checkPlayer(player);
 				}
-			}, 0L, 1L);
+			}
+		}, 1L, 1L);
 
-			Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
-			this.printEnabled();
-		} else {
-			this.printDisabled();
-		}
+		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 	}
 
 	//Instant build is not creative mode and it gives different perks to player

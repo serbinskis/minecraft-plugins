@@ -7,13 +7,10 @@ import me.wobbychip.smptweaks.tweaks.CustomTweak;
 
 public class AntiCreeperGrief extends CustomTweak {
 	public AntiCreeperGrief() {
-		super("AntiCreeperGrief");
+		super(AntiCreeperGrief.class.getSimpleName(), false);
+	}
 
-		if (this.isEnabled()) {
-			Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
-			this.printEnabled();
-		} else {
-			this.printDisabled();
-		}
+	public void onEnable() {
+		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 	}
 }

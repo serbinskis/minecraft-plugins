@@ -19,16 +19,13 @@ public class PvPDropInventory extends CustomTweak {
 	public static Config playerConfig;
 
 	public PvPDropInventory() {
-		super("PvPDropInventory");
+		super(PvPDropInventory.class.getSimpleName(), false);
+	}
 
-		if (this.isEnabled()) {
-			loadConfig();
-			PvPDropInventory.timer = new PlayerTimer(PvPDropInventory.playerConfig, PvPDropInventory.actionBarMessage);
-			Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
-			this.printEnabled();
-		} else {
-			this.printDisabled();
-		}
+	public void onEnable() {
+		loadConfig();
+		PvPDropInventory.timer = new PlayerTimer(PvPDropInventory.playerConfig, PvPDropInventory.actionBarMessage);
+		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 	}
 
 	public void onDisable() {

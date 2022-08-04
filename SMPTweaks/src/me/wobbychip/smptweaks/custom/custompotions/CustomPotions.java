@@ -17,27 +17,22 @@ import me.wobbychip.smptweaks.custom.custompotions.events.VillagerEvents;
 import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
 import me.wobbychip.smptweaks.custom.custompotions.potions.PotionManager;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
-import me.wobbychip.smptweaks.utils.Utils;
 
 public class CustomPotions extends CustomTweak {
 	public static String customTag = "CustomPotion";
 	public static int tradingPotionChance = 5;
 	public static int tradingArrowChance = 5;
+	public static CustomPotions tweak;
 	public static Config config;
 	public static PotionManager manager;
 
 	public CustomPotions() {
-		super("CustomPotions");
-
-		if (this.isEnabled()) {
-			loadConfig();
-			onEnable();
-		} else {
-			this.printDisabled();
-		}
+		super(CustomPotions.class.getSimpleName(), false);
 	}
 
 	public void onEnable() {
+		loadConfig();
+		CustomPotions.tweak = this;
 		manager = new PotionManager();
 		boolean allowVillagerTrading = CustomPotions.config.getConfig().getConfigurationSection("config").getBoolean("allowVillagerTrading");
 
@@ -54,9 +49,7 @@ public class CustomPotions extends CustomTweak {
 
 		Main.plugin.getCommand("cpotions").setExecutor(new Commands());
 		Main.plugin.getCommand("cpotions").setTabCompleter(new TabCompletion());
-
-		Utils.sendMessage("&9[CustomPotions] CustomPotions has loaded!");
-		Utils.sendMessage("&9[CustomPotions] Potions: " + manager.getPotionsString());
+		CustomPotions.tweak.printMessage("Potions: " + manager.getPotionsString(), true);
 	}
 
 	public static void loadConfig() {

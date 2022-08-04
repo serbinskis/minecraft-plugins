@@ -22,23 +22,19 @@ public class RepairWithXP extends CustomTweak {
 	public static List<String> mendings = Arrays.asList("mendfinity", "mending");
 
 	public RepairWithXP() {
-		super("RepairWithXP");
+		super(RepairWithXP.class.getSimpleName(), false);
+	}
 
-		if (this.isEnabled()) {
-			loadConfig();
+	public void onEnable() {
+		loadConfig();
 
-			Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
-				public void run() {
-					for (Player player : Bukkit.getOnlinePlayers()) {
-						checkPlayer(player);
-					}
+		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
+			public void run() {
+				for (Player player : Bukkit.getOnlinePlayers()) {
+					checkPlayer(player);
 				}
-			}, 0L, intervalTicks);
-
-			this.printEnabled();
-		} else {
-			this.printDisabled();
-		}
+			}
+		}, 1L, intervalTicks);
 	}
 
 	public static void loadConfig() {

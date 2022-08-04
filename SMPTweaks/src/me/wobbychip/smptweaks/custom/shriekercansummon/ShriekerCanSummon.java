@@ -10,13 +10,10 @@ public class ShriekerCanSummon extends CustomTweak {
 	public static int WARDEN_SPAWN_DISATNCE = 10;
 
 	public ShriekerCanSummon() {
-		super("ShriekerCanSummon");
+		super(ShriekerCanSummon.class.getSimpleName(), false);
+	}
 
-		if (this.isEnabled()) {
-			Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
-			this.printEnabled();
-		} else {
-			this.printDisabled();
-		}
+	public void onEnable() {
+		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 	}
 }

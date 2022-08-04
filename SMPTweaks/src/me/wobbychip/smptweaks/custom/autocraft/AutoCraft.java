@@ -17,23 +17,20 @@ public class AutoCraft extends CustomTweak {
 	public static Config config;
 
 	public AutoCraft() {
-		super("AutoCraft");
+		super(AutoCraft.class.getSimpleName(), false);
+	}
 
-		if (this.isEnabled()) {
-			loadConfig();
-			crafters = new Crafters();
+	public void onEnable() {
+		loadConfig();
+		crafters = new Crafters();
 
-			Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
-				public void run() {
-					crafters.handleCrafters();
-				}
-			}, 0L, craftCooldown);
+		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
+			public void run() {
+				crafters.handleCrafters();
+			}
+		}, 0L, craftCooldown);
 
-			Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
-			this.printEnabled();
-		} else {
-			this.printDisabled();
-		}
+		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 	}
 
 	public static void loadConfig() {

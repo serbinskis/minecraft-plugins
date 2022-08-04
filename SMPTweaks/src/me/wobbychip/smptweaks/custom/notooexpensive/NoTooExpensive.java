@@ -7,13 +7,10 @@ import me.wobbychip.smptweaks.tweaks.CustomTweak;
 
 public class NoTooExpensive extends CustomTweak {
 	public NoTooExpensive() {
-		super("NoTooExpensive");
+		super(NoTooExpensive.class.getSimpleName(), false);
+	}
 
-		if (this.isEnabled()) {
-			Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
-			this.printEnabled();
-		} else {
-			this.printDisabled();
-		}
+	public void onEnable() {
+		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 	}
 }

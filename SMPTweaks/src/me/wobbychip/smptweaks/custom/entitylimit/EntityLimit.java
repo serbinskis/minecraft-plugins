@@ -20,16 +20,13 @@ public class EntityLimit extends CustomTweak {
 	public static Config config;
 
 	public EntityLimit() {
-		super("EntityLimit");
+		super(EntityLimit.class.getSimpleName(), false);
+	}
 
-		if (this.isEnabled()) {
-			loadConfig();
-			this.commands = new Commands();
-			Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
-			this.printEnabled();
-		} else {
-			this.printDisabled();
-		}
+	public void onEnable() {
+		loadConfig();
+		this.commands = new Commands();
+		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 	}
 
 	public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {

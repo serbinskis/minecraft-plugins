@@ -19,18 +19,15 @@ public class ChunkLoader extends CustomTweak {
 	public static Chunks chunks;
 
 	public ChunkLoader() {
-		super("ChunkLoader");
+		super(ChunkLoader.class.getSimpleName(), false);
+	}
 
-		if (this.isEnabled()) {
-			loadConfig();
-			ChunkLoader.tweak = this;
-			ChunkLoader.chunks = new Chunks();
-			ChunkLoader.manager = new Manager(loaders);
-			Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
-			this.printEnabled();
-		} else {
-			this.printDisabled();
-		}
+	public void onEnable() {
+		loadConfig();
+		ChunkLoader.tweak = this;
+		ChunkLoader.chunks = new Chunks();
+		ChunkLoader.manager = new Manager(loaders);
+		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 	}
 
 	public void onDisable() {

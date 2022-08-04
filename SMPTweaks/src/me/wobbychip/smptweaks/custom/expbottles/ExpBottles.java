@@ -7,13 +7,10 @@ import me.wobbychip.smptweaks.tweaks.CustomTweak;
 
 public class ExpBottles extends CustomTweak {
 	public ExpBottles() {
-		super("ExpBottles");
+		super(ExpBottles.class.getSimpleName(), false);
+	}
 
-		if (this.isEnabled()) {
-			Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
-			this.printEnabled();
-		} else {
-			this.printDisabled();
-		}
+	public void onEnable() {
+		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 	}
 }
