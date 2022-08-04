@@ -9,6 +9,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 
 import me.wobbychip.smptweaks.Main;
@@ -44,8 +45,13 @@ public class NoArrowInfinity extends CustomTweak {
 	//Give instant build only to client and not server
 	public void checkPlayer(Player player) {
 		if (player.getGameMode() == GameMode.CREATIVE) { return; }
+		if (player.getOpenInventory().getTopInventory().getType() != InventoryType.CRAFTING) { return; }
 		ItemStack mainahnd = player.getInventory().getItemInMainHand();
 		ItemStack offhand = player.getInventory().getItemInOffHand();
+
+		//Ignore creative players, they already have instant build
+		//Prevent check if any inventory opened, except default players inventory
+		//Can't check that because if no any other opened, then default will be always opened
 
 		//Allow instant build only if infinity bow is in main hand or offhand
 		//But if it is in offhand check if there is no any other bow or crossbow in mainhand

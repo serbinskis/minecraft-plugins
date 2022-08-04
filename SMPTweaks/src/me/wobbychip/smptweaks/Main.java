@@ -20,6 +20,7 @@ import me.wobbychip.smptweaks.custom.globaltrading.GlobalTrading;
 import me.wobbychip.smptweaks.custom.gravitycontrol.GravityControl;
 import me.wobbychip.smptweaks.custom.headdrops.HeadDrops;
 import me.wobbychip.smptweaks.custom.noarrowinfinity.NoArrowInfinity;
+import me.wobbychip.smptweaks.custom.notooexpensive.NoTooExpensive;
 import me.wobbychip.smptweaks.custom.preventdropcentering.PreventDropCentering;
 import me.wobbychip.smptweaks.custom.pvpdropinventory.PvPDropInventory;
 import me.wobbychip.smptweaks.custom.repairwithxp.RepairWithXP;
@@ -59,6 +60,7 @@ public class Main extends JavaPlugin implements Listener {
 		manager.addTweak(new GravityControl());
 		manager.addTweak(new HeadDrops());
 		manager.addTweak(new NoArrowInfinity());
+		manager.addTweak(new NoTooExpensive());
 		manager.addTweak(new PreventDropCentering());
 		manager.addTweak(new PvPDropInventory());
 		manager.addTweak(new RepairWithXP());

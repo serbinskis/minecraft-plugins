@@ -7,7 +7,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 public class Events implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
-	private void onPlayerJoin(PlayerJoinEvent event) {
+	public void onPlayerJoin(PlayerJoinEvent event) {
 		event.getPlayer().discoverRecipes(AllCraftingRecipes.recipeKeys);
 	}
 }
