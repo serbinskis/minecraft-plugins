@@ -35,14 +35,14 @@ public class Border {
 	public void addPlayer(Player player) {
 		if (containsPlayer(player)) { return; }
 		players.add(player);
-		Utils.sendActionMessage(null, player, "Virtual border is now visible.");
+		Utils.sendActionMessage(player, "Virtual border is now visible.");
 		player.playSound(player.getLocation(), Sound.BLOCK_END_PORTAL_FRAME_FILL, 1, 1);
 	}
 
 	public void removePlayer(Player player) {
 		players.remove(player);
 		player.setWorldBorder(center.getWorld().getWorldBorder());
-		Utils.sendActionMessage(null, player, "Virtual border is now hidden.");
+		Utils.sendActionMessage(player, "Virtual border is now hidden.");
 		player.playSound(player.getLocation(), Sound.BLOCK_END_PORTAL_FRAME_FILL, 1, 1);
 	}
 
@@ -69,7 +69,7 @@ public class Border {
 			border.setWarningDistance(-1);
 			border.setWarningTime(-1);
 			player.setWorldBorder(border);
-			Utils.sendActionMessage(null, player, "Virtual border is now visible.");
+			Utils.sendActionMessage(player, "Virtual border is now visible.");
 		}
 
 		for (Player player : remove) {

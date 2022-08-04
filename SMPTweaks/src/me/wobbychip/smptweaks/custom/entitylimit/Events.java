@@ -8,7 +8,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 
 import me.wobbychip.smptweaks.utils.Utils;
-import net.md_5.bungee.api.ChatColor;
 
 public class Events implements Listener {
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -36,7 +35,7 @@ public class Events implements Listener {
 			if (player == null) { return; }
 
 			String replacedMessage = Utils.getString("tooManyEntity", EntityLimit.config).replace("%value%", String.valueOf(EntityLimit.limit));
-			Utils.sendActionMessage(ChatColor.RED, player, replacedMessage);
+			Utils.sendActionMessage(player, replacedMessage);
 		}
 	}
 }

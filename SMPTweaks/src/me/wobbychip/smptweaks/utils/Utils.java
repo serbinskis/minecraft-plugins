@@ -52,7 +52,8 @@ public class Utils {
 
 	//Send message to action bar
 	public static void sendActionMessage(Player player, String message) {
-		player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(message));
+		String text = ChatColor.translateAlternateColorCodes('&', message);
+		player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(text));
 	}
 
 	//Get string from config

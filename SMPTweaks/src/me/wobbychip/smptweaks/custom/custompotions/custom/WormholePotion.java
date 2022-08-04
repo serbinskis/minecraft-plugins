@@ -60,7 +60,7 @@ public class WormholePotion extends CustomPotion {
 		Player attacker = (Player) arrow.getShooter();
 
 		if (target.getUniqueId().equals(attacker.getUniqueId())) {
-			Utils.sendActionMessage(null, target, "You cannot mark yourself.");
+			Utils.sendActionMessage(target, "You cannot mark yourself.");
 			return;
 		}
 
@@ -74,8 +74,8 @@ public class WormholePotion extends CustomPotion {
 			scoreboard.getObjective(objectiveName).setDisplayName(uuid);
 		}
 
-		Utils.sendActionMessage(null, target, "You have been marked by " + attacker.getName() + ".");
-		Utils.sendActionMessage(null, attacker, "You marked " + target.getName() + ".");
+		Utils.sendActionMessage(target, "You have been marked by " + attacker.getName() + ".");
+		Utils.sendActionMessage(attacker, "You marked " + target.getName() + ".");
 	}
 
 	public void teleportAttacker(Player player) {
@@ -83,18 +83,18 @@ public class WormholePotion extends CustomPotion {
 		Objective objective = Bukkit.getScoreboardManager().getMainScoreboard().getObjective(objectiveName);
 
 		if (objective == null) {
-			Utils.sendActionMessage(null, player, "You first need to mark a player.");
+			Utils.sendActionMessage(player, "You first need to mark a player.");
 			return;
 		}
 
 		OfflinePlayer target = Bukkit.getOfflinePlayer(UUID.fromString(objective.getDisplayName()));
 
 		if (!target.isOnline()) {
-			Utils.sendActionMessage(null, player, target.getName() + " is not online.");
+			Utils.sendActionMessage(player, target.getName() + " is not online.");
 		} else {
 			objective.unregister();
-			Utils.sendActionMessage(null, player, "Wormhole'd to " + target.getName() + ".");
-			Utils.sendActionMessage(null, target.getPlayer(), player.getName() + " wormhole'd to you.");
+			Utils.sendActionMessage(player, "Wormhole'd to " + target.getName() + ".");
+			Utils.sendActionMessage(target.getPlayer(), player.getName() + " wormhole'd to you.");
 			player.teleport(target.getPlayer());
 		}
 	}

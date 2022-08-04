@@ -60,7 +60,7 @@ public class VillagerEvents implements Listener {
 		if (Utils.isTippedArrow(recipe.getResult())) { canBuy = canBuy && customPotion.getAllowTippedArrow(); }
 		if (canBuy) { return; }
 
-		Utils.sendActionMessage(null, (Player) event.getWhoClicked(), "Potion is disabled.");
+		Utils.sendActionMessage((Player) event.getWhoClicked(), "Potion is disabled.");
 		event.setResult(Result.DENY);
 	}
 

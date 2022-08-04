@@ -1,7 +1,7 @@
 permissionMessage: '&cYou do not have permissions!'
 reloadMessage: '&9Reloaded EntityLimit.'
 usageMessage: '&9Usage /SMPTweaks entitylimit [reload]'
-tooManyEntity: 'To many mobs in same area: %value%.'
+tooManyEntity: '&cTo many mobs in same area: %value%.'
 
 limit: 100
 maximumDistance: 16
