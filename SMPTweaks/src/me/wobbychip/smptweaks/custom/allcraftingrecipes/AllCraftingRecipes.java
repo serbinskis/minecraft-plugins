@@ -31,5 +31,4 @@ public class AllCraftingRecipes extends CustomTweak {
 		
 		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 	}
-
 }
