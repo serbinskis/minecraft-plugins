@@ -119,11 +119,11 @@ public class Traders {
 		ItemStack adjusted = Villagers.adjustItem(villager, recipe, recipe.getIngredients().get(0));
 		if (!trader.containsAtLeast(adjusted, adjusted.getAmount())) { return; }
 
-		ItemStack ingredient = recipe.getIngredients().get(1); //Second item is not being adjusted
+		ItemStack ingredient = recipe.getIngredients().get(1); //Second item should not be adjusted
 		if (!ingredient.getType().isAir() && !trader.containsAtLeast(ingredient, ingredient.getAmount())) { return; }
 
 		consumeItems.add(adjusted);
-		consumeItems.add(ingredient);
+		if (!ingredient.getType().isAir()) { consumeItems.add(ingredient); }
 		outputItems.add(result);
 	}
 
