@@ -26,7 +26,7 @@ public class FakePlayer {
 	public void setEnabled(boolean isEnabled) {
 		if (isEnabled) {
 			if (player != null) { ReflectionUtils.removeFakePlayer(player); }
-			player = ReflectionUtils.addFakePlayer(location, true, true, false);
+			player = ReflectionUtils.addFakePlayer(location, null, true, true, false);
 		} else {
 			if (player != null) { ReflectionUtils.removeFakePlayer(player); }
 			player = null;
@@ -53,7 +53,7 @@ public class FakePlayer {
 		if (isSleeping) {
 			if (isValid) { ReflectionUtils.removeFakePlayer(player); }
 		} else {
-			if (!isValid) { ReflectionUtils.addFakePlayer(location, true, true, false); }
+			if (!isValid) { ReflectionUtils.addFakePlayer(location, null, true, true, false); }
 		}
 	}
 

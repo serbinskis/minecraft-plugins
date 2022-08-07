@@ -15,6 +15,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPhysicsEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
@@ -49,6 +50,21 @@ public class Events implements Listener {
 		for (Block block : blocks) {
 			ChunkLoader.manager.updateLoader(block);
 		}
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void onEntityDamageByEntityEvent(EntityDamageByEntityEvent event) {
+		if (!(event.getEntity() instanceof ItemFrame)) { return; }
+		ItemFrame frame = (ItemFrame) event.getEntity();
+		if (frame.getAttachedFace() != BlockFace.DOWN) { return; }
+
+		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
+			public void run() {
+				if (frame.getItem().getType() == Material.NETHER_STAR) { return; }
+				Block block = frame.getLocation().getBlock().getRelative(frame.getAttachedFace());
+				ChunkLoader.manager.removeLoader(block);
+			}
+		}, 1L);
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

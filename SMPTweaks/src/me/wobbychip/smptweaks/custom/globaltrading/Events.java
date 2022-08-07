@@ -13,7 +13,7 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import me.wobbychip.smptweaks.utils.PaperUtils;
 
 public class Events implements Listener {
-	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerInteractEntityEvent(PlayerInteractEntityEvent event) {
 		if (!(event.getRightClicked() instanceof Villager)) { return; }
 		Villager villager = (Villager) event.getRightClicked();

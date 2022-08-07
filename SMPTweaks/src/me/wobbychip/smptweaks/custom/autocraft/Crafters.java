@@ -15,7 +15,6 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Dispenser;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -152,8 +151,8 @@ public class Crafters {
 	}
 
 	public Block getCrafter(Entity entity) {
-		if (!entity.getType().equals(EntityType.ITEM_FRAME) && !entity.getType().equals(EntityType.GLOW_ITEM_FRAME)) { return null; }
-		if (!((ItemFrame) entity).getItem().equals(new ItemStack(Material.CRAFTING_TABLE))) { return null; }
+		if (!(entity instanceof ItemFrame)) { return null; }
+		if (((ItemFrame) entity).getItem().getType() != Material.CRAFTING_TABLE) { return null; }
 
 		Block crafter = entity.getLocation().getBlock().getRelative(((ItemFrame) entity).getAttachedFace());
 		if (crafter.getType() != Material.DISPENSER) { return null; }

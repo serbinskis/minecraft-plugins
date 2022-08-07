@@ -15,6 +15,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.advancement.Advancement;
+import org.bukkit.advancement.AdvancementProgress;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.AnimalTamer;
@@ -41,8 +43,8 @@ public class Utils {
 	public static String delimiter = "#";
 
 	//Send message to console
-	public static void sendMessage(String message) {
-		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+	public static void sendMessage(Object any) {
+		Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', String.valueOf(any)));
 	}
 
 	//Send message to sender
@@ -196,6 +198,7 @@ public class Utils {
 	public static Collection<Entity> getNearestEntities(Location location, EntityType type, double distance, boolean maxHeight) {
 		double height = maxHeight ? location.getWorld().getMaxHeight()*2 : distance;
 		Collection<Entity> nearbyEntites = location.getWorld().getNearbyEntities(location, distance, height, distance);
+		if (type == EntityType.UNKNOWN) { return nearbyEntites; }
 		Iterator<Entity> iterator = nearbyEntites.iterator();
 
 		while (iterator.hasNext()) {
@@ -296,5 +299,21 @@ public class Utils {
 		}
 
 		return file;
+	}
+
+	public static void grantAdvancemnt(Player player, Advancement advancment) {
+		AdvancementProgress progress = player.getAdvancementProgress(advancment);
+
+		for (String criteria : progress.getRemainingCriteria()) {
+			progress.awardCriteria(criteria);
+		}
+	}
+
+	public static void revokeAdvancemnt(Player player, Advancement advancment) {
+		AdvancementProgress progress = player.getAdvancementProgress(advancment);
+
+		for (String criteria : progress.getAwardedCriteria()) {
+			progress.revokeCriteria(criteria);
+		}
 	}
 }
