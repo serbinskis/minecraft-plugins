@@ -83,7 +83,7 @@ public class Events implements Listener {
 			public void run() {
 				Block trader = AutoTrade.traders.getTrader(block);
 				if (trader != null) { return; }
-				Villagers.releaseXp(block, block.getLocation().clone().add(0.5, 1.5, 0.5));
+				Villagers.releaseXp(block, block.getLocation().clone().add(0.5, 1.2, 0.5));
 			}
 		}, 1L);
 	}

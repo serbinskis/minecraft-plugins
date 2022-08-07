@@ -24,7 +24,6 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
 
-import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import me.wobbychip.smptweaks.utils.Utils;
 
 public class Traders {
@@ -113,20 +112,19 @@ public class Traders {
 
 	public void getResultItems(Villager villager, MerchantRecipe recipe, Inventory trader, List<ItemStack> consumeItems, List<ItemStack> outputItems) {
 		if (recipe.getUses() >= recipe.getMaxUses()) { return; }
-		List<ItemStack> consume = new ArrayList<>();
 
 		ItemStack result = recipe.getResult();
 		if (!trader.containsAtLeast(result, result.getAmount())) { return; }
 
-		for (ItemStack item : recipe.getIngredients()) {
-			if (item.getType().isAir()) { continue; }
-			recipe.adjust(item);
-			if (!trader.containsAtLeast(item, item.getAmount())) { return; }
-			consume.add(item);
-		}
+		ItemStack adjusted = Villagers.adjustItem(villager, recipe, recipe.getIngredients().get(0));
+		if (!trader.containsAtLeast(adjusted, adjusted.getAmount())) { return; }
 
-		consumeItems.addAll(consume);
-		outputItems.add(recipe.getResult());
+		ItemStack ingredient = recipe.getIngredients().get(1); //Second item is not being adjusted
+		if (!ingredient.getType().isAir() && !trader.containsAtLeast(ingredient, ingredient.getAmount())) { return; }
+
+		consumeItems.add(adjusted);
+		consumeItems.add(ingredient);
+		outputItems.add(result);
 	}
 
 	public boolean setResultItems(Block trader, Villager villager, MerchantRecipe recipe, Inventory source, Inventory destination, List<ItemStack> consumeItems, List<ItemStack> outputItems) {

@@ -12,10 +12,8 @@ import org.bukkit.event.inventory.TradeSelectEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
 
-import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.utils.PersistentUtils;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
-import me.wobbychip.smptweaks.utils.Utils;
 import net.minecraft.network.protocol.game.PacketPlayInTrSel;
 
 public class Villagers {
@@ -35,20 +33,15 @@ public class Villagers {
 		player.getInventory().clear();
 
 		//FUCK THE BUKKIT AGAIN, EntitySpawnEvent not working with xp
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
-			public void run() {
-				for (Entity entity : villager.getLocation().getWorld().getNearbyEntities(villager.getLocation(), 1, 1, 1)) {
-					if (!(entity instanceof ExperienceOrb)) { continue; }
-					if (storeOrb((ExperienceOrb) entity, villager, trader)) { break; }
-				}
-			}
-		}, 1);
+		for (Entity entity : villager.getLocation().getWorld().getNearbyEntities(villager.getLocation(), 1, 1, 1)) {
+			if (!(entity instanceof ExperienceOrb)) { continue; }
+			if (storeOrb((ExperienceOrb) entity, villager, trader)) { break; }
+		}
 
 		return true;
 	}
 
 	public static boolean canBuy(Player player, Villager villager, int trade) {
-		player.teleport(villager.getLocation());
 		player.openMerchant(villager, true);
 
 		TradeSelectEvent event = new TradeSelectEvent(player.getOpenInventory(), trade);
@@ -76,7 +69,6 @@ public class Villagers {
 			amountXP = PersistentUtils.getPersistentDataInteger(block, AutoTrade.isAutoTrade);
 		}
 
-		Utils.sendMessage(amountXP+xp);
 		PersistentUtils.setPersistentDataInteger(block, AutoTrade.isAutoTrade, amountXP+xp);
 	}
 

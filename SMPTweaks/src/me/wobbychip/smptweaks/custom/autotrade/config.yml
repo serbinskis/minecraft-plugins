@@ -1,5 +1,5 @@
 # Time between trades in ticks
-tardeCooldown: 8
+tardeCooldown: 20
 
 # Distance in block from trader
 tradeDistance: 2
