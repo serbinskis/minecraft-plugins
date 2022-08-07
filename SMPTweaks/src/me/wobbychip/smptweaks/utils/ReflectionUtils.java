@@ -529,7 +529,6 @@ public class ReflectionUtils {
 		}
 	}
 
-	//DIDN'T TEST THIS ONE
 	public static int getPlayerReputation(Villager villager, Player player) {
 		try {
 			EntityVillager entityVillager = getEntityVillager(villager);

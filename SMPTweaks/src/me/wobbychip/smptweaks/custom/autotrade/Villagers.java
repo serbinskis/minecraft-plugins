@@ -17,20 +17,20 @@ import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import net.minecraft.network.protocol.game.PacketPlayInTrSel;
 
 public class Villagers {
-	public static boolean tradeVillager(Block trader, Player player, Villager villager, int trade) {
-		if (!canBuy(player, villager, trade)) { return false; }
-		player.openMerchant(villager, true);
+	public static boolean tradeVillager(Block trader, Villager villager, int trade) {
+		if (!canBuy(AutoTrade.fakePlayer, villager, trade)) { return false; }
+		AutoTrade.fakePlayer.openMerchant(villager, true);
 
 		for (ItemStack item : villager.getRecipes().get(trade).getIngredients()) {
 			item.setAmount(item.getMaxStackSize());
-			player.getInventory().addItem(item);
+			AutoTrade.fakePlayer.getInventory().addItem(item);
 		}
 
-		ReflectionUtils.handlePacket(player, new PacketPlayInTrSel(trade));
-		ReflectionUtils.quickMoveStack(player, 2);
+		ReflectionUtils.handlePacket(AutoTrade.fakePlayer, new PacketPlayInTrSel(trade));
+		ReflectionUtils.quickMoveStack(AutoTrade.fakePlayer, 2);
 
-		player.closeInventory();
-		player.getInventory().clear();
+		AutoTrade.fakePlayer.closeInventory();
+		AutoTrade.fakePlayer.getInventory().clear();
 
 		//FUCK THE BUKKIT AGAIN, EntitySpawnEvent not working with xp
 		for (Entity entity : villager.getLocation().getWorld().getNearbyEntities(villager.getLocation(), 1, 1, 1)) {

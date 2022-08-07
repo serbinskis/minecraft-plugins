@@ -134,7 +134,7 @@ public class Traders {
 		}
 
 		//Trade with villager
-		if (!Villagers.tradeVillager(trader, AutoTrade.fakePlayer, villager, villager.getRecipes().indexOf(recipe))) { return false; }
+		if (!Villagers.tradeVillager(trader, villager, villager.getRecipes().indexOf(recipe))) { return false; }
 
 		//Make a copy to restore in case if we run out of space
 		ItemStack[] restore = destination.getContents();
