@@ -37,7 +37,7 @@ public class PlayerTimer {
 			public void run() {
 				checkPlayers();
 			}
-		}, 0L, 20L);
+		}, 1L, 20L);
 	}
 
 	public void Save(boolean bStop) {

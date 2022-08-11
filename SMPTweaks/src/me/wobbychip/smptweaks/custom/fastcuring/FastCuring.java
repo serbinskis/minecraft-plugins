@@ -18,6 +18,7 @@ public class FastCuring extends CustomTweak {
 	}
 
 	public void onEnable() {
+		loadConfig();
 		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 	}
 
