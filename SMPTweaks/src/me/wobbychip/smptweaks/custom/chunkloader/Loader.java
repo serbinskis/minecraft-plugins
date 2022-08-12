@@ -11,6 +11,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.GlowItemFrame;
 import org.bukkit.entity.ItemFrame;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.Shulker;
 import org.bukkit.inventory.ItemStack;
 
@@ -40,6 +41,10 @@ public class Loader {
 				if (frame != null) { frame.setItem(frame.getItem()); }
 			}
 		}, 1L);
+	}
+
+	public Player getFakePlayer() {
+		return fakePlayer.getPlayer();
 	}
 
 	public Location getLocation() {

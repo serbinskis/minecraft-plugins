@@ -33,6 +33,10 @@ public class FakePlayer {
 		}
 	}
 
+	public Player getPlayer() {
+		return player;
+	}
+
 	public void update() {
 		if (player == null) { return; }
 		boolean isValid = player.isValid();

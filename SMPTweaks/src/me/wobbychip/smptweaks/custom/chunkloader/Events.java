@@ -1,6 +1,8 @@
 package me.wobbychip.smptweaks.custom.chunkloader;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -8,6 +10,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ItemFrame;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -18,6 +21,7 @@ import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -25,6 +29,7 @@ import org.bukkit.inventory.ItemStack;
 
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.utils.PersistentUtils;
+import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import me.wobbychip.smptweaks.utils.Utils;
 
 public class Events implements Listener {
@@ -114,5 +119,25 @@ public class Events implements Listener {
 		if (event.getEntity().getType() != EntityType.SHULKER) { return; }
 		if (!PersistentUtils.hasPersistentDataBoolean(event.getEntity(), ChunkLoader.isChunkLoader)) { return; }
 		event.setCancelled(true);
+	}
+
+	//Prevent BlazeandCave's Advancements messages for fake player
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onPlayerAdvancementDoneEvent(PlayerAdvancementDoneEvent event) {
+		if (!ChunkLoader.manager.isFakePlayer(event.getPlayer().getUniqueId())) { return; }
+		HashMap<Player, String> chats = new HashMap<>();
+
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			chats.put(player, ReflectionUtils.getChatVisibility(player));
+			ReflectionUtils.setChatVisibility(player, "options.chat.visibility.hidden");
+		}
+
+		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
+			public void run() {
+				for (Entry<Player, String> entry : chats.entrySet()) {
+					ReflectionUtils.setChatVisibility(entry.getKey(), entry.getValue());
+				}
+			}
+		}, 1L);
 	}
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -84,6 +85,16 @@ public class Manager {
 		for (Block block : remove) {
 			removeLoader(block);
 		}
+	}
+
+	public boolean isFakePlayer(UUID uuid) {
+		for (Loader loader : loaders.values()) {
+			if (loader.getFakePlayer() == null) { continue; }
+			if (!loader.getFakePlayer().getUniqueId().equals(uuid)) { continue; }
+			return true;
+		}
+
+		return false;
 	}
 
 	public void onDisable() {

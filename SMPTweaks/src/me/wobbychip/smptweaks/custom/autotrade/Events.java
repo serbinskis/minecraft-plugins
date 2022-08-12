@@ -1,13 +1,9 @@
 package me.wobbychip.smptweaks.custom.autotrade;
 
-import java.util.HashMap;
-import java.util.Map.Entry;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.ItemFrame;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -18,12 +14,10 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import org.bukkit.inventory.BlockInventoryHolder;
 import org.bukkit.inventory.InventoryHolder;
 
 import me.wobbychip.smptweaks.Main;
-import me.wobbychip.smptweaks.utils.ReflectionUtils;
 
 public class Events implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -61,28 +55,6 @@ public class Events implements Listener {
 		Block block = ((BlockInventoryHolder) holder).getBlock();
 		if (!AutoTrade.traders.isTrader(block)) { return; }
 		Villagers.releaseXp(block, event.getPlayer().getLocation());
-	}
-
-	//Prevent BlazeandCave's Advancements messages for fake player
-	@EventHandler(priority = EventPriority.MONITOR)
-	public void onPlayerAdvancementDoneEvent(PlayerAdvancementDoneEvent event) {
-		boolean isFakePlayer = event.getPlayer().getUniqueId().equals(AutoTrade.fakePlayer.getUniqueId());
-		if (!isFakePlayer) { return; }
-
-		HashMap<Player, String> chats = new HashMap<>();
-
-		for (Player player : Bukkit.getOnlinePlayers()) {
-			chats.put(player, ReflectionUtils.getChatVisibility(player));
-			ReflectionUtils.setChatVisibility(player, "options.chat.visibility.hidden");
-		}
-		
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
-			public void run() {
-				for (Entry<Player, String> entry : chats.entrySet()) {
-					ReflectionUtils.setChatVisibility(entry.getKey(), entry.getValue());
-				}
-			}
-		}, 1L);
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
