@@ -54,6 +54,7 @@ import net.minecraft.world.entity.ai.gossip.ReputationType;
 import net.minecraft.world.entity.npc.EntityVillager;
 import net.minecraft.world.entity.Entity.RemovalReason;
 import net.minecraft.world.entity.player.EntityHuman;
+import net.minecraft.world.entity.player.EnumChatVisibility;
 import net.minecraft.world.entity.player.PlayerAbilities;
 import net.minecraft.world.inventory.Container;
 import net.minecraft.world.item.Item;
@@ -83,6 +84,7 @@ public class ReflectionUtils {
 	public static Field EntityHuman_container;
 	public static Field EntityPlayer_invulnerableTicks;
 	public static Field EntityPlayer_playerConnection;
+	public static Field EntityPlayer_chatVisibility;
 	public static Field EntityVillager_Reputation;
 	public static Field MinecraftServer_playerList;
 	public static Field PlayerList_players;
@@ -95,6 +97,7 @@ public class ReflectionUtils {
 	public static Method EntityData_get;
 	public static Method Entity_getEntityData;
 	public static Method EntityVillager_startTrading_Or_updateSpecialPrices;
+	public static Method EnumChatVisibility_getKey;
 	public static Method IRegistry_keySet;
 	public static Method IRegistry_register;
 	public static Method IRegistry_registerMapping;
@@ -133,6 +136,7 @@ public class ReflectionUtils {
 		EntityHuman_playerAbilities = getField(EntityHuman.class, PlayerAbilities.class);
 		EntityHuman_container = getField(EntityHuman.class, Container.class);
 		EntityPlayer_playerConnection = getField(EntityPlayer.class, PlayerConnection.class);
+		EntityPlayer_chatVisibility = getField(EntityPlayer.class, EnumChatVisibility.class);
 		EntityVillager_Reputation = getField(EntityVillager.class, Reputation.class);
 		MinecraftServer_playerList = getField(MinecraftServer.class, PlayerList.class);
 		PlayerList_players = getParameterizedField(PlayerList.class, List.class, EntityPlayer.class);
@@ -145,6 +149,7 @@ public class ReflectionUtils {
 		EntityData_get = findMethod(true, null, DataWatcher.class, Object.class, null, DataWatcherObject.class);
 		Entity_getEntityData = findMethod(true, null, net.minecraft.world.entity.Entity.class, DataWatcher.class, null);
 		EntityVillager_startTrading_Or_updateSpecialPrices = findMethod(false, Modifier.PRIVATE, EntityVillager.class, Void.TYPE, null, EntityHuman.class);
+		EnumChatVisibility_getKey = findMethod(true, null, EnumChatVisibility.class, String.class, null);
 		IRegistry_keySet = findMethod(true, null, IRegistry.class, Set.class, MinecraftKey.class);
 		IRegistry_register = findMethod(true, null, IRegistry.class, null, null, IRegistry.class, String.class, Object.class);
 		IRegistry_registerMapping = findMethod(true, null, IRegistry.class, null, null, IRegistry.class, int.class, String.class, Object.class);
@@ -424,6 +429,32 @@ public class ReflectionUtils {
 		if (serverSide) {
 			abilities.d = instantbuild;
 		}
+	}
+
+	public static void setChatVisibility(Player player, String visibility) {
+		try {
+			for (EnumChatVisibility chat : EnumChatVisibility.values()) {
+				String key = (String) EnumChatVisibility_getKey.invoke(chat);
+				if (!key.equalsIgnoreCase(visibility)) { continue; }
+
+				EntityPlayer entityPlayer = getEntityPlayer(player);
+				EntityPlayer_chatVisibility.set(entityPlayer, chat);
+			}
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static String getChatVisibility(Player player) {
+		try {
+			EntityPlayer entityPlayer = getEntityPlayer(player);
+			EnumChatVisibility chat = (EnumChatVisibility) EntityPlayer_chatVisibility.get(entityPlayer);
+			return (String) EnumChatVisibility_getKey.invoke(chat);
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			e.printStackTrace();
+		}
+
+		return null;
 	}
 
 	public static boolean isUsingItem(Player player) {

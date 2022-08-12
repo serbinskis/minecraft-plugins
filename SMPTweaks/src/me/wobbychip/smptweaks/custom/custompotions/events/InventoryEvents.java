@@ -11,6 +11,8 @@ import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
+import org.bukkit.inventory.BrewerInventory;
+import org.bukkit.inventory.GrindstoneInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -33,29 +35,48 @@ public class InventoryEvents implements Listener {
 	}
 
 	//Fix potion tag, cuz bukkit is trash and don't support custom potion tag
+	//And prevent disenchanting custom potions in grindstone
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onInventoryClick(InventoryClickEvent event) {
-		if (event.getView().getTopInventory() == null) { return; }
-		if (event.getView().getTopInventory().getType() != InventoryType.BREWING) { return; }
+		if (event.getView().getTopInventory() instanceof BrewerInventory) {
+			CustomPotion customPotion = CustomPotions.manager.getCustomPotion(event.getCurrentItem());
+			if (customPotion != null) { event.setCurrentItem(customPotion.setPotionTag(event.getCurrentItem())); }
+		}
 
-		CustomPotion customPotion = CustomPotions.manager.getCustomPotion(event.getCurrentItem());
-		if (customPotion != null) { event.setCurrentItem(customPotion.setPotionTag(event.getCurrentItem())); }
+		if (event.getView().getTopInventory() instanceof GrindstoneInventory) {
+			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
+				public void run() {
+					Inventory inv = event.getView().getTopInventory();
+					CustomPotion customPotion = CustomPotions.manager.getCustomPotion(inv.getItem(2));
+					if (customPotion != null) { inv.setItem(2, new ItemStack(Material.AIR)); }
+				}
+			}, 1L);
+		}
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onInventoryDrag(InventoryDragEvent event) {
-		if (event.getView().getTopInventory() == null) { return; }
-		if (event.getView().getTopInventory().getType() != InventoryType.BREWING) { return; }
-
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
-			public void run() {
-				Inventory inv = event.getView().getTopInventory();
-				for (int i = 0; i < inv.getSize(); i++) {
-					CustomPotion customPotion = CustomPotions.manager.getCustomPotion(inv.getItem(i));
-					if (customPotion != null) { inv.setItem(i, customPotion.setPotionTag(inv.getItem(i))); }
+		if (event.getView().getTopInventory() instanceof BrewerInventory) {
+			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
+				public void run() {
+					Inventory inv = event.getView().getTopInventory();
+					for (int i = 0; i < inv.getSize(); i++) {
+						CustomPotion customPotion = CustomPotions.manager.getCustomPotion(inv.getItem(i));
+						if (customPotion != null) { inv.setItem(i, customPotion.setPotionTag(inv.getItem(i))); }
+					}
 				}
-			}
-		}, 1L);
+			}, 1L);
+		}
+
+		if (event.getView().getTopInventory() instanceof GrindstoneInventory) {
+			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
+				public void run() {
+					Inventory inv = event.getView().getTopInventory();
+					CustomPotion customPotion = CustomPotions.manager.getCustomPotion(inv.getItem(2));
+					if (customPotion != null) { inv.setItem(2, new ItemStack(Material.AIR)); }
+				}
+			}, 1L);
+		}
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)

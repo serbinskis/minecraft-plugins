@@ -31,6 +31,7 @@ public class Villagers {
 
 		AutoTrade.fakePlayer.closeInventory();
 		AutoTrade.fakePlayer.getInventory().clear();
+		AutoTrade.fakePlayer.setTotalExperience(0);
 
 		//FUCK THE BUKKIT AGAIN, EntitySpawnEvent not working with xp
 		for (Entity entity : villager.getLocation().getWorld().getNearbyEntities(villager.getLocation(), 1, 1, 1)) {
