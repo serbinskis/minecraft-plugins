@@ -1,4 +1,4 @@
-package me.wobbychip.smptweaks.custom.chunkloader;
+package me.wobbychip.smptweaks.custom.chunkloader.loaders;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,6 +14,7 @@ import org.bukkit.entity.Player;
 
 import me.wobbychip.smptweaks.Config;
 import me.wobbychip.smptweaks.Main;
+import me.wobbychip.smptweaks.custom.chunkloader.ChunkLoader;
 import me.wobbychip.smptweaks.utils.Utils;
 
 public class Manager {

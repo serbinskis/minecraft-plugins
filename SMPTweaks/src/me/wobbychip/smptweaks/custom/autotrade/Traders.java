@@ -48,7 +48,7 @@ public class Traders {
 		if (traderInventory == null) { return; }
 
 		Location location = trader.getLocation().clone().add(0.5, 0.5, 0.5);
-		Collection<Entity> villagers = Utils.getNearestEntities(location, EntityType.VILLAGER, AutoTrade.tradeDistance+0.5, false);
+		Collection<Entity> villagers = Utils.getNearbyEntities(location, EntityType.VILLAGER, AutoTrade.tradeDistance+0.5, false);
 
 		for (Entity villager : villagers) {
 			if (handleVillager(trader, (Villager) villager, source, destination, traderInventory)) { return; }
@@ -189,7 +189,7 @@ public class Traders {
 
 	//THIS IS USED ONLY TO CHECK IF TRADER IS STILL THERE
 	public Block getTrader(Block block) {
-		Collection<Entity> entities = Utils.getNearestEntities(block.getLocation().clone().add(0.5, 0.5, 0.5), EntityType.UNKNOWN, 1.5, false);
+		Collection<Entity> entities = Utils.getNearbyEntities(block.getLocation().clone().add(0.5, 0.5, 0.5), EntityType.UNKNOWN, 1.5, false);
 
 		for (Entity entity : entities) {
 			Block trader = getTrader(entity);

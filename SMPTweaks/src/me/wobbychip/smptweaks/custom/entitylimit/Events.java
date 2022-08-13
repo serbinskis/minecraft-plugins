@@ -27,7 +27,7 @@ public class Events implements Listener {
 		}
 
 		//Get entity count
-		int nearbyEntities = Utils.getNearestEntities(entity.getLocation(), entity.getType(), EntityLimit.maximumDistance, true).size();
+		int nearbyEntities = Utils.getNearbyEntities(entity.getLocation(), entity.getType(), EntityLimit.maximumDistance, true).size();
 
 		//Cancel entity if count is over limit
 		if (nearbyEntities >= EntityLimit.limit) {

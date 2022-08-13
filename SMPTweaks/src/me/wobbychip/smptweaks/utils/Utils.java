@@ -195,7 +195,7 @@ public class Utils {
 	}
 
 	//Get nearest entities
-	public static Collection<Entity> getNearestEntities(Location location, EntityType type, double distance, boolean maxHeight) {
+	public static Collection<Entity> getNearbyEntities(Location location, EntityType type, double distance, boolean maxHeight) {
 		double height = maxHeight ? location.getWorld().getMaxHeight()*2 : distance;
 		Collection<Entity> nearbyEntites = location.getWorld().getNearbyEntities(location, distance, height, distance);
 		if (type == EntityType.UNKNOWN) { return nearbyEntites; }
@@ -211,7 +211,7 @@ public class Utils {
 	}
 
 	//Get nearest blocks
-	public static List<Block> getNearestBlocks(Location location, Material type, double radius) {
+	public static List<Block> getNearbyBlocks(Location location, Material type, double radius) {
 		List<Block> nearbyBlock = new ArrayList<>();
 
 		double pX = location.getX();

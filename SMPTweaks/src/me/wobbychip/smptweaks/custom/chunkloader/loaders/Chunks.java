@@ -1,4 +1,4 @@
-package me.wobbychip.smptweaks.custom.chunkloader;
+package me.wobbychip.smptweaks.custom.chunkloader.loaders;
 
 import java.util.HashMap;
 import java.util.Map;

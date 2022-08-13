@@ -1,6 +1,5 @@
-package me.wobbychip.smptweaks.custom.chunkloader;
+package me.wobbychip.smptweaks.custom.chunkloader.loaders;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -10,17 +9,9 @@ import me.wobbychip.smptweaks.utils.ReflectionUtils;
 public class FakePlayer {
 	public Location location;
 	public Player player;
-	public int task;
 
 	public FakePlayer(Location location) {
 		this.location = location;
-		this.setEnabled(true);
-
-		this.task = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
-			public void run() {
-				update();
-			}
-		}, 0L, 5L);
 	}
 
 	public void setEnabled(boolean isEnabled) {
@@ -62,7 +53,6 @@ public class FakePlayer {
 	}
 
 	public void remove() {
-		Bukkit.getServer().getScheduler().cancelTask(task);
 		setEnabled(false);
 	}
 }

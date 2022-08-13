@@ -60,7 +60,7 @@ public class Events implements Listener {
 	public void onCreatureSpawnEvent(CreatureSpawnEvent event) {
 		LivingEntity creature = event.getEntity();
 		if ((event.getSpawnReason() != SpawnReason.DEFAULT) || (creature.getType() != EntityType.WARDEN)) { return; }
-		Collection<Block> blocks = Utils.getNearestBlocks(creature.getLocation(), Material.SCULK_SHRIEKER, ShriekerCanSummon.WARDEN_SPAWN_DISATNCE);
+		Collection<Block> blocks = Utils.getNearbyBlocks(creature.getLocation(), Material.SCULK_SHRIEKER, ShriekerCanSummon.WARDEN_SPAWN_DISATNCE);
 
 		for (Block block : blocks) {
 			if (PersistentUtils.hasPersistentDataBoolean(block, ShriekerCanSummon.isPlayerPlaced) && canSummon(block)) {
