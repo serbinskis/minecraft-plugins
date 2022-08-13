@@ -50,6 +50,7 @@ public class Aggravator {
 	}
 
 	public void update() {
+		if (!ChunkLoader.enableAggravator) { return; }
 		aggravate(isEnabled());
 	}
 

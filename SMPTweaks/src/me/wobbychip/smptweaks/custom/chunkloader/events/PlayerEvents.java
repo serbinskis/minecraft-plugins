@@ -1,7 +1,7 @@
 package me.wobbychip.smptweaks.custom.chunkloader.events;
 
-import java.util.HashMap;
-import java.util.Map.Entry;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -28,6 +28,8 @@ import me.wobbychip.smptweaks.custom.chunkloader.loaders.Loader;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
 
 public class PlayerEvents implements Listener {
+	List<Player> chats = new ArrayList<>();
+
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onPlayerInteractAtEntityEvent(PlayerInteractAtEntityEvent event) {
 		if (!(event.getRightClicked() instanceof ItemFrame)) { return; }
@@ -63,6 +65,7 @@ public class PlayerEvents implements Listener {
 		}
 
 		if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
+			if (!ChunkLoader.enableAggravator) { return; }
 			if (event.getPlayer().getGameMode() == GameMode.CREATIVE) { return; }
 			Aggravator aggravator = loader.getAggravator();
 			aggravator.setEnabled(!aggravator.isEnabled(), event.getPlayer());
@@ -74,19 +77,20 @@ public class PlayerEvents implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerAdvancementDoneEvent(PlayerAdvancementDoneEvent event) {
 		if (!ChunkLoader.manager.isFakePlayer(event.getPlayer().getUniqueId())) { return; }
-		HashMap<Player, String> chats = new HashMap<>();
 
 		for (Player player : Bukkit.getOnlinePlayers()) {
-			chats.put(player, ReflectionUtils.getChatVisibility(player));
-			ReflectionUtils.setChatVisibility(player, "options.chat.visibility.hidden");
-		}
+			if (chats.contains(player)) { continue; }
+			chats.add(player);
 
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
-			public void run() {
-				for (Entry<Player, String> entry : chats.entrySet()) {
-					ReflectionUtils.setChatVisibility(entry.getKey(), entry.getValue());
+			String visibility = ReflectionUtils.getChatVisibility(player);
+			ReflectionUtils.setChatVisibility(player, "options.chat.visibility.hidden");
+
+			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
+				public void run() {
+					chats.remove(player);
+					ReflectionUtils.setChatVisibility(player, visibility);
 				}
-			}
-		}, 1L);
+			}, 1L);
+		}
 	}
 }
