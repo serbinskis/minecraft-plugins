@@ -3,6 +3,7 @@ name: SMPTweaks
 api-version: 1.13
 version: 1.0
 author: WobbyChip
+softdepend: [ ProtocolLib ]
 
 commands:
   SMPTweaks:

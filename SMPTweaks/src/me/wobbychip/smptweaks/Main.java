@@ -9,6 +9,7 @@ import me.wobbychip.smptweaks.custom.anticreepergrief.AntiCreeperGrief;
 import me.wobbychip.smptweaks.custom.antiendermangrief.AntiEndermanGrief;
 import me.wobbychip.smptweaks.custom.autocraft.AutoCraft;
 import me.wobbychip.smptweaks.custom.autotrade.AutoTrade;
+import me.wobbychip.smptweaks.custom.betterlead.BetterLead;
 import me.wobbychip.smptweaks.custom.chunkloader.ChunkLoader;
 import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
 import me.wobbychip.smptweaks.custom.disableinvulnerability.DisableInvulnerability;
@@ -51,6 +52,7 @@ public class Main extends JavaPlugin implements Listener {
 		manager.addTweak(new AntiEndermanGrief());
 		manager.addTweak(new AutoCraft());
 		manager.addTweak(new AutoTrade());
+		manager.addTweak(new BetterLead());
 		manager.addTweak(new ChunkLoader());
 		manager.addTweak(new DisableInvulnerability());
 		manager.addTweak(new DropCursedPumpkin());
