@@ -16,7 +16,7 @@ import me.wobbychip.smptweaks.utils.Utils;
 
 public class AutoTrade extends CustomTweak {
 	public static String isAutoTrade = "isAutoTrade";
-	public static int tradeCooldown = 8;
+	public static int tradeCooldown = 20;
 	public static int tradeDistance = 2;
 	public static String redstoneMode = "indirect";
 	public static boolean allowBlockRecipeModification = true;
