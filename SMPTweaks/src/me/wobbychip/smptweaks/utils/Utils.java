@@ -21,13 +21,18 @@ import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.AreaEffectCloud;
+import org.bukkit.entity.Bat;
+import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Shulker;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.entity.Tameable;
+import org.bukkit.entity.Wither;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.scoreboard.Scoreboard;
@@ -315,5 +320,16 @@ public class Utils {
 		for (String criteria : progress.getAwardedCriteria()) {
 			progress.revokeCriteria(criteria);
 		}
+	}
+
+	public static boolean isLeashable(LivingEntity entity) {
+		if (entity == null) { return false; }
+		if (entity instanceof Shulker) { return false; }
+		if (entity instanceof Player) { return false; }
+		if (entity instanceof EnderDragon) { return false; }
+		if (entity instanceof Wither) { return false; }
+		if (entity instanceof Bat) { return false; }
+		if (entity.isLeashed()) { return false; }
+		return true;
 	}
 }

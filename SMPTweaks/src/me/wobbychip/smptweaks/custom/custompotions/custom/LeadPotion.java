@@ -77,7 +77,7 @@ public class LeadPotion extends CustomPotion {
 	}
 
 	public boolean leadEntity(Player player, LivingEntity entity) {
-		if ((player == null) || (entity == null) || (entity instanceof Player) || entity.isLeashed()) { return false; }
+		if ((player == null) || !Utils.isLeashable(entity)) { return false; }
 		if (Utils.distance(player.getLocation(), entity.getLocation()) >= 10) { return false; }
 		PersistentUtils.setPersistentDataBoolean(entity, isLeashedCustom, true);
 		return entity.setLeashHolder(player);

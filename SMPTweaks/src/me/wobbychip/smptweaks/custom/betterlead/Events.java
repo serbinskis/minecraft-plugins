@@ -48,7 +48,7 @@ public class Events implements Listener {
 
 		LivingEntity entity = (LivingEntity) event.getRightClicked();
 		if ((entity.getType() != EntityType.VILLAGER) && BetterLead.onlyVillagers) { return; }
-		if (!BetterLead.isLeashable(entity)) { return; }
+		if (!Utils.isLeashable(entity)) { return; }
 		event.setCancelled(true);
 
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
@@ -58,7 +58,7 @@ public class Events implements Listener {
 				if (item.getType() != Material.LEAD) { return; }
 
 				LivingEntity entity = (LivingEntity) event.getRightClicked();
-				if (!BetterLead.isLeashable(entity)) { return; }
+				if (!Utils.isLeashable(entity)) { return; }
 
 				entity.setLeashHolder(event.getPlayer());
 				boolean isLeashed = entity.setLeashHolder(event.getPlayer());

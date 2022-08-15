@@ -7,11 +7,7 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.entity.Bat;
-import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Wither;
 import org.bukkit.util.Vector;
 
 import me.wobbychip.smptweaks.Config;
@@ -56,14 +52,5 @@ public class BetterLead extends CustomTweak {
 
 		Vector vector = target.getVelocity().add(new Vector(Math.copySign(d0 * d0 * 0.4D, d0), Math.copySign(d1 * d1 * 0.4D, d1), Math.copySign(d2 * d2 * 0.4D, d2)));
 		target.setVelocity(vector);
-	}
-
-	public static boolean isLeashable(LivingEntity entity) {
-		if (entity.isLeashed()) { return false; }
-		if (entity instanceof Player) { return false; }
-		if (entity instanceof EnderDragon) { return false; }
-		if (entity instanceof Wither) { return false; }
-		if (entity instanceof Bat) { return false; }
-		return true;
 	}
 }
