@@ -29,18 +29,6 @@ public class Events implements Listener {
 	public HashMap<UUID, Player> holders = new HashMap<>();
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-	public void onEntityUnleashEvent(EntityUnleashEvent event) {
-		if ((event.getReason() != UnleashReason.DISTANCE)) { return; }
-		if (!(event.getEntity() instanceof LivingEntity)) { return; }
-		Entity holder = ((LivingEntity) event.getEntity()).getLeashHolder();
-		if (!(holder instanceof Player)) { return; }
-
-		if (Utils.distance(holder.getLocation(), event.getEntity().getLocation()) > BetterLead.maxDistance) { return; }
-		PersistentUtils.setPersistentDataBoolean(event.getEntity(), BetterLead.isUnbreakableLeash, true);
-		holders.put(event.getEntity().getUniqueId(), (Player) holder);
-	}
-
-	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onPlayerInteractEntityEvent(PlayerInteractEntityEvent event) {
 		if (!(event.getRightClicked() instanceof LivingEntity)) { return; }
 		ItemStack item = event.getPlayer().getInventory().getItem(event.getHand());
@@ -71,6 +59,18 @@ public class Events implements Listener {
 				}
 			}
 		}, 1);
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void onEntityUnleashEvent(EntityUnleashEvent event) {
+		if ((event.getReason() != UnleashReason.DISTANCE)) { return; }
+		if (!(event.getEntity() instanceof LivingEntity)) { return; }
+		Entity holder = ((LivingEntity) event.getEntity()).getLeashHolder();
+		if (!(holder instanceof Player)) { return; }
+
+		if (Utils.distance(holder.getLocation(), event.getEntity().getLocation()) > BetterLead.maxDistance) { return; }
+		PersistentUtils.setPersistentDataBoolean(event.getEntity(), BetterLead.isUnbreakableLeash, true);
+		holders.put(event.getEntity().getUniqueId(), (Player) holder);
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
