@@ -54,6 +54,7 @@ public class Main extends JavaPlugin implements Listener {
 		manager.addTweak(new AutoTrade());
 		manager.addTweak(new BetterLead());
 		manager.addTweak(new ChunkLoader());
+		manager.addTweak(new CustomPotions());
 		manager.addTweak(new DisableInvulnerability());
 		manager.addTweak(new DropCursedPumpkin());
 		manager.addTweak(new EntityLimit());
@@ -70,7 +71,6 @@ public class Main extends JavaPlugin implements Listener {
 		manager.addTweak(new RepairWithXP());
 		manager.addTweak(new RespawnableDragonEgg());
 		manager.addTweak(new ShriekerCanSummon());
-		manager.addTweak(new CustomPotions());
 
 		Main.plugin.getCommand("smptweaks").setExecutor(new Commands());
 	}

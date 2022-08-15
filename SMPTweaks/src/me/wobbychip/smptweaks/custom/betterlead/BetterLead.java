@@ -22,7 +22,7 @@ import me.wobbychip.smptweaks.utils.Utils;
 public class BetterLead extends CustomTweak {
 	public static Config config;
 	public static String isUnbreakableLeash = "isUnbreakableLeash";
-	public static int maxDistance = 100;
+	public static int maxDistance = 50;
 	public static boolean onlyVillagers = false;
 	public static List<UUID> preventPacket = new ArrayList<>();
 
