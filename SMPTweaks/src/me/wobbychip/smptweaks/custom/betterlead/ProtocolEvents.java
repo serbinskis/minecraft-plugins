@@ -20,12 +20,14 @@ public class ProtocolEvents extends PacketAdapter {
 
 	@Override
 	public void onPacketSending(PacketEvent event) {
-		PacketContainer packet = event.getPacket();
-		Entity player = packet.getEntityModifier(event.getPlayer().getWorld()).read(1);
-		if (player != null) { return; }
+		if (event.getPacketType() == PacketType.Play.Server.ATTACH_ENTITY) {
+			PacketContainer packet = event.getPacket();
+			Entity player = packet.getEntityModifier(event.getPlayer().getWorld()).read(1);
+			if (player != null) { return; }
 
-		Entity entity = packet.getEntityModifier(event.getPlayer().getWorld()).read(0);
-		if ((entity == null) || !BetterLead.preventPacket.contains(entity.getUniqueId())) { return; }
-		event.setCancelled(true);
+			Entity entity = packet.getEntityModifier(event.getPlayer().getWorld()).read(0);
+			if ((entity == null) || !BetterLead.preventPacket.contains(entity.getUniqueId())) { return; }
+			event.setCancelled(true);
+		}
 	}
 }

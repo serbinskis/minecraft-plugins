@@ -17,6 +17,7 @@ import org.bukkit.event.entity.EntityUnleashEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.entity.EntityUnleashEvent.UnleashReason;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 import me.wobbychip.smptweaks.Main;
@@ -59,6 +60,9 @@ public class Events implements Listener {
 
 				entity.setLeashHolder(event.getPlayer());
 				boolean isLeashed = entity.setLeashHolder(event.getPlayer());
+
+				if (isLeashed && (event.getHand() == EquipmentSlot.HAND)) { event.getPlayer().swingMainHand(); }
+				if (isLeashed && (event.getHand() == EquipmentSlot.OFF_HAND)) { event.getPlayer().swingOffHand(); }
 
 				if ((event.getPlayer().getGameMode() != GameMode.CREATIVE) && isLeashed) {
 					item.setAmount(item.getAmount()-1);
