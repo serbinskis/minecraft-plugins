@@ -25,7 +25,7 @@ public class TweakManager {
 				return;
 			}
 
-			if (tweak.requiresProtocol() && !isProtocolLib) {
+			if (tweak.requiresProtocolLib() && !isProtocolLib) {
 				tweak.setEnabled(false);
 				tweak.printMessage("Requires ProtocolLib.", true);
 				return;

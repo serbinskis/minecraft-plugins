@@ -9,12 +9,12 @@ import me.wobbychip.smptweaks.utils.Utils;
 public class CustomTweak {
 	private String name;
 	private boolean requiresPaper;
-	private boolean requiresProtocol;
+	private boolean requiresProtocolLib;
 	private boolean enabled = true;
 
-	public CustomTweak(String name, boolean requiresPaper, boolean requiresProtocol) {
+	public CustomTweak(String name, boolean requiresPaper, boolean requiresProtocolLib) {
 		this.requiresPaper = requiresPaper;
-		this.requiresProtocol = requiresProtocol;
+		this.requiresProtocolLib = requiresProtocolLib;
 		this.name = name;
 
 		if (!Main.plugin.getConfig().contains(name.toUpperCase())) {
@@ -33,8 +33,8 @@ public class CustomTweak {
 		return requiresPaper;
 	}
 
-	public boolean requiresProtocol() {
-		return requiresProtocol;
+	public boolean requiresProtocolLib() {
+		return requiresProtocolLib;
 	}
 
 	public void setEnabled(boolean enabled) {
