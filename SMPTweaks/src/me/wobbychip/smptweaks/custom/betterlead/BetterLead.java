@@ -23,6 +23,7 @@ public class BetterLead extends CustomTweak {
 	public static Config config;
 	public static String isUnbreakableLeash = "isUnbreakableLeash";
 	public static int maxDistance = 100;
+	public static boolean onlyVillagers = false;
 	public static List<UUID> preventPacket = new ArrayList<>();
 
 	public BetterLead() {
@@ -39,7 +40,9 @@ public class BetterLead extends CustomTweak {
 		List<String> list = Arrays.asList(BetterLead.class.getCanonicalName().split("\\."));
 		String configPath = String.join("/", list.subList(0, list.size()-1)) + "/config.yml";
 		BetterLead.config = new Config(configPath, "/tweaks/BetterLead/config.yml");
+
 		BetterLead.maxDistance = BetterLead.config.getConfig().getInt("maxDistance");
+		BetterLead.onlyVillagers = BetterLead.config.getConfig().getBoolean("onlyVillagers");
 	}
 
 	public static void setDeltaMovement(LivingEntity holder, LivingEntity target) {

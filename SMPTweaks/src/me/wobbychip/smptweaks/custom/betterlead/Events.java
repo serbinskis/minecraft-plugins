@@ -8,6 +8,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -46,6 +47,7 @@ public class Events implements Listener {
 		if (item.getType() != Material.LEAD) { return; }
 
 		LivingEntity entity = (LivingEntity) event.getRightClicked();
+		if ((entity.getType() != EntityType.VILLAGER) && BetterLead.onlyVillagers) { return; }
 		if (!BetterLead.isLeashable(entity)) { return; }
 		event.setCancelled(true);
 
