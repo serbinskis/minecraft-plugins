@@ -25,7 +25,7 @@ public class AutoTrade extends CustomTweak {
 	public static Player fakePlayer;
 
 	public AutoTrade() {
-		super(AutoTrade.class.getSimpleName(), false);
+		super(AutoTrade.class.getSimpleName(), false, false);
 	}
 
 	public void onEnable() {

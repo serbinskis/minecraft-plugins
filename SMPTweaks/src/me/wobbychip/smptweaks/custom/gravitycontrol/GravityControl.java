@@ -7,7 +7,7 @@ import me.wobbychip.smptweaks.tweaks.CustomTweak;
 
 public class GravityControl extends CustomTweak {
 	public GravityControl() {
-		super(GravityControl.class.getSimpleName(), true);
+		super(GravityControl.class.getSimpleName(), true, false);
 	}
 
 	public void onEnable() {

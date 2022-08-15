@@ -17,7 +17,7 @@ public class FunnyMessages extends CustomTweak {
 	public static List<String> messages = new ArrayList<>();
 
 	public FunnyMessages() {
-		super(FunnyMessages.class.getSimpleName(), false);
+		super(FunnyMessages.class.getSimpleName(), false, false);
 	}
 
 	public void onEnable() {

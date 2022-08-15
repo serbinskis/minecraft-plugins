@@ -1,8 +1,9 @@
 package me.wobbychip.smptweaks.custom.betterlead;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map.Entry;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -13,39 +14,32 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Wither;
 import org.bukkit.util.Vector;
 
-import com.comphenix.protocol.ProtocolLibrary;
-
+import me.wobbychip.smptweaks.Config;
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
-import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import me.wobbychip.smptweaks.utils.Utils;
-import net.minecraft.network.protocol.game.PacketPlayOutAttachEntity;
 
 public class BetterLead extends CustomTweak {
-	public static List<Entry<Player, LivingEntity>> updateLeash = new ArrayList<>();
+	public static Config config;
 	public static String isUnbreakableLeash = "isUnbreakableLeash";
-	public static double MAX_DISTANCE = 100;
-	public static double tickCount = 0; //REMOVE THIS LATER
+	public static int maxDistance = 100;
+	public static List<UUID> preventPacket = new ArrayList<>();
 
 	public BetterLead() {
-		super(BetterLead.class.getSimpleName(), false);
+		super(BetterLead.class.getSimpleName(), false, true);
 	}
 
 	public void onEnable() {
-		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
-			public void run() {
-				for (Entry<Player, LivingEntity> entry : updateLeash) {
-					broadcastLeash(entry.getKey(), entry.getValue());
-					Utils.sendMessage(tickCount + " -> 3");
-				}
-
-				tickCount++;
-				updateLeash.clear();
-			}
-		}, 1L, 1L);
-
+		loadConfig();
+		new ProtocolEvents(Main.plugin);
 		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
-		ProtocolLibrary.getProtocolManager().addPacketListener(new ProtocolEvents(Main.plugin));
+	}
+
+	public static void loadConfig() {
+		List<String> list = Arrays.asList(BetterLead.class.getCanonicalName().split("\\."));
+		String configPath = String.join("/", list.subList(0, list.size()-1)) + "/config.yml";
+		BetterLead.config = new Config(configPath, "/tweaks/BetterLead/config.yml");
+		BetterLead.maxDistance = BetterLead.config.getConfig().getInt("maxDistance");
 	}
 
 	public static void setDeltaMovement(LivingEntity holder, LivingEntity target) {
@@ -61,13 +55,8 @@ public class BetterLead extends CustomTweak {
 		target.setVelocity(vector);
 	}
 
-	public static void broadcastLeash(LivingEntity holder, LivingEntity target) {
-		for (Player player : holder.getWorld().getPlayers()) {
-			ReflectionUtils.sendPacket(player, new PacketPlayOutAttachEntity(ReflectionUtils.getEntity(target), ReflectionUtils.getEntity(holder)));
-		}
-	}
-
 	public static boolean isLeashable(LivingEntity entity) {
+		if (entity.isLeashed()) { return false; }
 		if (entity instanceof Player) { return false; }
 		if (entity instanceof EnderDragon) { return false; }
 		if (entity instanceof Wither) { return false; }

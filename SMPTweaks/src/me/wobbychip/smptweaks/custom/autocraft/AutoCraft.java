@@ -17,7 +17,7 @@ public class AutoCraft extends CustomTweak {
 	public static Config config;
 
 	public AutoCraft() {
-		super(AutoCraft.class.getSimpleName(), false);
+		super(AutoCraft.class.getSimpleName(), false, false);
 	}
 
 	public void onEnable() {

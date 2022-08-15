@@ -7,7 +7,7 @@ import me.wobbychip.smptweaks.tweaks.CustomTweak;
 
 public class RespawnableDragonEgg extends CustomTweak {
 	public RespawnableDragonEgg() {
-		super(RespawnableDragonEgg.class.getSimpleName(), false);
+		super(RespawnableDragonEgg.class.getSimpleName(), false, false);
 	}
 
 	public void onEnable() {

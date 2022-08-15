@@ -20,7 +20,7 @@ public class EntityLimit extends CustomTweak {
 	public static Config config;
 
 	public EntityLimit() {
-		super(EntityLimit.class.getSimpleName(), false);
+		super(EntityLimit.class.getSimpleName(), false, false);
 	}
 
 	public void onEnable() {

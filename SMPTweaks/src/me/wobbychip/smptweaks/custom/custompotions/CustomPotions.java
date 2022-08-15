@@ -27,7 +27,7 @@ public class CustomPotions extends CustomTweak {
 	public static PotionManager manager;
 
 	public CustomPotions() {
-		super(CustomPotions.class.getSimpleName(), false);
+		super(CustomPotions.class.getSimpleName(), false, false);
 	}
 
 	public void onEnable() {

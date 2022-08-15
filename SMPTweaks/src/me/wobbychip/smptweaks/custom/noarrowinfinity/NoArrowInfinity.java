@@ -21,7 +21,7 @@ public class NoArrowInfinity extends CustomTweak {
 	public static List<String> infinity = Arrays.asList("mendfinity", "infinity");
 
 	public NoArrowInfinity() {
-		super(NoArrowInfinity.class.getSimpleName(), false);
+		super(NoArrowInfinity.class.getSimpleName(), false, false);
 	}
 
 	public void onEnable() {

@@ -7,7 +7,7 @@ import me.wobbychip.smptweaks.tweaks.CustomTweak;
 
 public class AntiCreeperGrief extends CustomTweak {
 	public AntiCreeperGrief() {
-		super(AntiCreeperGrief.class.getSimpleName(), false);
+		super(AntiCreeperGrief.class.getSimpleName(), false, false);
 	}
 
 	public void onEnable() {

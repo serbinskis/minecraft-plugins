@@ -15,7 +15,7 @@ public class AllCraftingRecipes extends CustomTweak {
 	public static List<NamespacedKey> recipeKeys = new ArrayList<>();
 
 	public AllCraftingRecipes() {
-		super(AllCraftingRecipes.class.getSimpleName(), false);
+		super(AllCraftingRecipes.class.getSimpleName(), false, false);
 	}
 
 	public void onEnable() {

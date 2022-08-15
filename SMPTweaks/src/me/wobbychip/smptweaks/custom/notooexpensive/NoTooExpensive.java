@@ -7,7 +7,7 @@ import me.wobbychip.smptweaks.tweaks.CustomTweak;
 
 public class NoTooExpensive extends CustomTweak {
 	public NoTooExpensive() {
-		super(NoTooExpensive.class.getSimpleName(), false);
+		super(NoTooExpensive.class.getSimpleName(), false, false);
 	}
 
 	public void onEnable() {

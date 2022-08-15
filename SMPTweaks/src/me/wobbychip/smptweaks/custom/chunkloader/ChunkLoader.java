@@ -27,7 +27,7 @@ public class ChunkLoader extends CustomTweak {
 	public static Chunks chunks;
 
 	public ChunkLoader() {
-		super(ChunkLoader.class.getSimpleName(), false);
+		super(ChunkLoader.class.getSimpleName(), false, false);
 	}
 
 	public void onEnable() {

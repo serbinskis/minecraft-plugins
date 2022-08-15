@@ -10,7 +10,7 @@ public class ShriekerCanSummon extends CustomTweak {
 	public static int WARDEN_SPAWN_DISATNCE = 10;
 
 	public ShriekerCanSummon() {
-		super(ShriekerCanSummon.class.getSimpleName(), false);
+		super(ShriekerCanSummon.class.getSimpleName(), false, false);
 	}
 
 	public void onEnable() {

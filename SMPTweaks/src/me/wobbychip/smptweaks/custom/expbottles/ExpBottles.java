@@ -7,7 +7,7 @@ import me.wobbychip.smptweaks.tweaks.CustomTweak;
 
 public class ExpBottles extends CustomTweak {
 	public ExpBottles() {
-		super(ExpBottles.class.getSimpleName(), false);
+		super(ExpBottles.class.getSimpleName(), false, false);
 	}
 
 	public void onEnable() {

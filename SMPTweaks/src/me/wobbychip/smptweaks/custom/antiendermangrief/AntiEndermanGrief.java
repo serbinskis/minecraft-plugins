@@ -7,7 +7,7 @@ import me.wobbychip.smptweaks.tweaks.CustomTweak;
 
 public class AntiEndermanGrief extends CustomTweak {
 	public AntiEndermanGrief() {
-		super(AntiEndermanGrief.class.getSimpleName(), false);
+		super(AntiEndermanGrief.class.getSimpleName(), false, false);
 	}
 
 	public void onEnable() {

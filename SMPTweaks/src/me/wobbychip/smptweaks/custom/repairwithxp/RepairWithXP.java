@@ -22,7 +22,7 @@ public class RepairWithXP extends CustomTweak {
 	public static List<String> mendings = Arrays.asList("mendfinity", "mending");
 
 	public RepairWithXP() {
-		super(RepairWithXP.class.getSimpleName(), false);
+		super(RepairWithXP.class.getSimpleName(), false, false);
 	}
 
 	public void onEnable() {

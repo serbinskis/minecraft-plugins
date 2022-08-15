@@ -7,7 +7,7 @@ import me.wobbychip.smptweaks.tweaks.CustomTweak;
 
 public class DropCursedPumpkin extends CustomTweak {
 	public DropCursedPumpkin() {
-		super(DropCursedPumpkin.class.getSimpleName(), false);
+		super(DropCursedPumpkin.class.getSimpleName(), false, false);
 	}
 
 	public void onEnable() {

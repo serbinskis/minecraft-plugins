@@ -7,7 +7,7 @@ import me.wobbychip.smptweaks.tweaks.CustomTweak;
 
 public class HeadDrops extends CustomTweak {
 	public HeadDrops() {
-		super(HeadDrops.class.getSimpleName(), false);
+		super(HeadDrops.class.getSimpleName(), false, false);
 	}
 
 	public void onEnable() {

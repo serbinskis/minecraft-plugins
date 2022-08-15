@@ -86,7 +86,7 @@ public class Villagers {
 	public static ItemStack adjustItem(Villager villager, MerchantRecipe recipe, ItemStack item) {
 		int reputation = ReflectionUtils.getPlayerReputation(villager, AutoTrade.fakePlayer);
 		float f = (float) reputation * recipe.getPriceMultiplier();
-        int i = (int) f;
+		int i = (int) f;
 
 		recipe.setSpecialPrice(-(f < (float) i ? i - 1 : i));
 		recipe.adjust(item);

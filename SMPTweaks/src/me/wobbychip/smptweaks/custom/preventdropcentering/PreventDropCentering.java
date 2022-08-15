@@ -7,7 +7,7 @@ import me.wobbychip.smptweaks.tweaks.CustomTweak;
 
 public class PreventDropCentering extends CustomTweak {
 	public PreventDropCentering() {
-		super(PreventDropCentering.class.getSimpleName(), true);
+		super(PreventDropCentering.class.getSimpleName(), true, false);
 	}
 
 	public void onEnable() {

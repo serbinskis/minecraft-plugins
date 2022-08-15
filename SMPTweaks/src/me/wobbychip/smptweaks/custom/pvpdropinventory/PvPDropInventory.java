@@ -19,7 +19,7 @@ public class PvPDropInventory extends CustomTweak {
 	public static Config playerConfig;
 
 	public PvPDropInventory() {
-		super(PvPDropInventory.class.getSimpleName(), false);
+		super(PvPDropInventory.class.getSimpleName(), false, false);
 	}
 
 	public void onEnable() {

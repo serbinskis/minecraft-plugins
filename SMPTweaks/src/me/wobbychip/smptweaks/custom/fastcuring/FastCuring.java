@@ -14,7 +14,7 @@ public class FastCuring extends CustomTweak {
 	public static Config config;
 
 	public FastCuring() {
-		super(FastCuring.class.getSimpleName(), false);
+		super(FastCuring.class.getSimpleName(), false, false);
 	}
 
 	public void onEnable() {
