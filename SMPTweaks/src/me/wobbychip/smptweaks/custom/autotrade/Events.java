@@ -1,6 +1,7 @@
 package me.wobbychip.smptweaks.custom.autotrade;
 
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.ItemFrame;
@@ -48,6 +49,7 @@ public class Events implements Listener {
 
 		if (event.isCancelled()) { return; }
 		if (event.getInventory().getType() != InventoryType.DISPENSER) { return; }
+		if (event.getPlayer().getGameMode() == GameMode.SPECTATOR) { return; }
 
 		InventoryHolder holder = (InventoryHolder) event.getInventory().getHolder();
 		if (!(holder instanceof BlockInventoryHolder)) { return; }

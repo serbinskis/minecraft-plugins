@@ -30,6 +30,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Shulker;
+import org.bukkit.entity.Sittable;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.entity.Tameable;
 import org.bukkit.entity.Wither;
@@ -331,5 +332,10 @@ public class Utils {
 		if (entity instanceof Bat) { return false; }
 		if (entity.isLeashed()) { return false; }
 		return true;
+	}
+
+	public static boolean isMovable(Entity entity) {
+		if (!(entity instanceof Sittable)) { return true; }
+		return !((Sittable) entity).isSitting();
 	}
 }

@@ -8,7 +8,6 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -35,7 +34,8 @@ public class Events implements Listener {
 		if (item.getType() != Material.LEAD) { return; }
 
 		LivingEntity entity = (LivingEntity) event.getRightClicked();
-		if ((entity.getType() != EntityType.VILLAGER) && BetterLead.onlyVillagers) { return; }
+		boolean isEmpty = (BetterLead.custom.size() > 0);
+		if (!isEmpty && !BetterLead.custom.contains(entity.getType().toString())) { return; }
 		if (!Utils.isLeashable(entity)) { return; }
 		event.setCancelled(true);
 
@@ -85,7 +85,7 @@ public class Events implements Listener {
 
 			if (holders.containsKey(entity.getUniqueId())) {
 				Player player = holders.get(entity.getUniqueId());
-				BetterLead.setDeltaMovement(player, (LivingEntity) entity);
+				if (Utils.isMovable(entity)) { BetterLead.setDeltaMovement(player, (LivingEntity) entity); }
 				((LivingEntity) entity).setLeashHolder(player);
 				BetterLead.preventPacket.add(entity.getUniqueId());
 				holders.remove(entity.getUniqueId());

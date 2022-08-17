@@ -18,8 +18,8 @@ import me.wobbychip.smptweaks.utils.Utils;
 public class BetterLead extends CustomTweak {
 	public static Config config;
 	public static String isUnbreakableLeash = "isUnbreakableLeash";
-	public static int maxDistance = 50;
-	public static boolean onlyVillagers = false;
+	public static int maxDistance = 100;
+	public static List<String> custom = new ArrayList<>();;
 	public static List<UUID> preventPacket = new ArrayList<>();
 
 	public BetterLead() {
@@ -38,7 +38,7 @@ public class BetterLead extends CustomTweak {
 		BetterLead.config = new Config(configPath, "/tweaks/BetterLead/config.yml");
 
 		BetterLead.maxDistance = BetterLead.config.getConfig().getInt("maxDistance");
-		BetterLead.onlyVillagers = BetterLead.config.getConfig().getBoolean("onlyVillagers");
+		BetterLead.custom = BetterLead.config.getConfig().getStringList("custom");
 	}
 
 	public static void setDeltaMovement(LivingEntity holder, LivingEntity target) {
