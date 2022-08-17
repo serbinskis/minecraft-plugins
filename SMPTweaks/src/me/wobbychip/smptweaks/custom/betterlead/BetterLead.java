@@ -7,7 +7,7 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 
 import me.wobbychip.smptweaks.Config;
@@ -41,7 +41,7 @@ public class BetterLead extends CustomTweak {
 		BetterLead.custom = BetterLead.config.getConfig().getStringList("custom");
 	}
 
-	public static void setDeltaMovement(LivingEntity holder, LivingEntity target) {
+	public static void setDeltaMovement(Entity holder, Entity target) {
 		Location hLocation = holder.getLocation();
 		Location tLocation = target.getLocation();
 

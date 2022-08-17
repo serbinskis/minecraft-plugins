@@ -34,7 +34,7 @@ public class Events implements Listener {
 		if (item.getType() != Material.LEAD) { return; }
 
 		LivingEntity entity = (LivingEntity) event.getRightClicked();
-		boolean isEmpty = (BetterLead.custom.size() > 0);
+		boolean isEmpty = (BetterLead.custom.size() <= 0);
 		if (!isEmpty && !BetterLead.custom.contains(entity.getType().toString())) { return; }
 		if (!Utils.isLeashable(entity)) { return; }
 		event.setCancelled(true);
@@ -85,7 +85,7 @@ public class Events implements Listener {
 
 			if (holders.containsKey(entity.getUniqueId())) {
 				Player player = holders.get(entity.getUniqueId());
-				if (Utils.isMovable(entity)) { BetterLead.setDeltaMovement(player, (LivingEntity) entity); }
+				if (Utils.isMovable(entity)) { BetterLead.setDeltaMovement(player, entity); }
 				((LivingEntity) entity).setLeashHolder(player);
 				BetterLead.preventPacket.add(entity.getUniqueId());
 				holders.remove(entity.getUniqueId());
