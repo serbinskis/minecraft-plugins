@@ -325,8 +325,8 @@ public class Utils {
 
 	public static boolean isLeashable(LivingEntity entity) {
 		if (entity == null) { return false; }
-		if (entity instanceof Shulker) { return false; }
 		if (entity instanceof Player) { return false; }
+		if (entity instanceof Shulker) { return false; }
 		if (entity instanceof EnderDragon) { return false; }
 		if (entity instanceof Wither) { return false; }
 		if (entity instanceof Bat) { return false; }
