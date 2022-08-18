@@ -10,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityShootBowEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerPickupArrowEvent;
 import org.bukkit.inventory.ItemStack;
@@ -27,6 +28,20 @@ public class Events implements Listener {
 
 	//If arrow is CREATIVE_ONLY then PlayerPickupArrowEvent will not fire (fuck you bukkit)
 	//So instead I implemented my own way of handling CREATIVE_ONLY arrows
+
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void onProjectileLaunchEvent(ProjectileLaunchEvent event) {
+		if (!(event.getEntity() instanceof Arrow)) { return; }
+
+		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
+			public void run() {
+				Arrow arrow = (Arrow) event.getEntity();
+				if (arrow.getPickupStatus() != PickupStatus.CREATIVE_ONLY) { return; }
+				arrow.setPickupStatus(PickupStatus.ALLOWED);
+				PersistentUtils.setPersistentDataBoolean(event.getEntity(), NoArrowInfinity.isCreativeOnly, true);
+			}
+		}, 1L);
+	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onEntityShootBowEvent(EntityShootBowEvent event) {
@@ -71,7 +86,6 @@ public class Events implements Listener {
 
 	//When player starts using bow on client side we get interaction event
 	//So we can also set instant build on server side for moment when player shoots
-	//Bruh there is such a method Player.getItemInUse()
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerInteractEvent(PlayerInteractEvent event) {
 		Player player = event.getPlayer();
@@ -86,7 +100,7 @@ public class Events implements Listener {
 		int[] task = { 0 };
 		task[0] = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
 			public void run() {
-				if (!ReflectionUtils.isUsingItem(player)) {
+				if (player.getItemInUse() == null) {
 					ReflectionUtils.setInstantBuild(player, false, false, true);
 					Bukkit.getServer().getScheduler().cancelTask(task[0]);
 				}
