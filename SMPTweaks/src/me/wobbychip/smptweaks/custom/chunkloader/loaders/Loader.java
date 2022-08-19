@@ -28,6 +28,7 @@ public class Loader {
 	public Aggravator aggravator;
 	public boolean previous = false;
 	public int task;
+	public int updator;
 
 	public Loader(Block block) {
 		this.location = block.getLocation();
@@ -36,6 +37,12 @@ public class Loader {
 		this.fakePlayer = new FakePlayer(location.clone().add(0.5, 0, 0.5));
 		this.aggravator = new Aggravator(block, fakePlayer);
 		this.update(true);
+
+		this.updator = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
+			public void run() {
+				update(false);
+			}
+		}, 1L, 1L);
 
 		this.task = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
 			public void run() {
@@ -95,6 +102,10 @@ public class Loader {
 	}
 
 	public void update(boolean force) {
+		int x = location.getBlockX() >> 4;
+		int z = location.getBlockZ() >> 4;
+		if (!force && !location.getWorld().isChunkLoaded(x, z)) { return; }
+
 		Block block = location.getBlock();
 		boolean isPowered = (block.isBlockIndirectlyPowered() || block.isBlockPowered());
 		if ((previous == isPowered) && !force) { return; } else { previous = isPowered; }
@@ -118,6 +129,8 @@ public class Loader {
 		fakePlayer.remove();
 
 		Bukkit.getServer().getScheduler().cancelTask(task);
+		Bukkit.getServer().getScheduler().cancelTask(updator);
+
 		if (disable) { return; }
 		location.getWorld().playSound(location, Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1, 1);
 

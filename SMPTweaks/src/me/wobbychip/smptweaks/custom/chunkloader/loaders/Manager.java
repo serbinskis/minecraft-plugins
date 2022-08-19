@@ -69,12 +69,6 @@ public class Manager {
 		return null;
 	}
 
-	public void updateLoader(Block block) {
-		if (block.getType() != Material.LODESTONE) { return; }
-		String location = Utils.locationToString(block.getLocation());
-		if (loaders.containsKey(location)) { loaders.get(location).update(false); }
-	}
-
 	public void updateAll() {
 		List<Block> remove = new ArrayList<>();
 		
