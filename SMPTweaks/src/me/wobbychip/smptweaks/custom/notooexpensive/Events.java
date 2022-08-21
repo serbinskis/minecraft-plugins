@@ -17,7 +17,8 @@ public class Events implements Listener {
 	public void onPrepareAnvilEvent(PrepareAnvilEvent event) {
 		for (HumanEntity player : event.getViewers()) {
 			if (((Player) player).getGameMode() == GameMode.CREATIVE) { continue; }
-			ReflectionUtils.setInstantBuild((Player) player, true, true, false);
+			boolean flag = event.getInventory().getRepairCost() > NoTooExpensive.MAXIMUM_REPAIR_COST;
+			ReflectionUtils.setInstantBuild((Player) player, flag, true, false);
 		}
 
 		event.getInventory().setMaximumRepairCost(Integer.MAX_VALUE);
