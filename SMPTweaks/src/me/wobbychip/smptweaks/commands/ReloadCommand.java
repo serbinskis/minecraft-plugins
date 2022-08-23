@@ -26,7 +26,6 @@ public class ReloadCommand {
 			return true;
 		}
 
-		Utils.sendMessage(args[0].toLowerCase());
 		CustomTweak tweak = Main.manager.getTweak(args[0].toLowerCase());
 
 		if (tweak == null) {

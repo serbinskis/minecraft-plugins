@@ -15,7 +15,7 @@ public class ListCommand {
 		Set<String> names = new HashSet<String>();
 
 		for (CustomTweak tweak : Main.manager.getTweaks()) {
-			names.add("&7" + tweak.getName() + " (" + (tweak.isEnabled() ? "&a+&7" : "&c+&7") + ")");
+			names.add("&7" + tweak.getName() + " (" + (tweak.isEnabled() ? "&a+&7" : "&c-&7") + ")");
 		}
 
 		Utils.sendMessage(sender, "&a&lSMPTweaks &8» " + String.join(", ", names));
