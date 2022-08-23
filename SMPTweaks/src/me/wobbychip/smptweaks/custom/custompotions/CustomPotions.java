@@ -8,7 +8,6 @@ import org.bukkit.Bukkit;
 import me.wobbychip.smptweaks.Config;
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.custom.custompotions.commands.Commands;
-import me.wobbychip.smptweaks.custom.custompotions.commands.TabCompletion;
 import me.wobbychip.smptweaks.custom.custompotions.events.BowEvents;
 import me.wobbychip.smptweaks.custom.custompotions.events.InventoryEvents;
 import me.wobbychip.smptweaks.custom.custompotions.events.PotionEvents;
@@ -28,6 +27,8 @@ public class CustomPotions extends CustomTweak {
 
 	public CustomPotions() {
 		super(CustomPotions.class.getSimpleName(), false, false);
+		this.setDescription("Adds to the server different new potions and new brewing recipes. " +
+    						"To get more info about potions use command /cpotions info.");
 	}
 
 	public void onEnable() {
@@ -48,7 +49,7 @@ public class CustomPotions extends CustomTweak {
 		Bukkit.getPluginManager().registerEvents(new VillagerEvents(), Main.plugin);
 
 		Main.plugin.getCommand("cpotions").setExecutor(new Commands());
-		Main.plugin.getCommand("cpotions").setTabCompleter(new TabCompletion());
+		Main.plugin.getCommand("cpotions").setTabCompleter(new Commands());
 		CustomPotions.tweak.printMessage("Potions: " + manager.getPotionsString(), true);
 	}
 

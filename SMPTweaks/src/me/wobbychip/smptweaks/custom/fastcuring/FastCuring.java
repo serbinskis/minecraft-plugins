@@ -15,11 +15,17 @@ public class FastCuring extends CustomTweak {
 
 	public FastCuring() {
 		super(FastCuring.class.getSimpleName(), false, false);
+		this.setReloadable(true);
+		this.setDescription("Makes curing villagers much faster.");
 	}
 
 	public void onEnable() {
 		loadConfig();
 		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
+	}
+
+	public void onReload() {
+		loadConfig();
 	}
 
 	public static void loadConfig() {

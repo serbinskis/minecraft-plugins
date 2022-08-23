@@ -8,6 +8,7 @@ import me.wobbychip.smptweaks.tweaks.CustomTweak;
 public class RespawnableDragonEgg extends CustomTweak {
 	public RespawnableDragonEgg() {
 		super(RespawnableDragonEgg.class.getSimpleName(), false, false);
+		this.setDescription("Respawns ender dragon egg on each death.");
 	}
 
 	public void onEnable() {

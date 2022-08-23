@@ -23,6 +23,9 @@ public class RepairWithXP extends CustomTweak {
 
 	public RepairWithXP() {
 		super(RepairWithXP.class.getSimpleName(), false, false);
+		this.setReloadable(true);
+		this.setDescription("Allow repairing mending tools with experience. " +
+    						"Put item with mending in second hand and crouch.");
 	}
 
 	public void onEnable() {
@@ -35,6 +38,10 @@ public class RepairWithXP extends CustomTweak {
 				}
 			}
 		}, 1L, intervalTicks);
+	}
+
+	public void onReload() {
+		loadConfig();
 	}
 
 	public static void loadConfig() {

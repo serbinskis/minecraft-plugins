@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import me.wobbychip.smptweaks.commands.Commands;
 import me.wobbychip.smptweaks.custom.allcraftingrecipes.AllCraftingRecipes;
 import me.wobbychip.smptweaks.custom.anticreepergrief.AntiCreeperGrief;
 import me.wobbychip.smptweaks.custom.antiendermangrief.AntiEndermanGrief;
@@ -73,6 +74,7 @@ public class Main extends JavaPlugin implements Listener {
 		manager.addTweak(new ShriekerCanSummon());
 
 		Main.plugin.getCommand("smptweaks").setExecutor(new Commands());
+		Main.plugin.getCommand("smptweaks").setTabCompleter(new Commands());
 	}
 
 	@Override

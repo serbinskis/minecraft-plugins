@@ -1,8 +1,11 @@
-permissionMessage: '&cYou do not have permissions!'
-reloadMessage: '&9Reloaded EntityLimit.'
-usageMessage: '&9Usage /SMPTweaks entitylimit [reload]'
+# Message that appears in hotbar when limit is reached
 tooManyEntity: '&cTo many mobs in same area: %value%.'
 
+# Mob limit for each entity type
 limit: 100
+
+# Distance in blocks
 maximumDistance: 16
+
+# Exclude mobs with spawn reason
 excludeReason: ["NATURAL", "NETHER_PORTAL", "DEFAULT"]

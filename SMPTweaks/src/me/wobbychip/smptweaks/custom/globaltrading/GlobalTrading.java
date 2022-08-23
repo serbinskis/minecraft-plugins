@@ -8,6 +8,7 @@ import me.wobbychip.smptweaks.tweaks.CustomTweak;
 public class GlobalTrading extends CustomTweak {
 	public GlobalTrading() {
 		super(GlobalTrading.class.getSimpleName(), true, false);
+		this.setDescription("Shares cured villager price among all players.");
 	}
 
 	public void onEnable() {

@@ -1,2 +1,5 @@
+# Amount of xp taken every time
 amountXP: 5
+
+# Interval in ticks between each repair
 intervalTicks: 5

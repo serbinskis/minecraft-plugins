@@ -1,4 +1,4 @@
-package me.wobbychip.smptweaks.custom.custompotions.commands;
+package me.wobbychip.smptweaks.commands;
 
 import java.util.Arrays;
 import java.util.List;
@@ -11,21 +11,21 @@ import org.bukkit.command.TabCompleter;
 import me.wobbychip.smptweaks.utils.Utils;
 
 public class Commands implements CommandExecutor, TabCompleter {
-	public static List<String> arguments = Arrays.asList("list", "info", "get");
+	public static List<String> arguments = Arrays.asList("list", "info", "reload");
 	public static String NO_PERMISSIONS = "&cYou do not have permissions!";
-	public static String USAGE_MESSAGE = "&9Usage /cpotions [list | info | get]";
-	public static String NO_POTION = "&9Couldn\'t find the potion!";
+	public static String USAGE_MESSAGE = "&9Usage /smptweaks [list | info | reload]";
+	public static String NO_TWEAK = "&9Couldn\'t find the tweak!";
 
 	public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
 		if (args.length == 0) {
 			Utils.sendMessage(sender, USAGE_MESSAGE);
 			return true;
 		}
-
+	
 		switch (args[0].toLowerCase()) {
 			case "list": return ListCommand.onCommand(sender, command, args[0], Arrays.copyOfRange(args, 1, args.length));
 			case "info": return InfoCommand.onCommand(sender, command, args[0], Arrays.copyOfRange(args, 1, args.length));
-			case "get": return GetCommand.onCommand(sender, command, args[0], Arrays.copyOfRange(args, 1, args.length));
+			case "reload": return ReloadCommand.onCommand(sender, command, args[0], Arrays.copyOfRange(args, 1, args.length));
 		}
 
 		Utils.sendMessage(sender, USAGE_MESSAGE);
@@ -38,7 +38,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 		if (args.length > 1) {
 			switch (args[0].toLowerCase()) {
 				case "info": return InfoCommand.onTabComplete(sender, command, alias, args);
-				case "get": return GetCommand.onTabComplete(sender, command, alias, args);
+				case "reload": return ReloadCommand.onTabComplete(sender, command, alias, args);
 			}
 		}
 

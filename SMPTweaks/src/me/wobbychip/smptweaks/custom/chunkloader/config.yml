@@ -1,3 +1,8 @@
 useServerViewDistance: true
+
+# Distance in chunks that chunkloader will load
 viewDistance: 8
+
+# Mode that can be toggled by left-clicking chunkloader in survival mode.
+# This mode kinda is buggy and not working always, but it's supposed to anger nearby mobs.
 enableAggravator: false

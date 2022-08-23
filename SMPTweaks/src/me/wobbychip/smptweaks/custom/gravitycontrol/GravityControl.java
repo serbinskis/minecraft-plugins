@@ -8,6 +8,7 @@ import me.wobbychip.smptweaks.tweaks.CustomTweak;
 public class GravityControl extends CustomTweak {
 	public GravityControl() {
 		super(GravityControl.class.getSimpleName(), true, false);
+		this.setDescription("Enable falling block duplication glitch with end portal on PaperMC servers.");
 	}
 
 	public void onEnable() {

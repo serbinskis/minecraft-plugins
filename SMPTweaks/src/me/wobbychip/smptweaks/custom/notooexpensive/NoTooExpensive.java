@@ -10,6 +10,7 @@ public class NoTooExpensive extends CustomTweak {
 
 	public NoTooExpensive() {
 		super(NoTooExpensive.class.getSimpleName(), false, false);
+		this.setDescription("Removes \"Too expensive\" from anvils and allows you to spend any level if you have enough.");
 	}
 
 	public void onEnable() {

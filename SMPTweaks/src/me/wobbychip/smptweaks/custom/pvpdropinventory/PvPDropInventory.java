@@ -20,16 +20,25 @@ public class PvPDropInventory extends CustomTweak {
 
 	public PvPDropInventory() {
 		super(PvPDropInventory.class.getSimpleName(), false, false);
+		this.setReloadable(true);
+		this.setDescription("Drop inventory when a player dies in the middle of PvP. " +
+							"Ment to be used with keep inventory enabled.");
 	}
 
 	public void onEnable() {
 		loadConfig();
-		PvPDropInventory.timer = new PlayerTimer(PvPDropInventory.playerConfig, PvPDropInventory.actionBarMessage);
+		PvPDropInventory.timer = new PlayerTimer(playerConfig, actionBarMessage);
 		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 	}
 
 	public void onDisable() {
 		PvPDropInventory.timer.Save(true);
+	}
+
+	public void onReload() {
+		onDisable();
+		loadConfig();
+		PvPDropInventory.timer = new PlayerTimer(playerConfig, actionBarMessage);
 	}
 
 	public static void loadConfig() {

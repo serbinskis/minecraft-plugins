@@ -24,12 +24,18 @@ public class BetterLead extends CustomTweak {
 
 	public BetterLead() {
 		super(BetterLead.class.getSimpleName(), false, true);
+		this.setReloadable(true);
+		this.setDescription("Make lead much longer and allow lead almost any mob.");
 	}
 
 	public void onEnable() {
 		loadConfig();
 		new ProtocolEvents(Main.plugin);
 		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
+	}
+
+	public void onReload() {
+		loadConfig();
 	}
 
 	public static void loadConfig() {

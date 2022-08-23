@@ -18,6 +18,10 @@ public class AutoCraft extends CustomTweak {
 
 	public AutoCraft() {
 		super(AutoCraft.class.getSimpleName(), false, false);
+		this.setReloadable(true);
+		this.setDescription("Put on a dispenser an item frame with a crafting table. " +
+				            "Put a recipe inside the dispenser. " +
+				            "Input any container behind the dispenser, output in front.");
 	}
 
 	public void onEnable() {
@@ -31,6 +35,10 @@ public class AutoCraft extends CustomTweak {
 		}, 0L, craftCooldown);
 
 		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
+	}
+
+	public void onReload() {
+		loadConfig();
 	}
 
 	public static void loadConfig() {

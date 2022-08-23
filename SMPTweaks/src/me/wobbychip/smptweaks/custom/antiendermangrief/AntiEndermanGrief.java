@@ -8,6 +8,7 @@ import me.wobbychip.smptweaks.tweaks.CustomTweak;
 public class AntiEndermanGrief extends CustomTweak {
 	public AntiEndermanGrief() {
 		super(AntiEndermanGrief.class.getSimpleName(), false, false);
+		this.setDescription("Prevent enderman from picking up blocks.");
 	}
 
 	public void onEnable() {

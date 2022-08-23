@@ -11,4 +11,4 @@ commands:
     usage: "Usage: /<command> <tweak> <setting>"
   cpotions:
     description: Allows you to check custom potion
-    usage: "Usage: /<command>"
+    usage: "CustomPotions are disabled!"

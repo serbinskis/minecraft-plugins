@@ -8,6 +8,7 @@ import me.wobbychip.smptweaks.tweaks.CustomTweak;
 public class AntiCreeperGrief extends CustomTweak {
 	public AntiCreeperGrief() {
 		super(AntiCreeperGrief.class.getSimpleName(), false, false);
+		this.setDescription("Prevent creepers from exploding blocks.");
 	}
 
 	public void onEnable() {

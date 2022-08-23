@@ -1,13 +1,12 @@
 package me.wobbychip.smptweaks.tweaks;
 
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 
 import me.wobbychip.smptweaks.utils.PaperUtils;
 
@@ -38,29 +37,27 @@ public class TweakManager {
 		}
 	}
 
-	public String getTweaks() {
-		Set<String> names = new HashSet<String>();
-
-		for (CustomTweak tweak : tweaks.values()) {
-			if (tweak.isEnabled()) { names.add(tweak.getName()); }
+	public CustomTweak getTweak(String name) {
+		for (Entry<String, CustomTweak> entry : tweaks.entrySet()) {
+			if (entry.getKey().equalsIgnoreCase(name)) {
+				return entry.getValue();
+			}
 		}
 
-		return String.join(", ", names);
+		return null;
+	}
+
+	public Collection<CustomTweak> getTweaks() {
+		return tweaks.values();
+	}
+
+	public Set<String> keySet() {
+		return tweaks.keySet();
 	}
 
 	public void disableAll() {
 		for (CustomTweak tweak : tweaks.values()) {
 			if (tweak.isEnabled()) { tweak.onDisable(); }
 		}
-	}
-
-	public boolean sendCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
-		for (CustomTweak tweak : tweaks.values()) {
-			if (tweak.isEnabled() && label.equalsIgnoreCase(tweak.getName())) {
-				return tweak.onCommand(sender, command, label, args);
-			}
-		}
-
-		return true;
 	}
 }

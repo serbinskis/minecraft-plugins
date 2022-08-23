@@ -18,11 +18,18 @@ public class FunnyMessages extends CustomTweak {
 
 	public FunnyMessages() {
 		super(FunnyMessages.class.getSimpleName(), false, false);
+		this.setReloadable(true);
+		this.setDescription("Sends funny message on player death.");
 	}
 
 	public void onEnable() {
 		loadConfig();
 		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
+	}
+
+	public void onReload() {
+		messages.clear();
+		loadConfig();
 	}
 
 	public static void loadConfig() {

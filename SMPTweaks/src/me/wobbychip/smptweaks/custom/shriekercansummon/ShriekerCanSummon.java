@@ -11,6 +11,7 @@ public class ShriekerCanSummon extends CustomTweak {
 
 	public ShriekerCanSummon() {
 		super(ShriekerCanSummon.class.getSimpleName(), false, false);
+		this.setDescription("Allow player to fuel up shrieker with 2 soul sand and summon warden once.");
 	}
 
 	public void onEnable() {

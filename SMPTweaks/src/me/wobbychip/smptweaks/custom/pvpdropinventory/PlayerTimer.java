@@ -87,7 +87,7 @@ public class PlayerTimer {
 		return timers.containsKey(player.getUniqueId());
 	}
 
-	private void checkPlayers() {
+	public void checkPlayers() {
 		Iterator<Entry<UUID, Integer>> iterator = timers.entrySet().iterator();
 
 		while (iterator.hasNext()) {
