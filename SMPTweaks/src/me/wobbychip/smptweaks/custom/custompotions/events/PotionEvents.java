@@ -33,7 +33,7 @@ public class PotionEvents implements Listener {
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-	public void onLingeringPotionSplash(LingeringPotionSplashEvent event) {		
+	public void onLingeringPotionSplash(LingeringPotionSplashEvent event) {
 		CustomPotion customPotion = CustomPotions.manager.getCustomPotion(event.getEntity().getItem());
 		if (customPotion == null) { return; }
 		if (customPotion.isEnabled()) { customPotion.onLingeringPotionSplash(event); }

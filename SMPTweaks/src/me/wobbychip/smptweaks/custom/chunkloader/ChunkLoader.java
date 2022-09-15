@@ -11,6 +11,7 @@ import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.custom.chunkloader.events.BlockEvents;
 import me.wobbychip.smptweaks.custom.chunkloader.events.EntityEvents;
 import me.wobbychip.smptweaks.custom.chunkloader.events.PlayerEvents;
+import me.wobbychip.smptweaks.custom.chunkloader.events.PotionEvents;
 import me.wobbychip.smptweaks.custom.chunkloader.loaders.Chunks;
 import me.wobbychip.smptweaks.custom.chunkloader.loaders.Manager;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
@@ -43,6 +44,7 @@ public class ChunkLoader extends CustomTweak {
 		Bukkit.getPluginManager().registerEvents(new BlockEvents(), Main.plugin);
 		Bukkit.getPluginManager().registerEvents(new EntityEvents(), Main.plugin);
 		Bukkit.getPluginManager().registerEvents(new PlayerEvents(), Main.plugin);
+		Bukkit.getPluginManager().registerEvents(new PotionEvents(), Main.plugin);
 	}
 
 	public void onDisable() {
