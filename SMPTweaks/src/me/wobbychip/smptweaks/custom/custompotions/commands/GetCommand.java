@@ -18,7 +18,7 @@ import me.wobbychip.smptweaks.utils.Utils;
 public class GetCommand {
 	public static List<String> arguments = Arrays.asList("potion", "splash", "lingering", "arrow");
 	public static String USAGE_MESSAGE = "&9Usage /cpotions get <potion_name> [potion | splash | lingering | arrow]";
-	public static String NO_CONSOLE = "&9This command can only be executed by the player!";
+	public static String NO_CONSOLE = "&9This command can only be executed by a player!";
 	public static String ARROW_DISABLED = "&9Arrows for this potion is disabled!";
 
 	public static boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {

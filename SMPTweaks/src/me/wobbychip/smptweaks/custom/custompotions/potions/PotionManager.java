@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
+import org.bukkit.block.BrewingStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionType;
@@ -91,10 +92,23 @@ public class PotionManager {
 			}
 		}
 
-		//If potion disabled register it, but don't add brew recipe
+		//If potion disabled register it, but don't add brew recipe and events
 		if (!potion.isEnabled()) { return; }
 		Bukkit.getPluginManager().registerEvents(potion, Main.plugin);
+
+		//Don't add brew recipe if material is null, used for custom events
+		if (potion.getMaterial() == null) { return; }
 		ReflectionUtils.registerBrewRecipe(potion.getBase(), potion.getMaterial(), result);
+	}
+
+	public static void convertPotion(String from, String to, BrewingStand where) {
+		for (int i = 0; i < 3; i++) {
+			ItemStack item = where.getInventory().getItem(i);
+			CustomPotion customPotion = CustomPotions.manager.getCustomPotion(item);
+			if ((customPotion != null) && (!customPotion.getName().equalsIgnoreCase(from))) { continue; }
+			customPotion = CustomPotions.manager.getCustomPotion(to);
+			if (customPotion != null) { where.getInventory().setItem(i, customPotion.setProperties(item)); }
+		}
 	}
 
 	public PotionRegistry getPotionRegistry(CustomPotion potion) {
