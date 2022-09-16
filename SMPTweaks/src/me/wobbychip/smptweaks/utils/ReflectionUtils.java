@@ -38,6 +38,7 @@ import net.minecraft.network.protocol.game.PacketPlayOutSetSlot;
 import net.minecraft.network.syncher.DataWatcher;
 import net.minecraft.network.syncher.DataWatcherObject;
 import net.minecraft.resources.MinecraftKey;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkProviderServer;
 import net.minecraft.server.level.EntityPlayer;
@@ -85,6 +86,7 @@ public class ReflectionUtils {
 	public static Field EntityPlayer_invulnerableTicks;
 	public static Field EntityPlayer_playerConnection;
 	public static Field EntityPlayer_chatVisibility;
+	public static Field EntityPlayer_respawnDimension;
 	public static Field EntityVillager_Reputation;
 	public static Field MinecraftServer_playerList;
 	public static Field PlayerList_players;
@@ -110,6 +112,7 @@ public class ReflectionUtils {
 	public static Method WorldServer_addPlayer;
 	public static Method WorldServer_getChunkProviderServer;
 	public static Method WorldServer_removePlayer;
+	public static Method MinecraftServer_getLevel;
 	public static Method NBTTagCompound_putString;
 	public static Method NBTTagCompound_getString;
 	public static Method Reputation_getReputation;
@@ -137,6 +140,7 @@ public class ReflectionUtils {
 		EntityHuman_container = getField(EntityHuman.class, Container.class);
 		EntityPlayer_playerConnection = getField(EntityPlayer.class, PlayerConnection.class);
 		EntityPlayer_chatVisibility = getField(EntityPlayer.class, EnumChatVisibility.class);
+		EntityPlayer_respawnDimension = getParameterizedField(EntityPlayer.class, ResourceKey.class, net.minecraft.world.level.World.class);
 		EntityVillager_Reputation = getField(EntityVillager.class, Reputation.class);
 		MinecraftServer_playerList = getField(MinecraftServer.class, PlayerList.class);
 		PlayerList_players = getParameterizedField(PlayerList.class, List.class, EntityPlayer.class);
@@ -162,6 +166,7 @@ public class ReflectionUtils {
 		WorldServer_addPlayer = findMethod(true, null, WorldServer.class, Void.TYPE, null, EntityPlayer.class);
 		WorldServer_getChunkProviderServer = findMethod(true, null, WorldServer.class, ChunkProviderServer.class, null);
 		WorldServer_removePlayer = findMethod(true, null, WorldServer.class, Void.TYPE, null, EntityPlayer.class, RemovalReason.class);
+		MinecraftServer_getLevel = findMethod(true, null, MinecraftServer.class, WorldServer.class, null, ResourceKey.class);
 		NBTTagCompound_putString = findMethod(true, null, NBTTagCompound.class, Void.TYPE, null, String.class, String.class);
 		NBTTagCompound_getString = findMethod(true, null, NBTTagCompound.class, String.class, null, String.class);
 		Reputation_getReputation = findMethod(true, null, Reputation.class, int.class, null, UUID.class, Predicate.class);
@@ -348,6 +353,18 @@ public class ReflectionUtils {
 		} catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException e) {
 			e.printStackTrace();
 			return null;
+		}
+	}
+
+	@SuppressWarnings("deprecation")
+	public static World getRespawnWorld(Player player) {
+		try {
+			MinecraftServer server = MinecraftServer.getServer();
+			Object respawnDimension = EntityPlayer_respawnDimension.get(getEntityPlayer(player));
+			WorldServer worldServer = (WorldServer) MinecraftServer_getLevel.invoke(server, respawnDimension);
+			return (World) worldServer.getWorld();
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			return Bukkit.getWorlds().get(0);
 		}
 	}
 

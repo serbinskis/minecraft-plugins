@@ -2,7 +2,6 @@ package me.wobbychip.smptweaks.custom.custompotions.custom;
 
 import java.util.Arrays;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -18,6 +17,7 @@ import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.util.Vector;
 
 import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
+import me.wobbychip.smptweaks.utils.ReflectionUtils;
 
 public class RecallPotion extends CustomPotion {
 	public RecallPotion() {
@@ -56,7 +56,7 @@ public class RecallPotion extends CustomPotion {
 		Location location = player.getBedSpawnLocation();
 
 		if (location == null) {
-			World world = Bukkit.getServer().getWorlds().get(0);
+			World world = ReflectionUtils.getRespawnWorld(player);
 			location = world.getSpawnLocation().clone().add(.5, 0, .5);
 			while ((location.getY() >= world.getMinHeight()) && (location.getBlock().getType() == Material.AIR)) { location.setY(location.getY()-1); }
 			while ((location.getY() < world.getMaxHeight()) && (location.getBlock().getType() != Material.AIR)) { location.setY(location.getY()+1); }
