@@ -105,7 +105,7 @@ public class PotionManager {
 		for (int i = 0; i < 3; i++) {
 			ItemStack item = where.getInventory().getItem(i);
 			CustomPotion customPotion = CustomPotions.manager.getCustomPotion(item);
-			if ((customPotion != null) && (!customPotion.getName().equalsIgnoreCase(from))) { continue; }
+			if ((customPotion == null) || (!customPotion.getName().equalsIgnoreCase(from))) { continue; }
 			customPotion = CustomPotions.manager.getCustomPotion(to);
 			if (customPotion != null) { where.getInventory().setItem(i, customPotion.setProperties(item)); }
 		}
