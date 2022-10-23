@@ -26,6 +26,7 @@ import org.bukkit.potion.PotionType;
 
 import com.mojang.authlib.GameProfile;
 
+import net.minecraft.core.BlockPosition;
 import net.minecraft.core.IRegistry;
 import net.minecraft.core.RegistryBlocks;
 import net.minecraft.core.RegistryMaterials;
@@ -59,9 +60,13 @@ import net.minecraft.world.entity.player.EnumChatVisibility;
 import net.minecraft.world.entity.player.PlayerAbilities;
 import net.minecraft.world.inventory.Container;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemBlock;
 import net.minecraft.world.item.alchemy.PotionBrewer;
 import net.minecraft.world.item.alchemy.PotionRegistry;
 import net.minecraft.world.item.alchemy.PotionUtil;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockBase;
+import net.minecraft.world.level.block.state.IBlockData;
 
 @SuppressWarnings("unchecked")
 public class ReflectionUtils {
@@ -93,18 +98,28 @@ public class ReflectionUtils {
 	public static Field RegistryMaterials_frozen;
 	public static Field WorldServer_players;
 	public static Field ItemStack_tag;
+	public static Field ItemBlock_block;
+	public static Field Block_defaultBlockState;
+	public static Field BlockBase_properties;
+	public static Field BlockBase_drops;
+	public static Field BlockBase_BlockData_destroySpeed;
 
 	public static Method Container_quickMoveStack;
 	public static Method ChunkProviderServer_move;
 	public static Method EntityData_get;
 	public static Method Entity_getEntityData;
 	public static Method EntityVillager_startTrading_Or_updateSpecialPrices;
+	public static Method EntityHuman_getDestroySpeed;
 	public static Method EnumChatVisibility_getKey;
 	public static Method IRegistry_keySet;
 	public static Method IRegistry_register;
 	public static Method IRegistry_registerMapping;
 	public static Method Item_get;
 	public static Method Item_releaseUsing;
+	public static Method Block_getId;
+	public static Method Block_popResource;
+	public static Method BlockBase_getLootTable;
+	public static Method BlockBase_Info_strength;
 	public static Method PlayerConnection_sendPacket;
 	public static Method PotionBrewer_register;
 	public static Method PotionRegistry_getName;
@@ -136,29 +151,39 @@ public class ReflectionUtils {
 		MOB_EFFECT = (IRegistry<MobEffectList>) getValue(getParameterizedField(IRegistry.class, IRegistry.class, MobEffectList.class), null);
 		POTION = (RegistryBlocks<PotionRegistry>) getValue(getParameterizedField(IRegistry.class, RegistryBlocks.class, PotionRegistry.class), null);
 
-		EntityHuman_playerAbilities = getField(EntityHuman.class, PlayerAbilities.class);
-		EntityHuman_container = getField(EntityHuman.class, Container.class);
-		EntityPlayer_playerConnection = getField(EntityPlayer.class, PlayerConnection.class);
-		EntityPlayer_chatVisibility = getField(EntityPlayer.class, EnumChatVisibility.class);
+		EntityHuman_playerAbilities = getField(EntityHuman.class, PlayerAbilities.class, true);
+		EntityHuman_container = getField(EntityHuman.class, Container.class, true);
+		EntityPlayer_playerConnection = getField(EntityPlayer.class, PlayerConnection.class, true);
+		EntityPlayer_chatVisibility = getField(EntityPlayer.class, EnumChatVisibility.class, true);
 		EntityPlayer_respawnDimension = getParameterizedField(EntityPlayer.class, ResourceKey.class, net.minecraft.world.level.World.class);
-		EntityVillager_Reputation = getField(EntityVillager.class, Reputation.class);
-		MinecraftServer_playerList = getField(MinecraftServer.class, PlayerList.class);
+		EntityVillager_Reputation = getField(EntityVillager.class, Reputation.class, true);
+		MinecraftServer_playerList = getField(MinecraftServer.class, PlayerList.class, true);
 		PlayerList_players = getParameterizedField(PlayerList.class, List.class, EntityPlayer.class);
-		RegistryMaterials_frozen = getField(RegistryMaterials.class, boolean.class);
+		RegistryMaterials_frozen = getField(RegistryMaterials.class, boolean.class, true);
 		WorldServer_players = getParameterizedField(WorldServer.class, List.class, EntityPlayer.class);
-		ItemStack_tag = getField(net.minecraft.world.item.ItemStack.class, NBTTagCompound.class);
+		ItemStack_tag = getField(net.minecraft.world.item.ItemStack.class, NBTTagCompound.class, true);
+		ItemBlock_block = getField(ItemBlock.class, Block.class, true);
+		Block_defaultBlockState = getField(Block.class, IBlockData.class, true);
+		BlockBase_properties = getField(BlockBase.class, BlockBase.Info.class, true);
+		BlockBase_drops = getField(BlockBase.class, MinecraftKey.class, true);
+		BlockBase_BlockData_destroySpeed = getField(net.minecraft.world.level.block.state.BlockBase.BlockData.class, float.class, false);
 
 		Container_quickMoveStack = findMethod(false, null, Container.class, net.minecraft.world.item.ItemStack.class, null, EntityHuman.class, int.class);
 		ChunkProviderServer_move = findMethod(true, null, ChunkProviderServer.class, Void.TYPE, null, EntityPlayer.class);
 		EntityData_get = findMethod(true, null, DataWatcher.class, Object.class, null, DataWatcherObject.class);
 		Entity_getEntityData = findMethod(true, null, net.minecraft.world.entity.Entity.class, DataWatcher.class, null);
 		EntityVillager_startTrading_Or_updateSpecialPrices = findMethod(false, Modifier.PRIVATE, EntityVillager.class, Void.TYPE, null, EntityHuman.class);
+		EntityHuman_getDestroySpeed = findMethod(true, null, EntityHuman.class, float.class, null, IBlockData.class);
 		EnumChatVisibility_getKey = findMethod(true, null, EnumChatVisibility.class, String.class, null);
 		IRegistry_keySet = findMethod(true, null, IRegistry.class, Set.class, MinecraftKey.class);
 		IRegistry_register = findMethod(true, null, IRegistry.class, null, null, IRegistry.class, String.class, Object.class);
 		IRegistry_registerMapping = findMethod(true, null, IRegistry.class, null, null, IRegistry.class, int.class, String.class, Object.class);
 		Item_get = findMethod(true, null, Item.class, Item.class, null, int.class);
 		Item_releaseUsing = findMethod(true, null, Item.class, Void.TYPE, null, net.minecraft.world.item.ItemStack.class, net.minecraft.world.level.World.class, net.minecraft.world.entity.EntityLiving.class, int.class);
+		Block_getId = findMethod(true, null, Block.class, int.class, null, IBlockData.class);
+		Block_popResource = findMethod(true, null, Block.class, Void.TYPE, null, net.minecraft.world.level.World.class, BlockPosition.class, net.minecraft.world.item.ItemStack.class);
+		BlockBase_getLootTable = findMethod(true, null, BlockBase.class, MinecraftKey.class, null);
+		BlockBase_Info_strength = findMethod(true, null, BlockBase.Info.class, BlockBase.Info.class, null, float.class, float.class);
 		PlayerConnection_sendPacket = findMethod(true, null, PlayerConnection.class, null, null, Packet.class);
 		PotionBrewer_register = findMethod(false, null, PotionBrewer.class, Void.TYPE, null, PotionRegistry.class, Item.class, PotionRegistry.class);
 		PotionRegistry_getName = findMethod(true, null, PotionRegistry.class, String.class, null, String.class);
@@ -230,8 +255,8 @@ public class ReflectionUtils {
 		return null;
 	}
 
-	public static Field getField(Class<?> clazz, Class<?> fType) {
-		for (Field field : clazz.getDeclaredFields()) {
+	public static Field getField(Class<?> clazz, Class<?> fType, boolean bDeclared) {
+		for (Field field : bDeclared ? clazz.getDeclaredFields() : clazz.getFields()) {
 			if (!field.getType().equals(fType)) { continue; }
 			field.setAccessible(true);
 			return field;
@@ -264,6 +289,17 @@ public class ReflectionUtils {
 
 		return null;
 	}
+
+    public static void removeFinal(Field field) {
+		try {
+	        int modifiers = field.getModifiers();
+	        Field modifiersField = Field.class.getDeclaredField("modifiers");
+	        modifiersField.setAccessible(true);
+	        modifiersField.setInt(field, modifiers & ~Modifier.FINAL);
+		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
+    }
 
 	public static net.minecraft.server.level.EntityPlayer getEntityPlayer(Player player) {
 		try {
@@ -356,6 +392,36 @@ public class ReflectionUtils {
 		}
 	}
 
+	public static Block getBlock(Material block) {
+		try {
+			if (!block.isBlock()) { return null; }
+			return (Block) getValue(ItemBlock_block, getItem(new ItemStack(block)));
+		} catch (SecurityException | IllegalArgumentException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public static Block getDestroySpeed(Player player, Material block) {
+		try {
+			if (!block.isBlock()) { return null; }
+			return (Block) getValue(ItemBlock_block, getItem(new ItemStack(block)));
+		} catch (SecurityException | IllegalArgumentException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public static int getBlockId(Material block) {
+		try {
+			IBlockData blockData = (IBlockData) Block_defaultBlockState.get(getBlock(block));
+			return (int) Block_getId.invoke(Block_getId, blockData);
+		} catch (SecurityException | IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
+			e.printStackTrace();
+			return 0;
+		}
+	}
+
 	@SuppressWarnings("deprecation")
 	public static World getRespawnWorld(Player player) {
 		try {
@@ -364,7 +430,70 @@ public class ReflectionUtils {
 			WorldServer worldServer = (WorldServer) MinecraftServer_getLevel.invoke(server, respawnDimension);
 			return (World) worldServer.getWorld();
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			e.printStackTrace();
 			return Bukkit.getWorlds().get(0);
+		}
+	}
+
+	//Get block destroy time which is based on player
+	public static float getPlayerDestroyTime(Player player, Material block) {
+		try {
+			IBlockData blockData = (IBlockData) Block_defaultBlockState.get(getBlock(block));
+			net.minecraft.world.entity.player.EntityHuman entityHuman = getEntityHuman(player);
+			return (float) EntityHuman_getDestroySpeed.invoke(entityHuman, blockData);
+		} catch (ReflectiveOperationException | IllegalArgumentException e) {
+			e.printStackTrace();
+			return 0;
+		}
+	}
+
+	//Get raw block destroy time which is not based on player
+	public static float getBlockDestroyTime(Material block) {
+		try {
+			IBlockData blockData = (IBlockData) Block_defaultBlockState.get(getBlock(block));
+			return (float) BlockBase_BlockData_destroySpeed.get(blockData);
+		} catch (ReflectiveOperationException | IllegalArgumentException e) {
+			e.printStackTrace();
+			return -1;
+		}
+	}
+
+	//Sadly, but this will not work with indestructible blocks, like bedrock
+	public static void setBlockDestroyTime(Material block, float destroyTime) {
+		try {
+			IBlockData blockData = (IBlockData) Block_defaultBlockState.get(getBlock(block));
+			AccessUtil.setAccessible(BlockBase_BlockData_destroySpeed); //This will fuck up at some point
+			BlockBase_BlockData_destroySpeed.set(blockData, destroyTime);
+		} catch (ReflectiveOperationException | IllegalArgumentException e) {
+			e.printStackTrace();
+		}
+	}
+
+	//Sets what the block drops, for some reason does not work with
+	//block that by default do not drop anything, like, bedrock
+	public static void setBlockDrop(Material block, Material drop) {
+		try {
+			BlockBase baseBlock = (BlockBase) getBlock(block);
+			BlockBase baseDrop = (BlockBase) getBlock(drop);
+
+			Object original = BlockBase_drops.get(baseDrop);
+			BlockBase_drops.set(baseDrop, null);
+			Object updated = BlockBase_getLootTable.invoke(baseDrop);
+			BlockBase_drops.set(baseDrop, original);
+
+			BlockBase_drops.set(baseBlock, updated);
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void popResource(Location location, ItemStack item) {
+		try {
+			net.minecraft.world.level.World world = getWorld(location.getWorld());
+			BlockPosition position = new BlockPosition(location.getX(), location.getY(), location.getZ());
+			Block_popResource.invoke(Block_popResource, world, position, asNMSCopy(item));
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -474,6 +603,7 @@ public class ReflectionUtils {
 		return null;
 	}
 
+	//The most useless shit I ever made
 	public static boolean isUsingItem(Player player) {
 		try {
 			DataWatcher entityData = (DataWatcher) Entity_getEntityData.invoke(getEntityPlayer(player));
@@ -481,7 +611,7 @@ public class ReflectionUtils {
 			return (entityFlags & LIVING_ENTITY_FLAG_IS_USING) > 0;
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			e.printStackTrace();
-			return false;
+			return (player.getItemInUse() != null);
 		}
 	}
 
@@ -556,6 +686,7 @@ public class ReflectionUtils {
 		}
 	}
 
+	//Open trading screen of a villager
 	public static void startTrading(Player player, Villager villager) {
 		try {
 			EntityVillager entityVillager = getEntityVillager(villager);
@@ -567,6 +698,7 @@ public class ReflectionUtils {
 		}
 	}
 
+	//Simulate shift+click on specific slot on opened inventory
 	public static void quickMoveStack(Player player, int slot) {
 		try {
 			EntityPlayer entityPlayer = getEntityPlayer(player);
@@ -577,6 +709,7 @@ public class ReflectionUtils {
 		}
 	}
 
+	//Gets player's reputation from villager (all types)
 	public static int getPlayerReputation(Villager villager, Player player) {
 		try {
 			EntityVillager entityVillager = getEntityVillager(villager);
