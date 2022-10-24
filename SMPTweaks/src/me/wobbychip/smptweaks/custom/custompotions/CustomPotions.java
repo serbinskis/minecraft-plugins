@@ -28,7 +28,7 @@ public class CustomPotions extends CustomTweak {
 	public CustomPotions() {
 		super(CustomPotions.class.getSimpleName(), false, false);
 		this.setDescription("Adds to the server different new potions and new brewing recipes. " +
-    						"To get more info about potions use command /cpotions info.");
+							"To get more info about potions use command /cpotions info.");
 	}
 
 	public void onEnable() {

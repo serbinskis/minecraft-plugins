@@ -290,17 +290,6 @@ public class ReflectionUtils {
 		return null;
 	}
 
-    public static void removeFinal(Field field) {
-		try {
-	        int modifiers = field.getModifiers();
-	        Field modifiersField = Field.class.getDeclaredField("modifiers");
-	        modifiersField.setAccessible(true);
-	        modifiersField.setInt(field, modifiers & ~Modifier.FINAL);
-		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-			e.printStackTrace();
-		}
-    }
-
 	public static net.minecraft.server.level.EntityPlayer getEntityPlayer(Player player) {
 		try {
 			Object craftPlayer = CraftPlayer.cast(player);

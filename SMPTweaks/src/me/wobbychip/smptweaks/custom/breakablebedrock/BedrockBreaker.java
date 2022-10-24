@@ -61,7 +61,7 @@ public class BedrockBreaker {
 		if (bProgress && (ticks%5 == 0)) { sendProgressTime(); }
 		int k = ((int) (progress * 10.0F))-1;
 
-        destroyBlockProgress(block, k);
+		destroyBlockProgress(block, k);
 		if (progress >= BREAK_AFTER) { destroyBlock(player, block); remove(); }
 	}
 

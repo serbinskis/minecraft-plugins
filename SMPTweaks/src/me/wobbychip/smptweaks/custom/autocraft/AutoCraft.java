@@ -20,8 +20,8 @@ public class AutoCraft extends CustomTweak {
 		super(AutoCraft.class.getSimpleName(), false, false);
 		this.setReloadable(true);
 		this.setDescription("Put on a dispenser an item frame with a crafting table. " +
-				            "Put a recipe inside the dispenser. " +
-				            "Input any container behind the dispenser, output in front.");
+							"Put a recipe inside the dispenser. " +
+							"Input any container behind the dispenser, output in front.");
 	}
 
 	public void onEnable() {

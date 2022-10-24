@@ -30,9 +30,9 @@ public class ChunkLoader extends CustomTweak {
 	public ChunkLoader() {
 		super(ChunkLoader.class.getSimpleName(), false, false);
 		this.setDescription("Allows loading chunks as if a player was standing there. " +
-    						"Crops do grow and mobs also spawn. " +
-    						"Put on top of a lodestone item frame with nether star. " +
-    						"Power lodestone with redstone and enjoy.");
+							"Crops do grow and mobs also spawn. " +
+							"Put on top of a lodestone item frame with nether star. " +
+							"Power lodestone with redstone and enjoy.");
 	}
 
 	public void onEnable() {
