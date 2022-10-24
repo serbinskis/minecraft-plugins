@@ -3,6 +3,7 @@ package me.wobbychip.smptweaks.custom.breakablebedrock;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -19,6 +20,7 @@ import net.minecraft.network.protocol.game.PacketPlayOutWorldEvent;
 
 public class BedrockBreaker {
 	public static HashMap<Material, Float> cache = new HashMap<Material, Float>();
+	public static HashMap<UUID, BedrockBreaker> breakers = new HashMap<UUID, BedrockBreaker>();
 	public List<Material> correctTools = Arrays.asList(Material.DIAMOND_PICKAXE, Material.NETHERITE_PICKAXE);
 	public Player player;
 	public Block block;
@@ -30,7 +32,7 @@ public class BedrockBreaker {
 		this.player = player;
 		this.block = block;
 
-		addSlowDigging();
+		//addSlowDigging();
 		destroyBlockProgress(block, 0);
 
 		timer = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
@@ -40,10 +42,20 @@ public class BedrockBreaker {
 		}, 1L, 1L);
 	}
 
+	public static void addPlayer(Player player, Block block) {
+		removePlayer(player);
+		breakers.put(player.getUniqueId(), new BedrockBreaker(player, block));
+	}
+
+	public static void removePlayer(Player player) {
+		if (!breakers.containsKey(player.getUniqueId())) { return; }
+		breakers.remove(player.getUniqueId()).remove();
+	}
 
 	public void remove() {
 		if (block.getType() == Material.BEDROCK) { destroyBlockProgress(block, -1); }
 		Bukkit.getServer().getScheduler().cancelTask(timer);
+		breakers.remove(player.getUniqueId());
 		removeSlowDigging();
 	}
 
@@ -84,7 +96,7 @@ public class BedrockBreaker {
 		int k = (int) (progress * 10.0F);
 
 		destroyBlockProgress(block, k);
-		if (progress >= 0.7F) { destroyBlock(player, block); }
+		if (progress >= 0.7F) { destroyBlock(player, block); remove(); }
 	}
 
 	public static boolean hasCorrectToolForDrops(Player player, List<Material> correctTools) {
@@ -104,7 +116,7 @@ public class BedrockBreaker {
 	}
 
 	public static void destroyBlockProgress(Block block, int progress) {
-		BreakableBedrock.preventPacket = false;
+		//BreakableBedrock.preventPacket = false;
 
 		for (Player player : block.getWorld().getPlayers()) {
 			double d0 = (double) block.getX() - player.getLocation().getX();
@@ -116,7 +128,7 @@ public class BedrockBreaker {
 			ReflectionUtils.sendPacket(player, new PacketPlayOutBlockBreakAnimation(player.getEntityId(), location, progress));
 		}
 
-		BreakableBedrock.preventPacket = true;
+		//BreakableBedrock.preventPacket = true;
 	}
 
 	public static void destroyBlock(Player player, Block block) {

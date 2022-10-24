@@ -24,7 +24,7 @@ public class BreakableBedrock extends CustomTweak {
 	}
 
 	public void onEnable() {
-		//new ProtocolEvents(Main.plugin);
+		new ProtocolEvents(Main.plugin);
 		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 	}
 

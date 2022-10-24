@@ -17,6 +17,8 @@ import org.bukkit.event.block.BlockDamageAbortEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import com.google.common.collect.Lists;
@@ -33,18 +35,20 @@ public class Events implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockDamageEvent(BlockDamageEvent event) {
 		//Need to check if other block than bedrock and remove slow digging
-		//Or just check if when someone joins, ye this is better
+		//Or just check when someone joins, ye this is better
 		//Just to prevent bug with server restart when someone is breaking block
+		//So that they would not have infinite mining fatigue
 		
 		if (event.getPlayer().getGameMode() != GameMode.SURVIVAL) { return; }
 		if (event.getBlock().getType() != Material.BEDROCK) { return; }
-		new BedrockBreaker(event.getPlayer(), event.getBlock());
+		BedrockBreaker.addPlayer(event.getPlayer(), event.getBlock());
+		event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, Integer.MAX_VALUE, -1, false, false, false));
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockDamageAbortEvent(BlockDamageAbortEvent event) {
 		if (event.getBlock().getType() != Material.BEDROCK) { return; }
-		//BreakableBedrock.breaker.removePlayer(event.getPlayer());
+		//BedrockBreaker.removePlayer(event.getPlayer());
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
