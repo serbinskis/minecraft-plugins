@@ -435,7 +435,7 @@ public class ReflectionUtils {
 		}
 	}
 
-	//Get block destroy time which is based on player
+	//Get block destroy time per tick which is based on player
 	public static float getPlayerDestroyTime(Player player, Material block) {
 		try {
 			IBlockData blockData = (IBlockData) Block_defaultBlockState.get(getBlock(block));
@@ -459,7 +459,7 @@ public class ReflectionUtils {
 	}
 
 	//Sadly, but this will not work with indestructible blocks, like bedrock
-	public static void setBlockDestroyTime(Material block, float destroyTime) {
+	/*public static void setBlockDestroyTime(Material block, float destroyTime) {
 		try {
 			IBlockData blockData = (IBlockData) Block_defaultBlockState.get(getBlock(block));
 			AccessUtil.setAccessible(BlockBase_BlockData_destroySpeed); //This will fuck up at some point
@@ -467,7 +467,7 @@ public class ReflectionUtils {
 		} catch (ReflectiveOperationException | IllegalArgumentException e) {
 			e.printStackTrace();
 		}
-	}
+	}*/
 
 	//Sets what the block drops, for some reason does not work with
 	//block that by default do not drop anything, like, bedrock

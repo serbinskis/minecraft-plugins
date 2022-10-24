@@ -2,13 +2,11 @@ package me.wobbychip.smptweaks.custom.breakablebedrock;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -17,13 +15,7 @@ import org.bukkit.event.block.BlockDamageAbortEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-import org.bukkit.util.Vector;
 
-import com.google.common.collect.Lists;
-
-import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import me.wobbychip.smptweaks.utils.Utils;
 import net.minecraft.world.entity.item.EntityItem;
@@ -34,27 +26,22 @@ public class Events implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockDamageEvent(BlockDamageEvent event) {
-		//Need to check if other block than bedrock and remove slow digging
-		//Or just check when someone joins, ye this is better
-		//Just to prevent bug with server restart when someone is breaking block
-		//So that they would not have infinite mining fatigue
-		
 		if (event.getPlayer().getGameMode() != GameMode.SURVIVAL) { return; }
 		if (event.getBlock().getType() != Material.BEDROCK) { return; }
+		if (BreakableBedrock.destroyTime < 0) { return; }
 		BedrockBreaker.addPlayer(event.getPlayer(), event.getBlock());
-		event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, Integer.MAX_VALUE, -1, false, false, false));
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockDamageAbortEvent(BlockDamageAbortEvent event) {
 		if (event.getBlock().getType() != Material.BEDROCK) { return; }
-		//BedrockBreaker.removePlayer(event.getPlayer());
+		BedrockBreaker.removePlayer(event.getPlayer());
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockBreakEvent(BlockBreakEvent event) {
 		if (event.getBlock().getType() != Material.BEDROCK) { return; }
-		if (!BreakableBedrock.shouldDrop || !event.isDropItems()) { return; }
+		if (!event.isDropItems() || !BedrockBreaker.shouldDrop(event.getPlayer())) { return; }
 
 		net.minecraft.world.item.ItemStack itemStack = ReflectionUtils.asNMSCopy(new ItemStack(Material.BEDROCK));
 		net.minecraft.world.level.World world = ReflectionUtils.getWorld(event.getBlock().getWorld());
@@ -69,14 +56,14 @@ public class Events implements Listener {
 		double d2 = z + Utils.randomRange(-ITEM_SPAWN_OFFSET, ITEM_SPAWN_OFFSET);
 
 		EntityItem entityItem = new EntityItem(world, x, y, z, itemStack, d0, d1, d2);
-		ArrayList<EntityItem> items = new ArrayList<>(Arrays.asList(entityItem));
+		ArrayList<Item> items = new ArrayList<>(Arrays.asList((Item) entityItem.getBukkitEntity()));
 
-		BlockDropItemEvent dropEvent = new BlockDropItemEvent(event.getBlock(), event.getBlock().getState(), event.getPlayer(), Lists.transform(items, (item) -> (org.bukkit.entity.Item) item.getBukkitEntity()));
+		BlockDropItemEvent dropEvent = new BlockDropItemEvent(event.getBlock(), event.getBlock().getState(), event.getPlayer(), items);
 		Bukkit.getServer().getPluginManager().callEvent(dropEvent);
 		if (dropEvent.isCancelled()) { return; }
 
-		for (org.bukkit.entity.Item drop : dropEvent.getItems()) {
-			event.getBlock().getWorld().spawn(drop.getLocation(), org.bukkit.entity.Item.class, (item) -> {
+		for (Item drop : dropEvent.getItems()) {
+			event.getBlock().getWorld().spawn(drop.getLocation(), Item.class, (item) -> {
 				item.setItemStack(drop.getItemStack());
 				item.setVelocity(drop.getVelocity());
 			});
