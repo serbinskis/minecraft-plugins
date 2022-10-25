@@ -26,8 +26,8 @@ public class Events implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockDamageEvent(BlockDamageEvent event) {
-		if (event.getPlayer().getGameMode() != GameMode.SURVIVAL) { return; }
 		if (event.getBlock().getType() != Material.BEDROCK) { return; }
+		if (event.getPlayer().getGameMode() != GameMode.SURVIVAL) { return; }
 		if (BreakableBedrock.destroyTime < 0) { return; }
 		BedrockBreaker.addPlayer(event.getPlayer(), event.getBlock());
 	}
@@ -40,8 +40,8 @@ public class Events implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockBreakEvent(BlockBreakEvent event) {
-		if (event.getPlayer().getGameMode() != GameMode.SURVIVAL) { return; }
 		if (event.getBlock().getType() != Material.BEDROCK) { return; }
+		if (event.getPlayer().getGameMode() != GameMode.SURVIVAL) { return; }
 		if (!event.isDropItems() || !BedrockBreaker.shouldDrop(event.getPlayer())) { return; }
 
 		net.minecraft.world.item.ItemStack itemStack = ReflectionUtils.asNMSCopy(new ItemStack(Material.BEDROCK));
