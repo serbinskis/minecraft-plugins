@@ -40,6 +40,7 @@ public class Events implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockBreakEvent(BlockBreakEvent event) {
+		if (event.getPlayer().getGameMode() != GameMode.SURVIVAL) { return; }
 		if (event.getBlock().getType() != Material.BEDROCK) { return; }
 		if (!event.isDropItems() || !BedrockBreaker.shouldDrop(event.getPlayer())) { return; }
 
