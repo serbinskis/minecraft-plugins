@@ -391,16 +391,6 @@ public class ReflectionUtils {
 		}
 	}
 
-	public static Block getDestroySpeed(Player player, Material block) {
-		try {
-			if (!block.isBlock()) { return null; }
-			return (Block) getValue(ItemBlock_block, getItem(new ItemStack(block)));
-		} catch (SecurityException | IllegalArgumentException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-
 	public static int getBlockId(Material block) {
 		try {
 			IBlockData blockData = (IBlockData) Block_defaultBlockState.get(getBlock(block));
@@ -421,6 +411,16 @@ public class ReflectionUtils {
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			e.printStackTrace();
 			return Bukkit.getWorlds().get(0);
+		}
+	}
+
+	public static Block getDestroySpeed(Player player, Material block) {
+		try {
+			if (!block.isBlock()) { return null; }
+			return (Block) getValue(ItemBlock_block, getItem(new ItemStack(block)));
+		} catch (SecurityException | IllegalArgumentException e) {
+			e.printStackTrace();
+			return null;
 		}
 	}
 
