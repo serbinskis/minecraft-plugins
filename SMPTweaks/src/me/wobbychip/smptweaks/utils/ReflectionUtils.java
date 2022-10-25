@@ -414,16 +414,6 @@ public class ReflectionUtils {
 		}
 	}
 
-	public static Block getDestroySpeed(Player player, Material block) {
-		try {
-			if (!block.isBlock()) { return null; }
-			return (Block) getValue(ItemBlock_block, getItem(new ItemStack(block)));
-		} catch (SecurityException | IllegalArgumentException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-
 	//Get block destroy time per tick which is based on player
 	public static float getPlayerDestroyTime(Player player, Material block) {
 		try {
