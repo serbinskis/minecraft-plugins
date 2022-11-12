@@ -22,6 +22,7 @@ public class ChunkLoader extends CustomTweak {
 	public static int viewDistance = Bukkit.getViewDistance();
 	public static int simulationDistance = Bukkit.getSimulationDistance()*16;
 	public static boolean enableAggravator = false;
+	public static boolean highlighting = true;
 	public static ChunkLoader tweak;
 	public static Config loaders;
 	public static Manager manager;
@@ -59,6 +60,8 @@ public class ChunkLoader extends CustomTweak {
 		configPath = String.join("/", list.subList(0, list.size()-1)) + "/config.yml";
 		FileConfiguration config = new Config(configPath, "/tweaks/ChunkLoader/config.yml").getConfig();
 		if (!config.getBoolean("useServerViewDistance")) { ChunkLoader.viewDistance = config.getInt("viewDistance"); }
+
 		ChunkLoader.enableAggravator = config.getBoolean("enableAggravator");
+		ChunkLoader.highlighting = config.getBoolean("highlighting");
 	}
 }

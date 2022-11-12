@@ -182,7 +182,7 @@ public class Loader {
 		}
 
 		public void setColor(ChatColor color) {
-			Utils.setGlowColor(getShulker(), color);
+			Utils.setGlowColor(getShulker(), ChunkLoader.highlighting ? color : ChatColor.RESET);
 		}
 	}
 }
