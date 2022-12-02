@@ -28,7 +28,7 @@ import me.wobbychip.smptweaks.custom.chunkloader.loaders.Loader;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
 
 public class PlayerEvents implements Listener {
-	List<Player> chats = new ArrayList<>();
+	public List<Player> chats = new ArrayList<>();
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onPlayerInteractAtEntityEvent(PlayerInteractAtEntityEvent event) {

@@ -1,7 +1,6 @@
 package me.wobbychip.smptweaks;
 
 import org.bukkit.Bukkit;
-import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import me.wobbychip.smptweaks.commands.Commands;
@@ -23,6 +22,7 @@ import me.wobbychip.smptweaks.custom.funnymessages.FunnyMessages;
 import me.wobbychip.smptweaks.custom.globaltrading.GlobalTrading;
 import me.wobbychip.smptweaks.custom.gravitycontrol.GravityControl;
 import me.wobbychip.smptweaks.custom.headdrops.HeadDrops;
+import me.wobbychip.smptweaks.custom.noadvancements.NoAdvancements;
 import me.wobbychip.smptweaks.custom.noarrowinfinity.NoArrowInfinity;
 import me.wobbychip.smptweaks.custom.notooexpensive.NoTooExpensive;
 import me.wobbychip.smptweaks.custom.preventdropcentering.PreventDropCentering;
@@ -33,7 +33,7 @@ import me.wobbychip.smptweaks.custom.shriekercansummon.ShriekerCanSummon;
 import me.wobbychip.smptweaks.tweaks.TweakManager;
 import me.wobbychip.smptweaks.utils.Utils;
 
-public class Main extends JavaPlugin implements Listener {
+public class Main extends JavaPlugin {
 	public static Main plugin;
 	public static TweakManager manager;
 	public static ClassLoader classLoader;
@@ -67,6 +67,7 @@ public class Main extends JavaPlugin implements Listener {
 		manager.addTweak(new GlobalTrading());
 		manager.addTweak(new GravityControl());
 		manager.addTweak(new HeadDrops());
+		manager.addTweak(new NoAdvancements());
 		manager.addTweak(new NoArrowInfinity());
 		manager.addTweak(new NoTooExpensive());
 		manager.addTweak(new PreventDropCentering());

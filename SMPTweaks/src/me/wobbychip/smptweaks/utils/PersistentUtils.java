@@ -1,6 +1,7 @@
 package me.wobbychip.smptweaks.utils;
 
 import org.bukkit.NamespacedKey;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.TileState;
 import org.bukkit.entity.Entity;
@@ -169,5 +170,53 @@ public class PersistentUtils {
 		ItemMeta itemMeta = item.getItemMeta();
 		itemMeta.getPersistentDataContainer().set(namespacedKey, PersistentDataType.STRING, value);
 		item.setItemMeta(itemMeta);
+	}
+
+	//World
+	public static void removePersistentData(World world, String name) {
+		NamespacedKey namespacedKey = new NamespacedKey(Main.plugin, name);
+		world.getPersistentDataContainer().remove(namespacedKey);
+	}
+
+	public static boolean hasPersistentDataInteger(World world, String name) {
+		NamespacedKey namespacedKey = new NamespacedKey(Main.plugin, name);
+		return world.getPersistentDataContainer().has(namespacedKey, PersistentDataType.INTEGER);
+	}
+
+	public static int getPersistentDataInteger(World world, String name) {
+		NamespacedKey namespacedKey = new NamespacedKey(Main.plugin, name);
+		return world.getPersistentDataContainer().get(namespacedKey, PersistentDataType.INTEGER);
+	}
+
+	public static void setPersistentDataInteger(World world, String name, Integer value) {
+		NamespacedKey namespacedKey = new NamespacedKey(Main.plugin, name);
+		world.getPersistentDataContainer().set(namespacedKey, PersistentDataType.INTEGER, value);
+	}
+
+	public static boolean hasPersistentDataBoolean(World world, String name) {
+		return hasPersistentDataInteger(world, name);
+	}
+
+	public static boolean getPersistentDataBoolean(World world, String name) {
+		return (getPersistentDataInteger(world, name) > 0);
+	}
+
+	public static void setPersistentDataBoolean(World world, String name, boolean value) {
+		setPersistentDataInteger(world, name, value ? 1 : 0);
+	}
+
+	public static boolean hasPersistentDataString(World world, String name) {
+		NamespacedKey namespacedKey = new NamespacedKey(Main.plugin, name);
+		return world.getPersistentDataContainer().has(namespacedKey, PersistentDataType.STRING);
+	}
+
+	public static String getPersistentDataString(World world, String name) {
+		NamespacedKey namespacedKey = new NamespacedKey(Main.plugin, name);
+		return world.getPersistentDataContainer().get(namespacedKey, PersistentDataType.STRING);
+	}
+
+	public static void setPersistentDataString(World world, String name, String value) {
+		NamespacedKey namespacedKey = new NamespacedKey(Main.plugin, name);
+		world.getPersistentDataContainer().set(namespacedKey, PersistentDataType.STRING, value);
 	}
 }
