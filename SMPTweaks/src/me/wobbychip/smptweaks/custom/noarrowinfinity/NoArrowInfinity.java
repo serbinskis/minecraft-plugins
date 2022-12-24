@@ -2,12 +2,10 @@ package me.wobbychip.smptweaks.custom.noarrowinfinity;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
@@ -15,6 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
+import me.wobbychip.smptweaks.utils.Utils;
 
 public class NoArrowInfinity extends CustomTweak {
 	public static String isCreativeOnly = "isCreativeOnly";
@@ -64,19 +63,7 @@ public class NoArrowInfinity extends CustomTweak {
 
 	public static boolean isInfinityBow(ItemStack item) {
 		if ((item == null) || (item.getType() != Material.BOW)) { return false; }
-		return checkEnchantments(item);
-	}
-
-	public static boolean checkEnchantments(ItemStack item) {
-		for (Entry<Enchantment, Integer> entrySet : item.getEnchantments().entrySet()) {
-			if (entrySet.getValue() > 0) {
-				String[] splitted = entrySet.getKey().getKey().toString().split(":");
-				String name = splitted[splitted.length-1].toLowerCase();
-				if (infinity.contains(name)) { return true; }
-			}
-		}
-
-		return false;
+		return Utils.containsEnchantment(item, infinity);
 	}
 
 	public static boolean hasArrow(Player player) {

@@ -1,8 +1,11 @@
-#time in idk what format, with hand 0.2 = 1 second
+#Time in idk what format, with hand 0.2 = 1 second
 destroyTime: 17280.0
 
-#should bedrock drop when broken
+#Should bedrock drop when broken
 shouldDrop: true
 
-#enable timer in action bar with time left and percents
+#Enable timer in action bar with time left and percents
 enableTimer: false
+
+#What tools can be used to obtain bedrock
+correctTools: ["DIAMOND_PICKAXE", "NETHERITE_PICKAXE"]

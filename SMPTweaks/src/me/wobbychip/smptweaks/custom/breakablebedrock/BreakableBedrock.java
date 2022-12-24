@@ -1,9 +1,12 @@
 package me.wobbychip.smptweaks.custom.breakablebedrock;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 
 import me.wobbychip.smptweaks.Config;
 import me.wobbychip.smptweaks.Main;
@@ -18,6 +21,7 @@ public class BreakableBedrock extends CustomTweak {
 	public static boolean shouldDrop = false;
 	public static boolean preventPacket = true;
 	public static boolean enableTimer = false;
+	public static List<Material> correctTools = new ArrayList<>();
 
 	public BreakableBedrock() {
 		super(BreakableBedrock.class.getSimpleName(), false, false);
@@ -42,5 +46,8 @@ public class BreakableBedrock extends CustomTweak {
 		BreakableBedrock.destroyTime = BreakableBedrock.config.getConfig().getDouble("destroyTime");
 		BreakableBedrock.shouldDrop = BreakableBedrock.config.getConfig().getBoolean("shouldDrop");
 		BreakableBedrock.enableTimer = BreakableBedrock.config.getConfig().getBoolean("enableTimer");
+
+		List<String> stringList = BreakableBedrock.config.getConfig().getStringList("correctTools");
+		BreakableBedrock.correctTools = stringList.stream().map(Material::valueOf).collect(Collectors.toList());
 	}
 }

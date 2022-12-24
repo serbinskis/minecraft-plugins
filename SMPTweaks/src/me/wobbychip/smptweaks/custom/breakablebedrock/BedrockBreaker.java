@@ -1,8 +1,6 @@
 package me.wobbychip.smptweaks.custom.breakablebedrock;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -19,7 +17,6 @@ import net.minecraft.network.protocol.game.PacketPlayOutWorldEvent;
 
 public class BedrockBreaker {
 	public static HashMap<UUID, BedrockBreaker> breakers = new HashMap<UUID, BedrockBreaker>();
-	public static List<Material> correctTools = Arrays.asList(Material.DIAMOND_PICKAXE, Material.NETHERITE_PICKAXE);
 	public static int MIX_ID = 1000000;
 	public static float BREAK_AFTER = 1.0F;
 
@@ -80,7 +77,7 @@ public class BedrockBreaker {
 	}
 
 	public static boolean hasCorrectToolForDrops(Player player) {
-		return BedrockBreaker.correctTools.contains(player.getInventory().getItemInMainHand().getType());
+		return BreakableBedrock.correctTools.contains(player.getInventory().getItemInMainHand().getType());
 	}
 
 	public static float getDestroyProgress(Player player) {

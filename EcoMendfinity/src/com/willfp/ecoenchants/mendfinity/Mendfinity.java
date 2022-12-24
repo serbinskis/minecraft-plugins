@@ -65,31 +65,31 @@ public class Mendfinity extends EcoEnchant {
 				player.updateInventory();
 			}
 		}, 1L);
-    }
+	}
 
 	@SuppressWarnings("deprecation")
 	@EventHandler(priority = EventPriority.LOW)
 	public void onXpPickup(@NotNull final PlayerExpChangeEvent event) {
-        //Check if bow has enchantment
-        if (!EnchantChecks.mainhand(event.getPlayer(), this) && !EnchantChecks.offhand(event.getPlayer(), this)) {
-            return;
-        }
+		//Check if bow has enchantment
+		if (!EnchantChecks.mainhand(event.getPlayer(), this) && !EnchantChecks.offhand(event.getPlayer(), this)) {
+			return;
+		}
 
-        //Check for disabled worlds
-        if (this.getDisabledWorlds().contains(event.getPlayer().getWorld())) {
-            return;
-        }
+		//Check for disabled worlds
+		if (this.getDisabledWorlds().contains(event.getPlayer().getWorld())) {
+			return;
+		}
 
-        //Get item in main or off hand
+		//Get item in main or off hand
 		ItemStack itemStack = event.getPlayer().getInventory().getItemInMainHand();
 		if (itemStack == null || itemStack.getType() != Material.BOW || itemStack.getDurability() == 0) { itemStack = event.getPlayer().getInventory().getItemInOffHand(); }
 		if (itemStack == null || itemStack.getType() != Material.BOW || itemStack.getDurability() == 0) { return; }
 
-        //Repair it
+		//Repair it
 		int j = Math.min(2*event.getAmount(), itemStack.getDurability());
 		itemStack.setDurability((short) (itemStack.getDurability() - j));
 
-        //Give rest xp to player
-	    event.setAmount(event.getAmount() - j/2);
+		//Give rest xp to player
+		event.setAmount(event.getAmount() - j/2);
 	}
 }

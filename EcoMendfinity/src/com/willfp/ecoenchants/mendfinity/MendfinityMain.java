@@ -15,6 +15,6 @@ public class MendfinityMain extends Extension {
 	@Override
 	public void onEnable() {}
 
-    @Override
+	@Override
 	public void onDisable() {}
 }
