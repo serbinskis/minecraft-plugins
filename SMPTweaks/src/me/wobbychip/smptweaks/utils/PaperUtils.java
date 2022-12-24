@@ -17,8 +17,8 @@ public class PaperUtils {
 
 	static {
 		if (isPaper) {
-			Reputation = ReflectionUtils.loadClass("com.destroystokyo.paper.entity.villager.Reputation");
-			ReputationType = ReflectionUtils.loadClass("com.destroystokyo.paper.entity.villager.ReputationType");
+			Reputation = ReflectionUtils.loadClass("com.destroystokyo.paper.entity.villager.Reputation", true);
+			ReputationType = ReflectionUtils.loadClass("com.destroystokyo.paper.entity.villager.ReputationType", true);
 
 			v_getRepution = ReflectionUtils.getMethod(Villager.class, "getReputation", UUID.class);
 			v_setRepution = ReflectionUtils.getMethod(Villager.class, "setReputation", UUID.class, Reputation);

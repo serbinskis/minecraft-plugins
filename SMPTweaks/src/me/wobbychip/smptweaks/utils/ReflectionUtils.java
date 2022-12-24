@@ -1,11 +1,13 @@
 package me.wobbychip.smptweaks.utils;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -58,6 +60,7 @@ import net.minecraft.world.entity.Entity.RemovalReason;
 import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.entity.player.EnumChatVisibility;
 import net.minecraft.world.entity.player.PlayerAbilities;
+import net.minecraft.world.entity.player.ProfilePublicKey;
 import net.minecraft.world.inventory.Container;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemBlock;
@@ -85,6 +88,8 @@ public class ReflectionUtils {
 	public static Class<?> CraftItemStack;
 	public static Class<?> CraftWorld;
 	public static Class<?> CraftMagicNumbers;
+	public static Class<?> IRegistry_class;
+	public static Class<?> BuiltInRegistries_class;
 
 	public static Field EntityHuman_playerAbilities;
 	public static Field EntityHuman_container;
@@ -135,21 +140,23 @@ public class ReflectionUtils {
 	static {
 		version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
 
-		CraftEntity = loadClass("org.bukkit.craftbukkit." + version + ".entity.CraftEntity");
-		CraftHumanEntity = loadClass("org.bukkit.craftbukkit." + version + ".entity.CraftHumanEntity");
-		CraftPlayer = loadClass("org.bukkit.craftbukkit." + version + ".entity.CraftPlayer");
-		CraftVillager = loadClass("org.bukkit.craftbukkit." + version + ".entity.CraftVillager");
-		CraftInventory = loadClass("org.bukkit.craftbukkit." + version + ".inventory.CraftInventory");
-		CraftItemStack = loadClass("org.bukkit.craftbukkit." + version + ".inventory.CraftItemStack");
-		CraftWorld = loadClass("org.bukkit.craftbukkit." + version + ".CraftWorld");
-		CraftMagicNumbers = loadClass("org.bukkit.craftbukkit." + version + ".util.CraftMagicNumbers");
+		CraftEntity = loadClass("org.bukkit.craftbukkit." + version + ".entity.CraftEntity", true);
+		CraftHumanEntity = loadClass("org.bukkit.craftbukkit." + version + ".entity.CraftHumanEntity", true);
+		CraftPlayer = loadClass("org.bukkit.craftbukkit." + version + ".entity.CraftPlayer", true);
+		CraftVillager = loadClass("org.bukkit.craftbukkit." + version + ".entity.CraftVillager", true);
+		CraftInventory = loadClass("org.bukkit.craftbukkit." + version + ".inventory.CraftInventory", true);
+		CraftItemStack = loadClass("org.bukkit.craftbukkit." + version + ".inventory.CraftItemStack", true);
+		CraftWorld = loadClass("org.bukkit.craftbukkit." + version + ".CraftWorld", true);
+		CraftMagicNumbers = loadClass("org.bukkit.craftbukkit." + version + ".util.CraftMagicNumbers", true);
+		IRegistry_class = loadClass("net.minecraft.core.IRegistry", false);
+		BuiltInRegistries_class = loadClass("net.minecraft.core.registries.BuiltInRegistries", false);
 
 		//Fuck it I am not interested in updating nms every time
 		//So I will just search fields and methods by their types and arguments
 
 		DATA_LIVING_ENTITY_FLAGS = (DataWatcherObject<Byte>) getValue(getParameterizedField(EntityLiving.class, DataWatcherObject.class, Byte.class), null);
-		MOB_EFFECT = (IRegistry<MobEffectList>) getValue(getParameterizedField(IRegistry.class, IRegistry.class, MobEffectList.class), null);
-		POTION = (RegistryBlocks<PotionRegistry>) getValue(getParameterizedField(IRegistry.class, RegistryBlocks.class, PotionRegistry.class), null);
+		MOB_EFFECT = (IRegistry<MobEffectList>) getRegistry(IRegistry.class, MobEffectList.class);
+		POTION = (RegistryBlocks<PotionRegistry>) getRegistry(RegistryBlocks.class, PotionRegistry.class);
 
 		EntityHuman_playerAbilities = getField(EntityHuman.class, PlayerAbilities.class, true);
 		EntityHuman_container = getField(EntityHuman.class, Container.class, true);
@@ -197,11 +204,11 @@ public class ReflectionUtils {
 		Reputation_getReputation = findMethod(true, null, Reputation.class, int.class, null, UUID.class, Predicate.class);
 	}
 
-	public static Class<?> loadClass(String arg0) {
+	public static Class<?> loadClass(String arg0, boolean verbose) {
 		try {
 			return Class.forName(arg0);
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			if (verbose) { e.printStackTrace(); }
 			return null;
 		}
 	}
@@ -288,6 +295,16 @@ public class ReflectionUtils {
 		}
 
 		return null;
+	}
+
+	public static Object newInstance(boolean verbose, boolean bDeclared, Class<?> clazz, Class<?>[] parameters, Object[] args) {
+		try {
+			Constructor<?> constructor = bDeclared ? clazz.getDeclaredConstructor(parameters) : clazz.getConstructor(parameters);
+			return constructor.newInstance(args);
+		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			if (verbose) { e.printStackTrace(); }
+			return null;
+		}
 	}
 
 	public static net.minecraft.server.level.EntityPlayer getEntityPlayer(Player player) {
@@ -613,7 +630,14 @@ public class ReflectionUtils {
 
 		MinecraftServer server = MinecraftServer.getServer();
 		WorldServer world = (WorldServer) getWorld(location.getWorld());
-		EntityPlayer entityPlayer = new EntityPlayer(server, world, new GameProfile((uuid == null) ? UUID.randomUUID() : uuid, " ".repeat(5)), null);
+
+		Class<?>[] parameters = { MinecraftServer.class, WorldServer.class, GameProfile.class, ProfilePublicKey.class };
+		Object[] args = { server, world, new GameProfile((uuid == null) ? UUID.randomUUID() : uuid, " ".repeat(5)), null };
+		EntityPlayer entityPlayer = (EntityPlayer) newInstance(false, false, EntityPlayer.class, parameters, args);
+
+		//Support 1.19.3+
+		if (entityPlayer == null) { entityPlayer = (EntityPlayer) newInstance(false, false, EntityPlayer.class, Arrays.copyOf(parameters, 3), Arrays.copyOf(args, 3)); }
+
 		PlayerConnection connection = new PlayerConnection(server, new NetworkManager(EnumProtocolDirection.b), entityPlayer) {};
 		Player player = entityPlayer.getBukkitEntity();
 
@@ -788,6 +812,11 @@ public class ReflectionUtils {
 		}
 
 		return 0;
+	}
+
+	public static Object getRegistry(Class<?> fType, Class<?> gType) {
+		Class<?> registry = (BuiltInRegistries_class != null) ? BuiltInRegistries_class : IRegistry_class;
+		return getValue(getParameterizedField(registry, fType, gType), null);
 	}
 
 	public static PotionRegistry registerInstantPotion(String name, int color) {
