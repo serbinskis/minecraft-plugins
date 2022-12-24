@@ -20,7 +20,7 @@ public class SilkTouchSpawners extends CustomTweak {
 	public SilkTouchSpawners() {
 		super(SilkTouchSpawners.class.getSimpleName(), false, false);
 		this.setReloadable(true);
-		this.setDescription("Allow getting spawner with silk touch.");
+		this.setDescription("Allows getting spawners with a silk touch.");
 	}
 
 	public void onEnable() {
