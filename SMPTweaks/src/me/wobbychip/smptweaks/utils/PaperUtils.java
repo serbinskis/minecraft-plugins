@@ -29,12 +29,7 @@ public class PaperUtils {
 	}
 
 	public static boolean isPaper() {
-		try {
-			Class.forName("com.destroystokyo.paper.ParticleBuilder");
-			return true;
-		} catch (ClassNotFoundException e) {}
-
-		return false;
+		return (ReflectionUtils.loadClass("com.destroystokyo.paper.ParticleBuilder", false) != null);
 	}
 
 	public static int getReputation(Villager villager, UUID uuid, String type) {

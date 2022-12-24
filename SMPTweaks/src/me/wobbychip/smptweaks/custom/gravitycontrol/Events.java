@@ -1,25 +1,19 @@
 package me.wobbychip.smptweaks.custom.gravitycontrol;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
-import org.bukkit.event.entity.EntityPortalExitEvent;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
 public class Events implements Listener {
-	public List<UUID> uuids = new ArrayList<>();
 	public double HORIZONTAL_COEFFICIENT = 1.46D;
 	public double VERTICAL_COEFFICIENT = -2.4D;
 
@@ -55,17 +49,6 @@ public class Events implements Listener {
 				falling = falling.getWorld().spawnFallingBlock(location, falling.getBlockData());
 				falling.setVelocity(velocity);
 			}
-
-			uuids.add(falling.getUniqueId());
 		}
-	}
-
-	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-	public void onEntityPortalExitEvent(EntityPortalExitEvent event) {
-		if (event.getEntity().getType() != EntityType.FALLING_BLOCK) { return; }
-		if (!uuids.contains(event.getEntity().getUniqueId())) { return; }
-
-		uuids.remove(event.getEntity().getUniqueId());
-		event.setTo(event.getTo().add(0.5, 0, 0.5));
 	}
 }

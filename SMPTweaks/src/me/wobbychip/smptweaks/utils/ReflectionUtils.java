@@ -9,6 +9,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -29,9 +30,11 @@ import org.bukkit.potion.PotionType;
 import com.mojang.authlib.GameProfile;
 
 import net.minecraft.core.BlockPosition;
+import net.minecraft.core.Holder;
 import net.minecraft.core.IRegistry;
 import net.minecraft.core.RegistryBlocks;
 import net.minecraft.core.RegistryMaterials;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.protocol.EnumProtocolDirection;
@@ -48,10 +51,7 @@ import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.server.level.WorldServer;
 import net.minecraft.server.network.PlayerConnection;
 import net.minecraft.server.players.PlayerList;
-import net.minecraft.world.effect.InstantMobEffect;
 import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.effect.MobEffectInfo;
-import net.minecraft.world.effect.MobEffectList;
 import net.minecraft.world.entity.EntityLiving;
 import net.minecraft.world.entity.ai.gossip.Reputation;
 import net.minecraft.world.entity.ai.gossip.ReputationType;
@@ -67,6 +67,7 @@ import net.minecraft.world.item.ItemBlock;
 import net.minecraft.world.item.alchemy.PotionBrewer;
 import net.minecraft.world.item.alchemy.PotionRegistry;
 import net.minecraft.world.item.alchemy.PotionUtil;
+import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBase;
 import net.minecraft.world.level.block.state.IBlockData;
@@ -75,8 +76,6 @@ import net.minecraft.world.level.block.state.IBlockData;
 public class ReflectionUtils {
 	public static DataWatcherObject<Byte> DATA_LIVING_ENTITY_FLAGS;
 	public static int LIVING_ENTITY_FLAG_IS_USING = 1;
-
-	public static IRegistry<MobEffectList> MOB_EFFECT;
 	public static RegistryBlocks<PotionRegistry> POTION;
 
 	public static String version;
@@ -88,8 +87,6 @@ public class ReflectionUtils {
 	public static Class<?> CraftItemStack;
 	public static Class<?> CraftWorld;
 	public static Class<?> CraftMagicNumbers;
-	public static Class<?> IRegistry_class;
-	public static Class<?> BuiltInRegistries_class;
 
 	public static Field EntityHuman_playerAbilities;
 	public static Field EntityHuman_container;
@@ -101,6 +98,7 @@ public class ReflectionUtils {
 	public static Field MinecraftServer_playerList;
 	public static Field PlayerList_players;
 	public static Field RegistryMaterials_frozen;
+	public static Field RegistryMaterials_nextId;
 	public static Field WorldServer_players;
 	public static Field ItemStack_tag;
 	public static Field ItemBlock_block;
@@ -117,8 +115,9 @@ public class ReflectionUtils {
 	public static Method EntityHuman_getDestroySpeed;
 	public static Method EnumChatVisibility_getKey;
 	public static Method IRegistry_keySet;
-	public static Method IRegistry_register;
-	public static Method IRegistry_registerMapping;
+	public static Method Potions_register;
+	public static Method RegistryMaterials_getResourceKey;
+	public static Method RegistryMaterials_getHolder;
 	public static Method Item_get;
 	public static Method Item_releaseUsing;
 	public static Method Block_getId;
@@ -148,15 +147,12 @@ public class ReflectionUtils {
 		CraftItemStack = loadClass("org.bukkit.craftbukkit." + version + ".inventory.CraftItemStack", true);
 		CraftWorld = loadClass("org.bukkit.craftbukkit." + version + ".CraftWorld", true);
 		CraftMagicNumbers = loadClass("org.bukkit.craftbukkit." + version + ".util.CraftMagicNumbers", true);
-		IRegistry_class = loadClass("net.minecraft.core.IRegistry", false);
-		BuiltInRegistries_class = loadClass("net.minecraft.core.registries.BuiltInRegistries", false);
 
 		//Fuck it I am not interested in updating nms every time
 		//So I will just search fields and methods by their types and arguments
 
 		DATA_LIVING_ENTITY_FLAGS = (DataWatcherObject<Byte>) getValue(getParameterizedField(EntityLiving.class, DataWatcherObject.class, Byte.class), null);
-		MOB_EFFECT = (IRegistry<MobEffectList>) getRegistry(IRegistry.class, MobEffectList.class);
-		POTION = (RegistryBlocks<PotionRegistry>) getRegistry(RegistryBlocks.class, PotionRegistry.class);
+		POTION = (RegistryBlocks<PotionRegistry>) getValue(getParameterizedField(BuiltInRegistries.class, RegistryBlocks.class, PotionRegistry.class), null);
 
 		EntityHuman_playerAbilities = getField(EntityHuman.class, PlayerAbilities.class, true);
 		EntityHuman_container = getField(EntityHuman.class, Container.class, true);
@@ -167,6 +163,7 @@ public class ReflectionUtils {
 		MinecraftServer_playerList = getField(MinecraftServer.class, PlayerList.class, true);
 		PlayerList_players = getParameterizedField(PlayerList.class, List.class, EntityPlayer.class);
 		RegistryMaterials_frozen = getField(RegistryMaterials.class, boolean.class, true);
+		RegistryMaterials_nextId = getField(RegistryMaterials.class, int.class, true);
 		WorldServer_players = getParameterizedField(WorldServer.class, List.class, EntityPlayer.class);
 		ItemStack_tag = getField(net.minecraft.world.item.ItemStack.class, NBTTagCompound.class, true);
 		ItemBlock_block = getField(ItemBlock.class, Block.class, true);
@@ -183,8 +180,8 @@ public class ReflectionUtils {
 		EntityHuman_getDestroySpeed = findMethod(true, null, EntityHuman.class, float.class, null, IBlockData.class);
 		EnumChatVisibility_getKey = findMethod(true, null, EnumChatVisibility.class, String.class, null);
 		IRegistry_keySet = findMethod(true, null, IRegistry.class, Set.class, MinecraftKey.class);
-		IRegistry_register = findMethod(true, null, IRegistry.class, null, null, IRegistry.class, String.class, Object.class);
-		IRegistry_registerMapping = findMethod(true, null, IRegistry.class, null, null, IRegistry.class, int.class, String.class, Object.class);
+		Potions_register = findMethod(false, Modifier.PRIVATE, Potions.class, PotionRegistry.class, null, String.class, PotionRegistry.class);
+		RegistryMaterials_getHolder = findMethod(true, null, RegistryMaterials.class, Optional.class, null, int.class);
 		Item_get = findMethod(true, null, Item.class, Item.class, null, int.class);
 		Item_releaseUsing = findMethod(true, null, Item.class, Void.TYPE, null, net.minecraft.world.item.ItemStack.class, net.minecraft.world.level.World.class, net.minecraft.world.entity.EntityLiving.class, int.class);
 		Block_getId = findMethod(true, null, Block.class, int.class, null, IBlockData.class);
@@ -814,32 +811,36 @@ public class ReflectionUtils {
 		return 0;
 	}
 
-	public static Object getRegistry(Class<?> fType, Class<?> gType) {
-		Class<?> registry = (BuiltInRegistries_class != null) ? BuiltInRegistries_class : IRegistry_class;
-		return getValue(getParameterizedField(registry, fType, gType), null);
-	}
-
-	public static PotionRegistry registerInstantPotion(String name, int color) {
-		//net.minecraft.world.effect.MobEffectCategory ->
-		//	net.minecraft.world.effect.MobEffectCategory NEUTRAL -> c
-
+	public static PotionRegistry registerInstantPotion(String name) {
 		try {
-			setRegistryFrozen(MOB_EFFECT, false);
 			setRegistryFrozen(POTION, false);
-
-			int id = getRegistrySize(MOB_EFFECT)+1;
-			InstantMobEffect instantMobEffect = new InstantMobEffect(MobEffectInfo.c, color);
-			MobEffectList mobEffectList = (MobEffectList) IRegistry_registerMapping.invoke(IRegistry_registerMapping, MOB_EFFECT, id, name, instantMobEffect);
-			PotionRegistry potionRegistry = new PotionRegistry(new MobEffect[] { new MobEffect(mobEffectList, 1) });
-			potionRegistry = (PotionRegistry) IRegistry_register.invoke(IRegistry_register, POTION, name, potionRegistry);
-
-			setRegistryFrozen(MOB_EFFECT, true);
+			PotionRegistry potionRegistry = new PotionRegistry(new MobEffect[0]);
+			potionRegistry = (PotionRegistry) Potions_register.invoke(Potions_register, name, potionRegistry);
 			setRegistryFrozen(POTION, true);
+
+			fixHolder(POTION, potionRegistry);
 			return potionRegistry;
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			e.printStackTrace();
 		}
 
 		return null;
+	}
+
+	//FUCK MOJANG DEVELOPERS, how the fuck do you forget to set value of a holder
+	//when registering a new mapping, how brain damaged you must be.
+	public static void fixHolder(Object registry, Object value) {
+		try {
+			int currentId = RegistryMaterials_nextId.getInt(registry)-1;
+			Optional<Holder<?>> holder = (Optional<Holder<?>>) RegistryMaterials_getHolder.invoke(registry, currentId);
+			Holder.c<?> holder_c = (Holder.c<?>) holder.get();
+
+			for (Field field : Holder.c.class.getDeclaredFields()) {
+				field.setAccessible(true);
+				if (field.get(holder_c) == null) { field.set(holder_c, value); }
+			}
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			e.printStackTrace();
+		}
 	}
 }

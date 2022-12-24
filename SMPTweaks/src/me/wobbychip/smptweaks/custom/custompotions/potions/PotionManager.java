@@ -75,7 +75,7 @@ public class PotionManager {
 			potion.setBase(registry.get(potion.getBaseName()));
 		}
 
-		PotionRegistry result = ReflectionUtils.registerInstantPotion(potion.getName(), potion.getIntColor());
+		PotionRegistry result = ReflectionUtils.registerInstantPotion(potion.getName());
 		potions.put(potion.getName(), potion);
 		registry.put(potion.getName(), result);
 

@@ -14,6 +14,7 @@ import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.bukkit.scoreboard.Criteria;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 
@@ -69,7 +70,7 @@ public class WormholePotion extends CustomPotion {
 		Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
 
 		if (scoreboard.getObjective(objectiveName) == null) {
-			scoreboard.registerNewObjective(objectiveName, "dummy", uuid);
+			scoreboard.registerNewObjective(objectiveName, Criteria.DUMMY, uuid);
 		} else {
 			scoreboard.getObjective(objectiveName).setDisplayName(uuid);
 		}

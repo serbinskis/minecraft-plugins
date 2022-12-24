@@ -15,6 +15,7 @@ import org.bukkit.event.block.BlockDamageAbortEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import me.wobbychip.smptweaks.utils.Utils;
@@ -56,7 +57,8 @@ public class Events implements Listener {
 		double d1 = y + Utils.randomRange(-ITEM_SPAWN_OFFSET, ITEM_SPAWN_OFFSET) - f;
 		double d2 = z + Utils.randomRange(-ITEM_SPAWN_OFFSET, ITEM_SPAWN_OFFSET);
 
-		EntityItem entityItem = new EntityItem(world, x, y, z, itemStack, d0, d1, d2);
+		EntityItem entityItem = new EntityItem(world, d0, d1, d2, itemStack);
+		entityItem.getBukkitEntity().setVelocity(new Vector(Math.random()*0.2F-0.1F, 0.2F, Math.random()*0.2F-0.1F));
 		ArrayList<Item> items = new ArrayList<>(Arrays.asList((Item) entityItem.getBukkitEntity()));
 
 		BlockDropItemEvent dropEvent = new BlockDropItemEvent(event.getBlock(), event.getBlock().getState(), event.getPlayer(), items);
