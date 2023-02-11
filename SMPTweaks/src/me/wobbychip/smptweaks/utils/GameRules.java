@@ -1,4 +1,4 @@
-package me.wobbychip.smptweaks.custom.noadvancements;
+package me.wobbychip.smptweaks.utils;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -12,9 +12,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.plugin.Plugin;
-
-import me.wobbychip.smptweaks.utils.PersistentUtils;
-import me.wobbychip.smptweaks.utils.Utils;
 
 public class GameRules implements Listener {
 	public HashMap<String, Object> rules = new HashMap<String, Object>();

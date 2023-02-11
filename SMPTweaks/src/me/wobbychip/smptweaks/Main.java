@@ -24,6 +24,7 @@ import me.wobbychip.smptweaks.custom.gravitycontrol.GravityControl;
 import me.wobbychip.smptweaks.custom.headdrops.HeadDrops;
 import me.wobbychip.smptweaks.custom.noadvancements.NoAdvancements;
 import me.wobbychip.smptweaks.custom.noarrowinfinity.NoArrowInfinity;
+import me.wobbychip.smptweaks.custom.noendportal.NoEndPortal;
 import me.wobbychip.smptweaks.custom.notooexpensive.NoTooExpensive;
 import me.wobbychip.smptweaks.custom.preventdropcentering.PreventDropCentering;
 import me.wobbychip.smptweaks.custom.pvpdropinventory.PvPDropInventory;
@@ -32,10 +33,12 @@ import me.wobbychip.smptweaks.custom.respawnabledragonegg.RespawnableDragonEgg;
 import me.wobbychip.smptweaks.custom.shriekercansummon.ShriekerCanSummon;
 import me.wobbychip.smptweaks.custom.silktouchspawners.SilkTouchSpawners;
 import me.wobbychip.smptweaks.tweaks.TweakManager;
+import me.wobbychip.smptweaks.utils.GameRules;
 import me.wobbychip.smptweaks.utils.Utils;
 
 public class Main extends JavaPlugin {
 	public static Main plugin;
+	public static GameRules gameRules;
 	public static TweakManager manager;
 	public static ClassLoader classLoader;
 	public static String prefix = "SMPTweaks-";
@@ -45,6 +48,7 @@ public class Main extends JavaPlugin {
 		Main.plugin = this;
 		Main.plugin.saveDefaultConfig();
 		Main.classLoader = Main.plugin.getClassLoader();
+		Main.gameRules = new GameRules(Main.plugin);
 
 		String version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
 		Utils.sendMessage("&9[SMPTweaks] Server Version: " + version);
@@ -70,6 +74,7 @@ public class Main extends JavaPlugin {
 		manager.addTweak(new HeadDrops());
 		manager.addTweak(new NoAdvancements());
 		manager.addTweak(new NoArrowInfinity());
+		manager.addTweak(new NoEndPortal());
 		manager.addTweak(new NoTooExpensive());
 		manager.addTweak(new PreventDropCentering());
 		manager.addTweak(new PvPDropInventory());
