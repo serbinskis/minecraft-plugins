@@ -51,12 +51,12 @@ public class GameRules implements Listener {
 		Object object = rules.get(name);
 
 		if (object.getClass().equals(Boolean.class)) {
-			if (!PersistentUtils.hasPersistentDataBoolean(world, name)) { setGameRule(world, name, object); }
+			if (!PersistentUtils.hasPersistentDataBoolean(world, name)) { return (T) object; }
 			return (T) Boolean.valueOf(PersistentUtils.getPersistentDataBoolean(world, name));
 		}
 
 		if (object.getClass().equals(Integer.class)) {
-			if (!PersistentUtils.hasPersistentDataInteger(world, name)) { setGameRule(world, name, object); }
+			if (!PersistentUtils.hasPersistentDataInteger(world, name)) { return (T) object; }
 			return (T) Integer.valueOf(PersistentUtils.getPersistentDataInteger(world, name));
 		}
 

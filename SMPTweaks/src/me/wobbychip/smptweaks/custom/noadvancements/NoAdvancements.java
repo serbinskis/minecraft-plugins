@@ -8,7 +8,7 @@ import me.wobbychip.smptweaks.tweaks.CustomTweak;
 public class NoAdvancements extends CustomTweak {
 	public NoAdvancements() {
 		super(NoAdvancements.class.getSimpleName(), false, true);
-		this.setDescription("Disable advancements with custom gamerule (doAdvancements).");
+		this.setDescription("Disable advancements with custom gamerule (doAdvancements, default: true).");
 	}
 
 	public void onEnable() {

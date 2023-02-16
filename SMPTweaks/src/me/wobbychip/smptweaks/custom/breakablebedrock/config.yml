@@ -8,4 +8,4 @@ shouldDrop: true
 enableTimer: false
 
 #What tools can be used to obtain bedrock
-correctTools: ["DIAMOND_PICKAXE", "NETHERITE_PICKAXE"]
+correctTools: ["NETHERITE_PICKAXE"]

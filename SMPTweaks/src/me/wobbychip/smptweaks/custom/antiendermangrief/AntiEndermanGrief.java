@@ -8,10 +8,11 @@ import me.wobbychip.smptweaks.tweaks.CustomTweak;
 public class AntiEndermanGrief extends CustomTweak {
 	public AntiEndermanGrief() {
 		super(AntiEndermanGrief.class.getSimpleName(), false, false);
-		this.setDescription("Prevent enderman from picking up blocks.");
+		this.setDescription("Prevent enderman from picking up blocks with gamerule. (doEndermanGrief, default: false)");
 	}
 
 	public void onEnable() {
+		Main.gameRules.addGameRule("doEndermanGrief", false);
 		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 	}
 }

@@ -7,8 +7,8 @@ import me.wobbychip.smptweaks.tweaks.CustomTweak;
 
 public class NoEndPortal extends CustomTweak {
 	public NoEndPortal() {
-		super(NoEndPortal.class.getSimpleName(), false, true);
-		this.setDescription("Disable end portal with custom gamerule (doEndPortal).");
+		super(NoEndPortal.class.getSimpleName(), false, false);
+		this.setDescription("Disable end portal with custom gamerule (doEndPortal, default: true).");
 	}
 
 	public void onEnable() {
