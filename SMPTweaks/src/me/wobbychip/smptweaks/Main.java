@@ -31,6 +31,7 @@ import me.wobbychip.smptweaks.custom.preventdropcentering.PreventDropCentering;
 import me.wobbychip.smptweaks.custom.pvpdropinventory.PvPDropInventory;
 import me.wobbychip.smptweaks.custom.repairwithxp.RepairWithXP;
 import me.wobbychip.smptweaks.custom.respawnabledragonegg.RespawnableDragonEgg;
+import me.wobbychip.smptweaks.custom.serverpause.ServerPause;
 import me.wobbychip.smptweaks.custom.shriekercansummon.ShriekerCanSummon;
 import me.wobbychip.smptweaks.custom.silktouchspawners.SilkTouchSpawners;
 import me.wobbychip.smptweaks.tweaks.TweakManager;
@@ -82,6 +83,7 @@ public class Main extends JavaPlugin {
 		manager.addTweak(new PvPDropInventory());
 		manager.addTweak(new RepairWithXP());
 		manager.addTweak(new RespawnableDragonEgg());
+		manager.addTweak(new ServerPause());
 		manager.addTweak(new ShriekerCanSummon());
 		manager.addTweak(new SilkTouchSpawners());
 
