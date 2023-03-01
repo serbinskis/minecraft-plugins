@@ -19,7 +19,7 @@ public class Events implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerAdvancementDoneEvent(PlayerAdvancementDoneEvent event) {
-		if ((boolean) Main.gameRules.getGameRule(event.getPlayer().getWorld(), "doAdvancements")) { return; }
+		if (NoAdvancements.tweak.getGameRuleBoolean(event.getPlayer().getWorld()))  { return; }
 		Utils.revokeAdvancemnt(event.getPlayer(), event.getAdvancement());
 
 		//Prevent BlazeandCave's Advancements messages in the chat and experience

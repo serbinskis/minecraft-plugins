@@ -8,12 +8,10 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakEvent.RemoveCause;
 
-import me.wobbychip.smptweaks.Main;
-
 public class Events implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onEntityExplodeEvent(EntityExplodeEvent event) {
-		if ((boolean) Main.gameRules.getGameRule(event.getEntity().getWorld(), "doCrepperGrief")) { return; }
+		if (AntiCreeperGrief.tweak.getGameRuleBoolean(event.getEntity().getWorld())) { return; }
 		if (event.getEntityType() == EntityType.CREEPER) { event.blockList().clear(); }
 	}
 
@@ -21,7 +19,7 @@ public class Events implements Listener {
 	public void onHangingBreakByEntityEvent(HangingBreakByEntityEvent event) {
 		if (event.getCause() != RemoveCause.EXPLOSION) { return; }
 		if (event.getRemover().getType() != EntityType.CREEPER) { return; }
-		if ((boolean) Main.gameRules.getGameRule(event.getEntity().getWorld(), "doCrepperGrief")) { return; }
+		if (AntiCreeperGrief.tweak.getGameRuleBoolean(event.getEntity().getWorld())) { return; }
 		event.setCancelled(true);
 	}
 }

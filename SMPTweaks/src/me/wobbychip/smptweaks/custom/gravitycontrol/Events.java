@@ -28,6 +28,7 @@ public class Events implements Listener {
 	public void onEntityChangeBlockEvent(EntityChangeBlockEvent event) {
 		if (event.getTo() == Material.AIR) { return; }
 		if (!(event.getEntity() instanceof FallingBlock)) { return; }
+		if (!GravityControl.tweak.getGameRuleBoolean(event.getEntity().getWorld())) { return; }
 
 		FallingBlock falling = (FallingBlock) event.getEntity();
 		BoundingBox boundingBox = falling.getBoundingBox().expand(-0.01D);

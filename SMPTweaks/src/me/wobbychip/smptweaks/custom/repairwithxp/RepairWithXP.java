@@ -24,6 +24,7 @@ public class RepairWithXP extends CustomTweak {
 	public RepairWithXP() {
 		super(RepairWithXP.class.getSimpleName(), false, false);
 		this.setReloadable(true);
+		this.setGameRule("doRepairWithXP", true);
 		this.setDescription("Allow repairing mending tools with experience. " +
 							"Put item with mending in second hand and crouch.");
 	}
@@ -54,29 +55,24 @@ public class RepairWithXP extends CustomTweak {
 	}
 
 	@SuppressWarnings("deprecation")
-	public static void checkPlayer(Player player) {
+	public void checkPlayer(Player player) {
+		//Check if gamerule enabled
+		if (!this.getGameRuleBoolean(player.getWorld())) { return; }
+
 		//Check if player is sneaking
-		if (!player.isSneaking()) {
-			return;
-		}
+		if (!player.isSneaking()) { return; }
 
 		//Check if player has enough exp
-		if (Utils.getPlayerExp(player) < amountXP) {
-			return;
-		}
+		if (Utils.getPlayerExp(player) < amountXP) { return; }
 
 		//Get player off hand item
 		ItemStack offHand = player.getInventory().getItemInOffHand();
 
 		//Check if item is damaged
-		if (offHand.getDurability() <= 0) {
-			return;
-		}
+		if (offHand.getDurability() <= 0) { return; }
 
 		//Check if item has mending
-		if (!checkEnchantments(offHand)) {
-			return;
-		}
+		if (!checkEnchantments(offHand)) { return; }
 
 		//Remove specific amount of XP from player
 		player.giveExp(amountXP * -1);

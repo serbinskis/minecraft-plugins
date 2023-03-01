@@ -15,6 +15,7 @@ import me.wobbychip.smptweaks.utils.PaperUtils;
 public class Events implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerInteractEntityEvent(PlayerInteractEntityEvent event) {
+		if (!GlobalTrading.tweak.getGameRuleBoolean(event.getPlayer().getWorld())) { return; }
 		if (!(event.getRightClicked() instanceof Villager)) { return; }
 		Villager villager = (Villager) event.getRightClicked();
 		if (villager.getProfession() == Profession.NONE) { return; }

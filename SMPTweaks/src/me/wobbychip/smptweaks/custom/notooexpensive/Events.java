@@ -1,6 +1,7 @@
 package me.wobbychip.smptweaks.custom.notooexpensive;
 
 import org.bukkit.GameMode;
+import org.bukkit.World;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -15,6 +16,9 @@ import me.wobbychip.smptweaks.utils.ReflectionUtils;
 public class Events implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPrepareAnvilEvent(PrepareAnvilEvent event) {
+		World world = event.getInventory().getLocation().getWorld();
+		if (!NoTooExpensive.tweak.getGameRuleBoolean(world)) { return; }
+
 		for (HumanEntity player : event.getViewers()) {
 			if (((Player) player).getGameMode() == GameMode.CREATIVE) { continue; }
 			boolean flag = event.getInventory().getRepairCost() > NoTooExpensive.MAXIMUM_REPAIR_COST;

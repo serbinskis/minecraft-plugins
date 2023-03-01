@@ -15,6 +15,7 @@ import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import me.wobbychip.smptweaks.utils.Utils;
 
 public class AutoTrade extends CustomTweak {
+	public static CustomTweak tweak;
 	public static String isAutoTrade = "isAutoTrade";
 	public static int tradeCooldown = 20;
 	public static int tradeDistance = 2;
@@ -26,7 +27,9 @@ public class AutoTrade extends CustomTweak {
 
 	public AutoTrade() {
 		super(AutoTrade.class.getSimpleName(), false, false);
+		AutoTrade.tweak = this;
 		this.setReloadable(true);
+		this.setGameRule("doAutoTrade", true);
 		this.setDescription("Put on a dispenser an item frame with a nether star. " +
 							"Put items from trade in the dispenser. " +
 							"Move villager to the dispenser in 2 block radius. " +

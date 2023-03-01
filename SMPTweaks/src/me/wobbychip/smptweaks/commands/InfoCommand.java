@@ -2,9 +2,11 @@ package me.wobbychip.smptweaks.commands;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
@@ -26,14 +28,24 @@ public class InfoCommand {
 			return true;
 		}
 
+		String gamerule_message = "";
 		String enabled = tweak.isEnabled() ? "Yes" : "No";
 		String requires = tweak.requiresPaper() ? "PaperMC" : "Nothing";
 		requires = tweak.requiresProtocolLib() ? "ProtocolLib" : requires;
+		Entry<String, Object> gamerule = tweak.getGameRule();
+
+		if (gamerule != null) {
+			String gamerule_current = "";
+			if (sender instanceof Player) { gamerule_current = String.format(", current: %s", (Object) tweak.getGameRule(((Player) sender).getWorld())); }
+			gamerule_message = String.format("&9Gamerule: &f%s, default: %s%s\n", gamerule.getKey(), gamerule.getValue(), gamerule_current);
+			Utils.sendMessage(gamerule_message);
+		}
 
 		String message = "&a&lSMPTweaks &8» &7" + tweak.getName() + "\n" +
-				"&9Enabled: &f" + enabled + "\n" +
-				"&9Requires: &f" + requires + "\n" +
-				"&9Description: &f" + tweak.getDescription();
+						 "&9Enabled: &f" + enabled + "\n" +
+						 "&9Requires: &f" + requires + "\n" +
+						 gamerule_message +
+						 "&9Description: &f" + tweak.getDescription();
 
 		Utils.sendMessage(sender, message);
 		return true;

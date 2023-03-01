@@ -1,11 +1,19 @@
 package me.wobbychip.smptweaks.tweaks;
 
+import java.util.Map;
+
+import javax.annotation.Nullable;
+
+import org.bukkit.World;
+
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.utils.Utils;
 
 public class CustomTweak {
 	private String name;
 	private String description;
+	private String gamerule = null;
+	private Object gameruleValue = null;
 	private boolean requiresPaper;
 	private boolean requiresProtocolLib;
 	private boolean enabled = true;
@@ -31,6 +39,29 @@ public class CustomTweak {
 
 	public String getDescription() {
 		return description;
+	}
+
+	public void setGameRule(String gamerule, Object gameruleValue) {
+		this.gamerule = gamerule;
+		this.gameruleValue = gameruleValue;
+	}
+
+	@Nullable
+	public Map.Entry<String, Object> getGameRule() {
+		boolean arg0 = ((gamerule != null) && (gameruleValue != null));
+		return arg0 ? Map.entry(gamerule, gameruleValue) : null;
+	}
+
+	public <T> T getGameRule(World world) {
+		return (gamerule != null) ? Main.gameRules.getGameRule(world, gamerule) : null;
+	}
+
+	public boolean getGameRuleBoolean(World world) {
+		return this.getGameRule(world);
+	}
+
+	public int getGameRuleInteger(World world) {
+		return this.getGameRule(world);
 	}
 
 	public void setDescription(String description) {

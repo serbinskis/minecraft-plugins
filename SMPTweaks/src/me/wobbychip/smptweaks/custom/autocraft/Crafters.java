@@ -27,6 +27,7 @@ public class Crafters {
 		crafters = collectCrafters();
 
 		for (Block crafter : crafters) {
+			if (!AutoCraft.tweak.getGameRuleBoolean((crafter.getWorld()))) { continue; }
 			if (!isDisabled(crafter)) { handleCrafter(crafter); };
 		}
 	}

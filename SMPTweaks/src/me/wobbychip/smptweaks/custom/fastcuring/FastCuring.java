@@ -10,12 +10,15 @@ import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
 
 public class FastCuring extends CustomTweak {
+	public static CustomTweak tweak;
 	public static int intervalTicks;
 	public static Config config;
 
 	public FastCuring() {
 		super(FastCuring.class.getSimpleName(), false, false);
+		FastCuring.tweak = this;
 		this.setReloadable(true);
+		this.setGameRule("doFastCuring", true);
 		this.setDescription("Makes curing villagers much faster.");
 	}
 

@@ -16,6 +16,7 @@ import me.wobbychip.smptweaks.tweaks.CustomTweak;
 import me.wobbychip.smptweaks.utils.Utils;
 
 public class BetterLead extends CustomTweak {
+	public static CustomTweak tweak;
 	public static Config config;
 	public static String isUnbreakableLeash = "isUnbreakableLeash";
 	public static int maxDistance = 100;
@@ -24,7 +25,9 @@ public class BetterLead extends CustomTweak {
 
 	public BetterLead() {
 		super(BetterLead.class.getSimpleName(), false, true);
+		BetterLead.tweak = this;
 		this.setReloadable(true);
+		this.setGameRule("doBetterLead", true);
 		this.setDescription("Make lead much longer and allow lead almost any mob.");
 	}
 

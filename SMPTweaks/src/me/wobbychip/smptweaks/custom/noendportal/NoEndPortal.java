@@ -6,13 +6,16 @@ import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
 
 public class NoEndPortal extends CustomTweak {
+	public static CustomTweak tweak;
+
 	public NoEndPortal() {
 		super(NoEndPortal.class.getSimpleName(), false, false);
-		this.setDescription("Disable end portal with custom gamerule (doEndPortal, default: true).");
+		NoEndPortal.tweak = this;
+		this.setGameRule("doEndPortal", true);
+		this.setDescription("Disable end portal with custom gamerule.");
 	}
 
 	public void onEnable() {
-		Main.gameRules.addGameRule("doEndPortal", true);
 		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 	}
 }

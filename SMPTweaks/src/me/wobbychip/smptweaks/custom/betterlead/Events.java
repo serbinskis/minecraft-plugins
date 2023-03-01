@@ -29,6 +29,7 @@ public class Events implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onPlayerInteractEntityEvent(PlayerInteractEntityEvent event) {
+		if (!BetterLead.tweak.getGameRuleBoolean(event.getPlayer().getWorld())) { return; }
 		if (!(event.getRightClicked() instanceof LivingEntity)) { return; }
 		ItemStack item = event.getPlayer().getInventory().getItem(event.getHand());
 		if (item.getType() != Material.LEAD) { return; }
@@ -63,6 +64,7 @@ public class Events implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onEntityUnleashEvent(EntityUnleashEvent event) {
+		if (!BetterLead.tweak.getGameRuleBoolean(event.getEntity().getWorld())) { return; }
 		if ((event.getReason() != UnleashReason.DISTANCE)) { return; }
 		if (!(event.getEntity() instanceof LivingEntity)) { return; }
 		Entity holder = ((LivingEntity) event.getEntity()).getLeashHolder();

@@ -33,6 +33,7 @@ public class Traders {
 		traders = collectTraders();
 
 		for (Block trader : traders) {
+			if (!AutoTrade.tweak.getGameRuleBoolean((trader.getWorld()))) { continue; }
 			if (!isDisabled(trader)) { handleTrader(trader); };
 		}
 	}

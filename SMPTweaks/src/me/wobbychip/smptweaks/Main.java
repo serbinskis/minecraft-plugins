@@ -22,6 +22,7 @@ import me.wobbychip.smptweaks.custom.funnymessages.FunnyMessages;
 import me.wobbychip.smptweaks.custom.globaltrading.GlobalTrading;
 import me.wobbychip.smptweaks.custom.gravitycontrol.GravityControl;
 import me.wobbychip.smptweaks.custom.headdrops.HeadDrops;
+import me.wobbychip.smptweaks.custom.holograms.Holograms;
 import me.wobbychip.smptweaks.custom.noadvancements.NoAdvancements;
 import me.wobbychip.smptweaks.custom.noarrowinfinity.NoArrowInfinity;
 import me.wobbychip.smptweaks.custom.noendportal.NoEndPortal;
@@ -72,6 +73,7 @@ public class Main extends JavaPlugin {
 		manager.addTweak(new GlobalTrading());
 		manager.addTweak(new GravityControl());
 		manager.addTweak(new HeadDrops());
+		manager.addTweak(new Holograms());
 		manager.addTweak(new NoAdvancements());
 		manager.addTweak(new NoArrowInfinity());
 		manager.addTweak(new NoEndPortal());

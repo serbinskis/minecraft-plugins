@@ -23,6 +23,7 @@ import me.wobbychip.smptweaks.utils.Utils;
 public class Events implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onPlayerInteract(PlayerInteractEvent event) {
+		if (!ExpBottles.tweak.getGameRuleBoolean(event.getPlayer().getWorld())) { return; }
 		if (event.getAction() != Action.RIGHT_CLICK_BLOCK) { return; }
 		if (event.getClickedBlock() == null || event.getClickedBlock().getType() != Material.ENCHANTING_TABLE) { return; }
 		if (event.getItem() == null || event.getItem().getType() != Material.GLASS_BOTTLE) { return; }

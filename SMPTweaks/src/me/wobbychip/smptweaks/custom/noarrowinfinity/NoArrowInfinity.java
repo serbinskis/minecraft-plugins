@@ -21,6 +21,7 @@ public class NoArrowInfinity extends CustomTweak {
 
 	public NoArrowInfinity() {
 		super(NoArrowInfinity.class.getSimpleName(), false, false);
+		this.setGameRule("doInfinityArrows", true);
 		this.setDescription("Allows players to use a bow with infinity without arrows.");
 	}
 
@@ -41,6 +42,7 @@ public class NoArrowInfinity extends CustomTweak {
 	//To prevent everything from above and get only shooting with no arrows
 	//Give instant build only to client and not server
 	public void checkPlayer(Player player) {
+		if (!this.getGameRuleBoolean(player.getWorld())) { return; }
 		if (player.getGameMode() == GameMode.CREATIVE) { return; }
 		if (player.getOpenInventory().getTopInventory().getType() != InventoryType.CRAFTING) { return; }
 		ItemStack mainahnd = player.getInventory().getItemInMainHand();

@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.bukkit.Bukkit;
 
+import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.utils.PaperUtils;
 
 public class TweakManager {
@@ -29,6 +30,9 @@ public class TweakManager {
 				tweak.printMessage("Requires ProtocolLib.", true);
 				return;
 			}
+
+			Entry<String, Object> gamerule = tweak.getGameRule();
+			if (gamerule != null) { Main.gameRules.addGameRule(gamerule.getKey(), gamerule.getValue()); }
 
 			tweak.onEnable();
 			tweak.printEnabled();
