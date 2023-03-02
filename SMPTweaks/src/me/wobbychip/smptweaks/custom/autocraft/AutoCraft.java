@@ -21,7 +21,7 @@ public class AutoCraft extends CustomTweak {
 		super(AutoCraft.class.getSimpleName(), false, false);
 		AutoCraft.tweak = this;
 		this.setReloadable(true);
-		this.setGameRule("doAutoCraft", true);
+		this.setGameRule("doAutoCraft", true, false);
 		this.setDescription("Put on a dispenser an item frame with a crafting table. " +
 							"Put a recipe inside the dispenser. " +
 							"Input any container behind the dispenser, output in front.");

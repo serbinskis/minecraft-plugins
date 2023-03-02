@@ -11,7 +11,7 @@ public class AntiEndermanGrief extends CustomTweak {
 	public AntiEndermanGrief() {
 		super(AntiEndermanGrief.class.getSimpleName(), false, false);
 		AntiEndermanGrief.tweak = this;
-		this.setGameRule("doEndermanGrief", false);
+		this.setGameRule("doEndermanGrief", false, false);
 		this.setDescription("Prevent enderman from picking up blocks with gamerule.");
 	}
 

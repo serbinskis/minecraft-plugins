@@ -24,7 +24,7 @@ public class RepairWithXP extends CustomTweak {
 	public RepairWithXP() {
 		super(RepairWithXP.class.getSimpleName(), false, false);
 		this.setReloadable(true);
-		this.setGameRule("doRepairWithXP", true);
+		this.setGameRule("doRepairWithXP", true, false);
 		this.setDescription("Allow repairing mending tools with experience. " +
 							"Put item with mending in second hand and crouch.");
 	}

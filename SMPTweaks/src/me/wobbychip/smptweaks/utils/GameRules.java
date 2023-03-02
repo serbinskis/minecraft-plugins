@@ -1,5 +1,6 @@
 package me.wobbychip.smptweaks.utils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -15,15 +16,17 @@ import org.bukkit.plugin.Plugin;
 
 public class GameRules implements Listener {
 	public HashMap<String, Object> rules = new HashMap<String, Object>();
+	public List<String> globals = new ArrayList<>();
 	public List<?> allowed = Arrays.asList(Boolean.class, Integer.class);
 
 	public GameRules(Plugin plugin) {
 		Bukkit.getPluginManager().registerEvents(this, plugin);
 	}
 
-	public boolean addGameRule(String name, Object value) {
+	public boolean addGameRule(String name, Object value, boolean global) {
 		if (!allowed.contains(value.getClass())) { return false; }
 		rules.put(name, value);
+		if (global) { globals.add(name); }
 		return true;
 	}
 
@@ -31,6 +34,7 @@ public class GameRules implements Listener {
 		if (!rules.containsKey(name)) { return false; }
 		Object object = rules.get(name);
 		if (!value.getClass().equals(object.getClass())) { return false; }
+		if (globals.contains(name)) { world = Bukkit.getWorlds().get(0); }
 
 		if (object.getClass().equals(Boolean.class)) {
 			PersistentUtils.setPersistentDataBoolean(world, name, (boolean) value);
@@ -49,6 +53,8 @@ public class GameRules implements Listener {
 	public <T> T getGameRule(World world, String name) {
 		if (!rules.containsKey(name)) { return null; }
 		Object object = rules.get(name);
+
+		if (globals.contains(name)) { world = Bukkit.getWorlds().get(0); }
 
 		if (object.getClass().equals(Boolean.class)) {
 			if (!PersistentUtils.hasPersistentDataBoolean(world, name)) { return (T) object; }
@@ -117,5 +123,4 @@ public class GameRules implements Listener {
 			if (queryGameRule(event.getPlayer(), args[1], args[2])) { event.setCancelled(true); }
 		}
 	}
-
 }

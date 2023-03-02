@@ -38,7 +38,6 @@ public class InfoCommand {
 			String gamerule_current = "";
 			if (sender instanceof Player) { gamerule_current = String.format(", current: %s", (Object) tweak.getGameRule(((Player) sender).getWorld())); }
 			gamerule_message = String.format("&9Gamerule: &f%s, default: %s%s\n", gamerule.getKey(), gamerule.getValue(), gamerule_current);
-			Utils.sendMessage(gamerule_message);
 		}
 
 		String message = "&a&lSMPTweaks &8» &7" + tweak.getName() + "\n" +

@@ -18,7 +18,7 @@ public class FastCuring extends CustomTweak {
 		super(FastCuring.class.getSimpleName(), false, false);
 		FastCuring.tweak = this;
 		this.setReloadable(true);
-		this.setGameRule("doFastCuring", true);
+		this.setGameRule("doFastCuring", true, false);
 		this.setDescription("Makes curing villagers much faster.");
 	}
 

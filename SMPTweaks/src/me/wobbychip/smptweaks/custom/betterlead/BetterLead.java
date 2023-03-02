@@ -27,7 +27,7 @@ public class BetterLead extends CustomTweak {
 		super(BetterLead.class.getSimpleName(), false, true);
 		BetterLead.tweak = this;
 		this.setReloadable(true);
-		this.setGameRule("doBetterLead", true);
+		this.setGameRule("doBetterLead", true, false);
 		this.setDescription("Make lead much longer and allow lead almost any mob.");
 	}
 

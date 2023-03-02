@@ -32,7 +32,7 @@ public class TweakManager {
 			}
 
 			Entry<String, Object> gamerule = tweak.getGameRule();
-			if (gamerule != null) { Main.gameRules.addGameRule(gamerule.getKey(), gamerule.getValue()); }
+			if (gamerule != null) { Main.gameRules.addGameRule(gamerule.getKey(), gamerule.getValue(), tweak.isGameRuleGlobal()); }
 
 			tweak.onEnable();
 			tweak.printEnabled();

@@ -29,7 +29,7 @@ public class AutoTrade extends CustomTweak {
 		super(AutoTrade.class.getSimpleName(), false, false);
 		AutoTrade.tweak = this;
 		this.setReloadable(true);
-		this.setGameRule("doAutoTrade", true);
+		this.setGameRule("doAutoTrade", true, false);
 		this.setDescription("Put on a dispenser an item frame with a nether star. " +
 							"Put items from trade in the dispenser. " +
 							"Move villager to the dispenser in 2 block radius. " +

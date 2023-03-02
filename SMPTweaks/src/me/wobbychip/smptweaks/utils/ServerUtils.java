@@ -13,7 +13,7 @@ public class ServerUtils {
 	//This actually doesn't pause your server,
 	//it just removes worlds and functions from ticking
 	//this will only work, if there are no players on the server,
-	//but it maybe can also break something if others plugins try to access worlds
+	//but it maybe can also break something if other plugins try to access worlds
 	@SuppressWarnings("deprecation")
 	public static void pauseServer() {
 		if ((levels != null) || (ticking != null) || (postReload != null)) { return; }
@@ -51,5 +51,9 @@ public class ServerUtils {
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static boolean isPaused() {
+		return ((levels != null) || (ticking != null) || (postReload != null));
 	}
 }

@@ -14,6 +14,7 @@ public class CustomTweak {
 	private String description;
 	private String gamerule = null;
 	private Object gameruleValue = null;
+	private boolean gameruleGlobal = false;
 	private boolean requiresPaper;
 	private boolean requiresProtocolLib;
 	private boolean enabled = true;
@@ -41,9 +42,14 @@ public class CustomTweak {
 		return description;
 	}
 
-	public void setGameRule(String gamerule, Object gameruleValue) {
+	public void setGameRule(String gamerule, Object value, boolean global) {
 		this.gamerule = gamerule;
-		this.gameruleValue = gameruleValue;
+		this.gameruleValue = value;
+		this.gameruleGlobal = global;
+	}
+
+	public boolean isGameRuleGlobal() {
+		return this.gameruleGlobal;
 	}
 
 	@Nullable

@@ -11,7 +11,7 @@ public class GravityControl extends CustomTweak {
 	public GravityControl() {
 		super(GravityControl.class.getSimpleName(), true, false);
 		GravityControl.tweak = this;
-		this.setGameRule("doGravityControl", true);
+		this.setGameRule("doGravityControl", true, false);
 		this.setDescription("Enable falling block duplication glitch with end portal on PaperMC servers.");
 	}
 

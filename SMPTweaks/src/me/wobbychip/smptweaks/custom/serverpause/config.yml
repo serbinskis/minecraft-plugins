@@ -1,0 +1,5 @@
+# Delay in ticks before server pauses when there are no players
+pauseDelay: 0
+
+# If false will notify when server resumed because of console commands
+quiteCommands: false

@@ -5,86 +5,40 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.ServerCommandEvent;
-
-import com.destroystokyo.paper.event.server.ServerTickEndEvent;
-import com.destroystokyo.paper.event.server.ServerTickStartEvent;
 
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.utils.ServerUtils;
 import me.wobbychip.smptweaks.utils.Utils;
 
 public class Events implements Listener {
-	public boolean quite = false;
-	public boolean logging = false;
-	public boolean command = false;
-	public boolean paused = true;
-	public boolean previous = !paused;
-
-	//Pause server if there are no players online
-	/*@EventHandler(priority = EventPriority.MONITOR)
-	public void onServerTickStartEvent(ServerTickStartEvent event) {
-		paused = (Bukkit.getOnlinePlayers().size() <= 0);
-
-		if ((previous != paused) && paused && !quite) { Utils.sendMessage("Server is now paused."); }
-		if ((previous != paused) && !paused && !quite) { Utils.sendMessage("Server is now resumed."); }
-		previous = paused;
-
-		if (logging || command || !paused || ServerPause.stopped) { return; }
-		ServerUtils.pauseServer();
-	}*/
-
-	/*@EventHandler(priority = EventPriority.MONITOR)
-	public void onServerTickEndEvent(ServerTickEndEvent event) {
-		ServerUtils.resumeServer();
-	}*/
-
-	//Pause server if there are no players online
-	//When player leaves the counter will not update immediately
-	//so make the runable that will run in the same tick, but
-	//because it is runnable it will run after the events
-	//Also this will allow other events to run before pausing the server
-	public void onPlayerQuitEvent(PlayerQuitEvent event) {
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
-			public void run() {
-				paused = (Bukkit.getOnlinePlayers().size() <= 0);
-
-				if ((previous != paused) && paused && !quite) { Utils.sendMessage("Server is now paused."); }
-				if ((previous != paused) && !paused && !quite) { Utils.sendMessage("Server is now resumed."); }
-				previous = paused;
-
-				if (logging || command || !paused || ServerPause.stopped) { return; }
-				ServerUtils.pauseServer();
-			}
-		}, 0L);
-	}
-
 	//When player joins, we must resume server
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onAsyncPlayerPreLoginEvent(AsyncPlayerPreLoginEvent event) {
-		logging = true;
 		ServerUtils.resumeServer();
+		ServerPause.logging = true;
 
+		//logging will prevent server from pausing, while player is connecting
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
-			public void run() {
-				logging = false;
-			}
+			public void run() { ServerPause.logging = false; }
 		}, 20L);
 	}
 
 	//We also must resume server, when command is being executed
+	//BUG - resuming server here will not pause it again
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onServerCommandEvent(ServerCommandEvent event) {
 		ServerUtils.resumeServer();
-		command = true;
-		quite = true;
+		ServerPause.command = true;
+		ServerPause.quite = !ServerPause.paused || ServerPause.quiteCommands;
+		ServerPause.previous = !ServerPause.paused;
+
+		if (!ServerPause.quite) {
+			Utils.sendMessage("Server is now resumed. (Required for commands)");
+		}
 
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
-			public void run() {
-				quite = false;
-				command = false;
-			}
+			public void run() { ServerPause.command = false; }
 		}, 1L);
 	}
 	
