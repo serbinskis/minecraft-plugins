@@ -64,11 +64,11 @@ public class Events implements Listener {
 			Utils.sendMessage("Server is now resumed. (Required for commands)");
 		}
 
-		//This will set server back to pause in the same tick, but after all events
+		//This will set server back to pause in the beggining of the next tick, after all events
 		//so that it does not affect commands, because, for example, when stopping server,
 		//the server must be unpaused, which means that when there is console command,
-		//server must be resumed for 1 tick (current tick), this does not affect player
-		//commands, since when players are online server is always resumed
+		//server must be resumed for 1 tick, this does not affect player commands, since
+		//when players are online server is always resumed
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
 			public void run() {
 				if (ServerPause.delayTask > -1) { return; }
