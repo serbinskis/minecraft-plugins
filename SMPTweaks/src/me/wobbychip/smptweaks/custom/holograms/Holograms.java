@@ -11,7 +11,7 @@ public class Holograms extends CustomTweak {
 	public Holograms() {
 		super(Holograms.class.getSimpleName(), false, true);
 		this.setDescription("Admin tool to make holograms with armour stands. " +
-				            "Permissions: smptweaks.holograms.*");
+							"Permissions: smptweaks.holograms.*");
 	}
 
 	public void onEnable() {

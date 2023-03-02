@@ -61,13 +61,13 @@ public class Events implements Listener {
 			ArmorStand armorStand = (ArmorStand) event.getRightClicked();
 			holograms.put(armorStand.getUniqueId().toString(), armorStand);
 
-	        ItemStack book = new ItemStack(Material.WRITABLE_BOOK);
-	        BookMeta bookMeta = (BookMeta) book.getItemMeta();
-	        bookMeta.setDisplayName("§bHologram");
-	        bookMeta.setTitle("Hologram");
-	        bookMeta.setAuthor(armorStand.getUniqueId().toString());
-	        bookMeta.setPages(armorStand.getCustomName());
-	        book.setItemMeta(bookMeta);
+			ItemStack book = new ItemStack(Material.WRITABLE_BOOK);
+			BookMeta bookMeta = (BookMeta) book.getItemMeta();
+			bookMeta.setDisplayName("§bHologram");
+			bookMeta.setTitle("Hologram");
+			bookMeta.setAuthor(armorStand.getUniqueId().toString());
+			bookMeta.setPages(armorStand.getCustomName());
+			book.setItemMeta(bookMeta);
 
 			event.getPlayer().getInventory().setItemInMainHand(book);
 			return;
