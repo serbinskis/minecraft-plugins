@@ -2,4 +2,4 @@
 pauseDelay: 0
 
 # If false will notify when server resumed because of console commands
-quiteCommands: false
+quiteCommands: true
