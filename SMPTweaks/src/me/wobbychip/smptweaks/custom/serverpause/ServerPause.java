@@ -26,7 +26,7 @@ public class ServerPause extends CustomTweak {
 		ServerPause.tweak = this;
 		this.setReloadable(true);
 		this.setGameRule("doServerPause", true, true);
-		this.setDescription("Pauses server when there are no players online.");
+		this.setDescription("Pauses the server when there are no players online.");
 	}
 
 	public void onEnable() {
