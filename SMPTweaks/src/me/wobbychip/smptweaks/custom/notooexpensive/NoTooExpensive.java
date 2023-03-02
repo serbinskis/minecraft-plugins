@@ -6,8 +6,8 @@ import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
 
 public class NoTooExpensive extends CustomTweak {
-	public static int MAXIMUM_REPAIR_COST = 40;
 	public static CustomTweak tweak;
+	public static int MAXIMUM_REPAIR_COST = 40;
 
 	public NoTooExpensive() {
 		super(NoTooExpensive.class.getSimpleName(), false, false);
