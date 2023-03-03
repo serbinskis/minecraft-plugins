@@ -1,6 +1,7 @@
 package me.wobbychip.smptweaks.custom.serverpause;
 
 import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -22,15 +23,21 @@ public class Events implements Listener {
 
 		//We also must stop already running task if there is such,
 		//player can rejoin and leave as many times as they want
-		//and this will trigger this event
+		//and this will trigger this event, also save all worlds,
+		//because auto save is not working when server is paused
 		if (ServerPause.delayTask > -1) { TaskUtils.cancelSyncDelayedTask(ServerPause.delayTask); }
 
 		ServerPause.delayTask = TaskUtils.scheduleSyncDelayedTask(new Runnable() {
 			public void run() {
 				ServerPause.delayTask = -1;
 				if (!ServerPause.canPause()) { return; }
+
+				if (!ServerUtils.isPaused()) {
+					for (World world: Bukkit.getWorlds()) { world.save(); }
+				}
+
 				boolean success = ServerUtils.pauseServer();
-				if (success) { Utils.sendMessage("Server is now paused."); }
+				if (success) { Utils.sendMessage("Server is now paused. (Worlds saved)"); }
 			}
 		}, ServerPause.pauseDelay);
 	}
