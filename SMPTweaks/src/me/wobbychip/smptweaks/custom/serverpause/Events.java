@@ -15,6 +15,8 @@ import me.wobbychip.smptweaks.utils.TaskUtils;
 import me.wobbychip.smptweaks.utils.Utils;
 
 public class Events implements Listener {
+	public int isConnecting = -1;
+
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerQuitEvent(PlayerQuitEvent event) {
 		//1, because at the moment when player leaves, he still is online
@@ -23,18 +25,25 @@ public class Events implements Listener {
 
 		//We also must stop already running task if there is such,
 		//player can rejoin and leave as many times as they want
-		//and this will trigger this event, also save all worlds,
-		//because auto save is not working when server is paused
+		//and this will trigger this event
 		if (ServerPause.delayTask > -1) { TaskUtils.cancelSyncDelayedTask(ServerPause.delayTask); }
 
 		ServerPause.delayTask = TaskUtils.scheduleSyncDelayedTask(new Runnable() {
 			public void run() {
+				int delayTask = ServerPause.delayTask;
 				ServerPause.delayTask = -1;
 				if (!ServerPause.canPause()) { return; }
 
+				//Save worlds before pausing server, since when server is paused
+				//worlds cannot be saved
 				if (!ServerUtils.isPaused()) {
 					for (World world: Bukkit.getWorlds()) { world.save(); }
 				}
+
+				//If AsyncPlayerPreLoginEvent executed and someone is connecting, then we
+				//cannot pause the server and this task should be rescheduled
+				if (isConnecting > -1) { TaskUtils.rescheduleSyncDelayedTask(delayTask, ServerPause.pauseDelay); }
+				if (isConnecting > -1) { return; }
 
 				boolean success = ServerUtils.pauseServer();
 				if (success) { Utils.sendMessage("Server is now paused. (Worlds saved)"); }
@@ -42,9 +51,18 @@ public class Events implements Listener {
 		}, ServerPause.pauseDelay);
 	}
 
-	//When player joins, we must resume server
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onAsyncPlayerPreLoginEvent(AsyncPlayerPreLoginEvent event) {
+		//Since this is async event, which means it can run concurrently with
+		//PlayerQuitEvent runnable, we set isConnecting to true, but revert it in
+		//sync with another runnable, because runnables are synchronized
+		if (isConnecting > -1) { TaskUtils.cancelSyncDelayedTask(isConnecting); }
+
+		isConnecting = TaskUtils.scheduleSyncDelayedTask(new Runnable() {
+			public void run() { isConnecting = -1; }
+		}, 1);
+
+		//Resume server if player is trying to connect to the server
 		boolean success = ServerUtils.resumeServer();
 		if (success) { Utils.sendMessage("Server is now resumed."); }
 
