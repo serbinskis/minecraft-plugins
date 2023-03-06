@@ -12,6 +12,7 @@ import me.wobbychip.smptweaks.Config;
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
+import me.wobbychip.smptweaks.utils.ServerUtils;
 import me.wobbychip.smptweaks.utils.Utils;
 
 public class AutoTrade extends CustomTweak {
@@ -49,7 +50,7 @@ public class AutoTrade extends CustomTweak {
 
 		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
 			public void run() {
-				traders.handleTraders();
+				if (!ServerUtils.isPaused()) { traders.handleTraders(); }
 			}
 		}, 1L, tradeCooldown);
 

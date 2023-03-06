@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import me.wobbychip.smptweaks.Config;
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
+import me.wobbychip.smptweaks.utils.ServerUtils;
 
 public class AutoCraft extends CustomTweak {
 	public static CustomTweak tweak;
@@ -33,7 +34,7 @@ public class AutoCraft extends CustomTweak {
 
 		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
 			public void run() {
-				crafters.handleCrafters();
+				if (!ServerUtils.isPaused()) { crafters.handleCrafters(); }
 			}
 		}, 0L, craftCooldown);
 
