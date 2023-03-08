@@ -38,6 +38,7 @@ public class ReloadCommand {
 			return true;
 		}
 
+		tweak.loadConfigs();
 		tweak.onReload();
 		Utils.sendMessage(sender, String.format(RELOAD_MESSAGE, tweak.getName()));
 		return true;

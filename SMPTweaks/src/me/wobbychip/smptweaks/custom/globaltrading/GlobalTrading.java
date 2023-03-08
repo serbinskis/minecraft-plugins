@@ -9,7 +9,7 @@ public class GlobalTrading extends CustomTweak {
 	public static CustomTweak tweak;
 
 	public GlobalTrading() {
-		super(GlobalTrading.class.getSimpleName(), true, false);
+		super(GlobalTrading.class, true, false);
 		GlobalTrading.tweak = this;
 		this.setGameRule("doGlobalTrading", true, false);
 		this.setDescription("Shares cured villager price among all players.");

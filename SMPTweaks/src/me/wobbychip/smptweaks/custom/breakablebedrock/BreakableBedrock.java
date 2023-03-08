@@ -1,14 +1,12 @@
 package me.wobbychip.smptweaks.custom.breakablebedrock;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 
-import me.wobbychip.smptweaks.Config;
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
 
@@ -16,7 +14,6 @@ import me.wobbychip.smptweaks.tweaks.CustomTweak;
 //This is client side issue which is impossible to fix until Mojang themselves do it
 
 public class BreakableBedrock extends CustomTweak {
-	public static Config config;
 	public static double destroyTime = -1.0F;
 	public static boolean shouldDrop = false;
 	public static boolean preventPacket = true;
@@ -24,30 +21,23 @@ public class BreakableBedrock extends CustomTweak {
 	public static List<Material> correctTools = new ArrayList<>();
 
 	public BreakableBedrock() {
-		super(BreakableBedrock.class.getSimpleName(), false, false);
-		this.setDescription("Allows you to destroy bedrock and collect it.");
+		super(BreakableBedrock.class, false, false);
+		this.setConfigs(List.of("config.yml"));
 		this.setReloadable(true);
-		this.onReload();
+		this.setDescription("Allows you to destroy bedrock and collect it.");
 	}
 
 	public void onEnable() {
+		this.onReload();
 		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 	}
 
 	public void onReload() {
-		loadConfig();
-	}
+		BreakableBedrock.destroyTime = this.getConfig(0).getConfig().getDouble("destroyTime");
+		BreakableBedrock.shouldDrop = this.getConfig(0).getConfig().getBoolean("shouldDrop");
+		BreakableBedrock.enableTimer = this.getConfig(0).getConfig().getBoolean("enableTimer");
 
-	public static void loadConfig() {
-		List<String> list = Arrays.asList(BreakableBedrock.class.getCanonicalName().split("\\."));
-		String configPath = String.join("/", list.subList(0, list.size()-1)) + "/config.yml";
-		BreakableBedrock.config = new Config(configPath, "/tweaks/BreakableBedrock/config.yml");
-
-		BreakableBedrock.destroyTime = BreakableBedrock.config.getConfig().getDouble("destroyTime");
-		BreakableBedrock.shouldDrop = BreakableBedrock.config.getConfig().getBoolean("shouldDrop");
-		BreakableBedrock.enableTimer = BreakableBedrock.config.getConfig().getBoolean("enableTimer");
-
-		List<String> stringList = BreakableBedrock.config.getConfig().getStringList("correctTools");
+		List<String> stringList = this.getConfig(0).getConfig().getStringList("correctTools");
 		BreakableBedrock.correctTools = stringList.stream().map(Material::valueOf).collect(Collectors.toList());
 	}
 }

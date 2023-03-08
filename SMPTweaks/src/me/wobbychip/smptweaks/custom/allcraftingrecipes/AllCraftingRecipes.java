@@ -15,7 +15,7 @@ public class AllCraftingRecipes extends CustomTweak {
 	public static List<NamespacedKey> recipeKeys = new ArrayList<>();
 
 	public AllCraftingRecipes() {
-		super(AllCraftingRecipes.class.getSimpleName(), false, false);
+		super(AllCraftingRecipes.class, false, false);
 		this.setDescription("Give all crafting recipes when a player joins.");
 	}
 

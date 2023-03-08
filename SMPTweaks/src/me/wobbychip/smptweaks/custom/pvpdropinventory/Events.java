@@ -46,7 +46,7 @@ public class Events implements Listener {
 		boolean isPlayer = PvPDropInventory.timer.isPlayer((Player) event.getEntity());
 		if (PvPDropInventory.elytraAllowed || !event.isGliding() || !isPlayer) { return; }
 		PvPDropInventory.timer.addTried((Player) event.getEntity());
-		Utils.sendActionMessage((Player) event.getEntity(), PvPDropInventory.config.getConfig().getString("PvP_ElytraMessage"));
+		Utils.sendActionMessage((Player) event.getEntity(), PvPDropInventory.elytraBarMessage);
 		event.setCancelled(true);
 	}
 }

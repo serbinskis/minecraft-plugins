@@ -9,7 +9,7 @@ public class AntiEndermanGrief extends CustomTweak {
 	public static CustomTweak tweak;
 
 	public AntiEndermanGrief() {
-		super(AntiEndermanGrief.class.getSimpleName(), false, false);
+		super(AntiEndermanGrief.class, false, false);
 		AntiEndermanGrief.tweak = this;
 		this.setGameRule("doEndermanGrief", false, false);
 		this.setDescription("Prevent enderman from picking up blocks with gamerule.");

@@ -7,7 +7,7 @@ import me.wobbychip.smptweaks.tweaks.CustomTweak;
 
 public class PreventDropCentering extends CustomTweak {
 	public PreventDropCentering() {
-		super(PreventDropCentering.class.getSimpleName(), true, false);
+		super(PreventDropCentering.class, true, false);
 		this.setDescription("Prevent item from centering in the middle when block breaks on PaperMC servers.");
 	}
 

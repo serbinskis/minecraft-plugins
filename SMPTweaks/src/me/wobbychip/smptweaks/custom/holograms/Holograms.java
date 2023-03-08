@@ -9,7 +9,7 @@ public class Holograms extends CustomTweak {
 	public static String isHologram = "isHologram";
 
 	public Holograms() {
-		super(Holograms.class.getSimpleName(), false, true);
+		super(Holograms.class, false, true);
 		this.setDescription("Admin tool to make holograms with armour stands. " +
 							"Permissions: smptweaks.holograms.*");
 	}

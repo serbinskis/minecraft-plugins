@@ -10,48 +10,39 @@ import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import me.wobbychip.smptweaks.Config;
-import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
+import me.wobbychip.smptweaks.utils.TaskUtils;
 import me.wobbychip.smptweaks.utils.Utils;
 
 public class RepairWithXP extends CustomTweak {
+	public static int task;
 	public static int amountXP;
 	public static int intervalTicks;
-	public static Config config;
 	public static List<String> mendings = Arrays.asList("mendfinity", "mending");
 
 	public RepairWithXP() {
-		super(RepairWithXP.class.getSimpleName(), false, false);
-		this.setReloadable(true);
+		super(RepairWithXP.class, false, false);
+		this.setConfigs(List.of("config.yml"));
 		this.setGameRule("doRepairWithXP", true, false);
+		this.setReloadable(true);
 		this.setDescription("Allow repairing mending tools with experience. " +
 							"Put item with mending in second hand and crouch.");
 	}
 
 	public void onEnable() {
-		loadConfig();
+		this.onReload();
 
-		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
+		task = TaskUtils.scheduleSyncRepeatingTask(new Runnable() {
 			public void run() {
-				for (Player player : Bukkit.getOnlinePlayers()) {
-					checkPlayer(player);
-				}
+				for (Player player : Bukkit.getOnlinePlayers()) { checkPlayer(player); }
 			}
 		}, 1L, intervalTicks);
 	}
 
 	public void onReload() {
-		loadConfig();
-	}
-
-	public static void loadConfig() {
-		List<String> list = Arrays.asList(RepairWithXP.class.getCanonicalName().split("\\."));
-		String configPath = String.join("/", list.subList(0, list.size()-1)) + "/config.yml";
-		RepairWithXP.config = new Config(configPath, "/tweaks/RepairWithXP/config.yml");
-
-		RepairWithXP.amountXP = RepairWithXP.config.getConfig().getInt("amountXP");
-		RepairWithXP.intervalTicks = RepairWithXP.config.getConfig().getInt("intervalTicks");
+		RepairWithXP.amountXP = this.getConfig(0).getConfig().getInt("amountXP");
+		RepairWithXP.intervalTicks = this.getConfig(0).getConfig().getInt("intervalTicks");
+		RepairWithXP.task = TaskUtils.rescheduleSyncRepeatingTask(RepairWithXP.task, 1L, RepairWithXP.intervalTicks);
 	}
 
 	@SuppressWarnings("deprecation")

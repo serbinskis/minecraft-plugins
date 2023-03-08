@@ -7,7 +7,7 @@ import me.wobbychip.smptweaks.tweaks.CustomTweak;
 
 public class DropCursedPumpkin extends CustomTweak {
 	public DropCursedPumpkin() {
-		super(DropCursedPumpkin.class.getSimpleName(), false, false);
+		super(DropCursedPumpkin.class, false, false);
 		this.setDescription("Drop cursed pumpkin on death when keep inventory is enabled.");
 	}
 

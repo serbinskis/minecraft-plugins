@@ -10,7 +10,7 @@ public class NoTooExpensive extends CustomTweak {
 	public static int MAXIMUM_REPAIR_COST = 40;
 
 	public NoTooExpensive() {
-		super(NoTooExpensive.class.getSimpleName(), false, false);
+		super(NoTooExpensive.class, false, false);
 		NoTooExpensive.tweak = this;
 		this.setGameRule("doNoTooExpensive", true, false);
 		this.setDescription("Removes \"Too expensive\" from anvils and allows you to spend any level if you have enough.");

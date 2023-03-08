@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -28,6 +29,7 @@ public class Config {
 		}
 
 		customConfig = new YamlConfiguration();
+		if (configPath.endsWith(".txt")) { return; }
 
 		try {
 			customConfig.load(file);
@@ -38,6 +40,23 @@ public class Config {
 
 	public FileConfiguration getConfig() {
 		return this.customConfig;
+	}
+
+	public File getFile()  {
+		return file;
+	}
+
+	public Path getPath()  {
+		return file.toPath();
+	}
+
+	public String getContent() {
+		try {
+			return Files.readString(getPath());
+		} catch (IOException e) {
+			e.printStackTrace();
+			return "";
+		}
 	}
 
 	public void Save() {

@@ -1,7 +1,6 @@
 package me.wobbychip.smptweaks.custom.betterlead;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -10,44 +9,35 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 
-import me.wobbychip.smptweaks.Config;
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
 import me.wobbychip.smptweaks.utils.Utils;
 
 public class BetterLead extends CustomTweak {
 	public static CustomTweak tweak;
-	public static Config config;
 	public static String isUnbreakableLeash = "isUnbreakableLeash";
 	public static int maxDistance = 100;
 	public static List<String> custom = new ArrayList<>();;
 	public static List<UUID> preventPacket = new ArrayList<>();
 
 	public BetterLead() {
-		super(BetterLead.class.getSimpleName(), false, true);
+		super(BetterLead.class, false, true);
 		BetterLead.tweak = this;
-		this.setReloadable(true);
+		this.setConfigs(List.of("config.yml"));
 		this.setGameRule("doBetterLead", true, false);
+		this.setReloadable(true);
 		this.setDescription("Make lead much longer and allow lead almost any mob.");
 	}
 
 	public void onEnable() {
-		loadConfig();
+		this.onReload();
 		new ProtocolEvents(Main.plugin);
 		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 	}
 
 	public void onReload() {
-		loadConfig();
-	}
-
-	public static void loadConfig() {
-		List<String> list = Arrays.asList(BetterLead.class.getCanonicalName().split("\\."));
-		String configPath = String.join("/", list.subList(0, list.size()-1)) + "/config.yml";
-		BetterLead.config = new Config(configPath, "/tweaks/BetterLead/config.yml");
-
-		BetterLead.maxDistance = BetterLead.config.getConfig().getInt("maxDistance");
-		BetterLead.custom = BetterLead.config.getConfig().getStringList("custom");
+		BetterLead.maxDistance = this.getConfig(0).getConfig().getInt("maxDistance");
+		BetterLead.custom = this.getConfig(0).getConfig().getStringList("custom");
 	}
 
 	public static void setDeltaMovement(Entity holder, Entity target) {

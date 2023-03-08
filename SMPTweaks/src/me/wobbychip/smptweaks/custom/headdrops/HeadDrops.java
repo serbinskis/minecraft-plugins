@@ -7,7 +7,7 @@ import me.wobbychip.smptweaks.tweaks.CustomTweak;
 
 public class HeadDrops extends CustomTweak {
 	public HeadDrops() {
-		super(HeadDrops.class.getSimpleName(), false, false);
+		super(HeadDrops.class, false, false);
 		this.setDescription("Drop player head on death.");
 	}
 

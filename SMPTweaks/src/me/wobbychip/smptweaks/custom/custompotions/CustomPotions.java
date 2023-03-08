@@ -1,6 +1,5 @@
 package me.wobbychip.smptweaks.custom.custompotions;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.Bukkit;
@@ -26,13 +25,14 @@ public class CustomPotions extends CustomTweak {
 	public static PotionManager manager;
 
 	public CustomPotions() {
-		super(CustomPotions.class.getSimpleName(), false, false);
+		super(CustomPotions.class, false, false);
+		this.setConfigs(List.of("config.yml"));
 		this.setDescription("Adds to the server different new potions and new brewing recipes. " +
 							"To get more info about potions use command /cpotions info.");
 	}
 
 	public void onEnable() {
-		loadConfig();
+		this.onReload();
 		CustomPotions.tweak = this;
 		manager = new PotionManager();
 		boolean allowVillagerTrading = CustomPotions.config.getConfig().getConfigurationSection("config").getBoolean("allowVillagerTrading");
@@ -53,11 +53,8 @@ public class CustomPotions extends CustomTweak {
 		CustomPotions.tweak.printMessage("Potions: " + manager.getPotionsString(), true);
 	}
 
-	public static void loadConfig() {
-		List<String> list = Arrays.asList(CustomPotions.class.getCanonicalName().split("\\."));
-		String configPath = String.join("/", list.subList(0, list.size()-1)) + "/config.yml";
-		CustomPotions.config = new Config(configPath, "/tweaks/CustomPotions/config.yml");
-
+	public void onReload() {
+		CustomPotions.config = this.getConfig(0);
 		CustomPotions.tradingPotionChance = CustomPotions.config.getConfig().getInt("tradingPotionChance");
 		CustomPotions.tradingArrowChance = CustomPotions.config.getConfig().getInt("tradingArrowChance");
 	}

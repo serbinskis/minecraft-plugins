@@ -30,7 +30,7 @@ public class Events implements Listener {
 			event.setCancelled(true);
 			if (player == null) { return; }
 
-			String replacedMessage = Utils.getString("tooManyEntity", EntityLimit.config).replace("%value%", String.valueOf(EntityLimit.limit));
+			String replacedMessage = EntityLimit.tooManyEntity.replace("%value%", String.valueOf(EntityLimit.limit));
 			Utils.sendActionMessage(player, replacedMessage);
 		}
 	}

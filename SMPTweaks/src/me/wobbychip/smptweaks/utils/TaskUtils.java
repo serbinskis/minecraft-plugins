@@ -10,6 +10,7 @@ public class TaskUtils implements Listener {
 	private static HashMap<Integer, Runnable> runnables0 = new HashMap<Integer, Runnable>();
 	private static HashMap<Runnable, Integer> runnables1 = new HashMap<Runnable, Integer>();
 
+	//Sync delayed task
 	public static int scheduleSyncDelayedTask(Runnable runnable, long ticks) {
 		Runnable wrapper = new Runnable() { public void run() {
 			Integer task = runnables1.remove(this);
@@ -45,5 +46,31 @@ public class TaskUtils implements Listener {
 		if (!runnables0.containsKey(task)) { return; }
 		runnables0.get(task).run();
 		Bukkit.getScheduler().cancelTask(task);
+	}
+
+	//Sync repeating task
+	public static int scheduleSyncRepeatingTask(Runnable runnable, long first, long interval) {
+		int task = Bukkit.getScheduler().scheduleSyncRepeatingTask(Main.plugin, runnable, first, interval);
+		runnables0.put(task, runnable);
+		return task;
+	}
+
+	public static int rescheduleSyncRepeatingTask(int task, long first, long interval) {
+		if (!runnables0.containsKey(task)) { return -1; }
+		Runnable runnable = runnables0.remove(task);
+		Bukkit.getScheduler().cancelTask(task);
+		return scheduleSyncRepeatingTask(runnable, first, interval);
+	}
+
+	public static void cancelSyncRepeatingTask(int task) {
+		if (!runnables0.containsKey(task)) { return; }
+		runnables0.remove(task);
+		Bukkit.getScheduler().cancelTask(task);
+	}
+
+	public static void finishSyncRepeatingTask(int task) {
+		if (!runnables0.containsKey(task)) { return; }
+		Bukkit.getScheduler().cancelTask(task);
+		runnables0.remove(task).run();
 	}
 }

@@ -10,7 +10,7 @@ public class ShriekerCanSummon extends CustomTweak {
 	public static int WARDEN_SPAWN_DISATNCE = 10;
 
 	public ShriekerCanSummon() {
-		super(ShriekerCanSummon.class.getSimpleName(), false, false);
+		super(ShriekerCanSummon.class, false, false);
 		this.setDescription("Allow player to fuel up shrieker with 2 soul sand and summon warden once.");
 	}
 

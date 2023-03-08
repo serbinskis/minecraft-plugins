@@ -20,7 +20,7 @@ public class NoArrowInfinity extends CustomTweak {
 	public static List<String> infinity = Arrays.asList("mendfinity", "infinity");
 
 	public NoArrowInfinity() {
-		super(NoArrowInfinity.class.getSimpleName(), false, false);
+		super(NoArrowInfinity.class, false, false);
 		this.setGameRule("doInfinityArrows", true, false);
 		this.setDescription("Allows players to use a bow with infinity without arrows.");
 	}

@@ -1,29 +1,38 @@
 package me.wobbychip.smptweaks.tweaks;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.bukkit.World;
 
+import me.wobbychip.smptweaks.Config;
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.utils.Utils;
 
 public class CustomTweak {
+	private Class<?> clazz;
 	private String name;
 	private String description;
 	private String gamerule = null;
 	private Object gameruleValue = null;
+	private List<String> configNames = new ArrayList<>();
+	private List<Config> configs = new ArrayList<>();
 	private boolean gameruleGlobal = false;
 	private boolean requiresPaper;
 	private boolean requiresProtocolLib;
 	private boolean enabled = true;
 	private boolean isReloadable = false;
 
-	public CustomTweak(String name, boolean requiresPaper, boolean requiresProtocolLib) {
+	public CustomTweak(Class<?> clazz, boolean requiresPaper, boolean requiresProtocolLib) {
+		this.clazz = clazz;
 		this.requiresPaper = requiresPaper;
 		this.requiresProtocolLib = requiresProtocolLib;
-		this.name = name;
+		this.name = clazz.getSimpleName();
 		this.description = "No description";
 
 		if (!Main.plugin.getConfig().contains(name.toUpperCase())) {
@@ -40,6 +49,27 @@ public class CustomTweak {
 
 	public String getDescription() {
 		return description;
+	}
+
+	public void setConfigs(@Nonnull List<String> configs) {
+		this.configNames.clear();
+		this.configNames.addAll(configs);
+	}
+
+	@Nullable
+	public Config getConfig(int index) {
+		if (index >= this.configs.size()) { return null; }
+		return this.configs.get(index);
+	}
+
+	public void loadConfigs() {
+		this.configs.clear();
+
+		for (String configName : this.configNames) {
+			List<String> list = Arrays.asList(this.clazz.getCanonicalName().split("\\."));
+			String configPath = String.join("/", list.subList(0, list.size()-1)) + "/" + configName;
+			this.configs.add(new Config(configPath, "/tweaks/" + this.name + "/" + configName));
+		}
 	}
 
 	public void setGameRule(String gamerule, Object value, boolean global) {

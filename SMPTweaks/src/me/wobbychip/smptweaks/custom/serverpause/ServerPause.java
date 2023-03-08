@@ -1,11 +1,9 @@
 package me.wobbychip.smptweaks.custom.serverpause;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.Bukkit;
 
-import me.wobbychip.smptweaks.Config;
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
 import me.wobbychip.smptweaks.utils.ServerUtils;
@@ -17,20 +15,20 @@ public class ServerPause extends CustomTweak {
 	public static boolean gamerule = true;
 	public static int delayTask = -1;
 
-	public static Config config;
 	public static int pauseDelay = 0;
 	public static boolean quiteCommands = false;
 
 	public ServerPause() {
-		super(ServerPause.class.getSimpleName(), false, false);
+		super(ServerPause.class, false, false);
 		ServerPause.tweak = this;
-		this.setReloadable(true);
+		this.setConfigs(List.of("config.yml"));
 		this.setGameRule("doServerPause", true, true);
+		this.setReloadable(true);
 		this.setDescription("Pauses the server when there are no players online.");
 	}
 
 	public void onEnable() {
-		loadConfig();
+		this.onReload();
 
 		//Delay event registration so that other plugins can do their thing
 		//Tbh, I don't know if this actaully is required, but just in case
@@ -49,15 +47,8 @@ public class ServerPause extends CustomTweak {
 	}
 
 	public void onReload() {
-		loadConfig();
-	}
-
-	public static void loadConfig() {
-		List<String> list = Arrays.asList(ServerPause.class.getCanonicalName().split("\\."));
-		String configPath = String.join("/", list.subList(0, list.size()-1)) + "/config.yml";
-		ServerPause.config = new Config(configPath, "/tweaks/ServerPause/config.yml");
-		ServerPause.pauseDelay = ServerPause.config.getConfig().getInt("pauseDelay");
-		ServerPause.quiteCommands  = ServerPause.config.getConfig().getBoolean("quiteCommands");
+		ServerPause.pauseDelay = this.getConfig(0).getConfig().getInt("pauseDelay");
+		ServerPause.quiteCommands = this.getConfig(0).getConfig().getBoolean("quiteCommands");
 		if (ServerPause.pauseDelay < 0) { ServerPause.pauseDelay = 0; }
 
 		if (delayTask < 0) { return; }

@@ -9,7 +9,7 @@ public class ExpBottles extends CustomTweak {
 	public static CustomTweak tweak;
 
 	public ExpBottles() {
-		super(ExpBottles.class.getSimpleName(), false, false);
+		super(ExpBottles.class, false, false);
 		ExpBottles.tweak = this;
 		this.setGameRule("doExpBottles", true, false);
 		this.setDescription("Allow filling empty bottles at the enchantment table. " +
