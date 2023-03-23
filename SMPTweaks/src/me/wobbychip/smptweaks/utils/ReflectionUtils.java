@@ -81,6 +81,7 @@ public class ReflectionUtils {
 	public static RegistryBlocks<PotionRegistry> POTION;
 
 	public static String version;
+	public static Class<?> CraftServer;
 	public static Class<?> CraftEntity;
 	public static Class<?> CraftHumanEntity;
 	public static Class<?> CraftPlayer;
@@ -90,6 +91,7 @@ public class ReflectionUtils {
 	public static Class<?> CraftWorld;
 	public static Class<?> CraftMagicNumbers;
 
+	public static Field Entity_bukkitEntity;
 	public static Field EntityHuman_playerAbilities;
 	public static Field EntityHuman_container;
 	public static Field EntityPlayer_invulnerableTicks;
@@ -145,6 +147,7 @@ public class ReflectionUtils {
 	static {
 		version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
 
+		CraftServer = loadClass("org.bukkit.craftbukkit." + version + ".CraftServer", true);
 		CraftEntity = loadClass("org.bukkit.craftbukkit." + version + ".entity.CraftEntity", true);
 		CraftHumanEntity = loadClass("org.bukkit.craftbukkit." + version + ".entity.CraftHumanEntity", true);
 		CraftPlayer = loadClass("org.bukkit.craftbukkit." + version + ".entity.CraftPlayer", true);
@@ -160,6 +163,7 @@ public class ReflectionUtils {
 		DATA_LIVING_ENTITY_FLAGS = (DataWatcherObject<Byte>) getValue(getParameterizedField(EntityLiving.class, DataWatcherObject.class, Byte.class), null);
 		POTION = (RegistryBlocks<PotionRegistry>) getValue(getParameterizedField(BuiltInRegistries.class, RegistryBlocks.class, PotionRegistry.class), null);
 
+		Entity_bukkitEntity = getField(net.minecraft.world.entity.Entity.class, CraftEntity, true);
 		EntityHuman_playerAbilities = getField(EntityHuman.class, PlayerAbilities.class, true);
 		EntityHuman_container = getField(EntityHuman.class, Container.class, true);
 		EntityPlayer_playerConnection = getField(EntityPlayer.class, PlayerConnection.class, true);
@@ -364,6 +368,23 @@ public class ReflectionUtils {
 		}
 	}
 
+	public static org.bukkit.entity.Entity getBukkitEntity(net.minecraft.world.entity.Entity entity) {
+		try {
+			Object bukkitEntity = Entity_bukkitEntity.get(entity);
+
+			if (bukkitEntity == null) {
+				Method method = CraftEntity.getDeclaredMethod("getEntity", CraftServer, net.minecraft.world.entity.Entity.class);
+				bukkitEntity = method.invoke(null, CraftServer.cast(Bukkit.getServer()), entity);
+				Entity_bukkitEntity.set(entity, bukkitEntity);
+			}
+
+			return (org.bukkit.entity.Entity) bukkitEntity;
+		} catch (IllegalAccessException | IllegalArgumentException | SecurityException | NoSuchMethodException | InvocationTargetException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
 	public static net.minecraft.world.item.ItemStack asNMSCopy(ItemStack itemStack) {
 		try {
 			Method method = CraftItemStack.getDeclaredMethod("asNMSCopy", ItemStack.class);
@@ -493,7 +514,7 @@ public class ReflectionUtils {
 	public static void popResource(Location location, ItemStack item) {
 		try {
 			net.minecraft.world.level.World world = getWorld(location.getWorld());
-			BlockPosition position = new BlockPosition(location.getX(), location.getY(), location.getZ());
+			BlockPosition position = new BlockPosition((int) location.getX(), (int) location.getY(), (int) location.getZ());
 			Block_popResource.invoke(Block_popResource, world, position, asNMSCopy(item));
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			e.printStackTrace();
@@ -646,7 +667,7 @@ public class ReflectionUtils {
 		if (entityPlayer == null) { entityPlayer = (EntityPlayer) newInstance(false, false, EntityPlayer.class, Arrays.copyOf(parameters, 3), Arrays.copyOf(args, 3)); }
 
 		PlayerConnection connection = new PlayerConnection(server, new NetworkManager(EnumProtocolDirection.b), entityPlayer) {};
-		Player player = entityPlayer.getBukkitEntity();
+		Player player = (Player) getBukkitEntity(entityPlayer);
 
 		try {
 			EntityPlayer_playerConnection.set(entityPlayer, connection);
@@ -656,13 +677,13 @@ public class ReflectionUtils {
 			if (addPlayer && hideOnline) {
 				Object playerList = MinecraftServer_playerList.get(server);
 				List<EntityPlayer> players = (List<EntityPlayer>) PlayerList_players.get(playerList);
-				players.removeIf(e -> e.getBukkitEntity().getUniqueId().equals(player.getUniqueId()));
+				players.removeIf(e -> ((Player) getBukkitEntity(e)).getUniqueId().equals(player.getUniqueId()));
 			}
 
 			//Will hide from World.getPlayers(), but also will prevent mob spawning
 			if (addPlayer && hideWorld) {
 				List<EntityPlayer> players = (List<EntityPlayer>) WorldServer_players.get(world);
-				players.removeIf(e -> e.getBukkitEntity().getUniqueId().equals(player.getUniqueId()));
+				players.removeIf(e -> ((Player) getBukkitEntity(e)).getUniqueId().equals(player.getUniqueId()));
 			}
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | SecurityException e) {
 			e.printStackTrace();

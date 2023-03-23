@@ -6,7 +6,6 @@ import java.util.List;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
@@ -168,8 +167,6 @@ public class CustomPotion implements Listener {
 		potionMeta.setDisplayName(getPrefix(item.getType()) + displayName);
 		if (lore != null) { potionMeta.setLore(lore); }
 		potionMeta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
-		potionMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-		potionMeta.addEnchant(Enchantment.DURABILITY, 1, true);
 		item.setItemMeta(potionMeta);
 		PersistentUtils.setPersistentDataString(item, CustomPotions.customTag, name);
 

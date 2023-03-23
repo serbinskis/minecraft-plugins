@@ -356,8 +356,8 @@ public class Utils {
 
 		net.minecraft.world.level.World world = ReflectionUtils.getWorld(block.getWorld());
 		EntityItem entityItem = new EntityItem(world, d0, d1, d2, ReflectionUtils.asNMSCopy(itemStack));
-		entityItem.getBukkitEntity().setVelocity(new Vector(Math.random()*0.2F-0.1F, 0.2F, Math.random()*0.2F-0.1F));
-		ArrayList<Item> items = new ArrayList<>(Arrays.asList((Item) entityItem.getBukkitEntity()));
+		ReflectionUtils.getBukkitEntity(entityItem).setVelocity(new Vector(Math.random()*0.2F-0.1F, 0.2F, Math.random()*0.2F-0.1F));
+		ArrayList<Item> items = new ArrayList<>(Arrays.asList((Item) ReflectionUtils.getBukkitEntity(entityItem)));
 
 		BlockDropItemEvent dropEvent = new BlockDropItemEvent(block, block.getState(), player, items);
 		Bukkit.getServer().getPluginManager().callEvent(dropEvent);
