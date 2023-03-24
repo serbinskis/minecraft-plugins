@@ -6,11 +6,10 @@ import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
 
 public class Holograms extends CustomTweak {
-	public static String isHologram = "isHologram";
-
 	public Holograms() {
 		super(Holograms.class, false, true);
-		this.setDescription("Admin tool to make holograms with armour stands. " +
+		this.setDescription("Admin tool to make holograms with display text entity. " +
+							"Crouch and right click a block with a book to create and hit to remove. " +
 							"Permissions: smptweaks.holograms.*");
 	}
 

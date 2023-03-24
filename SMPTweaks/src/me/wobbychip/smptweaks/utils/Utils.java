@@ -11,12 +11,14 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.advancement.AdvancementProgress;
 import org.bukkit.block.Block;
@@ -186,6 +188,16 @@ public class Utils {
 		}
 
 		return sb.toString().trim();
+	}
+
+	public static Entity getEntityByUniqueId(UUID uuid) {
+		for (World world : Bukkit.getWorlds()) {
+			for (Entity entity : world.getEntities()) {
+				if (entity.getUniqueId().equals(uuid)) { return entity; }
+			}
+		}
+
+		return null;
 	}
 
 	//Get nearest player to entity
