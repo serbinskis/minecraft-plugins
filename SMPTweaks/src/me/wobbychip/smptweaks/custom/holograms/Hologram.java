@@ -14,9 +14,9 @@ import me.wobbychip.smptweaks.utils.PersistentUtils;
 import me.wobbychip.smptweaks.utils.Utils;
 
 public class Hologram {
-	private static String TAG_IS_HOLOGRAM = "tag_hologram";
-	private static String TAG_POSITION = "tag_position";
-	private static String TAG_DISPLAY = "tag_display";
+	private static String TAG_IS_HOLOGRAM = "tag_is_hologram";
+	private static String TAG_POSITION = "tag_hologram_position";
+	private static String TAG_DISPLAY = "tag_hologram_display";
 	private TextDisplay display;
 	private Interaction interaction;
 	private int y;
