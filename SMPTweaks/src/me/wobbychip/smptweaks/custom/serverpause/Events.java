@@ -16,6 +16,7 @@ import me.wobbychip.smptweaks.utils.Utils;
 
 public class Events implements Listener {
 	public int isConnecting = -1;
+	public int connectingTask = -1;
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerQuitEvent(PlayerQuitEvent event) {
@@ -65,18 +66,21 @@ public class Events implements Listener {
 		//Resume server if player is trying to connect to the server
 		boolean success = ServerUtils.resumeServer();
 		if (success) { Utils.sendMessage("Server is now resumed."); }
+		if (connectingTask > -1) { TaskUtils.cancelSyncDelayedTask(connectingTask); }
 
 		//Check if something happened and player did not get into server
 		//Banned, whitelist, connection timeout, etc
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
+		//ERROR: if player takes longer than 60s to connect it will throw an error
+		connectingTask = TaskUtils.scheduleSyncDelayedTask(new Runnable() {
 			public void run() {
 				//If there is delay task then we don't need to pasue server again
+				connectingTask = -1;
 				if (ServerPause.delayTask > -1) { return; }
 				if (!ServerPause.canPause()) { return; }
 				boolean success = ServerUtils.pauseServer();
 				if (success) { Utils.sendMessage("Server is now paused."); }
 			}
-		}, 20L);
+		}, 20L*60);
 	}
 
 	//We also must resume server, when command is being executed

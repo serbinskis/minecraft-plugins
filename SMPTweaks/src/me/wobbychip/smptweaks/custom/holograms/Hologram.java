@@ -2,13 +2,21 @@ package me.wobbychip.smptweaks.custom.holograms;
 
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Interaction;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.entity.Display.Billboard;
 import org.bukkit.entity.TextDisplay.TextAligment;
+import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BookMeta;
 
 import me.wobbychip.smptweaks.utils.PersistentUtils;
 import me.wobbychip.smptweaks.utils.Utils;
@@ -17,14 +25,17 @@ public class Hologram {
 	private static String TAG_IS_HOLOGRAM = "tag_is_hologram";
 	private static String TAG_POSITION = "tag_hologram_position";
 	private static String TAG_DISPLAY = "tag_hologram_display";
+	private static String TAG_UUID = "tag_hologram_uuid";
 	private TextDisplay display;
 	private Interaction interaction;
 	private int y;
+	private UUID uuid;
 
 	private Hologram(TextDisplay display, Interaction interaction, int y) {
 		this.display = display;
 		this.interaction = interaction;
 		this.y = y;
+		this.uuid = UUID.fromString(PersistentUtils.getPersistentDataString(interaction, TAG_UUID));
 	}
 
 	public int getY() {
@@ -37,20 +48,67 @@ public class Hologram {
 		return new Location(interaction.getLocation().getWorld(), x, y, z);
 	}
 
-	public TextDisplay getDisplay() {
-		return display;
+	public boolean getSeeThrough() {
+		return display.isSeeThrough();
 	}
 
-	private TextDisplay setDisplay(TextDisplay display) {
-		return this.display = display;
+	public void setSeeThrough(boolean seeThrough) {
+		display.setSeeThrough(seeThrough);
+	}
+
+	public Billboard getBillboard() {
+		return display.getBillboard();
+	}
+
+	public void setBillboard(Billboard billboard) {
+		display.setBillboard(billboard);
+	}
+
+	public String getText() {
+		return display.getText();
+	}
+
+	public void setText(String text) {
+		display.setText(text);
+		teleport(getLocation());
+	}
+
+	public UUID getUniqueId() {
+		return uuid;
+	}
+
+	public TextDisplay getDisplay() {
+		return display;
 	}
 
 	public Interaction getInteraction() {
 		return interaction;
 	}
 
-	private Interaction setInteraction(Interaction interaction) {
-		return this.interaction = interaction;
+	public ItemStack getBook() {
+		ItemStack book = new ItemStack(Material.WRITABLE_BOOK);
+		PersistentUtils.setPersistentDataBoolean(book, TAG_IS_HOLOGRAM, true);
+		BookMeta bookMeta = (BookMeta) book.getItemMeta();
+		String location = Utils.locationToString(this.getLocation());
+		bookMeta.setDisplayName("§bHologram (" + location + ")");
+		bookMeta.setAuthor(uuid.toString());
+		bookMeta.setPages(this.getText());
+		bookMeta.addEnchant(Enchantment.DURABILITY, 1, true);
+		bookMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+		book.setItemMeta(bookMeta);
+		return book;
+	}
+
+	public static Hologram get(UUID uuid) {
+		for (World world : Bukkit.getWorlds()) {
+			for (Entity entity : world.getEntities()) {
+				if (!PersistentUtils.hasPersistentDataString(entity, TAG_UUID)) { continue; }
+				if (!PersistentUtils.getPersistentDataString(entity, TAG_UUID).equals(uuid.toString())) { continue; }
+				return get((Interaction) entity);
+			}
+		}
+
+		return null;
 	}
 
 	public static Hologram get(Interaction interaction) {
@@ -58,6 +116,7 @@ public class Hologram {
 		if (!PersistentUtils.hasPersistentDataBoolean(interaction, TAG_IS_HOLOGRAM)) { return null; }
 		if (!PersistentUtils.hasPersistentDataInteger(interaction, TAG_POSITION)) { return null; }
 		if (!PersistentUtils.hasPersistentDataString(interaction, TAG_DISPLAY)) { return null; }
+		if (!PersistentUtils.hasPersistentDataString(interaction, TAG_UUID)) { return null; }
 
 		UUID uuid = UUID.fromString(PersistentUtils.getPersistentDataString(interaction, TAG_DISPLAY));
 		Entity entity = Utils.getEntityByUniqueId(uuid);
@@ -81,14 +140,10 @@ public class Hologram {
 		PersistentUtils.setPersistentDataBoolean(interaction, TAG_IS_HOLOGRAM, true);
 		PersistentUtils.setPersistentDataInteger(interaction, TAG_POSITION, location.getBlockY());
 		PersistentUtils.setPersistentDataString(interaction, TAG_DISPLAY, display.getUniqueId().toString());
+		PersistentUtils.setPersistentDataString(interaction, TAG_UUID, UUID.randomUUID().toString());
 
 		Hologram hologram = new Hologram(display, interaction, location.getBlockY());
-		float height = (text.split("\r\n|\r|\n").length * 0.25f); //By default 4 lines can fit in 1 block
-		interaction.setInteractionHeight((height > 1f) ? height : 1f);
-		display.setViewRange(text.isBlank() ? 0f : 1f);
-
-		interaction.teleport(hologram.getLocation().add(0.5, (0.5-(interaction.getInteractionHeight()/2)), 0.5));
-		display.teleport(hologram.getLocation().add(0.5, (0.5-(height/2)), 0.5));
+		hologram.teleport(hologram.getLocation());
 		return hologram;
 	}
 
@@ -97,14 +152,36 @@ public class Hologram {
 		interaction.remove();
 	}
 
-	public String getText() {
-		return display.getText();
+	public void teleport(Location location) {
+		//By default 4 lines can fit in 1 block
+		location = location.getBlock().getLocation();
+		float height = (getText().split("\r\n|\r|\n").length * 0.25f);
+		interaction.setInteractionHeight((height > 1f) ? height : 1f);
+		display.setViewRange(getText().isBlank() ? 0f : 1f);
+
+		this.y = location.getBlockY();
+		interaction.teleport(location.clone().add(0.5, (0.5-(interaction.getInteractionHeight()/2)), 0.5));
+		display.teleport(location.clone().add(0.5, (0.5-(height/2)), 0.5));
 	}
 
-	public void setText(String text) {
-		this.remove();
-		Hologram hologram = Hologram.create(this.getLocation(), text);
-		this.setDisplay(hologram.getDisplay());
-		this.setInteraction(hologram.getInteraction());
+	public void updateRotation(float angle) {
+		float yaw = display.getLocation().getYaw();
+		yaw = Math.round(yaw / angle) * angle;
+		yaw = (yaw + angle) % 360;
+
+		Location location = display.getLocation();
+		location.setYaw(yaw);
+		display.teleport(location);
+	}
+
+	public void updateRotation(Player player) {
+		float yaw = player.getLocation().getYaw();
+		yaw = Math.round(yaw / 90) * 90;
+		yaw = (yaw % 360 + 360) % 360;
+		yaw = (yaw + 180) % 360;
+
+		Location location = display.getLocation();
+		location.setYaw(yaw);
+		display.teleport(location);
 	}
 }
