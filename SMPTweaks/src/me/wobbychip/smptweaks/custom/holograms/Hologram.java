@@ -2,10 +2,8 @@ package me.wobbychip.smptweaks.custom.holograms;
 
 import java.util.UUID;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -25,21 +23,22 @@ public class Hologram {
 	private static String TAG_IS_HOLOGRAM = "tag_is_hologram";
 	private static String TAG_POSITION = "tag_hologram_position";
 	private static String TAG_DISPLAY = "tag_hologram_display";
-	private static String TAG_UUID = "tag_hologram_uuid";
 	private TextDisplay display;
 	private Interaction interaction;
 	private int y;
-	private UUID uuid;
 
 	private Hologram(TextDisplay display, Interaction interaction, int y) {
 		this.display = display;
 		this.interaction = interaction;
 		this.y = y;
-		this.uuid = UUID.fromString(PersistentUtils.getPersistentDataString(interaction, TAG_UUID));
 	}
 
 	public int getY() {
 		return y;
+	}
+
+	public UUID getUniqueId() {
+		return interaction.getUniqueId();
 	}
 
 	public Location getLocation() {
@@ -73,10 +72,6 @@ public class Hologram {
 		teleport(getLocation());
 	}
 
-	public UUID getUniqueId() {
-		return uuid;
-	}
-
 	public TextDisplay getDisplay() {
 		return display;
 	}
@@ -91,7 +86,7 @@ public class Hologram {
 		BookMeta bookMeta = (BookMeta) book.getItemMeta();
 		String location = Utils.locationToString(this.getLocation());
 		bookMeta.setDisplayName("§bHologram (" + location + ")");
-		bookMeta.setAuthor(uuid.toString());
+		bookMeta.setAuthor(getUniqueId().toString());
 		bookMeta.setPages(this.getText());
 		bookMeta.addEnchant(Enchantment.DURABILITY, 1, true);
 		bookMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
@@ -100,15 +95,7 @@ public class Hologram {
 	}
 
 	public static Hologram get(UUID uuid) {
-		for (World world : Bukkit.getWorlds()) {
-			for (Entity entity : world.getEntities()) {
-				if (!PersistentUtils.hasPersistentDataString(entity, TAG_UUID)) { continue; }
-				if (!PersistentUtils.getPersistentDataString(entity, TAG_UUID).equals(uuid.toString())) { continue; }
-				return get((Interaction) entity);
-			}
-		}
-
-		return null;
+		return get((Interaction) Utils.getEntityByUniqueId(uuid));
 	}
 
 	public static Hologram get(Interaction interaction) {
@@ -116,7 +103,6 @@ public class Hologram {
 		if (!PersistentUtils.hasPersistentDataBoolean(interaction, TAG_IS_HOLOGRAM)) { return null; }
 		if (!PersistentUtils.hasPersistentDataInteger(interaction, TAG_POSITION)) { return null; }
 		if (!PersistentUtils.hasPersistentDataString(interaction, TAG_DISPLAY)) { return null; }
-		if (!PersistentUtils.hasPersistentDataString(interaction, TAG_UUID)) { return null; }
 
 		UUID uuid = UUID.fromString(PersistentUtils.getPersistentDataString(interaction, TAG_DISPLAY));
 		Entity entity = Utils.getEntityByUniqueId(uuid);
@@ -140,7 +126,6 @@ public class Hologram {
 		PersistentUtils.setPersistentDataBoolean(interaction, TAG_IS_HOLOGRAM, true);
 		PersistentUtils.setPersistentDataInteger(interaction, TAG_POSITION, location.getBlockY());
 		PersistentUtils.setPersistentDataString(interaction, TAG_DISPLAY, display.getUniqueId().toString());
-		PersistentUtils.setPersistentDataString(interaction, TAG_UUID, UUID.randomUUID().toString());
 
 		Hologram hologram = new Hologram(display, interaction, location.getBlockY());
 		hologram.teleport(hologram.getLocation());

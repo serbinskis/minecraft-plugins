@@ -99,11 +99,13 @@ public class Events implements Listener {
 	public void onBlockBreakEvent(BlockBreakEvent event) {
 		if (event.getPlayer().getInventory().getItemInMainHand().getType() != Material.WRITABLE_BOOK) { return; }
 		if (!Utils.hasPermissions(event.getPlayer(), "smptweaks.holograms.edit")) { return; }
+
+		ItemStack itemStack = event.getPlayer().getInventory().getItemInMainHand();
+		BookMeta bookMeta = (BookMeta) itemStack.getItemMeta();
 		UUID uuid;
 
 		try {
-			ItemStack itemStack = event.getPlayer().getInventory().getItemInMainHand();
-			uuid = UUID.fromString(((BookMeta) itemStack.getItemMeta()).getAuthor());
+			uuid = UUID.fromString(bookMeta.getAuthor());
 		} catch (Exception e) { return; }
 
 		Hologram hologram = Hologram.get(uuid);
@@ -111,6 +113,8 @@ public class Events implements Listener {
 
 		hologram.teleport(event.getBlock().getLocation());
 		hologram.updateRotation(event.getPlayer());
+		bookMeta.setDisplayName(hologram.getBook().getItemMeta().getDisplayName());
+		itemStack.setItemMeta(bookMeta);
 		event.setCancelled(true);
 	}
 }
