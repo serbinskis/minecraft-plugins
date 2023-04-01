@@ -8,6 +8,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -30,6 +31,7 @@ import org.bukkit.potion.PotionType;
 
 import com.mojang.authlib.GameProfile;
 
+import io.netty.channel.Channel;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.core.Holder;
 import net.minecraft.core.IRegistry;
@@ -52,6 +54,7 @@ import net.minecraft.server.level.ChunkProviderServer;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.server.level.WorldServer;
 import net.minecraft.server.network.PlayerConnection;
+import net.minecraft.server.network.ServerConnection;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EntityLiving;
@@ -102,6 +105,8 @@ public class ReflectionUtils {
 	public static Field MinecraftServer_playerList;
 	public static Field MinecraftServer_levels;
 	public static Field MinecraftServer_functionManager;
+	public static Field ServerConnection_connections;
+	public static Field NetworkManager_channel;
 	public static Field CustomFunctionData_ticking;
 	public static Field CustomFunctionData_postReload;
 	public static Field PlayerList_players;
@@ -140,6 +145,7 @@ public class ReflectionUtils {
 	public static Method WorldServer_getChunkProviderServer;
 	public static Method WorldServer_removePlayer;
 	public static Method MinecraftServer_getLevel;
+	public static Method MinecraftServer_getConnection;
 	public static Method NBTTagCompound_putString;
 	public static Method NBTTagCompound_getString;
 	public static Method Reputation_getReputation;
@@ -160,31 +166,33 @@ public class ReflectionUtils {
 		//Fuck it I am not interested in updating nms every time
 		//So I will just search fields and methods by their types and arguments
 
-		DATA_LIVING_ENTITY_FLAGS = (DataWatcherObject<Byte>) getValue(getParameterizedField(EntityLiving.class, DataWatcherObject.class, Byte.class), null);
-		POTION = (RegistryBlocks<PotionRegistry>) getValue(getParameterizedField(BuiltInRegistries.class, RegistryBlocks.class, PotionRegistry.class), null);
+		DATA_LIVING_ENTITY_FLAGS = (DataWatcherObject<Byte>) getValue(getField(EntityLiving.class, DataWatcherObject.class, Byte.class, true), null);
+		POTION = (RegistryBlocks<PotionRegistry>) getValue(getField(BuiltInRegistries.class, RegistryBlocks.class, PotionRegistry.class, true), null);
 
-		Entity_bukkitEntity = getField(net.minecraft.world.entity.Entity.class, CraftEntity, true);
-		EntityHuman_playerAbilities = getField(EntityHuman.class, PlayerAbilities.class, true);
-		EntityHuman_container = getField(EntityHuman.class, Container.class, true);
-		EntityPlayer_playerConnection = getField(EntityPlayer.class, PlayerConnection.class, true);
-		EntityPlayer_chatVisibility = getField(EntityPlayer.class, EnumChatVisibility.class, true);
-		EntityPlayer_respawnDimension = getParameterizedField(EntityPlayer.class, ResourceKey.class, net.minecraft.world.level.World.class);
-		EntityVillager_Reputation = getField(EntityVillager.class, Reputation.class, true);
-		MinecraftServer_playerList = getField(MinecraftServer.class, PlayerList.class, true);
-		MinecraftServer_levels = getField(MinecraftServer.class, Map.class, true);
-		MinecraftServer_functionManager = getField(MinecraftServer.class, CustomFunctionData.class, true);
-		CustomFunctionData_ticking = getField(CustomFunctionData.class, List.class, true);
-		CustomFunctionData_postReload = getField(CustomFunctionData.class, boolean.class, true);
-		PlayerList_players = getParameterizedField(PlayerList.class, List.class, EntityPlayer.class);
-		RegistryMaterials_frozen = getField(RegistryMaterials.class, boolean.class, true);
-		RegistryMaterials_nextId = getField(RegistryMaterials.class, int.class, true);
-		WorldServer_players = getParameterizedField(WorldServer.class, List.class, EntityPlayer.class);
-		ItemStack_tag = getField(net.minecraft.world.item.ItemStack.class, NBTTagCompound.class, true);
-		ItemBlock_block = getField(ItemBlock.class, Block.class, true);
-		Block_defaultBlockState = getField(Block.class, IBlockData.class, true);
-		BlockBase_properties = getField(BlockBase.class, BlockBase.Info.class, true);
-		BlockBase_drops = getField(BlockBase.class, MinecraftKey.class, true);
-		BlockBase_BlockData_destroySpeed = getField(net.minecraft.world.level.block.state.BlockBase.BlockData.class, float.class, false);
+		Entity_bukkitEntity = getField(net.minecraft.world.entity.Entity.class, CraftEntity, null, true);
+		EntityHuman_playerAbilities = getField(EntityHuman.class, PlayerAbilities.class, null, true);
+		EntityHuman_container = getField(EntityHuman.class, Container.class, null, true);
+		EntityPlayer_playerConnection = getField(EntityPlayer.class, PlayerConnection.class, null, true);
+		EntityPlayer_chatVisibility = getField(EntityPlayer.class, EnumChatVisibility.class, null, true);
+		EntityPlayer_respawnDimension = getField(EntityPlayer.class, ResourceKey.class, net.minecraft.world.level.World.class, true);
+		EntityVillager_Reputation = getField(EntityVillager.class, Reputation.class, null, true);
+		MinecraftServer_playerList = getField(MinecraftServer.class, PlayerList.class, null, true);
+		MinecraftServer_levels = getField(MinecraftServer.class, Map.class, null, true);
+		MinecraftServer_functionManager = getField(MinecraftServer.class, CustomFunctionData.class, null, true);
+		ServerConnection_connections = getField(ServerConnection.class, List.class, NetworkManager.class, true);
+		NetworkManager_channel = getField(NetworkManager.class, Channel.class, null, true);
+		CustomFunctionData_ticking = getField(CustomFunctionData.class, List.class, null, true);
+		CustomFunctionData_postReload = getField(CustomFunctionData.class, boolean.class, null, true);
+		PlayerList_players = getField(PlayerList.class, List.class, EntityPlayer.class, true);
+		RegistryMaterials_frozen = getField(RegistryMaterials.class, boolean.class, null, true);
+		RegistryMaterials_nextId = getField(RegistryMaterials.class, int.class, null, true);
+		WorldServer_players = getField(WorldServer.class, List.class, EntityPlayer.class, true);
+		ItemStack_tag = getField(net.minecraft.world.item.ItemStack.class, NBTTagCompound.class, null, true);
+		ItemBlock_block = getField(ItemBlock.class, Block.class, null, true);
+		Block_defaultBlockState = getField(Block.class, IBlockData.class, null, true);
+		BlockBase_properties = getField(BlockBase.class, BlockBase.Info.class, null, true);
+		BlockBase_drops = getField(BlockBase.class, MinecraftKey.class, null, true);
+		BlockBase_BlockData_destroySpeed = getField(net.minecraft.world.level.block.state.BlockBase.BlockData.class, float.class, null, false);
 
 		Container_quickMoveStack = findMethod(false, null, Container.class, net.minecraft.world.item.ItemStack.class, null, EntityHuman.class, int.class);
 		ChunkProviderServer_move = findMethod(true, null, ChunkProviderServer.class, Void.TYPE, null, EntityPlayer.class);
@@ -210,6 +218,7 @@ public class ReflectionUtils {
 		WorldServer_getChunkProviderServer = findMethod(true, null, WorldServer.class, ChunkProviderServer.class, null);
 		WorldServer_removePlayer = findMethod(true, null, WorldServer.class, Void.TYPE, null, EntityPlayer.class, RemovalReason.class);
 		MinecraftServer_getLevel = findMethod(true, null, MinecraftServer.class, WorldServer.class, null, ResourceKey.class);
+		MinecraftServer_getConnection = findMethod(true, null, MinecraftServer.class, ServerConnection.class, null);
 		NBTTagCompound_putString = findMethod(true, null, NBTTagCompound.class, Void.TYPE, null, String.class, String.class);
 		NBTTagCompound_getString = findMethod(true, null, NBTTagCompound.class, String.class, null, String.class);
 		Reputation_getReputation = findMethod(true, null, Reputation.class, int.class, null, UUID.class, Predicate.class);
@@ -273,9 +282,18 @@ public class ReflectionUtils {
 		return null;
 	}
 
-	public static Field getField(Class<?> clazz, Class<?> fType, boolean bDeclared) {
+	public static Field getField(Class<?> clazz, Class<?> fType, Class<?> gType, boolean bDeclared) {
 		for (Field field : bDeclared ? clazz.getDeclaredFields() : clazz.getFields()) {
 			if (!field.getType().equals(fType)) { continue; }
+
+			if (gType != null) {
+				Type genericType = field.getGenericType();
+				if (!(genericType instanceof ParameterizedType)) { continue; }
+				Type[] argTypes = ((ParameterizedType) genericType).getActualTypeArguments();
+				if ((argTypes.length == 0) || !(argTypes[0] instanceof Class)) { continue; }
+				if (!((Class<?>) argTypes[0]).equals(gType)) { continue; }
+			}
+
 			field.setAccessible(true);
 			return field;
 		}
@@ -290,22 +308,6 @@ public class ReflectionUtils {
 			e.printStackTrace();
 			return null;
 		}
-	}
-
-	public static Field getParameterizedField(Class<?> clazz, Class<?> fType, Class<?> gType) {
-		for (Field field : clazz.getDeclaredFields()) {
-			if (!field.getType().equals(fType)) { continue; }
-			Type genericType = field.getGenericType();
-			if (!(genericType instanceof ParameterizedType)) { continue; }
-			Type[] argTypes = ((ParameterizedType) genericType).getActualTypeArguments();
-			if ((argTypes.length == 0) || !(argTypes[0] instanceof Class)) { continue; }
-			if (!((Class<?>) argTypes[0]).equals(gType)) { continue; }
-
-			field.setAccessible(true);
-			return field;
-		}
-
-		return null;
 	}
 
 	public static Object newInstance(boolean verbose, boolean bDeclared, Class<?> clazz, Class<?>[] parameters, Object[] args) {
@@ -446,10 +448,9 @@ public class ReflectionUtils {
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	public static World getRespawnWorld(Player player) {
 		try {
-			MinecraftServer server = MinecraftServer.getServer();
+			MinecraftServer server = getServer();
 			Object respawnDimension = EntityPlayer_respawnDimension.get(getEntityPlayer(player));
 			WorldServer worldServer = (WorldServer) MinecraftServer_getLevel.invoke(server, respawnDimension);
 			return (World) worldServer.getWorld();
@@ -481,17 +482,6 @@ public class ReflectionUtils {
 			return -1;
 		}
 	}
-
-	//Sadly, but this will not work with indestructible blocks, like bedrock
-	/*public static void setBlockDestroyTime(Material block, float destroyTime) {
-		try {
-			IBlockData blockData = (IBlockData) Block_defaultBlockState.get(getBlock(block));
-			AccessUtil.setAccessible(BlockBase_BlockData_destroySpeed); //This will fuck up at some point
-			BlockBase_BlockData_destroySpeed.set(blockData, destroyTime);
-		} catch (ReflectiveOperationException | IllegalArgumentException e) {
-			e.printStackTrace();
-		}
-	}*/
 
 	//Sets what the block drops, for some reason does not work with
 	//block that by default do not drop anything, like, bedrock
@@ -567,6 +557,28 @@ public class ReflectionUtils {
 			handle.invoke(connection, packet);
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			e.printStackTrace();
+		}
+	}
+
+	@SuppressWarnings("deprecation")
+	public static MinecraftServer getServer() {
+		return MinecraftServer.getServer();
+	}
+
+	public static HashMap<NetworkManager, Channel> getConnections() {
+		try {
+			HashMap<NetworkManager, Channel> connections = new HashMap<>();
+			ServerConnection serverConnection = (ServerConnection) MinecraftServer_getConnection.invoke(getServer());
+			List<NetworkManager> managers = (List<NetworkManager>) ServerConnection_connections.get(serverConnection);
+
+			for (NetworkManager manager : managers) {
+				connections.put(manager, (Channel) NetworkManager_channel.get(manager));
+			}
+
+			return connections;
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			e.printStackTrace();
+			return null;
 		}
 	}
 
@@ -650,13 +662,12 @@ public class ReflectionUtils {
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	public static Player addFakePlayer(Location location, UUID uuid, boolean addPlayer, boolean hideOnline, boolean hideWorld) {
 		//net.minecraft.network.protocol.PacketFlow ->
 		//	net.minecraft.network.protocol.PacketFlow SERVERBOUND -> a
 		//	net.minecraft.network.protocol.PacketFlow CLIENTBOUND -> b
 
-		MinecraftServer server = MinecraftServer.getServer();
+		MinecraftServer server = getServer();
 		WorldServer world = (WorldServer) getWorld(location.getWorld());
 
 		Class<?>[] parameters = { MinecraftServer.class, WorldServer.class, GameProfile.class, ProfilePublicKey.class };

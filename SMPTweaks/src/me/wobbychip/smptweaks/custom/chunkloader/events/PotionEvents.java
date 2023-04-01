@@ -21,7 +21,7 @@ public class PotionEvents implements Listener {
 	@SuppressWarnings("unchecked")
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onPotionSplash(PotionSplashEvent event) {
-		Field field = ReflectionUtils.getField(PotionSplashEvent.class, Map.class, true);
+		Field field = ReflectionUtils.getField(PotionSplashEvent.class, Map.class, null, true);
 		Map<LivingEntity, Double> affectedEntities = (Map<LivingEntity, Double>) ReflectionUtils.getValue(field, event);
 		Iterator<Entry<LivingEntity, Double>> iterator = affectedEntities.entrySet().iterator();
 
@@ -34,7 +34,7 @@ public class PotionEvents implements Listener {
 	@SuppressWarnings("unchecked")
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onAreaEffectCloudApply(AreaEffectCloudApplyEvent event) {
-		Field field = ReflectionUtils.getField(AreaEffectCloudApplyEvent.class, List.class, true);
+		Field field = ReflectionUtils.getField(AreaEffectCloudApplyEvent.class, List.class, null, true);
 		List<LivingEntity> affectedEntities = (List<LivingEntity>) ReflectionUtils.getValue(field, event);
 		Iterator<LivingEntity> iterator = affectedEntities.iterator();
 
