@@ -1,14 +1,19 @@
 package me.wobbychip.smptweaks.custom.serverpause;
 
+import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.Bukkit;
 
+import io.netty.channel.Channel;
 import me.wobbychip.smptweaks.Main;
+import me.wobbychip.smptweaks.events.ServerConnectionEvent;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
+import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import me.wobbychip.smptweaks.utils.ServerUtils;
 import me.wobbychip.smptweaks.utils.TaskUtils;
 import me.wobbychip.smptweaks.utils.Utils;
+import net.minecraft.network.NetworkManager;
 
 public class ServerPause extends CustomTweak {
 	public static CustomTweak tweak;
@@ -17,6 +22,7 @@ public class ServerPause extends CustomTweak {
 
 	public static int pauseDelay = 0;
 	public static boolean quiteCommands = false;
+	public static int cconnections = ReflectionUtils.getConnections().size();
 
 	public ServerPause() {
 		super(ServerPause.class, false, false);
@@ -32,14 +38,23 @@ public class ServerPause extends CustomTweak {
 
 		//Delay event registration so that other plugins can do their thing
 		//Tbh, I don't know if this actaully is required, but just in case
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
+		TaskUtils.scheduleSyncDelayedTask(new Runnable() {
 			public void run() {
 				Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
-				if (!ServerPause.canPause()) { return; }
+				if (!ServerPause.canPause(false)) { return; }
 				boolean success = ServerUtils.pauseServer();
 				if (success) { Utils.sendMessage("Server is now paused."); }
 			}
 		}, 20L);
+
+		TaskUtils.scheduleSyncRepeatingTask(new Runnable() {
+			public void run() {
+				HashMap<NetworkManager, Channel> connections = ReflectionUtils.getConnections();
+				if (connections.size() == cconnections) { return; } else { cconnections = connections.size(); }
+				boolean online = ReflectionUtils.getConnections().values().stream().anyMatch(e -> ((e != null) && e.isOpen()));
+				Bukkit.getPluginManager().callEvent(new ServerConnectionEvent(cconnections, online));
+			}
+		}, 20L, 1L);
 	}
 
 	public void onDisable() {
@@ -56,8 +71,9 @@ public class ServerPause extends CustomTweak {
 		if (pauseDelay <= 0) { TaskUtils.finishSyncDelayedTask(delayTask); }
 	}
 
-	public static boolean canPause() {
+	public static boolean canPause(boolean bConnections) {
 		gamerule = ServerUtils.isPaused() ? gamerule : ServerPause.tweak.getGameRuleBoolean(null);
-		return (Bukkit.getOnlinePlayers().size() == 0) && gamerule;
+		boolean online = (ReflectionUtils.getConnections().size() > 0);
+		return (Bukkit.getOnlinePlayers().size() == 0) && (!online || !bConnections) && gamerule;
 	}
 }

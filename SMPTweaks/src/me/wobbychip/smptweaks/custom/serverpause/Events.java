@@ -10,6 +10,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 
 import me.wobbychip.smptweaks.Main;
+import me.wobbychip.smptweaks.events.ServerConnectionEvent;
 import me.wobbychip.smptweaks.utils.ServerUtils;
 import me.wobbychip.smptweaks.utils.TaskUtils;
 import me.wobbychip.smptweaks.utils.Utils;
@@ -19,10 +20,8 @@ public class Events implements Listener {
 	public int connectingTask = -1;
 
 	@EventHandler(priority = EventPriority.MONITOR)
-	public void onPlayerQuitEvent(PlayerQuitEvent event) {
-		//1, because at the moment when player leaves, he still is online
-		//and we need this code only to run when last playe leaves
-		if (Bukkit.getOnlinePlayers().size() > 1) { return; }
+	public void onServerConnectionEvent(ServerConnectionEvent event) {
+		if (event.getConnections() > 0) { return; }
 
 		//We also must stop already running task if there is such,
 		//player can rejoin and leave as many times as they want
@@ -33,7 +32,7 @@ public class Events implements Listener {
 			public void run() {
 				int delayTask = ServerPause.delayTask;
 				ServerPause.delayTask = -1;
-				if (!ServerPause.canPause()) { return; }
+				if (!ServerPause.canPause(false)) { return; }
 
 				//Save worlds before pausing server, since when server is paused
 				//worlds cannot be saved
@@ -50,6 +49,14 @@ public class Events implements Listener {
 				if (success) { Utils.sendMessage("Server is now paused. (Worlds saved)"); }
 			}
 		}, ServerPause.pauseDelay);
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onPlayerQuitEvent(PlayerQuitEvent event) {
+		//1, because at the moment when player leaves, he still is online
+		//and we need this code only to run when last player leaves
+		if (Bukkit.getOnlinePlayers().size() > 1) { return; }
+		onServerConnectionEvent(new ServerConnectionEvent(0, false));
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
@@ -70,17 +77,17 @@ public class Events implements Listener {
 
 		//Check if something happened and player did not get into server
 		//Banned, whitelist, connection timeout, etc
-		//ERROR: if player takes longer than 60s to connect it will throw an error
+		//ERROR: if player takes longer than 5s to connect it will throw an error
 		connectingTask = TaskUtils.scheduleSyncDelayedTask(new Runnable() {
 			public void run() {
 				//If there is delay task then we don't need to pasue server again
 				connectingTask = -1;
 				if (ServerPause.delayTask > -1) { return; }
-				if (!ServerPause.canPause()) { return; }
+				if (!ServerPause.canPause(true)) { return; }
 				boolean success = ServerUtils.pauseServer();
 				if (success) { Utils.sendMessage("Server is now paused."); }
 			}
-		}, 20L*60);
+		}, 20L*5);
 	}
 
 	//We also must resume server, when command is being executed
@@ -101,7 +108,7 @@ public class Events implements Listener {
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
 			public void run() {
 				if (ServerPause.delayTask > -1) { return; }
-				if (!ServerPause.canPause()) { return; }
+				if (!ServerPause.canPause(false)) { return; }
 				boolean success = ServerUtils.pauseServer();
 				if (success && !ServerPause.quiteCommands) { Utils.sendMessage("Server is now paused."); }
 			}

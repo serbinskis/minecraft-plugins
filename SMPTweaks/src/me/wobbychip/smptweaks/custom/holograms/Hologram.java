@@ -68,8 +68,13 @@ public class Hologram {
 	}
 
 	public void setText(String text) {
+		float yaw = display.getLocation().getYaw();
 		display.setText(text);
 		teleport(getLocation());
+
+		Location location = display.getLocation();
+		location.setYaw(yaw);
+		display.teleport(location);
 	}
 
 	public TextDisplay getDisplay() {
