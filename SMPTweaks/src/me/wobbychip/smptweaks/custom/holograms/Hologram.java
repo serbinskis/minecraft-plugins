@@ -150,6 +150,8 @@ public class Hologram {
 		display.setViewRange(getText().isBlank() ? 0f : 1f);
 
 		this.y = location.getBlockY();
+		PersistentUtils.setPersistentDataInteger(interaction, TAG_POSITION, this.y);
+
 		interaction.teleport(location.clone().add(0.5, (0.5-(interaction.getInteractionHeight()/2)), 0.5));
 		display.teleport(location.clone().add(0.5, (0.5-(height/2)), 0.5));
 	}
