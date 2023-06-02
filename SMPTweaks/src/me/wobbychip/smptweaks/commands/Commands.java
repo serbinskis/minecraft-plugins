@@ -21,7 +21,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 			Utils.sendMessage(sender, USAGE_MESSAGE);
 			return true;
 		}
-	
+
 		switch (args[0].toLowerCase()) {
 			case "list": return ListCommand.onCommand(sender, command, args[0], Arrays.copyOfRange(args, 1, args.length));
 			case "info": return InfoCommand.onCommand(sender, command, args[0], Arrays.copyOfRange(args, 1, args.length));
