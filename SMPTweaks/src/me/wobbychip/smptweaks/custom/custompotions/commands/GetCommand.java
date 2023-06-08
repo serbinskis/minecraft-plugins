@@ -11,15 +11,16 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
 import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
 import me.wobbychip.smptweaks.utils.Utils;
 
 public class GetCommand {
 	public static List<String> arguments = Arrays.asList("potion", "splash", "lingering", "arrow");
-	public static String USAGE_MESSAGE = "&9Usage /cpotions get <potion_name> [potion | splash | lingering | arrow]";
-	public static String NO_CONSOLE = "&9This command can only be executed by a player!";
-	public static String ARROW_DISABLED = "&9Arrows for this potion is disabled!";
+	public static String USAGE_MESSAGE = Main.color + "Usage /cpotions get <potion_name> [potion | splash | lingering | arrow]";
+	public static String NO_CONSOLE = Main.color + "This command can only be executed by a player!";
+	public static String ARROW_DISABLED = Main.color + "Arrows for this potion is disabled!";
 
 	public static boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
 		boolean isCreative = ((sender instanceof Player) && (((Player) sender).getGameMode() == GameMode.CREATIVE));
