@@ -7,12 +7,13 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
+import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
 import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
 import me.wobbychip.smptweaks.utils.Utils;
 
 public class InfoCommand {
-	public static String USAGE_MESSAGE = "&9Usage /cpotions info <potion_name>";
+	public static String USAGE_MESSAGE = Main.color + "Usage /cpotions info <potion_name>";
 
 	public static boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
 		if (args.length == 0) {

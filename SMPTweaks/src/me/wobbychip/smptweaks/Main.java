@@ -44,6 +44,7 @@ public class Main extends JavaPlugin {
 	public static TweakManager manager;
 	public static ClassLoader classLoader;
 	public static String prefix = "SMPTweaks-";
+	public static String color = "&9";
 
 	@Override
 	public void onEnable() {
@@ -53,7 +54,7 @@ public class Main extends JavaPlugin {
 		Main.gameRules = new GameRules(Main.plugin);
 
 		String version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
-		Utils.sendMessage("&9[SMPTweaks] Server Version: " + version);
+		Utils.sendMessage(color + "[SMPTweaks] Server Version: " + version);
 
 		manager = new TweakManager();
 		manager.addTweak(new AllCraftingRecipes());

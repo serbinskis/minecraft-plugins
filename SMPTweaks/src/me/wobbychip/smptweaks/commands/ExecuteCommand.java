@@ -1,6 +1,7 @@
 package me.wobbychip.smptweaks.commands;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.command.Command;
@@ -10,17 +11,11 @@ import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
 import me.wobbychip.smptweaks.utils.Utils;
 
-public class ReloadCommand {
-	public static String USAGE_MESSAGE = Main.color + "Usage /smptweaks reload <tweak_name>";
-	public static String NOT_RELOADABLE = Main.color + "This tweak is not reloadable!";
-	public static String RELOAD_MESSAGE = Main.color + "Reloaded %s.";
+public class ExecuteCommand {
+	public static String USAGE_MESSAGE = Main.color + "Usage /smptweaks execute <tweak_name>";
+	public static String NO_COMMANDS = Main.color + "This tweak has no commands!";
 
 	public static boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		if (!Utils.hasPermissions(sender, "smptweaks.reload")) {
-			Utils.sendMessage(sender, Commands.NO_PERMISSIONS);
-			return true;
-		}
-
 		if (args.length == 0) {
 			Utils.sendMessage(sender, USAGE_MESSAGE);
 			return true;
@@ -33,26 +28,30 @@ public class ReloadCommand {
 			return true;
 		}
 
-		if (!tweak.isReloadable()) {
-			Utils.sendMessage(sender, NOT_RELOADABLE);
+		if (tweak.getCommand() == null) {
+			Utils.sendMessage(sender, NO_COMMANDS);
 			return true;
 		}
 
-		tweak.loadConfigs();
-		tweak.onReload();
-		Utils.sendMessage(sender, String.format(RELOAD_MESSAGE, tweak.getName()));
-		return true;
+		return tweak.getCommand().onCommand(sender, command, args[0], Arrays.copyOfRange(args, 1, args.length));
 	}
 
 	public static List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-		if ((args.length == 2) && Utils.hasPermissions(sender, "smptweaks.reload")) {
+		if (args.length == 2) {
 			ArrayList<String> tweaks = new ArrayList<String>();
-			
+
 			for (CustomTweak tweak : Main.manager.getTweaks()) {
-				if (tweak.isReloadable()) { tweaks.add(tweak.getName()); }
+				if (tweak.getCommand() != null) { tweaks.add(tweak.getName()); }
 			}
 
 			return tweaks;
+		}
+
+		if (args.length >= 3) {
+			CustomTweak tweak = Main.manager.getTweak(args[1].toLowerCase());
+			if ((tweak != null) && (tweak.getCommand() != null)) {
+				return tweak.getCommand().onTabComplete(sender, command, alias, Arrays.copyOfRange(args, 2, args.length));
+			}
 		}
 
 		return null;

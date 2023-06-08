@@ -8,13 +8,14 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 
+import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.utils.Utils;
 
 public class Commands implements CommandExecutor, TabCompleter {
-	public static List<String> arguments = Arrays.asList("list", "info", "reload");
+	public static List<String> arguments = Arrays.asList("list", "info", "reload", "execute");
 	public static String NO_PERMISSIONS = "&cYou do not have permissions!";
-	public static String USAGE_MESSAGE = "&9Usage /smptweaks [list | info | reload]";
-	public static String NO_TWEAK = "&9Couldn\'t find the tweak!";
+	public static String USAGE_MESSAGE = Main.color + "Usage /smptweaks [list | info | execute | reload]";
+	public static String NO_TWEAK = Main.color + "Couldn\'t find the tweak!";
 
 	public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
 		if (args.length == 0) {
@@ -25,6 +26,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 		switch (args[0].toLowerCase()) {
 			case "list": return ListCommand.onCommand(sender, command, args[0], Arrays.copyOfRange(args, 1, args.length));
 			case "info": return InfoCommand.onCommand(sender, command, args[0], Arrays.copyOfRange(args, 1, args.length));
+			case "execute": return ExecuteCommand.onCommand(sender, command, args[0], Arrays.copyOfRange(args, 1, args.length));
 			case "reload": return ReloadCommand.onCommand(sender, command, args[0], Arrays.copyOfRange(args, 1, args.length));
 		}
 
@@ -38,6 +40,7 @@ public class Commands implements CommandExecutor, TabCompleter {
 		if (args.length > 1) {
 			switch (args[0].toLowerCase()) {
 				case "info": return InfoCommand.onTabComplete(sender, command, alias, args);
+				case "execute": return ExecuteCommand.onTabComplete(sender, command, alias, args);
 				case "reload": return ReloadCommand.onTabComplete(sender, command, alias, args);
 			}
 		}

@@ -20,6 +20,7 @@ public class CustomTweak {
 	private String description;
 	private String gamerule = null;
 	private Object gameruleValue = null;
+	private TweakCommands command;
 	private List<String> configNames = new ArrayList<>();
 	private List<Config> configs = new ArrayList<>();
 	private boolean gameruleGlobal = false;
@@ -49,6 +50,15 @@ public class CustomTweak {
 
 	public String getDescription() {
 		return description;
+	}
+
+	public void setCommand(@Nonnull TweakCommands command) {
+		this.command = command;
+	}
+
+	@Nullable
+	public TweakCommands getCommand() {
+		return this.command;
 	}
 
 	public void setConfigs(@Nonnull List<String> configs) {
@@ -129,15 +139,15 @@ public class CustomTweak {
 	}
 
 	public void printMessage(String message, boolean useName) {
-		Utils.sendMessage(String.format("&9[%s] %s", (useName ? name : "SMPTweaks"), message));
+		Utils.sendMessage(String.format(Main.color + "[%s] %s", (useName ? name : "SMPTweaks"), message));
 	}
 
 	public void printEnabled() {
-		Utils.sendMessage(String.format("&9[SMPTweaks] %s has loaded.", this.getName()));
+		Utils.sendMessage(String.format(Main.color + "[SMPTweaks] %s has loaded.", this.getName()));
 	}
 
 	public void printDisabled() {
-		Utils.sendMessage(String.format("&9[SMPTweaks] %s is set to disabled.", this.getName()));
+		Utils.sendMessage(String.format(Main.color + "[SMPTweaks] %s is set to disabled.", this.getName()));
 	}
 
 	public void onEnable() {}
