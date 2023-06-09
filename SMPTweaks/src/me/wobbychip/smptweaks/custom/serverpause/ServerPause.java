@@ -18,6 +18,7 @@ import net.minecraft.network.NetworkManager;
 public class ServerPause extends CustomTweak {
 	public static CustomTweak tweak;
 	public static boolean gamerule = true;
+	public static boolean enabled = true;
 	public static int delayTask = -1;
 
 	public static int pauseDelay = 0;
@@ -73,6 +74,7 @@ public class ServerPause extends CustomTweak {
 	}
 
 	public static boolean canPause(boolean bConnections) {
+		if (!ServerPause.enabled) { return false; }
 		gamerule = ServerUtils.isPaused() ? gamerule : ServerPause.tweak.getGameRuleBoolean(null);
 		boolean online = (ReflectionUtils.getConnections().size() > 0);
 		return (Bukkit.getOnlinePlayers().size() == 0) && (!online || !bConnections) && gamerule;

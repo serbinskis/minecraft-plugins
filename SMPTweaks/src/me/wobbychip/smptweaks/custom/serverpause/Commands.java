@@ -15,7 +15,7 @@ import me.wobbychip.smptweaks.utils.Utils;
 
 public class Commands extends TweakCommands {
 	public Commands(String command) {
-		super(command, Arrays.asList("pause", "resume"));
+		super(command, Arrays.asList("enable", "disable"));
 	}
 
 	@Override
@@ -30,9 +30,11 @@ public class Commands extends TweakCommands {
 			return true;
 		}
 
-		if (args[0].toLowerCase().equalsIgnoreCase("pause")) {
+		if (args[0].toLowerCase().equalsIgnoreCase("enable")) {
 			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
 				public void run() {
+					ServerPause.enabled = true;
+					Utils.sendMessage(sender, "Server pause is now enabled.");
 					if (ServerUtils.isPaused()) { Utils.sendMessage(sender, "Server is already paused."); }
 					if (!ServerPause.canPause(false)) { Utils.sendMessage(sender, "Cannot pause server."); }
 					boolean success = ServerUtils.pauseServer();
@@ -41,9 +43,11 @@ public class Commands extends TweakCommands {
 			}, 1L);
 		}
 
-		if (args[0].toLowerCase().equalsIgnoreCase("resume")) {
+		if (args[0].toLowerCase().equalsIgnoreCase("disable")) {
 			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
 				public void run() {
+					ServerPause.enabled = false;
+					Utils.sendMessage(sender, "Server pause is now disabled.");
 					if (!ServerUtils.isPaused()) { Utils.sendMessage(sender, "Server is already resumed."); }
 					boolean success = ServerUtils.resumeServer();
 					if (success) { Utils.sendMessage(sender, "Server is now resumed."); }
