@@ -42,9 +42,17 @@ public class TweakManager {
 		}
 	}
 
-	public CustomTweak getTweak(String name) {
+	public CustomTweak getTweak(String name, boolean commands) {
 		for (Entry<String, CustomTweak> entry : tweaks.entrySet()) {
 			if (entry.getKey().equalsIgnoreCase(name)) {
+				return entry.getValue();
+			}
+		}
+
+		if (!commands) { return null; }
+
+		for (Entry<String, CustomTweak> entry : tweaks.entrySet()) {
+			if ((entry.getValue().getCommand() != null) && (entry.getValue().getCommand().getCommand().equalsIgnoreCase(name))) {
 				return entry.getValue();
 			}
 		}

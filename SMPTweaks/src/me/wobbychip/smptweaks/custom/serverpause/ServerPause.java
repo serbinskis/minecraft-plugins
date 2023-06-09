@@ -27,7 +27,7 @@ public class ServerPause extends CustomTweak {
 	public ServerPause() {
 		super(ServerPause.class, false, false);
 		ServerPause.tweak = this;
-		this.setCommand(new Commands(this.getName()));
+		this.setCommand(new Commands("spause"));
 		this.setConfigs(List.of("config.yml"));
 		this.setGameRule("doServerPause", true, true);
 		this.setReloadable(true);

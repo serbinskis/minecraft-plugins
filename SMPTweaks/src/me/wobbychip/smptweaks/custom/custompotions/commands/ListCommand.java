@@ -7,13 +7,14 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
 import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
+import me.wobbychip.smptweaks.tweaks.CustomTweak;
 import me.wobbychip.smptweaks.utils.Utils;
 
 public class ListCommand {
 	public static String NO_POTIONS = "There is no potions!";
 	public static int MAX_TEXT_LENGTH = 1000;
 
-	public static boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
+	public static boolean onTweakCommand(CustomTweak tweak, final CommandSender sender, final Command command, final String label, final String[] args) {
 		Set<String> names = new HashSet<String>();
 		int size = 0;
 

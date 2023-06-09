@@ -3,13 +3,10 @@ package me.wobbychip.smptweaks.tweaks;
 import java.util.List;
 
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
-
 import me.wobbychip.smptweaks.Main;
 
-public class TweakCommands implements CommandExecutor, TabCompleter {
+public class TweakCommands {
 	private String command;
 	private List<String> arguments;
 	private String usage;
@@ -18,7 +15,6 @@ public class TweakCommands implements CommandExecutor, TabCompleter {
 		this.command = command;
 		this.arguments = arguments;
 		this.usage = Main.color + "Usage /smptweaks execute " + command;
-		if (arguments != null) { this.usage += " [" + String.join(" | ", arguments) + "]"; }
 	}
 
 	public String getCommand() {
@@ -33,13 +29,11 @@ public class TweakCommands implements CommandExecutor, TabCompleter {
 		return arguments;
 	}
 
-	@Override
-	public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
+	public boolean onTweakCommand(CustomTweak tweak, final CommandSender sender, final Command command, final String label, final String[] args) {
 		return true;
 	}
 
-	@Override
-	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+	public List<String> onTweakTabComplete(CustomTweak tweak, CommandSender sender, Command command, String alias, String[] args) {
 		return null;
 	}
 }

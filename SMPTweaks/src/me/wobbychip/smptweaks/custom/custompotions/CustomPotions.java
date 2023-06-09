@@ -33,6 +33,7 @@ public class CustomPotions extends CustomTweak {
 
 	public void onEnable() {
 		this.onReload();
+		this.setCommand(new Commands("cpotions"));
 		CustomPotions.tweak = this;
 		manager = new PotionManager();
 		boolean allowVillagerTrading = CustomPotions.config.getConfig().getConfigurationSection("config").getBoolean("allowVillagerTrading");
@@ -48,8 +49,6 @@ public class CustomPotions extends CustomTweak {
 		Bukkit.getPluginManager().registerEvents(new ProjectileEvents(), Main.plugin);
 		Bukkit.getPluginManager().registerEvents(new VillagerEvents(), Main.plugin);
 
-		Main.plugin.getCommand("cpotions").setExecutor(new Commands());
-		Main.plugin.getCommand("cpotions").setTabCompleter(new Commands());
 		CustomPotions.tweak.printMessage("Potions: " + manager.getPotionsString(), true);
 	}
 

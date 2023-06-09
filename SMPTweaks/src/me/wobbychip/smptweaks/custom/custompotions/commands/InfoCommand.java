@@ -7,17 +7,17 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
-import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
 import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
+import me.wobbychip.smptweaks.tweaks.CustomTweak;
 import me.wobbychip.smptweaks.utils.Utils;
 
 public class InfoCommand {
-	public static String USAGE_MESSAGE = Main.color + "Usage /cpotions info <potion_name>";
+	public static String USAGE_MESSAGE = "info <potion_name>";
 
-	public static boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
+	public static boolean onTweakCommand(CustomTweak tweak, final CommandSender sender, final Command command, final String label, final String[] args) {
 		if (args.length == 0) {
-			Utils.sendMessage(sender, USAGE_MESSAGE);
+			Utils.sendMessage(sender, tweak.getCommand().getUsage() + " " + USAGE_MESSAGE);
 			return true;
 		}
 
@@ -48,7 +48,7 @@ public class InfoCommand {
 		return true;
 	}
 
-	public static List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+	public static List<String> onTweakTabComplete(CustomTweak tweak, CommandSender sender, Command command, String alias, String[] args) {
 		if (args.length == 2) {
 			ArrayList<String> potions = new ArrayList<String>();
 

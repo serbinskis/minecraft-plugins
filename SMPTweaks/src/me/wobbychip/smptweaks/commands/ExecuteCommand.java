@@ -21,7 +21,7 @@ public class ExecuteCommand {
 			return true;
 		}
 
-		CustomTweak tweak = Main.manager.getTweak(args[0].toLowerCase());
+		CustomTweak tweak = Main.manager.getTweak(args[0].toLowerCase(), true);
 
 		if (tweak == null) {
 			Utils.sendMessage(sender, Commands.NO_TWEAK);
@@ -33,7 +33,7 @@ public class ExecuteCommand {
 			return true;
 		}
 
-		return tweak.getCommand().onCommand(sender, command, args[0], Arrays.copyOfRange(args, 1, args.length));
+		return tweak.getCommand().onTweakCommand(tweak, sender, command, args[0], Arrays.copyOfRange(args, 1, args.length));
 	}
 
 	public static List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
@@ -41,16 +41,16 @@ public class ExecuteCommand {
 			ArrayList<String> tweaks = new ArrayList<String>();
 
 			for (CustomTweak tweak : Main.manager.getTweaks()) {
-				if (tweak.getCommand() != null) { tweaks.add(tweak.getName()); }
+				if (tweak.getCommand() != null) { tweaks.add(tweak.getCommand().getCommand()); }
 			}
 
 			return tweaks;
 		}
 
 		if (args.length >= 3) {
-			CustomTweak tweak = Main.manager.getTweak(args[1].toLowerCase());
+			CustomTweak tweak = Main.manager.getTweak(args[1].toLowerCase(), true);
 			if ((tweak != null) && (tweak.getCommand() != null)) {
-				return tweak.getCommand().onTabComplete(sender, command, alias, Arrays.copyOfRange(args, 2, args.length));
+				return tweak.getCommand().onTweakTabComplete(tweak, sender, command, alias, Arrays.copyOfRange(args, 2, args.length));
 			}
 		}
 

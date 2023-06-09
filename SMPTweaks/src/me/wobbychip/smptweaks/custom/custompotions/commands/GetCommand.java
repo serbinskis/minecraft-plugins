@@ -14,15 +14,16 @@ import org.bukkit.inventory.ItemStack;
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
 import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
+import me.wobbychip.smptweaks.tweaks.CustomTweak;
 import me.wobbychip.smptweaks.utils.Utils;
 
 public class GetCommand {
 	public static List<String> arguments = Arrays.asList("potion", "splash", "lingering", "arrow");
-	public static String USAGE_MESSAGE = Main.color + "Usage /cpotions get <potion_name> [potion | splash | lingering | arrow]";
+	public static String USAGE_MESSAGE = "get <potion_name> [potion | splash | lingering | arrow]";
 	public static String NO_CONSOLE = Main.color + "This command can only be executed by a player!";
 	public static String ARROW_DISABLED = Main.color + "Arrows for this potion is disabled!";
 
-	public static boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
+	public static boolean onTweakCommand(CustomTweak tweak, final CommandSender sender, final Command command, final String label, final String[] args) {
 		boolean isCreative = ((sender instanceof Player) && (((Player) sender).getGameMode() == GameMode.CREATIVE));
 
 		if (!(sender instanceof Player)) {
@@ -36,7 +37,7 @@ public class GetCommand {
 		}
 
 		if (args.length < 2) {
-			Utils.sendMessage(sender, USAGE_MESSAGE);
+			Utils.sendMessage(sender, tweak.getCommand().getUsage() + " " + USAGE_MESSAGE);
 			return true;
 		}
 
@@ -74,7 +75,7 @@ public class GetCommand {
 		return true;
 	}
 
-	public static List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+	public static List<String> onTweakTabComplete(CustomTweak tweak, CommandSender sender, Command command, String alias, String[] args) {
 		boolean isCreative = ((sender instanceof Player) && (((Player) sender).getGameMode() == GameMode.CREATIVE));
 
 		if (!Utils.hasPermissions(sender, "cpotions.get") && !isCreative) {
