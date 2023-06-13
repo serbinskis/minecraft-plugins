@@ -23,6 +23,13 @@ import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
 public class InventoryEvents implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onBrew(BrewEvent event) {
+		for (int i = 0; i < 3; i++) {
+			ItemStack item = event.getResults().get(i);
+			CustomPotion customPotion = CustomPotions.manager.getCustomPotion(item);
+			if (customPotion != null) { event.getResults().set(i, customPotion.setProperties(item)); }
+		}
+
+		//Because potion tag is lost after the event, we need to update it in the next tick
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
 			public void run() {
 				for (int i = 0; i < 3; i++) {

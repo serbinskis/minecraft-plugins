@@ -10,8 +10,8 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Interaction;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
+import org.bukkit.entity.TextDisplay.TextAlignment;
 import org.bukkit.entity.Display.Billboard;
-import org.bukkit.entity.TextDisplay.TextAligment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
@@ -124,7 +124,7 @@ public class Hologram {
 		display.setSeeThrough(true);
 		display.setLineWidth(Integer.MAX_VALUE);
 		display.setBillboard(Billboard.VERTICAL);
-		display.setAlignment(TextAligment.CENTER);
+		display.setAlignment(TextAlignment.CENTER);
 		display.setText(text);
 
 		Interaction interaction = (Interaction) location.getWorld().spawnEntity(location, EntityType.INTERACTION);
