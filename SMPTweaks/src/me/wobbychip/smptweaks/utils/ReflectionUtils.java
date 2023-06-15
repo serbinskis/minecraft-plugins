@@ -701,6 +701,7 @@ public class ReflectionUtils {
 			return null;
 		}
 
+		player.setSleepingIgnored(true);
 		return player;
 	}
 

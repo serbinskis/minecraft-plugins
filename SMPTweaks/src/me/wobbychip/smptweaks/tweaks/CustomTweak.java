@@ -139,15 +139,15 @@ public class CustomTweak {
 	}
 
 	public void printMessage(String message, boolean useName) {
-		Utils.sendMessage(String.format(Main.color + "[%s] %s", (useName ? name : "SMPTweaks"), message));
+		Utils.sendMessage(String.format("[%s] %s", (useName ? name : "SMPTweaks"), message));
 	}
 
 	public void printEnabled() {
-		Utils.sendMessage(String.format(Main.color + "[SMPTweaks] %s has loaded.", this.getName()));
+		Utils.sendMessage(String.format("[SMPTweaks] %s has loaded.", this.getName()));
 	}
 
 	public void printDisabled() {
-		Utils.sendMessage(String.format(Main.color + "[SMPTweaks] %s is set to disabled.", this.getName()));
+		Utils.sendMessage(String.format("[SMPTweaks] %s is set to disabled.", this.getName()));
 	}
 
 	public void onEnable() {}

@@ -32,24 +32,15 @@ public class FakePlayer {
 		if (player == null) { return; }
 		boolean isValid = player.isValid();
 
-		boolean isSleeping = false;
+		//Hide player for everyone, who is not OP
 		for (Player player : player.getWorld().getPlayers()) {
-			if (player.isSleeping()) { isSleeping = true; }
 			if (isValid && !player.isOp()) { player.hidePlayer(Main.plugin, this.player); }
 		}
 
-		if (!isValid && !isSleeping) { setEnabled(true); }
-		isValid = player.isValid();
-
+		//Put fake player back to his location
 		if (isValid) { player.teleport(location); }
 		if (isValid) { player.setCollidable(false); }
 		if (isValid) { ReflectionUtils.updateFakePlayer(player); }
-
-		if (isSleeping) {
-			if (isValid) { ReflectionUtils.removeFakePlayer(player); }
-		} else {
-			if (!isValid) { ReflectionUtils.addFakePlayer(location, null, true, true, false); }
-		}
 	}
 
 	public void remove() {

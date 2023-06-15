@@ -54,7 +54,7 @@ public class Main extends JavaPlugin {
 		Main.gameRules = new GameRules(Main.plugin);
 
 		String version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
-		Utils.sendMessage(color + "[SMPTweaks] Server Version: " + version);
+		Utils.sendMessage("[SMPTweaks] Server Version: " + version);
 
 		manager = new TweakManager();
 		manager.addTweak(new AllCraftingRecipes());

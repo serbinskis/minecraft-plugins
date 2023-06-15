@@ -18,6 +18,7 @@ import org.bukkit.inventory.ItemStack;
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.custom.chunkloader.ChunkLoader;
 import me.wobbychip.smptweaks.utils.PersistentUtils;
+import me.wobbychip.smptweaks.utils.ServerUtils;
 import me.wobbychip.smptweaks.utils.Utils;
 
 public class Loader {
@@ -46,6 +47,7 @@ public class Loader {
 
 		this.task = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
 			public void run() {
+				if (ServerUtils.isPaused()) { return; }
 				border.update();
 				fakePlayer.update();
 				aggravator.update();
