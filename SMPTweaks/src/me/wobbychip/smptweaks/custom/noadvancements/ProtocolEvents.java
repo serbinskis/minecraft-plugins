@@ -20,7 +20,7 @@ public class ProtocolEvents extends PacketAdapter {
 
 	@Override
 	public void onPacketSending(PacketEvent event) {
-		if (!Events.chats.contains(event.getPlayer())) { return; }
+		if (!Events.chats.contains(event.getPlayer().getUniqueId())) { return; }
 
 		if (event.getPacketType() == PacketType.Play.Server.EXPERIENCE) {
 			event.setCancelled(true);

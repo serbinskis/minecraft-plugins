@@ -2,6 +2,7 @@ package me.wobbychip.smptweaks.custom.noadvancements;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -15,7 +16,7 @@ import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import me.wobbychip.smptweaks.utils.Utils;
 
 public class Events implements Listener {
-	public static List<Player> chats = new ArrayList<>();
+	public static List<UUID> chats = new ArrayList<>();
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerAdvancementDoneEvent(PlayerAdvancementDoneEvent event) {
@@ -24,9 +25,10 @@ public class Events implements Listener {
 
 		//Prevent BlazeandCave's Advancements messages in the chat and experience
 		for (Player player : Bukkit.getOnlinePlayers()) {
-			if (chats.contains(player)) { continue; }
-			chats.add(player);
+			if (chats.contains(player.getUniqueId())) { continue; }
+			chats.add(player.getUniqueId());
 
+			UUID uuid = player.getUniqueId();
 			String visibility = ReflectionUtils.getChatVisibility(player);
 			ReflectionUtils.setChatVisibility(player, "options.chat.visibility.hidden");
 			int totalExperience = player.getTotalExperience();
@@ -35,14 +37,16 @@ public class Events implements Listener {
 
 			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
 				public void run() {
-					chats.remove(player);
+					chats.remove(uuid);
+					Player player = Bukkit.getPlayer(uuid);
+					if (player == null) { return; }
 					ReflectionUtils.setChatVisibility(player, visibility);
 					if (totalExperience == player.getTotalExperience()) { return; }
 					player.setTotalExperience(totalExperience);
 					player.setExp(exp);
 					player.setLevel(level);
 				}
-			}, 1L);
+			}, 0L);
 		}
 	}
 }
