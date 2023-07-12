@@ -33,7 +33,7 @@ public class CustomPotions extends CustomTweak {
 
 	public void onEnable() {
 		this.onReload();
-		this.setCommand(new Commands("cpotions"));
+		this.setCommand(new Commands(this, "cpotions"));
 		CustomPotions.tweak = this;
 		manager = new PotionManager();
 		boolean allowVillagerTrading = CustomPotions.config.getConfig().getConfigurationSection("config").getBoolean("allowVillagerTrading");

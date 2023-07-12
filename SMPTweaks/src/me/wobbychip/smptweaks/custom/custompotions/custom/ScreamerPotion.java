@@ -28,7 +28,7 @@ import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
 
 public class ScreamerPotion extends CustomPotion {
 	public ScreamerPotion() {
-		super("amethyst", Material.DRAGON_HEAD, "screamer", Color.fromRGB(0, 0, 0));
+		super("amethyst", Material.WITHER_SKELETON_SKULL, "screamer", Color.fromRGB(0, 0, 0));
 		this.setDisplayName("§r§fPotion of Screamer");
 		this.setLore(Arrays.asList("§9Drop this on a friend"));
 		this.setTippedArrow(true, "§r§fArrow of Screamer");

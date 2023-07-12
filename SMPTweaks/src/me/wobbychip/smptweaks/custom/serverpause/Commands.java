@@ -14,8 +14,8 @@ import me.wobbychip.smptweaks.utils.ServerUtils;
 import me.wobbychip.smptweaks.utils.Utils;
 
 public class Commands extends TweakCommands {
-	public Commands(String command) {
-		super(command, Arrays.asList("enable", "disable"));
+	public Commands(CustomTweak tweak, String command) {
+		super(tweak, command, Arrays.asList("enable", "disable"));
 	}
 
 	@Override

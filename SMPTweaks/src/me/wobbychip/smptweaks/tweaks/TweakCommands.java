@@ -7,14 +7,20 @@ import org.bukkit.command.CommandSender;
 import me.wobbychip.smptweaks.Main;
 
 public class TweakCommands {
+	private CustomTweak tweak;
 	private String command;
 	private List<String> arguments;
 	private String usage;
 
-	public TweakCommands(String command, List<String> arguments) {
+	public TweakCommands(CustomTweak tweak, String command, List<String> arguments) {
+		this.tweak = tweak;
 		this.command = command;
 		this.arguments = arguments;
 		this.usage = Main.color + "Usage /smptweaks execute " + command;
+	}
+
+	public CustomTweak getTweak() {
+		return tweak;
 	}
 
 	public String getCommand() {

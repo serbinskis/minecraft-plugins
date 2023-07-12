@@ -15,8 +15,8 @@ public class Commands extends TweakCommands {
 	public static String NO_PERMISSIONS = "&cYou do not have permissions!";
 	public static String NO_POTION = Main.color + "Couldn\'t find the potion!";
 
-	public Commands(String command) {
-		super(command, Arrays.asList("list", "info", "get"));
+	public Commands(CustomTweak tweak, String command) {
+		super(tweak, command, Arrays.asList("list", "info", "get"));
 	}
 
 	public boolean onTweakCommand(CustomTweak tweak, final CommandSender sender, final Command command, final String label, final String[] args) {
