@@ -5,7 +5,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
+import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.entity.Villager.Profession;
@@ -15,6 +17,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.VillagerAcquireTradeEvent;
 import org.bukkit.event.inventory.TradeSelectEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
 
@@ -51,6 +55,26 @@ public class VillagerEvents implements Listener {
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+	public void onPlayerInteractEntityEvent(PlayerInteractEntityEvent event) {
+		if (event.getHand() != EquipmentSlot.HAND) { return; }
+		if (!(event.getRightClicked() instanceof Villager)) { return; }
+		Villager villager = (Villager) event.getRightClicked();
+		if ((villager.getProfession() != Profession.FLETCHER) || (villager.getProfession() == Profession.CLERIC)) { return; }
+		ItemStack item = event.getPlayer().getInventory().getItem(event.getHand());
+		if ((item == null) || (item.getType() != Material.DEBUG_STICK)) { return; }
+		if (!Utils.hasPermissions(event.getPlayer(), "cpotions.get") && !(event.getPlayer().getGameMode() != GameMode.CREATIVE)) { return; }
+
+		int level = (villager.getVillagerLevel()+1 <= 5) ? villager.getVillagerLevel()+1 : 5;
+		villager.setVillagerLevel(level);
+
+		int experience = ((level == 1) ? 10 : (level == 2) ? 70 : (level == 3) ? 150 : (level == 4) ? 250 : 0);
+		villager.setVillagerExperience(experience);
+
+		event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
+		event.setCancelled(true);
+	}
+
+	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onTradeSelectEvent(TradeSelectEvent event) {
 		MerchantRecipe recipe = event.getMerchant().getRecipe(event.getIndex());
 		CustomPotion customPotion = CustomPotions.manager.getCustomPotion(recipe.getResult());
@@ -68,7 +92,6 @@ public class VillagerEvents implements Listener {
 		if (event.getRecipe().getResult().getType() != Material.TIPPED_ARROW) { return; }
 		boolean isCustom = !event.getRecipe().getResult().hasItemMeta();
 		boolean isChance = !(new Random().nextInt(100)+1 >= CustomPotions.tradingArrowChance);
-		if (!isChance && !isCustom) { return; }
 
 		List<CustomPotion> potions = CustomPotions.manager.getPotions(false);
 		Iterator<CustomPotion> iterator = potions.iterator();
@@ -82,10 +105,10 @@ public class VillagerEvents implements Listener {
 		if ((potions.size() > 0) && isChance) {
 			CustomPotion customPotion = potions.get(new Random().nextInt(potions.size()));
 			arrow = customPotion.getTippedArrow(true, event.getRecipe().getResult().getAmount());
-		} else {
+		} else if (isCustom) {
 			String vanillaPotion = vanilla.get(new Random().nextInt(vanilla.size()));
 			arrow = ReflectionUtils.setPotionTag(event.getRecipe().getResult(), "minecraft:" + vanillaPotion);
-		}
+		} else { return; }
 
 		int uses = event.getRecipe().getUses();
 		int maxUses = event.getRecipe().getMaxUses();

@@ -19,7 +19,7 @@ public class FirePotion extends CustomPotion {
 	public FirePotion() {
 		super(PotionManager.getPotion(PotionType.AWKWARD, false, false), Material.BLAZE_ROD, "fire", Color.fromRGB(226, 88, 34));
 		this.setDisplayName("§r§fPotion of Fire");
-		this.setLore(Arrays.asList("§9Fire In The Hole"));
+		this.setLore(Arrays.asList("§9Sets on fire"));
 		this.setTippedArrow(true, "§r§fArrow of Fire");
 		this.setAllowVillagerTrades(true);
 	}

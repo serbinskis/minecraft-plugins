@@ -54,7 +54,7 @@ public class CustomPotions extends CustomTweak {
 
 	public void onReload() {
 		CustomPotions.config = this.getConfig(0);
-		CustomPotions.tradingPotionChance = CustomPotions.config.getConfig().getInt("tradingPotionChance");
-		CustomPotions.tradingArrowChance = CustomPotions.config.getConfig().getInt("tradingArrowChance");
+		CustomPotions.tradingPotionChance = CustomPotions.config.getConfig().getConfigurationSection("config").getInt("tradingPotionChance");
+		CustomPotions.tradingArrowChance = CustomPotions.config.getConfig().getConfigurationSection("config").getInt("tradingArrowChance");
 	}
 }

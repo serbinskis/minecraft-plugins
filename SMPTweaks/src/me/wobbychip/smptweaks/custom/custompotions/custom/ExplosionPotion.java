@@ -20,7 +20,7 @@ public class ExplosionPotion extends CustomPotion {
 	public ExplosionPotion() {
 		super(PotionManager.getPotion(PotionType.AWKWARD, false, false), Material.TNT, "explosion", Color.fromRGB(255, 0, 0));
 		this.setDisplayName("§r§fPotion of Explosion");
-		this.setLore(Arrays.asList("§9Explodes"));
+		this.setLore(Arrays.asList("§9Creates an explosion"));
 		this.setTippedArrow(true, "§r§fArrow of Explosion");
 		this.setAllowVillagerTrades(true);
 	}
