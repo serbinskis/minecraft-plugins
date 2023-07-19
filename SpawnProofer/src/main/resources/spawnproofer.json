@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "wobbychip.main.spawnproofer.mixins",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+  ],
+  "client": [
+    "MixinClientPlayerInteractionManager"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

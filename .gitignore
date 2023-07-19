@@ -1,3 +1,11 @@
 .metadata/
 /*/bin/
 TestPlugin/
+
+/*/.github/*
+/*/.gradle/*
+/*/.idea/*
+/*/build/*
+/*/run/*
+
+!*/build/libs/spawnproofer-*.jar

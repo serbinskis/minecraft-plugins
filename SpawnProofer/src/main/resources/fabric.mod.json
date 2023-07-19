@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "spawnproofer",
+  "version": "1.0.1",
+
+  "name": "SpawnProofer",
+  "description": "Does spawn proof",
+  "authors": [
+    "WobbyChip"
+  ],
+  "contact": {
+    "homepage": "https://wobbychip.github.io/home/"
+  },
+
+  "license": "",
+  "icon": "assets/spawnproofer/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "wobbychip.main.spawnproofer.SpawnProofer"
+    ],
+    "modmenu": [
+      "wobbychip.main.spawnproofer.ModMenuIntegration"
+    ]
+  },
+  "mixins": [
+    "spawnproofer.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.14.3",
+    "minecraft": "1.20.x",
+    "java": ">=17"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}

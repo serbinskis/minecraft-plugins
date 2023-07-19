@@ -1,0 +1,8 @@
+{
+  "category.spawnproofer.mod": "SpawnProofer",
+  "key.spawnproofer.toggle": "Toggle SpawnProofer",
+  "text.autoconfig.spawnproofer.option.reachDistance": "Reach Distance",
+  "text.autoconfig.spawnproofer.option.reachDistance.@Tooltip": "Reach Distance",
+  "text.autoconfig.spawnproofer.option.maxInteractionPerTick": "Max Interaction Per Tick",
+  "text.autoconfig.spawnproofer.option.maxInteractionPerTick.@Tooltip": "Max Interaction Per Tick"
+}
