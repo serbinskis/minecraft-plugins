@@ -1,9 +1,13 @@
 {
   "category.spawnproofer.mod": "SpawnProofer",
   "key.spawnproofer.toggle": "Toggle SpawnProofer",
+  "key.spawnproofer.decrease_distance": "Decrease Distance",
+  "key.spawnproofer.increase_distance": "Increase Distance",
   "text.autoconfig.spawnproofer.title": "SpawnProofer",
   "text.autoconfig.spawnproofer.option.reachDistance": "Reach Distance",
   "text.autoconfig.spawnproofer.option.reachDistance.@Tooltip": "Reach Distance",
   "text.autoconfig.spawnproofer.option.maxInteractionPerTick": "Max Interaction Per Tick",
-  "text.autoconfig.spawnproofer.option.maxInteractionPerTick.@Tooltip": "Max Interaction Per Tick"
+  "text.autoconfig.spawnproofer.option.maxInteractionPerTick.@Tooltip": "Max Interaction Per Tick",
+  "text.autoconfig.spawnproofer.option.minLighting": "Minimum Required Lighting",
+  "text.autoconfig.spawnproofer.option.minLighting.@Tooltip": "Minimum required lighting for torch to be placed"
 }

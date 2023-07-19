@@ -8,6 +8,10 @@ import me.shedaniel.autoconfig.annotation.ConfigEntry;
 class ModConfig implements ConfigData {
     @ConfigEntry.Gui.Tooltip()
     public int reachDistance = 5;
+
     @ConfigEntry.Gui.Tooltip
     public int maxInteractionPerTick = 1;
+
+    @ConfigEntry.Gui.Tooltip
+    public int minLighting = 11;
 }
