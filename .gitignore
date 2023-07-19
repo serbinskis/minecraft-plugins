@@ -6,4 +6,8 @@ TestPlugin/
 /*/.gradle/*
 /*/.idea/*
 /*/run/*
-/*/build/*
+
+*/build/*
+!*/build/libs
+*/build/libs/*
+!*/build/libs/*[!sources].jar
