@@ -2,6 +2,7 @@ package me.wobbychip.smptweaks.custom.pvpdropinventory;
 
 import java.util.Arrays;
 
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -37,7 +38,10 @@ public class Events implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onEntityDamageByEntityEvent(EntityDamageByEntityEvent event) {
 		if (!(event.getEntity() instanceof Player)) { return; }
-		PvPDropInventory.timer.addPlayers((Player) event.getEntity(), Utils.getAttacker(event.getDamager()));
+		if ((!PvPDropInventory.tweak.getGameRuleBoolean(event.getEntity().getWorld()))) { return; }
+		Player attacker = Utils.getAttacker(event.getDamager());
+		if ((attacker != null) && (attacker.getGameMode() == GameMode.CREATIVE)) { return; }
+		PvPDropInventory.timer.addPlayers((Player) event.getEntity(), attacker);
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

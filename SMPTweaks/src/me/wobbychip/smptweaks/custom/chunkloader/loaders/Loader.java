@@ -108,6 +108,11 @@ public class Loader {
 		int z = location.getBlockZ() >> 4;
 		if (!force && !location.getWorld().isChunkLoaded(x, z)) { return; }
 
+		if ((!ChunkLoader.tweak.getGameRuleBoolean(location.getWorld()))) {
+			ChunkLoader.manager.removeLoader(location.getBlock(), false);
+			return;
+		}
+
 		Block block = location.getBlock();
 		boolean isPowered = (block.isBlockIndirectlyPowered() || block.isBlockPowered());
 		if ((previous == isPowered) && !force) { return; } else { previous = isPowered; }
@@ -124,7 +129,7 @@ public class Loader {
 		}, 2L);
 	}
 
-	public void remove(boolean disable) {
+	public void remove(boolean disable, boolean dropFrame) {
 		outline.removeShulker();
 		border.remove();
 		if (!disable) { aggravator.remove(); }
@@ -135,6 +140,7 @@ public class Loader {
 
 		if (disable) { return; }
 		location.getWorld().playSound(location, Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1, 1);
+		if (!dropFrame) { return; }
 
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
 			public void run() {
@@ -156,7 +162,7 @@ public class Loader {
 		return null;
 	}
 
-	class Outline {
+	static class Outline {
 		public Location location;
 
 		public Outline(Location location) {

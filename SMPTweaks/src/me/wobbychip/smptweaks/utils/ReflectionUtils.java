@@ -7,7 +7,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +31,8 @@ import org.bukkit.potion.PotionType;
 import com.mojang.authlib.GameProfile;
 
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.embedded.EmbeddedChannel;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.core.Holder;
 import net.minecraft.core.IRegistry;
@@ -39,6 +40,7 @@ import net.minecraft.core.RegistryBlocks;
 import net.minecraft.core.RegistryMaterials;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.EnumProtocol;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.protocol.EnumProtocolDirection;
 import net.minecraft.network.protocol.Packet;
@@ -51,9 +53,12 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.CustomFunctionData;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkProviderServer;
+import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.server.level.WorldServer;
+import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.network.PlayerConnection;
+import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 import net.minecraft.server.network.ServerConnection;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.effect.MobEffect;
@@ -65,7 +70,6 @@ import net.minecraft.world.entity.Entity.RemovalReason;
 import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.entity.player.EnumChatVisibility;
 import net.minecraft.world.entity.player.PlayerAbilities;
-import net.minecraft.world.entity.player.ProfilePublicKey;
 import net.minecraft.world.inventory.Container;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemBlock;
@@ -137,7 +141,7 @@ public class ReflectionUtils {
 	public static Method Block_popResource;
 	public static Method BlockBase_getLootTable;
 	public static Method BlockBase_Info_strength;
-	public static Method PlayerConnection_sendPacket;
+	public static Method ServerCommonPacketListenerImpl_send;
 	public static Method PotionBrewer_register;
 	public static Method PotionRegistry_getName;
 	public static Method PotionUtil_getPotion;
@@ -149,6 +153,14 @@ public class ReflectionUtils {
 	public static Method NBTTagCompound_putString;
 	public static Method NBTTagCompound_getString;
 	public static Method Reputation_getReputation;
+	public static Method CommonListenerCookie_createInitial;
+	public static Method ClientInformation_createDefault;
+
+	
+	public static EnumProtocolDirection PROTOCL_SERVERBOUND = EnumProtocolDirection.a; //net.minecraft.network.protocol.PacketFlow SERVERBOUND ->
+	public static EnumProtocolDirection PROTOCL_CLIENTBOUND = EnumProtocolDirection.b; //net.minecraft.network.protocol.PacketFlow CLIENTBOUND ->
+	public static EnumProtocol PROTOCL_PLAY = EnumProtocol.b; //net.minecraft.network.ConnectionProtocol PLAY ->
+	public static RemovalReason REASON_DISCARDED = RemovalReason.b; //net.minecraft.world.entity.Entity$RemovalReason DISCARDED ->
 
 	static {
 		version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
@@ -168,6 +180,7 @@ public class ReflectionUtils {
 
 		DATA_LIVING_ENTITY_FLAGS = (DataWatcherObject<Byte>) getValue(getField(EntityLiving.class, DataWatcherObject.class, Byte.class, true), null);
 		POTION = (RegistryBlocks<PotionRegistry>) getValue(getField(BuiltInRegistries.class, RegistryBlocks.class, PotionRegistry.class, true), null);
+		setRegistryMap(POTION, new HashMap<>());
 
 		Entity_bukkitEntity = getField(net.minecraft.world.entity.Entity.class, CraftEntity, null, true);
 		EntityHuman_playerAbilities = getField(EntityHuman.class, PlayerAbilities.class, null, true);
@@ -210,7 +223,7 @@ public class ReflectionUtils {
 		Block_popResource = findMethod(true, null, Block.class, Void.TYPE, null, net.minecraft.world.level.World.class, BlockPosition.class, net.minecraft.world.item.ItemStack.class);
 		BlockBase_getLootTable = findMethod(true, null, BlockBase.class, MinecraftKey.class, null);
 		BlockBase_Info_strength = findMethod(true, null, BlockBase.Info.class, BlockBase.Info.class, null, float.class, float.class);
-		PlayerConnection_sendPacket = findMethod(true, null, PlayerConnection.class, null, null, Packet.class);
+		ServerCommonPacketListenerImpl_send = findMethod(true, null, ServerCommonPacketListenerImpl.class, null, null, Packet.class);
 		PotionBrewer_register = findMethod(false, null, PotionBrewer.class, Void.TYPE, null, PotionRegistry.class, Item.class, PotionRegistry.class);
 		PotionRegistry_getName = findMethod(true, null, PotionRegistry.class, String.class, null, String.class);
 		PotionUtil_getPotion = findMethod(true, null, PotionUtil.class, PotionRegistry.class, null, net.minecraft.world.item.ItemStack.class);
@@ -222,6 +235,8 @@ public class ReflectionUtils {
 		NBTTagCompound_putString = findMethod(true, null, NBTTagCompound.class, Void.TYPE, null, String.class, String.class);
 		NBTTagCompound_getString = findMethod(true, null, NBTTagCompound.class, String.class, null, String.class);
 		Reputation_getReputation = findMethod(true, null, Reputation.class, int.class, null, UUID.class, Predicate.class);
+		CommonListenerCookie_createInitial = findMethod(true, Modifier.STATIC, CommonListenerCookie.class, CommonListenerCookie.class, null, GameProfile.class);
+		ClientInformation_createDefault = findMethod(true, Modifier.STATIC, ClientInformation.class, ClientInformation.class, null);
 	}
 
 	public static Class<?> loadClass(String arg0, boolean verbose) {
@@ -256,6 +271,7 @@ public class ReflectionUtils {
 			if (method.getParameterCount() != parameters.length) { continue; }
 			if ((rType != null) && !method.getReturnType().equals(rType)) { continue; }
 
+			if ((modifier != null) && ((modifier == Modifier.STATIC) && !Modifier.isStatic(method.getModifiers()))) { continue; }
 			if ((modifier != null) && ((modifier == Modifier.PUBLIC) && !Modifier.isPublic(method.getModifiers()))) { continue; }
 			if ((modifier != null) && ((modifier == Modifier.PRIVATE) && !Modifier.isPrivate(method.getModifiers()))) { continue; }
 			if ((modifier != null) && ((modifier == Modifier.PROTECTED) && !Modifier.isProtected(method.getModifiers()))) { continue; }
@@ -303,10 +319,20 @@ public class ReflectionUtils {
 
 	public static Object getValue(Field field, Object obj) {
 		try {
+			field.setAccessible(true);
 			return field.get(obj);
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 			return null;
+		}
+	}
+
+	public static void setValue(Field field, Object target, Object obj) {
+		try {
+			field.setAccessible(true);
+			field.set(target, obj);
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -544,7 +570,7 @@ public class ReflectionUtils {
 	public static void sendPacket(Player player, Packet<?> packet) {
 		try {
 			Object connection = EntityPlayer_playerConnection.get(getEntityPlayer(player));
-			PlayerConnection_sendPacket.invoke(connection, packet);
+			ServerCommonPacketListenerImpl_send.invoke(connection, packet);
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			e.printStackTrace();
 		}
@@ -662,25 +688,24 @@ public class ReflectionUtils {
 		}
 	}
 
-	public static Player addFakePlayer(Location location, UUID uuid, boolean addPlayer, boolean hideOnline, boolean hideWorld) {
-		//net.minecraft.network.protocol.PacketFlow ->
-		//	net.minecraft.network.protocol.PacketFlow SERVERBOUND -> a
-		//	net.minecraft.network.protocol.PacketFlow CLIENTBOUND -> b
-
-		MinecraftServer server = getServer();
-		WorldServer world = (WorldServer) getWorld(location.getWorld());
-
-		Class<?>[] parameters = { MinecraftServer.class, WorldServer.class, GameProfile.class, ProfilePublicKey.class };
-		Object[] args = { server, world, new GameProfile((uuid == null) ? UUID.randomUUID() : uuid, " ".repeat(5)), null };
-		EntityPlayer entityPlayer = (EntityPlayer) newInstance(false, false, EntityPlayer.class, parameters, args);
-
-		//Support 1.19.3+
-		if (entityPlayer == null) { entityPlayer = (EntityPlayer) newInstance(false, false, EntityPlayer.class, Arrays.copyOf(parameters, 3), Arrays.copyOf(args, 3)); }
-
-		PlayerConnection connection = new PlayerConnection(server, new NetworkManager(EnumProtocolDirection.b), entityPlayer) {};
-		Player player = (Player) getBukkitEntity(entityPlayer);
+	public static Player addFakePlayer(Location location, UUID uuid, boolean addPlayer, boolean hideOnline, boolean hideWorld) {		
+		//io.netty.util.AttributeKey ATTRIBUTE_SERVERBOUND_PROTOCOL -> b
+		if (uuid == null) { uuid = UUID.randomUUID(); }
 
 		try {
+			MinecraftServer server = getServer();
+			WorldServer world = (WorldServer) getWorld(location.getWorld());
+			ClientInformation clientInformation = (ClientInformation) ClientInformation_createDefault.invoke(null);
+			EntityPlayer entityPlayer = new EntityPlayer(server, world, new GameProfile(uuid, " ".repeat(5)), clientInformation);
+
+			NetworkManager networkManager = new NetworkManager(PROTOCL_SERVERBOUND);
+			EmbeddedChannel embeddedChannel = new EmbeddedChannel(new ChannelHandler[] { networkManager });
+			embeddedChannel.attr(NetworkManager.e).set(PROTOCL_PLAY.b(PROTOCL_SERVERBOUND));
+
+			CommonListenerCookie commonListenerCookie = (CommonListenerCookie) CommonListenerCookie_createInitial.invoke(null, new GameProfile(uuid, " ".repeat(5)));
+			PlayerConnection connection = new PlayerConnection(server, networkManager, entityPlayer, commonListenerCookie) {};
+			Player player = (Player) getBukkitEntity(entityPlayer);
+
 			EntityPlayer_playerConnection.set(entityPlayer, connection);
 			if (addPlayer) { WorldServer_addPlayer.invoke(world, entityPlayer); }
 
@@ -696,23 +721,20 @@ public class ReflectionUtils {
 				List<EntityPlayer> players = (List<EntityPlayer>) WorldServer_players.get(world);
 				players.removeIf(e -> ((Player) getBukkitEntity(e)).getUniqueId().equals(player.getUniqueId()));
 			}
+
+			player.setSleepingIgnored(true);
+			return player;
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | SecurityException e) {
 			e.printStackTrace();
 			return null;
 		}
-
-		player.setSleepingIgnored(true);
-		return player;
 	}
 
 	public static void removeFakePlayer(Player player) {
-		//net.minecraft.world.entity.Entity$RemovalReason ->
-		//	net.minecraft.world.entity.Entity$RemovalReason DISCARDED -> b
-
 		try {
 			EntityPlayer entityPlayer = getEntityPlayer(player);
 			WorldServer world = (WorldServer) getWorld(player.getWorld());
-			WorldServer_removePlayer.invoke(world, entityPlayer, RemovalReason.b);
+			WorldServer_removePlayer.invoke(world, entityPlayer, REASON_DISCARDED);
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | SecurityException e) {
 			e.printStackTrace();
 		}
@@ -844,6 +866,16 @@ public class ReflectionUtils {
 		}
 	}
 
+	public static void setRegistryMap(Object registry, Object hashMap) {
+		Field[] fields = RegistryMaterials.class.getDeclaredFields();
+
+		for (Field field : fields) {
+			if (!field.getType().equals(Map.class)) { continue; }
+			if (getValue(field, POTION) != null) { continue; }
+			setValue(field, POTION, hashMap); break;
+		}
+	}
+
 	public static int getRegistrySize(IRegistry<?> registry) {
 		try {
 			return ((Set<MinecraftKey>) IRegistry_keySet.invoke(registry)).size();
@@ -863,7 +895,7 @@ public class ReflectionUtils {
 
 			fixHolder(POTION, potionRegistry);
 			return potionRegistry;
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | SecurityException e) {
 			e.printStackTrace();
 		}
 

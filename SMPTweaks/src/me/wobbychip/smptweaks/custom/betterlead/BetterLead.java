@@ -26,7 +26,7 @@ public class BetterLead extends CustomTweak {
 		this.setConfigs(List.of("config.yml"));
 		this.setGameRule("doBetterLead", true, false);
 		this.setReloadable(true);
-		this.setDescription("Make lead much longer and allow lead almost any mob.");
+		this.setDescription("Make lead much longer and allow lead other pre-configured mobs.");
 	}
 
 	public void onEnable() {

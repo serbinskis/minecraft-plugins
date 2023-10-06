@@ -32,6 +32,7 @@ public class PlayerEvents implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onPlayerInteractAtEntityEvent(PlayerInteractAtEntityEvent event) {
+		if (!ChunkLoader.tweak.getGameRuleBoolean(event.getPlayer().getWorld())) { return; }
 		if (!(event.getRightClicked() instanceof ItemFrame)) { return; }
 		ItemFrame frame = (ItemFrame) event.getRightClicked();
 		if (frame.getAttachedFace() != BlockFace.DOWN) { return; }

@@ -173,6 +173,15 @@ public class CustomPotion implements Listener {
 		return setPotionTag(item);
 	}
 
+	public ItemStack getDisabledPotion(ItemStack item) {		
+		PotionMeta potionMeta = (PotionMeta) item.getItemMeta();
+		potionMeta.setDisplayName("§r§fPotions are disabled");
+		potionMeta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
+		item.setItemMeta(potionMeta);
+
+		return ReflectionUtils.setPotionTag(item, "minecraft:empty");
+	}
+
 	public void onPotionConsume(PlayerItemConsumeEvent event) {}
 	public void onPotionSplash(PotionSplashEvent event) {}
 	public void onLingeringPotionSplash(LingeringPotionSplashEvent event) {}

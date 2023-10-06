@@ -56,10 +56,10 @@ public class Manager {
 		if (doSave) { saveAll(); }
 	}
 
-	public void removeLoader(Block block) {
+	public void removeLoader(Block block, boolean dropframe) {
 		String location = Utils.locationToString(block.getLocation());
 		if (!loaders.containsKey(location)) { return; }
-		loaders.remove(location).remove(false);
+		loaders.remove(location).remove(false, dropframe);
 		saveAll();
 	}
 
@@ -78,7 +78,7 @@ public class Manager {
 		}
 
 		for (Block block : remove) {
-			removeLoader(block);
+			removeLoader(block, true);
 		}
 	}
 
@@ -96,7 +96,7 @@ public class Manager {
 		Bukkit.getServer().getScheduler().cancelTask(taskId);
 
 		for (Loader loader : loaders.values()) {
-			loader.remove(true);
+			loader.remove(true, false);
 		}
 	}
 

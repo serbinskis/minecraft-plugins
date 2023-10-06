@@ -1,5 +1,7 @@
 package me.wobbychip.smptweaks.custom.gravitycontrol;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 import org.bukkit.Location;
@@ -16,6 +18,7 @@ import org.bukkit.util.Vector;
 public class Events implements Listener {
 	public double HORIZONTAL_COEFFICIENT = 1.46D;
 	public double VERTICAL_COEFFICIENT = -2.4D;
+	public List<Material> exclude = Arrays.asList(Material.AIR, Material.ANVIL, Material.CHIPPED_ANVIL, Material.DAMAGED_ANVIL);
 
 	public Set<Vector> DIRECTIONS = Set.of(
 		new Vector(0, 0, -1),
@@ -26,7 +29,7 @@ public class Events implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onEntityChangeBlockEvent(EntityChangeBlockEvent event) {
-		if (event.getTo() == Material.AIR) { return; }
+		if (exclude.contains(event.getTo())) { return; }
 		if (!(event.getEntity() instanceof FallingBlock)) { return; }
 		if (!GravityControl.tweak.getGameRuleBoolean(event.getEntity().getWorld())) { return; }
 

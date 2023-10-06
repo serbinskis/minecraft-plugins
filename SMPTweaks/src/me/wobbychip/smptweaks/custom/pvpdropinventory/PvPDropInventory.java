@@ -8,6 +8,7 @@ import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
 
 public class PvPDropInventory extends CustomTweak {
+	public static CustomTweak tweak;
 	public static int timeout;
 	public static boolean dropAllXp;
 	public static boolean elytraAllowed;
@@ -17,7 +18,9 @@ public class PvPDropInventory extends CustomTweak {
 
 	public PvPDropInventory() {
 		super(PvPDropInventory.class, false, false);
+		PvPDropInventory.tweak = this;
 		this.setConfigs(List.of("config.yml", "players.yml"));
+		this.setGameRule("doPvPDropInventory", false, false);
 		this.setReloadable(true);
 		this.setDescription("Drop inventory when a player dies in the middle of PvP. " +
 							"Ment to be used with keep inventory enabled.");
@@ -29,7 +32,7 @@ public class PvPDropInventory extends CustomTweak {
 	}
 
 	public void onDisable() {
-		PvPDropInventory.timer.Save(true);
+		PvPDropInventory.timer.save(true);
 	}
 
 	public void onReload() {

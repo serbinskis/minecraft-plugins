@@ -43,7 +43,7 @@ public class EntityEvents implements Listener {
 			public void run() {
 				if (frame.getItem().getType() == Material.NETHER_STAR) { return; }
 				Block block = frame.getLocation().getBlock().getRelative(frame.getAttachedFace());
-				ChunkLoader.manager.removeLoader(block);
+				ChunkLoader.manager.removeLoader(block, true);
 			}
 		}, 1L);
 	}

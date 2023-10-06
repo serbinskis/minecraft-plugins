@@ -15,13 +15,13 @@ public class BlockEvents implements Listener {
 	public void onBlockExplodeEvent(BlockExplodeEvent event) {
 		for (Block block : event.blockList()) {
 			if (block.getType() != Material.LODESTONE) { continue; }
-			ChunkLoader.manager.removeLoader(block);
+			ChunkLoader.manager.removeLoader(block, true);
 		}
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockBreakEvent(BlockBreakEvent event) {
 		if (event.getBlock().getType() != Material.LODESTONE) { return; }
-		ChunkLoader.manager.removeLoader(event.getBlock());
+		ChunkLoader.manager.removeLoader(event.getBlock(), true);
 	}
 }

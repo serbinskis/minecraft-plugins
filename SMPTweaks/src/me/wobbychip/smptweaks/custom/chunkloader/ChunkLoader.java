@@ -21,13 +21,14 @@ public class ChunkLoader extends CustomTweak {
 	public static int simulationDistance = Bukkit.getSimulationDistance()*16;
 	public static boolean enableAggravator = false;
 	public static boolean highlighting = true;
-	public static ChunkLoader tweak;
+	public static CustomTweak tweak;
 	public static Manager manager;
 	public static Chunks chunks;
 
 	public ChunkLoader() {
 		super(ChunkLoader.class, false, false);
 		this.setConfigs(List.of("config.yml", "loaders.yml"));
+		this.setGameRule("doChunkLoaders", true, false);
 		this.setDescription("Allows loading chunks as if a player was standing there. " +
 							"Crops do grow and mobs also spawn. " +
 							"Put on top of a lodestone item frame with nether star. " +

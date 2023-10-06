@@ -23,10 +23,13 @@ import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
 public class InventoryEvents implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onBrew(BrewEvent event) {
+		boolean gameRule = CustomPotions.tweak.getGameRuleBoolean(event.getBlock().getWorld());
+
 		for (int i = 0; i < 3; i++) {
 			ItemStack item = event.getResults().get(i);
 			CustomPotion customPotion = CustomPotions.manager.getCustomPotion(item);
-			if (customPotion != null) { event.getResults().set(i, customPotion.setProperties(item)); }
+			if ((customPotion != null) && !gameRule) { event.getResults().set(i, customPotion.getDisabledPotion(item)); }
+			if ((customPotion != null) && gameRule) { event.getResults().set(i, customPotion.setProperties(item)); }
 		}
 
 		//Because potion tag is lost after the event, we need to update it in the next tick
@@ -35,7 +38,8 @@ public class InventoryEvents implements Listener {
 				for (int i = 0; i < 3; i++) {
 					ItemStack item = event.getContents().getItem(i);
 					CustomPotion customPotion = CustomPotions.manager.getCustomPotion(item);
-					if (customPotion != null) { event.getContents().setItem(i, customPotion.setProperties(item)); }
+					if ((customPotion != null) && !gameRule) { event.getResults().set(i, customPotion.getDisabledPotion(item)); }
+					if ((customPotion != null) && gameRule) { event.getContents().setItem(i, customPotion.setProperties(item)); }
 				}
 			}
 		}, 1L);

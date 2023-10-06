@@ -17,23 +17,27 @@ import me.wobbychip.smptweaks.custom.custompotions.potions.PotionManager;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
 
 public class CustomPotions extends CustomTweak {
+	public static CustomTweak tweak;
 	public static String customTag = "CustomPotion";
 	public static int tradingPotionChance = 5;
 	public static int tradingArrowChance = 5;
-	public static CustomPotions tweak;
 	public static Config config;
 	public static PotionManager manager;
+	public Commands comands;
 
 	public CustomPotions() {
 		super(CustomPotions.class, false, false);
+		this.comands = new Commands(this, "cpotions");
 		this.setConfigs(List.of("config.yml"));
+		this.setGameRule("doCustomPotion", true, false);
 		this.setDescription("Adds to the server different new potions and new brewing recipes. " +
-							"To get more info about potions use command /cpotions info.");
+							"To get more info about potions use command /smptweaks execute info.");
+		
 	}
 
 	public void onEnable() {
 		this.onReload();
-		this.setCommand(new Commands(this, "cpotions"));
+		this.setCommand(this.comands);
 		CustomPotions.tweak = this;
 		manager = new PotionManager();
 		boolean allowVillagerTrading = CustomPotions.config.getConfig().getConfigurationSection("config").getBoolean("allowVillagerTrading");

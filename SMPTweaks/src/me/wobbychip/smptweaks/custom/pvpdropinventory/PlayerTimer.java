@@ -40,7 +40,7 @@ public class PlayerTimer {
 		}, 1L, 20L);
 	}
 
-	public void Save(boolean bStop) {
+	public void save(boolean bStop) {
 		if (bStop) {
 			Bukkit.getServer().getScheduler().cancelTask(taskId);
 		}
@@ -93,22 +93,21 @@ public class PlayerTimer {
 		while (iterator.hasNext()) {
 			UUID uuid = iterator.next().getKey();
 			Player player = Bukkit.getPlayer(uuid);
-			if ((player != null) && player.isOnline()) {
-				int seconds = timers.get(uuid)-1;
-				EntityDamageEvent event = new EntityDamageEvent(player, DamageCause.VOID, 0);
-				Bukkit.getServer().getPluginManager().callEvent(event);
-				if (event.isCancelled()) { seconds += 1; }
+			if ((player == null) || !player.isOnline()) { continue; }
+			if ((!PvPDropInventory.tweak.getGameRuleBoolean(player.getWorld()))) { iterator.remove(); continue; }
+			
+			int seconds = timers.get(uuid)-1;
+			EntityDamageEvent event = new EntityDamageEvent(player, DamageCause.VOID, 0);
+			Bukkit.getServer().getPluginManager().callEvent(event);
+			if (event.isCancelled()) { seconds += 1; }
 
-				if (seconds > 0) {
-					timers.put(uuid, seconds);
-					if (!tried.contains(uuid)) {
-						Utils.sendActionMessage(player, actionBarMessage);
-					} else {
-						tried.remove(uuid);
-					}
-				} else {
-					iterator.remove();
-				}
+			if (seconds <= 0) { iterator.remove(); continue; }
+			timers.put(uuid, seconds);
+
+			if (!tried.contains(uuid)) {
+				Utils.sendActionMessage(player, actionBarMessage);
+			} else {
+				tried.remove(uuid);
 			}
 		}
 	}
