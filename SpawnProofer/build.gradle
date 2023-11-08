@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '0.12-SNAPSHOT'
+	id "fabric-loom" version "0.12-SNAPSHOT"
 }
 
 sourceCompatibility = JavaVersion.VERSION_17
@@ -9,7 +9,7 @@ defaultTasks "build"
 
 repositories {
     mavenCentral()
-	maven { url 'https://masa.dy.fi/maven' }
+	maven { url "https://masa.dy.fi/maven" }
 	maven { url "https://maven.shedaniel.me/" }
 	maven { url "https://maven.terraformersmc.com/releases/" }
 }
@@ -22,7 +22,7 @@ dependencies {
 	modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}"
 	modApi "com.terraformersmc:modmenu:${project.mod_api}"
 	modApi "me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config}"
-	implementation 'com.google.code.gson:gson:2.10.1'
+	implementation "com.google.code.gson:gson:2.10.1"
 }
 
 processResources {
