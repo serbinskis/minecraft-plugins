@@ -43,10 +43,7 @@ java {
 }
 
 jar {
-	from("LICENSE") {
-		rename { "${it}"}
-	}
-
-    destinationDir = file(projectDir)
-    archiveFileName = "build/${project.mod_name}-${project.mod_version}.jar"
+	from("LICENSE") { rename { "${it}"} }
+	destinationDir = file(projectDir)
+	archiveFileName = "build/${project.mod_name}-${project.mod_version}.jar"
 }

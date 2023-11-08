@@ -8,6 +8,7 @@ TestPlugin/
 /*/run/*
 
 */build/*
-!*/build/libs
-#*/build/libs/*
-#!*/build/libs/*[!sources].jar
+!*/build/*.jar
+#!*/build/libs
+# */build/libs/*
+# !*/build/libs/*[!sources].jar

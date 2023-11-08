@@ -24,6 +24,7 @@
 @rem Set local scope for the variables with windows NT shell
 :start
 cls
+del build\*.jar
 del /s /q build\libs
 del /s /q build\devlibs
 if "%OS%"=="Windows_NT" setlocal
