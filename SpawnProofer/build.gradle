@@ -4,15 +4,14 @@ plugins {
 
 sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
-
-version = project.mod_version
 group = project.maven_group
+defaultTasks "build"
 
 repositories {
+    mavenCentral()
 	maven { url 'https://masa.dy.fi/maven' }
 	maven { url "https://maven.shedaniel.me/" }
 	maven { url "https://maven.terraformersmc.com/releases/" }
-    mavenCentral()
 }
 
 dependencies {
@@ -27,10 +26,10 @@ dependencies {
 }
 
 processResources {
-	inputs.property "version", project.version
+	inputs.property "version", project.mod_version
 
 	filesMatching("fabric.mod.json") {
-		expand "version": project.version
+		expand "version": project.mod_version
 	}
 }
 
@@ -47,7 +46,7 @@ jar {
 	from("LICENSE") {
 		rename { "${it}"}
 	}
+
+    destinationDir = file(projectDir)
+    archiveFileName = "build/${project.mod_name}-${project.mod_version}.jar"
 }
-
-// configure the maven publication
-
