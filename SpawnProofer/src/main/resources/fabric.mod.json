@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "id": "spawnproofer",
-  "version": "1.0.1",
+  "version": "1.0",
 
   "name": "SpawnProofer",
-  "description": "Does spawn proof",
+  "description": "Does spawn proofing",
   "authors": [
     "WobbyChip"
   ],

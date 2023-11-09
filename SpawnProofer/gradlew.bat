@@ -14,7 +14,7 @@
 @rem limitations under the License.
 @rem
 
-@rem if "%DEBUG%" == "" @echo off
+@if "%DEBUG%" == "" @echo off
 @rem ##########################################################################
 @rem
 @rem  Gradle startup script for Windows
@@ -23,10 +23,7 @@
 
 @rem Set local scope for the variables with windows NT shell
 :start
-cls
-del build\*.jar
-del /s /q build\libs
-del /s /q build\devlibs
+rd /s /q build
 if "%OS%"=="Windows_NT" setlocal
 
 set DIRNAME=%~dp0
@@ -93,5 +90,6 @@ exit /b 1
 :mainEnd
 if "%OS%"=="Windows_NT" endlocal
 pause
+goto start
 
 :omega
