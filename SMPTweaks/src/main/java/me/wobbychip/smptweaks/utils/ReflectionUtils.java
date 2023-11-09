@@ -657,15 +657,15 @@ public class ReflectionUtils {
 
 			if (d0 * d0 + d1 * d1 + d2 * d2 >= 1024.0D) { continue; }
 			BlockPos location = new BlockPos(block.getX(), block.getY(), block.getZ());
-			ReflectionUtils.sendPacket(player, new ClientboundBlockDestructionPacket(player.getEntityId()+mix_id, location, progress));
+			sendPacket(player, new ClientboundBlockDestructionPacket(player.getEntityId()+mix_id, location, progress));
 		}
 	}
 
 	public static void destroyBlock(Player player, org.bukkit.block.Block block) {
 		destroyBlockProgress(block, -1, 0);
 		BlockPos location = new BlockPos(block.getX(), block.getY(), block.getZ());
-		int id = ReflectionUtils.getBlockId(block.getType());
-		ReflectionUtils.sendPacket(player, new ClientboundLevelEventPacket(2001, location, id, false));
+		int id = getBlockId(block.getType());
+		sendPacket(player, new ClientboundLevelEventPacket(2001, location, id, false));
 		player.breakBlock(block);
 	}
 
@@ -679,9 +679,9 @@ public class ReflectionUtils {
 		double d1 = y + Utils.randomRange(-Utils.ITEM_SPAWN_OFFSET, Utils.ITEM_SPAWN_OFFSET) - f;
 		double d2 = z + Utils.randomRange(-Utils.ITEM_SPAWN_OFFSET, Utils.ITEM_SPAWN_OFFSET);
 
-		ItemEntity entityItem = new ItemEntity(ReflectionUtils.getWorld(block.getWorld()), d0, d1, d2, ReflectionUtils.asNMSCopy(itemStack));
-		ReflectionUtils.getBukkitEntity(entityItem).setVelocity(new Vector(Math.random()*0.2F-0.1F, 0.2F, Math.random()*0.2F-0.1F));
-		ArrayList<org.bukkit.entity.Item> items = new ArrayList<>(Arrays.asList((org.bukkit.entity.Item) ReflectionUtils.getBukkitEntity(entityItem)));
+		ItemEntity entityItem = new ItemEntity(getWorld(block.getWorld()), d0, d1, d2, asNMSCopy(itemStack));
+		getBukkitEntity(entityItem).setVelocity(new Vector(Math.random()*0.2F-0.1F, 0.2F, Math.random()*0.2F-0.1F));
+		ArrayList<org.bukkit.entity.Item> items = new ArrayList<>(Arrays.asList((org.bukkit.entity.Item) getBukkitEntity(entityItem)));
 
 		BlockDropItemEvent dropEvent = new BlockDropItemEvent(block, block.getState(), player, items);
 		Bukkit.getServer().getPluginManager().callEvent(dropEvent);
