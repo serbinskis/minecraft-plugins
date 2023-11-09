@@ -37,10 +37,10 @@ public class Events implements Listener {
 		if (event.getWhoClicked().getGameMode() == GameMode.CREATIVE) { return; }
 		if (!NoTooExpensive.tweak.getGameRuleBoolean(inventory.getLocation().getWorld())) { return; }
 		if (inventory.getRepairCost() <= NoTooExpensive.MAXIMUM_REPAIR_COST) { return; }
+		if (((Player) event.getWhoClicked()).getLevel() < inventory.getRepairCost()) { return; }
 
-		boolean flag = ((Player) event.getWhoClicked()).getLevel() >= inventory.getRepairCost();
-		if (!flag) { ((Player) event.getWhoClicked()).playSound(event.getWhoClicked().getLocation(), Main.DENY_SOUND_EFFECT, 1.0f, 1.0f); }
-		ReflectionUtils.setInstantBuild((Player) event.getWhoClicked(), flag, true, false);
+		((Player) event.getWhoClicked()).playSound(event.getWhoClicked().getLocation(), Main.DENY_SOUND_EFFECT, 1.0f, 1.0f);
+		ReflectionUtils.setInstantBuild((Player) event.getWhoClicked(), false, true, false);
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
