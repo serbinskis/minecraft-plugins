@@ -4,14 +4,15 @@ plugins {
 
 sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
+version = project.mod_version
 group = project.maven_group
-defaultTasks "build"
+defaultTasks "rebuild"
 
 repositories {
-    mavenCentral()
 	maven { url "https://masa.dy.fi/maven" }
 	maven { url "https://maven.shedaniel.me/" }
 	maven { url "https://maven.terraformersmc.com/releases/" }
+    mavenCentral()
 }
 
 dependencies {
@@ -26,11 +27,11 @@ dependencies {
 }
 
 processResources {
-	inputs.property "version", project.mod_version
-
-	filesMatching("fabric.mod.json") {
-		expand "version": project.mod_version
-	}
+    filesMatching("**/fabric.mod.json") {
+        filter { line ->
+            line.replaceAll("\"version\": \"1.0\",", "\"version\": \"${project.minecraft_version}\",")
+        }
+    }
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -38,12 +39,24 @@ tasks.withType(JavaCompile).configureEach {
 	it.options.release = 17
 }
 
-java {
-	withSourcesJar()
+clean {
+    delete "run"
+    delete "build"
+}
+
+task rebuild {
+    dependsOn "clean"
+    dependsOn "build"
+    tasks.findByName("build").mustRunAfter "clean"
+
+    doLast {
+        copy {
+            from "build/libs/${project.mod_name}-${project.mod_version}.jar"
+            into "build"
+        }
+    }
 }
 
 jar {
 	from("LICENSE") { rename { "${it}"} }
-	destinationDir = file(projectDir)
-	archiveFileName = "build/${project.mod_name}-${project.mod_version}.jar"
 }

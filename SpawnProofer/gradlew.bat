@@ -23,7 +23,6 @@
 
 @rem Set local scope for the variables with windows NT shell
 :start
-rd /s /q build
 if "%OS%"=="Windows_NT" setlocal
 
 set DIRNAME=%~dp0

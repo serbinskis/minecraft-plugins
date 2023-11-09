@@ -23,7 +23,7 @@
 
 @rem Set local scope for the variables with windows NT shell
 :start
-del build\*.jar
+rd /s /q build
 if "%OS%"=="Windows_NT" setlocal
 
 set DIRNAME=%~dp0
