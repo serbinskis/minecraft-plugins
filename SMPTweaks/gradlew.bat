@@ -22,6 +22,8 @@
 @rem ##########################################################################
 
 @rem Set local scope for the variables with windows NT shell
+:start
+del build\*.jar
 if "%OS%"=="Windows_NT" setlocal
 
 set DIRNAME=%~dp0
@@ -80,11 +82,14 @@ if "%ERRORLEVEL%"=="0" goto mainEnd
 :fail
 rem Set variable GRADLE_EXIT_CONSOLE if you need the _script_ return code instead of
 rem the _cmd.exe /c_ return code!
+pause
+goto start
 if  not "" == "%GRADLE_EXIT_CONSOLE%" exit 1
 exit /b 1
 
 :mainEnd
 if "%OS%"=="Windows_NT" endlocal
+pause
+goto start
 
 :omega
-pause

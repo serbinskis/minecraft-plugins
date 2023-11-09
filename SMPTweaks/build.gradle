@@ -1,17 +1,17 @@
 plugins {
     id "java"
+    id "net.minecrell.plugin-yml.bukkit" version "0.6.0"
+    //id "io.papermc.paperweight.userdev" version "1.5.9"
 }
 
-sourceCompatibility = 17
-targetCompatibility = 17
-group project.property("group")
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
+group = project.group
 defaultTasks "build"
 
 compileJava {
     options.encoding = "UTF-8"
     options.compilerArgs += ["-parameters"]
-    options.fork = true
-    options.forkOptions.executable = "javac"
 }
 
 repositories {
@@ -24,13 +24,37 @@ repositories {
 }
 
 dependencies {
-    compileOnly "io.papermc.paper:paper-api:${project.minecraft_version}-R0.1-SNAPSHOT"
-    compileOnly "org.spigotmc:spigot:${project.minecraft_version}-R0.1-SNAPSHOT"
-    compileOnly "org.spigotmc:spigot:${project.minecraft_version}-R0.1-SNAPSHOT:remapped-mojang"
     compileOnly "com.comphenix.protocol:ProtocolLib:5.1.0"
+    compileOnly "org.spigotmc:spigot:${project.minecraft_version}-R0.1-SNAPSHOT"
+    compileOnly "io.papermc.paper:paper-api:${project.minecraft_version}-R0.1-SNAPSHOT"
+    //paperweight.paperDevBundle("${project.minecraft_version}-R0.1-SNAPSHOT")
+    library "com.google.code.gson:gson:2.10.1"
+}
+
+
+
+bukkit {
+    main = "me.wobbychip.smptweaks.Main"
+    name = "SMPTweaks"
+    apiVersion = 1.13
+    version = project.minecraft_version
+    author = "WobbyChip"
+    softDepend = ["ProtocolLib"]
+}
+
+tasks.withType(Copy).all {
+    duplicatesStrategy "EXCLUDE" //INCLUDE
+}
+
+processResources {
+	inputs.property "version", project.minecraft_version
+
+	filesMatching("plugin.yml") {
+		expand "version": project.minecraft_version
+	}
 }
 
 jar {
-    destinationDir = file(projectDir)
-    archiveFileName = "${project.plugin_name}.jar"
+    destinationDirectory = file(projectDir)
+    archiveFileName = "build/${project.plugin_name}.jar"
 }

@@ -7,9 +7,16 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Predicate;
 
+import com.google.common.collect.Maps;
+import net.minecraft.network.protocol.game.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -39,8 +46,6 @@ import net.minecraft.network.EnumProtocol;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.protocol.EnumProtocolDirection;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.PacketPlayOutAbilities;
-import net.minecraft.network.protocol.game.PacketPlayOutSetSlot;
 import net.minecraft.network.syncher.DataWatcher;
 import net.minecraft.network.syncher.DataWatcherObject;
 import net.minecraft.resources.MinecraftKey;
@@ -128,6 +133,7 @@ public class ReflectionUtils {
 	public static Method EnumChatVisibility_getKey;
 	public static Method IRegistry_keySet;
 	public static Method Potions_register;
+	public static Method RegistryMaterials_getResourceKey;
 	public static Method RegistryMaterials_getHolder;
 	public static Method Item_get;
 	public static Method Item_releaseUsing;
@@ -172,8 +178,8 @@ public class ReflectionUtils {
 		//Fuck it I am not interested in updating nms every time
 		//So I will just search fields and methods by their types and arguments
 
-		DATA_LIVING_ENTITY_FLAGS = (DataWatcherObject<Byte>) getValue(Objects.requireNonNull(getField(EntityLiving.class, DataWatcherObject.class, Byte.class, true)), null);
-		POTION = (RegistryBlocks<PotionRegistry>) getValue(Objects.requireNonNull(getField(BuiltInRegistries.class, RegistryBlocks.class, PotionRegistry.class, true)), null);
+		DATA_LIVING_ENTITY_FLAGS = (DataWatcherObject<Byte>) getValue(getField(EntityLiving.class, DataWatcherObject.class, Byte.class, true), null);
+		POTION = (RegistryBlocks<PotionRegistry>) getValue(getField(BuiltInRegistries.class, RegistryBlocks.class, PotionRegistry.class, true), null);
 		setRegistryMap(POTION, new HashMap<>());
 
 		Entity_bukkitEntity = getField(net.minecraft.world.entity.Entity.class, CraftEntity, null, true);
@@ -521,6 +527,28 @@ public class ReflectionUtils {
 		}
 	}
 
+	//MIX_ID is required to prevent weird visual bug when client side and server side breaking are overlapping
+	//Making two animations replace each other at the same time
+	public static void destroyBlockProgress(org.bukkit.block.Block block, int progress, int mix_id) {
+		for (Player player : block.getWorld().getPlayers()) {
+			double d0 = (double) block.getX() - player.getLocation().getX();
+			double d1 = (double) block.getY() - player.getLocation().getY();
+			double d2 = (double) block.getZ() - player.getLocation().getZ();
+
+			if (d0 * d0 + d1 * d1 + d2 * d2 >= 1024.0D) { continue; }
+			BlockPosition location = new BlockPosition(block.getX(), block.getY(), block.getZ());
+			ReflectionUtils.sendPacket(player, new PacketPlayOutBlockBreakAnimation(player.getEntityId()+mix_id, location, progress));
+		}
+	}
+
+	public static void destroyBlock(Player player, org.bukkit.block.Block block) {
+		destroyBlockProgress(block, -1, 0);
+		BlockPosition location = new BlockPosition(block.getX(), block.getY(), block.getZ());
+		int id = ReflectionUtils.getBlockId(block.getType());
+		ReflectionUtils.sendPacket(player, new PacketPlayOutWorldEvent(2001, location, id, false));
+		player.breakBlock(block);
+	}
+
 	public static void popResource(Location location, ItemStack item) {
 		try {
 			net.minecraft.world.level.World world = getWorld(location.getWorld());
@@ -532,16 +560,16 @@ public class ReflectionUtils {
 	}
 
 	public static void setInvulnerableTicks(Player player, int ticks) {
-		Object entityPlayer = (Object) getEntityPlayer(player);
+		EntityPlayer entityPlayer = getEntityPlayer(player);
 
 		if (EntityPlayer_invulnerableTicks == null) {
-            for (Field field : entityPlayer.getClass().getDeclaredFields()) {
+			for (Field field : EntityPlayer.class.getDeclaredFields()) {
 				try {
 					if (!field.getType().equals(int.class)) { continue; }
 					if (((int) field.get(entityPlayer)) != 60) { continue; }
 					EntityPlayer_invulnerableTicks = field;
 					break;
-				} catch (IllegalArgumentException | IllegalAccessException ignored) {}
+				} catch (IllegalArgumentException | IllegalAccessException e) {}
 			}
 		}
 
@@ -585,9 +613,9 @@ public class ReflectionUtils {
 		return MinecraftServer.getServer();
 	}
 
-	public static HashMap<NetworkManager, Channel> getConnections() {
+	public static HashMap<Object, Channel> getConnections() {
 		try {
-			HashMap<NetworkManager, Channel> connections = new HashMap<>();
+			HashMap<Object, Channel> connections = new HashMap<>();
 			ServerConnection serverConnection = (ServerConnection) MinecraftServer_getConnection.invoke(getServer());
 			List<NetworkManager> managers = (List<NetworkManager>) ServerConnection_connections.get(serverConnection);
 
@@ -768,6 +796,10 @@ public class ReflectionUtils {
 		}
 	}
 
+	public static void selectTrade(Player player, int slot) {
+		handlePacket(player, new PacketPlayInTrSel(slot));
+	}
+
 	//Gets player's reputation from villager (all types)
 	public static int getPlayerReputation(Villager villager, Player player) {
 		try {
@@ -780,6 +812,10 @@ public class ReflectionUtils {
 		}
 
 		return 0;
+	}
+
+	public static boolean registerBrewRecipe(Object base, Material ingredient, Object result) {
+		return registerBrewRecipe((PotionRegistry) base, ingredient, (PotionRegistry) result);
 	}
 
 	public static boolean registerBrewRecipe(PotionRegistry base, Material ingredient, PotionRegistry result) {
@@ -811,6 +847,10 @@ public class ReflectionUtils {
 		}
 
 		return null;
+	}
+
+	public static String getPotionRegistryName(Object potion) {
+		return getPotionRegistryName((PotionRegistry) potion);
 	}
 
 	public static String getPotionRegistryName(PotionRegistry potion) {
@@ -897,7 +937,7 @@ public class ReflectionUtils {
 	}
 
 	//FUCK MOJANG DEVELOPERS, how the fuck do you forget to set value of a holder
-	//when registering a new mapping, how brain-damaged you must be.
+	//when registering a new mapping, how brain damaged you must be.
 	public static void fixHolder(Object registry, Object value) {
 		try {
 			int currentId = RegistryMaterials_nextId.getInt(registry)-1;
@@ -911,5 +951,25 @@ public class ReflectionUtils {
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static Object getSetLevels(Object data) throws IllegalAccessException {
+		Object levels = MinecraftServer_levels.get(MinecraftServer.getServer());
+		MinecraftServer_levels.set(MinecraftServer.getServer(), data);
+		return levels;
+	}
+
+	public static Object getSetCustomFunctionDataTicking(Object data) throws IllegalAccessException {
+		Object functionManager = MinecraftServer_functionManager.get(MinecraftServer.getServer());
+		Object ticking = CustomFunctionData_ticking.get(functionManager);
+		CustomFunctionData_ticking.set(functionManager, data);
+		return ticking;
+	}
+
+	public static Object getSetCustomFunctionPostReload(Object data) throws IllegalAccessException {
+		Object functionManager = MinecraftServer_functionManager.get(MinecraftServer.getServer());
+		Object postReload = CustomFunctionData_postReload.get(functionManager);
+		CustomFunctionData_postReload.set(functionManager, data);
+		return postReload;
 	}
 }

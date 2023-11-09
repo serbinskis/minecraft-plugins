@@ -31,7 +31,7 @@ public class Events implements Listener {
 		if (!event.getPlayer().isSneaking()) { return; }
 		if (!Utils.hasPermissions(event.getPlayer(), "smptweaks.holograms.create")) { return; }
 
-		Hologram hologram = Hologram.create(event.getClickedBlock().getLocation(), "Â§bHologram - right click with an empty hand");
+		Hologram hologram = Hologram.create(event.getClickedBlock().getLocation(), "§bHologram - right click with an empty hand");
 		hologram.updateRotation(event.getPlayer());
 		event.setCancelled(true);
 	}

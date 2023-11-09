@@ -23,12 +23,11 @@ import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
 import me.wobbychip.smptweaks.utils.PersistentUtils;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import me.wobbychip.smptweaks.utils.Utils;
-import net.minecraft.world.item.alchemy.PotionRegistry;
 
 public class PotionManager {
 	protected Map<CustomPotion, String> waiting = new HashMap<CustomPotion, String>();
 	protected Map<String, CustomPotion> potions = new HashMap<String, CustomPotion>();
-	protected Map<String, PotionRegistry> registry = new HashMap<String, PotionRegistry>();
+	protected Map<String, Object> registry = new HashMap<String, Object>();
 
 	public List<CustomPotion> getPotions(ClassLoader loader, String pacakgeName) {
 		List<CustomPotion> potions = new ArrayList<>();
@@ -75,7 +74,7 @@ public class PotionManager {
 			potion.setBase(registry.get(potion.getBaseName()));
 		}
 
-		PotionRegistry result = ReflectionUtils.registerInstantPotion(potion.getName());
+		Object result = (Object) ReflectionUtils.registerInstantPotion(potion.getName());
 		potions.put(potion.getName(), potion);
 		registry.put(potion.getName(), result);
 
@@ -111,11 +110,11 @@ public class PotionManager {
 		}
 	}
 
-	public PotionRegistry getPotionRegistry(CustomPotion potion) {
+	public Object getPotionRegistry(CustomPotion potion) {
 		return registry.containsKey(potion.getName()) ? registry.get(potion.getName()) : null;
 	}
 
-	public PotionRegistry getPotionRegistry(String name) {
+	public Object getPotionRegistry(String name) {
 		return registry.containsKey(name) ? registry.get(name) : null;
 	}
 
@@ -144,7 +143,7 @@ public class PotionManager {
 		return potions.containsKey(name) ? potions.get(name) : null;
 	}
 
-	public static PotionRegistry getPotion(PotionType potionType, boolean extended, boolean upgraded) {
+	public static Object getPotion(PotionType potionType, boolean extended, boolean upgraded) {
 		return ReflectionUtils.getPotion(potionType, extended, upgraded);
 	}
 }

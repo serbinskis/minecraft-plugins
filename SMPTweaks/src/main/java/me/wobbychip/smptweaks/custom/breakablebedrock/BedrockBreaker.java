@@ -11,9 +11,6 @@ import org.bukkit.entity.Player;
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import me.wobbychip.smptweaks.utils.Utils;
-import net.minecraft.core.BlockPosition;
-import net.minecraft.network.protocol.game.PacketPlayOutBlockBreakAnimation;
-import net.minecraft.network.protocol.game.PacketPlayOutWorldEvent;
 
 public class BedrockBreaker {
 	public static HashMap<UUID, BedrockBreaker> breakers = new HashMap<UUID, BedrockBreaker>();
@@ -40,7 +37,7 @@ public class BedrockBreaker {
 	}
 
 	public void remove() {
-		if (block.getType() == Material.BEDROCK) { destroyBlockProgress(block, -1); }
+		if (block.getType() == Material.BEDROCK) { ReflectionUtils.destroyBlockProgress(block, -1, MIX_ID); }
 		Bukkit.getServer().getScheduler().cancelTask(timer);
 		breakers.remove(player.getUniqueId());
 	}
@@ -58,8 +55,8 @@ public class BedrockBreaker {
 		if (bProgress && BreakableBedrock.enableTimer && (ticks%5 == 0)) { sendProgressTime(); }
 		int k = ((int) (progress * 10.0F));
 
-		destroyBlockProgress(block, k);
-		if (progress >= BREAK_AFTER) { destroyBlock(player, block); remove(); }
+		ReflectionUtils.destroyBlockProgress(block, k, MIX_ID);
+		if (progress >= BREAK_AFTER) { ReflectionUtils.destroyBlock(player, block); remove(); }
 	}
 
 	public static void addPlayer(Player player, Block block) {
@@ -108,27 +105,5 @@ public class BedrockBreaker {
 
 		String message = String.format("Time: %d:%02d:%02d:%02d.%03d | %.2f%%", days, hours, minutes, seconds, millis, pProgress);
 		Utils.sendActionMessage(player, message);
-	}
-
-	//MIX_ID is required to prevent weird visual bug when client side and server side breaking are overlapping
-	//Making two animations replace each other at the same time
-	public static void destroyBlockProgress(Block block, int progress) {
-		for (Player player : block.getWorld().getPlayers()) {
-			double d0 = (double) block.getX() - player.getLocation().getX();
-			double d1 = (double) block.getY() - player.getLocation().getY();
-			double d2 = (double) block.getZ() - player.getLocation().getZ();
-
-			if (d0 * d0 + d1 * d1 + d2 * d2 >= 1024.0D) { continue; }
-			BlockPosition location = new BlockPosition(block.getX(), block.getY(), block.getZ());
-			ReflectionUtils.sendPacket(player, new PacketPlayOutBlockBreakAnimation(player.getEntityId()+MIX_ID, location, progress));
-		}
-	}
-
-	public static void destroyBlock(Player player, Block block) {
-		destroyBlockProgress(block, -1);
-		BlockPosition location = new BlockPosition(block.getX(), block.getY(), block.getZ());
-		int id = ReflectionUtils.getBlockId(block.getType());
-		ReflectionUtils.sendPacket(player, new PacketPlayOutWorldEvent(2001, location, id, false));
-		player.breakBlock(block);
 	}
 }

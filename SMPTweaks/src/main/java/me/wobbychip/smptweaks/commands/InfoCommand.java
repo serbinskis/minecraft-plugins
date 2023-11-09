@@ -40,7 +40,7 @@ public class InfoCommand {
 			gamerule_message = String.format("&9Gamerule: &f%s, default: %s%s\n", gamerule.getKey(), gamerule.getValue(), gamerule_current);
 		}
 
-		String message = "&a&lSMPTweaks &8Â» &7" + tweak.getName() + "\n" +
+		String message = "&a&lSMPTweaks &8» &7" + tweak.getName() + "\n" +
 						 "&9Enabled: &f" + enabled + "\n" +
 						 "&9Requires: &f" + requires + "\n" +
 						 gamerule_message +

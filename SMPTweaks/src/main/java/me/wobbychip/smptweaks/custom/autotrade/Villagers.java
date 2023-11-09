@@ -14,7 +14,6 @@ import org.bukkit.inventory.MerchantRecipe;
 
 import me.wobbychip.smptweaks.utils.PersistentUtils;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
-import net.minecraft.network.protocol.game.PacketPlayInTrSel;
 
 public class Villagers {
 	public static boolean tradeVillager(Block trader, Villager villager, int trade) {
@@ -26,7 +25,7 @@ public class Villagers {
 			AutoTrade.fakePlayer.getInventory().addItem(item);
 		}
 
-		ReflectionUtils.handlePacket(AutoTrade.fakePlayer, new PacketPlayInTrSel(trade));
+		ReflectionUtils.selectTrade(AutoTrade.fakePlayer, trade);
 		ReflectionUtils.quickMoveStack(AutoTrade.fakePlayer, 2);
 
 		AutoTrade.fakePlayer.closeInventory();

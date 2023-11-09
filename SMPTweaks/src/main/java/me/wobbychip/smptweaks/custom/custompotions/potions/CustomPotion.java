@@ -3,6 +3,7 @@ package me.wobbychip.smptweaks.custom.custompotions.potions;
 import java.util.Arrays;
 import java.util.List;
 
+import me.wobbychip.smptweaks.Main;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -22,11 +23,10 @@ import org.bukkit.inventory.meta.PotionMeta;
 import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
 import me.wobbychip.smptweaks.utils.PersistentUtils;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
-import net.minecraft.world.item.alchemy.PotionRegistry;
 
 public class CustomPotion implements Listener {
 	private boolean enabled = true;
-	private PotionRegistry base;
+	private Object base;
 	private String cbase;
 	private Material ingredient;
 	private String name;
@@ -40,11 +40,11 @@ public class CustomPotion implements Listener {
 	private String tippedArrowName = null;
 
 	public CustomPotion(String base, Material ingredient, String name, Color color) {
-		this((PotionRegistry) null, ingredient, name, color);
+		this((Object) null, ingredient, name, color);
 		this.cbase = base;
 	}
 
-	public CustomPotion(PotionRegistry base, Material ingredient, String name, Color color) {
+	public CustomPotion(Object base, Material ingredient, String name, Color color) {
 		this.base = base;
 		this.ingredient = ingredient;
 		this.name = name;
@@ -65,7 +65,7 @@ public class CustomPotion implements Listener {
 		return enabled;
 	}
 
-	public PotionRegistry getBase() {
+	public Object getBase() {
 		return base;
 	}
 
@@ -77,7 +77,7 @@ public class CustomPotion implements Listener {
 		String result = "";
 
 		for (int i = 0 ; i < displayName.length() ; i++) {
-			if ((displayName.charAt(i) == 'Â§') && (i+1 < displayName.length())) {
+			if ((displayName.charAt(i) == Main.color_sym) && (i+1 < displayName.length())) {
 				result += displayName.substring(i, i+2);
 				i += 1;
 			} else { break; }
@@ -104,7 +104,7 @@ public class CustomPotion implements Listener {
 		return new java.awt.Color(color.getRed(), color.getGreen(), color.getBlue()).getRGB();
 	}
 
-	public void setBase(PotionRegistry base) {
+	public void setBase(Object base) {
 		this.base = base;
 	}
 
@@ -175,7 +175,7 @@ public class CustomPotion implements Listener {
 
 	public ItemStack getDisabledPotion(ItemStack item) {		
 		PotionMeta potionMeta = (PotionMeta) item.getItemMeta();
-		potionMeta.setDisplayName("Â§rÂ§fPotions are disabled");
+		potionMeta.setDisplayName("§r§fPotions are disabled");
 		potionMeta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
 		item.setItemMeta(potionMeta);
 

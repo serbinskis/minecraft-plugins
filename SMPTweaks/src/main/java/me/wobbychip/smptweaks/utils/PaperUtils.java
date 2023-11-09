@@ -9,10 +9,10 @@ import org.bukkit.entity.Villager;
 public class PaperUtils {
 	public static Class<?> Reputation;
 	public static Class<?> ReputationType;
-	public static Method v_getReputation = null;
-	public static Method v_setReputation = null;
-	public static Method r_getReputation = null;
-	public static Method r_setReputation = null;
+	public static Method v_getRepution = null;
+	public static Method v_setRepution = null;
+	public static Method r_getRepution = null;
+	public static Method r_setRepution = null;
 	public static boolean isPaper = isPaper();
 
 	static {
@@ -20,11 +20,11 @@ public class PaperUtils {
 			Reputation = ReflectionUtils.loadClass("com.destroystokyo.paper.entity.villager.Reputation", true);
 			ReputationType = ReflectionUtils.loadClass("com.destroystokyo.paper.entity.villager.ReputationType", true);
 
-			v_getReputation = ReflectionUtils.getMethod(Villager.class, "getReputation", UUID.class);
-			v_getReputation = ReflectionUtils.getMethod(Villager.class, "setReputation", UUID.class, Reputation);
+			v_getRepution = ReflectionUtils.getMethod(Villager.class, "getReputation", UUID.class);
+			v_setRepution = ReflectionUtils.getMethod(Villager.class, "setReputation", UUID.class, Reputation);
 
-			r_getReputation = ReflectionUtils.getMethod(Reputation, "getReputation", ReputationType);
-			r_setReputation = ReflectionUtils.getMethod(Reputation, "setReputation", ReputationType, int.class);
+			r_getRepution = ReflectionUtils.getMethod(Reputation, "getReputation", ReputationType);
+			r_setRepution = ReflectionUtils.getMethod(Reputation, "setReputation", ReputationType, int.class);
 		}
 	}
 
@@ -34,9 +34,9 @@ public class PaperUtils {
 
 	public static int getReputation(Villager villager, UUID uuid, String type) {
 		try {
-			Object reputation = v_setReputation.invoke(villager, uuid);
+			Object reputation = v_getRepution.invoke(villager, uuid);
 			if (reputation == null) { return -1; }
-			return (int) r_getReputation.invoke(reputation, getReputationType(type));
+			return (int) r_getRepution.invoke(reputation, getReputationType(type));
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | SecurityException e) {
 			e.printStackTrace();
 		}
@@ -47,8 +47,8 @@ public class PaperUtils {
 	public static void setReputation(Villager villager, UUID uuid, String type, int amount) {
 		try {
 			Object reputation = Reputation.getDeclaredConstructor().newInstance();
-			r_setReputation.invoke(reputation, getReputationType(type), amount);
-			v_setReputation.invoke(villager, uuid, reputation);
+			r_setRepution.invoke(reputation, getReputationType(type), amount);
+			v_setRepution.invoke(villager, uuid, reputation);
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | InstantiationException e) {
 			e.printStackTrace();
 		}

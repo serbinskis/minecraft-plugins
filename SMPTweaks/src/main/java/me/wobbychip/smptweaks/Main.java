@@ -45,7 +45,9 @@ public class Main extends JavaPlugin {
 	public static TweakManager manager;
 	public static ClassLoader classLoader;
 	public static String prefix = "SMPTweaks-";
-	public static String color = "&9";
+	public static char color_sym = '&';
+	public static String color = color_sym + "9";
+
 
 	@Override
 	public void onEnable() {

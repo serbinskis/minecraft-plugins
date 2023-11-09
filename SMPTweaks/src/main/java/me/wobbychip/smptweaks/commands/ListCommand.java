@@ -18,7 +18,7 @@ public class ListCommand {
 			names.add("&7" + tweak.getName() + " (" + (tweak.isEnabled() ? "&a+&7" : "&c-&7") + ")");
 		}
 
-		Utils.sendMessage(sender, "&a&lSMPTweaks &8Â» " + String.join(", ", names));
+		Utils.sendMessage(sender, "&a&lSMPTweaks &8» " + String.join(", ", names));
 		return true;
 	}
 }
