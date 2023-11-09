@@ -15,7 +15,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
 
-import com.google.common.collect.Maps;
 import net.minecraft.network.protocol.game.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
