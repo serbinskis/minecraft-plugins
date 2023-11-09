@@ -17,7 +17,7 @@ public class ServerUtils {
 	//but it maybe can also break something if other plugins that try to access worlds
 	public static boolean pauseServer() {
 		if (ServerUtils.isPaused() || ServerUtils.shutting) { return false; }
-		if (Bukkit.getOnlinePlayers().isEmpty()) { return false; }
+		if (!Bukkit.getOnlinePlayers().isEmpty()) { return false; }
 
 		try {
 			levels = ReflectionUtils.getSetLevels(Maps.newLinkedHashMap());

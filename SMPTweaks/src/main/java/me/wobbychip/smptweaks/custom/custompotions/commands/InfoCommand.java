@@ -36,7 +36,7 @@ public class InfoCommand {
 		String allowArrow = potion.getAllowTippedArrow() ? "Yes" : "No";
 		String allowTrade = potion.getAllowVillagerTrades() ? "Yes" : "No";
 
-		String message = "&a&lCustomPotions &8» &7" + name + "\n" +
+		String message = "&a&lCustomPotions &8Â» &7" + name + "\n" +
 				"&9Display Name: &f" + displayName + "\n" +
 				"&9Description: &f" + description + "\n" +
 				"&9Ingredient: &f" + ingredient + "\n" +

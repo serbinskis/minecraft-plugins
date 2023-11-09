@@ -25,7 +25,7 @@ public class ListCommand {
 			names.add(Utils.toTitleCase(name));
 		}
 
-		String message = "&a&lCustomPotions &8» &7" +
+		String message = "&a&lCustomPotions &8Â» &7" +
 				((names.size() == 0) ? NO_POTIONS : String.join(", ", names));
 
 		Utils.sendMessage(sender, message);

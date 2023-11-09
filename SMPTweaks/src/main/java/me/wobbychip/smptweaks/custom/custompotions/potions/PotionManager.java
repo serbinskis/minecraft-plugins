@@ -144,6 +144,6 @@ public class PotionManager {
 	}
 
 	public static Object getPotion(PotionType potionType, boolean extended, boolean upgraded) {
-		return ReflectionUtils.getPotion(potionType, extended, upgraded);
+		return (Object) ReflectionUtils.getPotion(potionType, extended, upgraded);
 	}
 }

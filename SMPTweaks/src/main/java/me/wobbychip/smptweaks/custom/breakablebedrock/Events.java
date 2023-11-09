@@ -1,5 +1,6 @@
 package me.wobbychip.smptweaks.custom.breakablebedrock;
 
+import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
@@ -32,6 +33,6 @@ public class Events implements Listener {
 		if (event.getBlock().getType() != Material.BEDROCK) { return; }
 		if (event.getPlayer().getGameMode() != GameMode.SURVIVAL) { return; }
 		if (!event.isDropItems() || !BedrockBreaker.shouldDrop(event.getPlayer())) { return; }
-		Utils.dropBlockItem(event.getBlock(), event.getPlayer(), new ItemStack(Material.BEDROCK));
+		ReflectionUtils.dropBlockItem(event.getBlock(), event.getPlayer(), new ItemStack(Material.BEDROCK));
 	}
 }

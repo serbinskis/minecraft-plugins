@@ -1,13 +1,12 @@
 plugins {
     id "java"
-    id "net.minecrell.plugin-yml.bukkit" version "0.6.0"
-    //id "io.papermc.paperweight.userdev" version "1.5.9"
+    id "io.papermc.paperweight.userdev" version "1.5.9"
 }
 
 sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 group = project.group
-defaultTasks "build"
+defaultTasks "rebuild"
 
 compileJava {
     options.encoding = "UTF-8"
@@ -16,45 +15,47 @@ compileJava {
 
 repositories {
     mavenCentral()
-    maven { url = "https://repo.papermc.io/repository/maven-public/" }
+    mavenLocal()
     maven { url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/" }
+    maven { url = "https://repo.papermc.io/repository/maven-public/" }
     maven { url "https://repo.codemc.io/repository/nms/" }
     maven { url "https://repo.dmulloy2.net/repository/public/" }
-    maven { url "https://jitpack.io" }
+    maven { url = "https://oss.sonatype.org/content/groups/public/" }
 }
 
 dependencies {
     compileOnly "com.comphenix.protocol:ProtocolLib:5.1.0"
-    compileOnly "org.spigotmc:spigot:${project.minecraft_version}-R0.1-SNAPSHOT"
     compileOnly "io.papermc.paper:paper-api:${project.minecraft_version}-R0.1-SNAPSHOT"
-    //paperweight.paperDevBundle("${project.minecraft_version}-R0.1-SNAPSHOT")
-    library "com.google.code.gson:gson:2.10.1"
-}
-
-
-
-bukkit {
-    main = "me.wobbychip.smptweaks.Main"
-    name = "SMPTweaks"
-    apiVersion = 1.13
-    version = project.minecraft_version
-    author = "WobbyChip"
-    softDepend = ["ProtocolLib"]
-}
-
-tasks.withType(Copy).all {
-    duplicatesStrategy "EXCLUDE" //INCLUDE
+    paperweight.paperDevBundle("${project.minecraft_version}-R0.1-SNAPSHOT")
 }
 
 processResources {
-	inputs.property "version", project.minecraft_version
-
-	filesMatching("plugin.yml") {
-		expand "version": project.minecraft_version
-	}
+    filesMatching('**/plugin.yml') {
+        filter { line ->
+            line.replaceAll("version: 1.0", "version: ${project.minecraft_version}")
+        }
+    }
 }
 
-jar {
-    destinationDirectory = file(projectDir)
-    archiveFileName = "build/${project.plugin_name}.jar"
+clean {
+    delete rootProject.buildDir
+}
+
+task rebuild {
+    dependsOn clean
+    finalizedBy build
+}
+
+tasks {
+    assemble {
+        dependsOn(reobfJar)
+    }
+
+    compileJava {
+        options.release.set(17)
+    }
+
+    reobfJar {
+      outputJar.set(layout.buildDirectory.file("SMPTweaks.jar"))
+    }
 }

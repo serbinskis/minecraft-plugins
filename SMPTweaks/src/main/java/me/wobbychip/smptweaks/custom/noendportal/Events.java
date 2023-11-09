@@ -1,7 +1,8 @@
 package me.wobbychip.smptweaks.custom.noendportal;
 
+import me.wobbychip.smptweaks.Main;
+import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.World.Environment;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -11,8 +12,6 @@ import org.bukkit.event.entity.EntityPortalEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
-
-import me.wobbychip.smptweaks.utils.Utils;
 
 public class Events implements Listener {
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
@@ -36,7 +35,7 @@ public class Events implements Listener {
 		ItemStack itemStack = event.getPlayer().getInventory().getItem(event.getHand());
 		if ((itemStack == null) || (itemStack.getType() != Material.ENDER_EYE)) { return; }
 		if (NoEndPortal.tweak.getGameRuleBoolean(event.getPlayer().getWorld())) { return; }
-		event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.BLOCK_NOTE_BLOCK_HARP, 1.0f, 1.0f);
+		event.getPlayer().playSound(event.getPlayer().getLocation(), Main.DENY_SOUND_EFFECT, 1.0f, 1.0f);
 		Utils.sendActionMessage(event.getPlayer(), "End portal is currently disabled.");
 		event.setCancelled(true);
 	}

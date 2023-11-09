@@ -1,6 +1,7 @@
 package me.wobbychip.smptweaks;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import me.wobbychip.smptweaks.commands.Commands;
@@ -45,9 +46,8 @@ public class Main extends JavaPlugin {
 	public static TweakManager manager;
 	public static ClassLoader classLoader;
 	public static String prefix = "SMPTweaks-";
-	public static char color_sym = '&';
-	public static String color = color_sym + "9";
-
+	public static String color = "&9";
+	public static Sound DENY_SOUND_EFFECT = Sound.BLOCK_NOTE_BLOCK_HARP;
 
 	@Override
 	public void onEnable() {

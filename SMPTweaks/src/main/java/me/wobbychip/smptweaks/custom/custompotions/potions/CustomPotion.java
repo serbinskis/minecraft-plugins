@@ -3,7 +3,6 @@ package me.wobbychip.smptweaks.custom.custompotions.potions;
 import java.util.Arrays;
 import java.util.List;
 
-import me.wobbychip.smptweaks.Main;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -77,7 +76,7 @@ public class CustomPotion implements Listener {
 		String result = "";
 
 		for (int i = 0 ; i < displayName.length() ; i++) {
-			if ((displayName.charAt(i) == Main.color_sym) && (i+1 < displayName.length())) {
+			if ((displayName.charAt(i) == 'Â§') && (i+1 < displayName.length())) {
 				result += displayName.substring(i, i+2);
 				i += 1;
 			} else { break; }
@@ -175,7 +174,7 @@ public class CustomPotion implements Listener {
 
 	public ItemStack getDisabledPotion(ItemStack item) {		
 		PotionMeta potionMeta = (PotionMeta) item.getItemMeta();
-		potionMeta.setDisplayName("§r§fPotions are disabled");
+		potionMeta.setDisplayName("Â§rÂ§fPotions are disabled");
 		potionMeta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
 		item.setItemMeta(potionMeta);
 

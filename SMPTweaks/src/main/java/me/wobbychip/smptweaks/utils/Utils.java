@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -39,7 +38,6 @@ import org.bukkit.entity.Sittable;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.entity.Tameable;
 import org.bukkit.entity.Wither;
-import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.scoreboard.Scoreboard;
@@ -50,7 +48,6 @@ import me.wobbychip.smptweaks.Config;
 import me.wobbychip.smptweaks.Main;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.minecraft.world.entity.item.EntityItem;
 
 public class Utils {
 	public static double ITEM_HEIGHT = 0.25F;
@@ -354,33 +351,6 @@ public class Utils {
 	public static boolean isMovable(Entity entity) {
 		if (!(entity instanceof Sittable)) { return true; }
 		return !((Sittable) entity).isSitting();
-	}
-
-	public static void dropBlockItem(Block block, Player player, ItemStack itemStack) {
-		double x = block.getLocation().getX() + 0.5;
-		double y = block.getLocation().getY() + 0.5;
-		double z = block.getLocation().getZ() + 0.5;
-
-		double f = (ITEM_HEIGHT / 2.0F);
-		double d0 = x + Utils.randomRange(-ITEM_SPAWN_OFFSET, ITEM_SPAWN_OFFSET);
-		double d1 = y + Utils.randomRange(-ITEM_SPAWN_OFFSET, ITEM_SPAWN_OFFSET) - f;
-		double d2 = z + Utils.randomRange(-ITEM_SPAWN_OFFSET, ITEM_SPAWN_OFFSET);
-
-		net.minecraft.world.level.World world = ReflectionUtils.getWorld(block.getWorld());
-		EntityItem entityItem = new EntityItem(world, d0, d1, d2, ReflectionUtils.asNMSCopy(itemStack));
-		ReflectionUtils.getBukkitEntity(entityItem).setVelocity(new Vector(Math.random()*0.2F-0.1F, 0.2F, Math.random()*0.2F-0.1F));
-		ArrayList<Item> items = new ArrayList<>(Arrays.asList((Item) ReflectionUtils.getBukkitEntity(entityItem)));
-
-		BlockDropItemEvent dropEvent = new BlockDropItemEvent(block, block.getState(), player, items);
-		Bukkit.getServer().getPluginManager().callEvent(dropEvent);
-		if (dropEvent.isCancelled()) { return; }
-
-		for (Item drop : dropEvent.getItems()) {
-			block.getWorld().spawn(drop.getLocation(), Item.class, (item) -> {
-				item.setItemStack(drop.getItemStack());
-				item.setVelocity(drop.getVelocity());
-			});
-		}
 	}
 
 	public static boolean containsEnchantment(ItemStack item, List<String> enchantments) {

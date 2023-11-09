@@ -1,5 +1,6 @@
 package me.wobbychip.smptweaks.custom.silktouchspawners;
 
+import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.CreatureSpawner;
@@ -33,7 +34,7 @@ public class Events implements Listener {
 		spawnerItem.setItemMeta(itemMeta);
 
 		event.setExpToDrop(0);
-		Utils.dropBlockItem(event.getBlock(), event.getPlayer(), spawnerItem);
+		ReflectionUtils.dropBlockItem(event.getBlock(), event.getPlayer(), spawnerItem);
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

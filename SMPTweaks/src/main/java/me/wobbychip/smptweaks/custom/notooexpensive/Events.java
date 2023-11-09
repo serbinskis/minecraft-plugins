@@ -1,5 +1,7 @@
 package me.wobbychip.smptweaks.custom.notooexpensive;
 
+import me.wobbychip.smptweaks.Main;
+import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.entity.HumanEntity;
@@ -7,11 +9,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
-
-import me.wobbychip.smptweaks.utils.ReflectionUtils;
+import org.bukkit.inventory.AnvilInventory;
 
 public class Events implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
@@ -26,6 +28,19 @@ public class Events implements Listener {
 		}
 
 		event.getInventory().setMaximumRepairCost(Integer.MAX_VALUE);
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR)
+	public static void onInventoryClick(InventoryClickEvent event) {
+		if (!(event.getInventory() instanceof AnvilInventory inventory)) { return; }
+		if (event.getSlot() != 2) { return; }
+		if (event.getWhoClicked().getGameMode() == GameMode.CREATIVE) { return; }
+		if (!NoTooExpensive.tweak.getGameRuleBoolean(inventory.getLocation().getWorld())) { return; }
+		if (inventory.getRepairCost() <= NoTooExpensive.MAXIMUM_REPAIR_COST) { return; }
+
+		boolean flag = ((Player) event.getWhoClicked()).getLevel() >= inventory.getRepairCost();
+		if (!flag) { ((Player) event.getWhoClicked()).playSound(event.getWhoClicked().getLocation(), Main.DENY_SOUND_EFFECT, 1.0f, 1.0f); }
+		ReflectionUtils.setInstantBuild((Player) event.getWhoClicked(), flag, true, false);
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)

@@ -90,7 +90,7 @@ public class Hologram {
 		PersistentUtils.setPersistentDataBoolean(book, TAG_IS_HOLOGRAM, true);
 		BookMeta bookMeta = (BookMeta) book.getItemMeta();
 		String location = Utils.locationToString(this.getLocation());
-		bookMeta.setDisplayName("§bHologram (" + location + ")");
+		bookMeta.setDisplayName("Â§bHologram (" + location + ")");
 		bookMeta.setAuthor(getUniqueId().toString());
 		bookMeta.setPages(this.getText());
 		bookMeta.addEnchant(Enchantment.DURABILITY, 1, true);

@@ -1,8 +1,10 @@
 package me.wobbychip.smptweaks.custom.serverpause;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+import net.minecraft.network.Connection;
 import org.bukkit.Bukkit;
 
 import io.netty.channel.Channel;
@@ -19,6 +21,7 @@ public class ServerPause extends CustomTweak {
 	public static boolean gamerule = true;
 	public static boolean enabled = true;
 	public static int delayTask = -1;
+
 	public static int pauseDelay = 0;
 	public static boolean quiteCommands = false;
 	public static int cconnections = ReflectionUtils.getConnections().size();
@@ -49,9 +52,9 @@ public class ServerPause extends CustomTweak {
 
 		TaskUtils.scheduleSyncRepeatingTask(new Runnable() {
 			public void run() {
-				HashMap<Object, Channel> connections = ReflectionUtils.getConnections();
+				Collection<Channel> connections = ReflectionUtils.getConnections();
 				if (connections.size() == cconnections) { return; } else { cconnections = connections.size(); }
-				boolean online = ReflectionUtils.getConnections().values().stream().anyMatch(e -> ((e != null) && e.isOpen()));
+				boolean online = ReflectionUtils.getConnections().stream().anyMatch(e -> ((e != null) && e.isOpen()));
 				Bukkit.getPluginManager().callEvent(new ServerConnectionEvent(cconnections, online));
 			}
 		}, 20L, 1L);

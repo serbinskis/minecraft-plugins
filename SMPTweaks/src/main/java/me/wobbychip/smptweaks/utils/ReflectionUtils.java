@@ -7,15 +7,30 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.function.Predicate;
+import java.util.*;
 
+import net.minecraft.core.*;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.ConnectionProtocol;
+import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.*;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.ServerFunctionManager;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerConnectionListener;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Abilities;
+import net.minecraft.world.entity.player.ChatVisiblity;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.alchemy.PotionBrewing;
+import net.minecraft.world.item.alchemy.PotionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -24,6 +39,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
+import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionData;
@@ -34,58 +50,22 @@ import com.mojang.authlib.GameProfile;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.embedded.EmbeddedChannel;
-import net.minecraft.core.BlockPosition;
-import net.minecraft.core.Holder;
-import net.minecraft.core.IRegistry;
-import net.minecraft.core.RegistryBlocks;
-import net.minecraft.core.RegistryMaterials;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.EnumProtocol;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.protocol.EnumProtocolDirection;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.syncher.DataWatcher;
-import net.minecraft.network.syncher.DataWatcherObject;
-import net.minecraft.resources.MinecraftKey;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.CustomFunctionData;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ChunkProviderServer;
 import net.minecraft.server.level.ClientInformation;
-import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.server.level.WorldServer;
 import net.minecraft.server.network.CommonListenerCookie;
-import net.minecraft.server.network.PlayerConnection;
-import net.minecraft.server.network.ServerCommonPacketListenerImpl;
-import net.minecraft.server.network.ServerConnection;
-import net.minecraft.server.players.PlayerList;
-import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.entity.EntityLiving;
-import net.minecraft.world.entity.ai.gossip.Reputation;
-import net.minecraft.world.entity.ai.gossip.ReputationType;
-import net.minecraft.world.entity.npc.EntityVillager;
 import net.minecraft.world.entity.Entity.RemovalReason;
-import net.minecraft.world.entity.player.EntityHuman;
-import net.minecraft.world.entity.player.EnumChatVisibility;
-import net.minecraft.world.entity.player.PlayerAbilities;
-import net.minecraft.world.inventory.Container;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemBlock;
-import net.minecraft.world.item.alchemy.PotionBrewer;
-import net.minecraft.world.item.alchemy.PotionRegistry;
-import net.minecraft.world.item.alchemy.PotionUtil;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockBase;
-import net.minecraft.world.level.block.state.IBlockData;
+import org.bukkit.util.Vector;
 
 @SuppressWarnings("unchecked")
 public class ReflectionUtils {
-	public static DataWatcherObject<Byte> DATA_LIVING_ENTITY_FLAGS;
+	public static EntityDataAccessor<Byte> DATA_LIVING_ENTITY_FLAGS;
 	public static int LIVING_ENTITY_FLAG_IS_USING = 1;
-	public static RegistryBlocks<PotionRegistry> POTION;
-
+	public static DefaultedRegistry<Potion> POTION = BuiltInRegistries.POTION;
 	public static String version;
 	public static Class<?> CraftServer;
 	public static Class<?> CraftEntity;
@@ -98,68 +78,19 @@ public class ReflectionUtils {
 	public static Class<?> CraftMagicNumbers;
 
 	public static Field Entity_bukkitEntity;
-	public static Field EntityHuman_playerAbilities;
-	public static Field EntityHuman_container;
-	public static Field EntityPlayer_invulnerableTicks;
 	public static Field EntityPlayer_playerConnection;
 	public static Field EntityPlayer_chatVisibility;
-	public static Field EntityPlayer_respawnDimension;
-	public static Field EntityVillager_Reputation;
-	public static Field MinecraftServer_playerList;
 	public static Field MinecraftServer_levels;
-	public static Field MinecraftServer_functionManager;
-	public static Field ServerConnection_connections;
-	public static Field NetworkManager_channel;
+
 	public static Field CustomFunctionData_ticking;
 	public static Field CustomFunctionData_postReload;
-	public static Field PlayerList_players;
 	public static Field RegistryMaterials_frozen;
 	public static Field RegistryMaterials_nextId;
-	public static Field WorldServer_players;
-	public static Field ItemStack_tag;
-	public static Field ItemBlock_block;
-	public static Field Block_defaultBlockState;
-	public static Field BlockBase_properties;
-	public static Field BlockBase_drops;
-	public static Field BlockBase_BlockData_destroySpeed;
-
-	public static Method Container_quickMoveStack;
-	public static Method ChunkProviderServer_move;
-	public static Method EntityData_get;
-	public static Method Entity_getEntityData;
 	public static Method EntityVillager_startTrading_Or_updateSpecialPrices;
-	public static Method EntityHuman_getDestroySpeed;
-	public static Method EnumChatVisibility_getKey;
 	public static Method IRegistry_keySet;
 	public static Method Potions_register;
-	public static Method RegistryMaterials_getResourceKey;
 	public static Method RegistryMaterials_getHolder;
-	public static Method Item_get;
-	public static Method Item_releaseUsing;
-	public static Method Block_getId;
-	public static Method Block_popResource;
-	public static Method BlockBase_getLootTable;
-	public static Method BlockBase_Info_strength;
-	public static Method ServerCommonPacketListenerImpl_send;
 	public static Method PotionBrewer_register;
-	public static Method PotionRegistry_getName;
-	public static Method PotionUtil_getPotion;
-	public static Method WorldServer_addPlayer;
-	public static Method WorldServer_getChunkProviderServer;
-	public static Method WorldServer_removePlayer;
-	public static Method MinecraftServer_getLevel;
-	public static Method MinecraftServer_getConnection;
-	public static Method NBTTagCompound_putString;
-	public static Method NBTTagCompound_getString;
-	public static Method Reputation_getReputation;
-	public static Method CommonListenerCookie_createInitial;
-	public static Method ClientInformation_createDefault;
-
-	
-	public static EnumProtocolDirection PROTOCL_SERVERBOUND = EnumProtocolDirection.a; //net.minecraft.network.protocol.PacketFlow SERVERBOUND ->
-	public static EnumProtocolDirection PROTOCL_CLIENTBOUND = EnumProtocolDirection.b; //net.minecraft.network.protocol.PacketFlow CLIENTBOUND ->
-	public static EnumProtocol PROTOCL_PLAY = EnumProtocol.b; //net.minecraft.network.ConnectionProtocol PLAY ->
-	public static RemovalReason REASON_DISCARDED = RemovalReason.b; //net.minecraft.world.entity.Entity$RemovalReason DISCARDED ->
 
 	static {
 		version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
@@ -177,65 +108,24 @@ public class ReflectionUtils {
 		//Fuck it I am not interested in updating nms every time
 		//So I will just search fields and methods by their types and arguments
 
-		DATA_LIVING_ENTITY_FLAGS = (DataWatcherObject<Byte>) getValue(getField(EntityLiving.class, DataWatcherObject.class, Byte.class, true), null);
-		POTION = (RegistryBlocks<PotionRegistry>) getValue(getField(BuiltInRegistries.class, RegistryBlocks.class, PotionRegistry.class, true), null);
+		DATA_LIVING_ENTITY_FLAGS = (EntityDataAccessor<Byte>) getValue(getField(LivingEntity.class, EntityDataAccessor.class, Byte.class, true), null);
 		setRegistryMap(POTION, new HashMap<>());
 
 		Entity_bukkitEntity = getField(net.minecraft.world.entity.Entity.class, CraftEntity, null, true);
-		EntityHuman_playerAbilities = getField(EntityHuman.class, PlayerAbilities.class, null, true);
-		EntityHuman_container = getField(EntityHuman.class, Container.class, null, true);
-		EntityPlayer_playerConnection = getField(EntityPlayer.class, PlayerConnection.class, null, true);
-		EntityPlayer_chatVisibility = getField(EntityPlayer.class, EnumChatVisibility.class, null, true);
-		EntityPlayer_respawnDimension = getField(EntityPlayer.class, ResourceKey.class, net.minecraft.world.level.World.class, true);
-		EntityVillager_Reputation = getField(EntityVillager.class, Reputation.class, null, true);
-		MinecraftServer_playerList = getField(MinecraftServer.class, PlayerList.class, null, true);
-		MinecraftServer_levels = getField(MinecraftServer.class, Map.class, null, true);
-		MinecraftServer_functionManager = getField(MinecraftServer.class, CustomFunctionData.class, null, true);
-		ServerConnection_connections = getField(ServerConnection.class, List.class, NetworkManager.class, true);
-		NetworkManager_channel = getField(NetworkManager.class, Channel.class, null, true);
-		CustomFunctionData_ticking = getField(CustomFunctionData.class, List.class, null, true);
-		CustomFunctionData_postReload = getField(CustomFunctionData.class, boolean.class, null, true);
-		PlayerList_players = getField(PlayerList.class, List.class, EntityPlayer.class, true);
-		RegistryMaterials_frozen = getField(RegistryMaterials.class, boolean.class, null, true);
-		RegistryMaterials_nextId = getField(RegistryMaterials.class, int.class, null, true);
-		WorldServer_players = getField(WorldServer.class, List.class, EntityPlayer.class, true);
-		ItemStack_tag = getField(net.minecraft.world.item.ItemStack.class, NBTTagCompound.class, null, true);
-		ItemBlock_block = getField(ItemBlock.class, Block.class, null, true);
-		Block_defaultBlockState = getField(Block.class, IBlockData.class, null, true);
-		BlockBase_properties = getField(BlockBase.class, BlockBase.Info.class, null, true);
-		BlockBase_drops = getField(BlockBase.class, MinecraftKey.class, null, true);
-		BlockBase_BlockData_destroySpeed = getField(net.minecraft.world.level.block.state.BlockBase.BlockData.class, float.class, null, false);
+		EntityPlayer_playerConnection = getField(ServerPlayer.class, ServerGamePacketListenerImpl.class, null, true);
+		EntityPlayer_chatVisibility = getField(ServerPlayer.class, ChatVisiblity.class, null, true);
+		RegistryMaterials_frozen = getField(MappedRegistry.class, boolean.class, null, true);
+		RegistryMaterials_nextId = getField(MappedRegistry.class, int.class, null, true);
 
-		Container_quickMoveStack = findMethod(false, null, Container.class, net.minecraft.world.item.ItemStack.class, null, EntityHuman.class, int.class);
-		ChunkProviderServer_move = findMethod(true, null, ChunkProviderServer.class, Void.TYPE, null, EntityPlayer.class);
-		EntityData_get = findMethod(true, null, DataWatcher.class, Object.class, null, DataWatcherObject.class);
-		Entity_getEntityData = findMethod(true, null, net.minecraft.world.entity.Entity.class, DataWatcher.class, null);
-		EntityVillager_startTrading_Or_updateSpecialPrices = findMethod(false, Modifier.PRIVATE, EntityVillager.class, Void.TYPE, null, EntityHuman.class);
-		EntityHuman_getDestroySpeed = findMethod(true, null, EntityHuman.class, float.class, null, IBlockData.class);
-		EnumChatVisibility_getKey = findMethod(true, null, EnumChatVisibility.class, String.class, null);
-		IRegistry_keySet = findMethod(true, null, IRegistry.class, Set.class, MinecraftKey.class);
-		Potions_register = findMethod(false, Modifier.PRIVATE, Potions.class, PotionRegistry.class, null, String.class, PotionRegistry.class);
-		RegistryMaterials_getHolder = findMethod(true, null, RegistryMaterials.class, Optional.class, null, int.class);
-		Item_get = findMethod(true, null, Item.class, Item.class, null, int.class);
-		Item_releaseUsing = findMethod(true, null, Item.class, Void.TYPE, null, net.minecraft.world.item.ItemStack.class, net.minecraft.world.level.World.class, net.minecraft.world.entity.EntityLiving.class, int.class);
-		Block_getId = findMethod(true, null, Block.class, int.class, null, IBlockData.class);
-		Block_popResource = findMethod(true, null, Block.class, Void.TYPE, null, net.minecraft.world.level.World.class, BlockPosition.class, net.minecraft.world.item.ItemStack.class);
-		BlockBase_getLootTable = findMethod(true, null, BlockBase.class, MinecraftKey.class, null);
-		BlockBase_Info_strength = findMethod(true, null, BlockBase.Info.class, BlockBase.Info.class, null, float.class, float.class);
-		ServerCommonPacketListenerImpl_send = findMethod(true, null, ServerCommonPacketListenerImpl.class, null, null, Packet.class);
-		PotionBrewer_register = findMethod(false, null, PotionBrewer.class, Void.TYPE, null, PotionRegistry.class, Item.class, PotionRegistry.class);
-		PotionRegistry_getName = findMethod(true, null, PotionRegistry.class, String.class, null, String.class);
-		PotionUtil_getPotion = findMethod(true, null, PotionUtil.class, PotionRegistry.class, null, net.minecraft.world.item.ItemStack.class);
-		WorldServer_addPlayer = findMethod(true, null, WorldServer.class, Void.TYPE, null, EntityPlayer.class);
-		WorldServer_getChunkProviderServer = findMethod(true, null, WorldServer.class, ChunkProviderServer.class, null);
-		WorldServer_removePlayer = findMethod(true, null, WorldServer.class, Void.TYPE, null, EntityPlayer.class, RemovalReason.class);
-		MinecraftServer_getLevel = findMethod(true, null, MinecraftServer.class, WorldServer.class, null, ResourceKey.class);
-		MinecraftServer_getConnection = findMethod(true, null, MinecraftServer.class, ServerConnection.class, null);
-		NBTTagCompound_putString = findMethod(true, null, NBTTagCompound.class, Void.TYPE, null, String.class, String.class);
-		NBTTagCompound_getString = findMethod(true, null, NBTTagCompound.class, String.class, null, String.class);
-		Reputation_getReputation = findMethod(true, null, Reputation.class, int.class, null, UUID.class, Predicate.class);
-		CommonListenerCookie_createInitial = findMethod(true, Modifier.STATIC, CommonListenerCookie.class, CommonListenerCookie.class, null, GameProfile.class);
-		ClientInformation_createDefault = findMethod(true, Modifier.STATIC, ClientInformation.class, ClientInformation.class, null);
+		MinecraftServer_levels = getField(MinecraftServer.class, Map.class, null, true);
+		CustomFunctionData_ticking = getField(ServerFunctionManager.class, List.class, null, true);
+		CustomFunctionData_postReload = getField(ServerFunctionManager.class, boolean.class, null, true);
+
+		EntityVillager_startTrading_Or_updateSpecialPrices = findMethod(false, Modifier.PRIVATE, Villager.class, Void.TYPE, null, net.minecraft.world.entity.player.Player.class);
+		IRegistry_keySet = findMethod(true, null, Registry.class, Set.class, ResourceLocation.class);
+		Potions_register = findMethod(false, Modifier.PRIVATE, Potions.class, Potion.class, null, String.class, Potion.class);
+		RegistryMaterials_getHolder = findMethod(true, null, Registry.class, Optional.class, null, int.class);
+		PotionBrewer_register = findMethod(false, null, PotionBrewing.class, Void.TYPE, null, Potion.class, Item.class, Potion.class);
 	}
 
 	public static Class<?> loadClass(String arg0, boolean verbose) {
@@ -345,40 +235,40 @@ public class ReflectionUtils {
 		}
 	}
 
-	public static net.minecraft.server.level.EntityPlayer getEntityPlayer(Player player) {
+	public static net.minecraft.server.level.ServerPlayer getEntityPlayer(Player player) {
 		try {
 			Object craftPlayer = CraftPlayer.cast(player);
-			return (net.minecraft.server.level.EntityPlayer) player.getClass().getDeclaredMethod("getHandle").invoke(craftPlayer);
+			return (net.minecraft.server.level.ServerPlayer) player.getClass().getDeclaredMethod("getHandle").invoke(craftPlayer);
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 			return null;
 		}
 	}
 
-	public static net.minecraft.world.level.World getWorld(World world) {
+	public static ServerLevel getWorld(World world) {
 		try {
 			Object craftWorld = CraftWorld.cast(world);
-			return (net.minecraft.world.level.World) world.getClass().getDeclaredMethod("getHandle").invoke(craftWorld);
+			return (ServerLevel) world.getClass().getDeclaredMethod("getHandle").invoke(craftWorld);
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 			return null;
 		}
 	}
 
-	public static net.minecraft.world.entity.player.EntityHuman getEntityHuman(HumanEntity humanEntity) {
+	public static net.minecraft.world.entity.player.Player getEntityHuman(HumanEntity humanEntity) {
 		try {
 			Object craftHumanEntity = CraftHumanEntity.cast(humanEntity);
-			return (net.minecraft.world.entity.player.EntityHuman) humanEntity.getClass().getDeclaredMethod("getHandle").invoke(craftHumanEntity);
+			return (net.minecraft.world.entity.player.Player) humanEntity.getClass().getDeclaredMethod("getHandle").invoke(craftHumanEntity);
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 			return null;
 		}
 	}
 
-	public static net.minecraft.world.entity.npc.EntityVillager getEntityVillager(Villager villager) {
+	public static net.minecraft.world.entity.npc.Villager getEntityVillager(Villager villager) {
 		try {
 			Object craftEntity = CraftVillager.cast(villager);
-			return (net.minecraft.world.entity.npc.EntityVillager) villager.getClass().getDeclaredMethod("getHandle").invoke(craftEntity);
+			return (net.minecraft.world.entity.npc.Villager) villager.getClass().getDeclaredMethod("getHandle").invoke(craftEntity);
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 			return null;
@@ -454,147 +344,48 @@ public class ReflectionUtils {
 	}
 
 	public static Block getBlock(Material block) {
-		try {
-			if (!block.isBlock()) { return null; }
-			return (Block) getValue(ItemBlock_block, getItem(new ItemStack(block)));
-		} catch (SecurityException | IllegalArgumentException e) {
-			e.printStackTrace();
-			return null;
-		}
+		if (!block.isBlock()) { return null; }
+		return ((BlockItem) getItem(new ItemStack(block))).getBlock();
 	}
 
 	public static int getBlockId(Material block) {
-		try {
-			IBlockData blockData = (IBlockData) Block_defaultBlockState.get(getBlock(block));
-			return (int) Block_getId.invoke(Block_getId, blockData);
-		} catch (SecurityException | IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
-			e.printStackTrace();
-			return 0;
-		}
+		return Block.getId(getBlock(block).defaultBlockState());
 	}
 
 	public static World getRespawnWorld(Player player) {
-		try {
-			MinecraftServer server = getServer();
-			Object respawnDimension = EntityPlayer_respawnDimension.get(getEntityPlayer(player));
-			WorldServer worldServer = (WorldServer) MinecraftServer_getLevel.invoke(server, respawnDimension);
-			return (World) worldServer.getWorld();
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			e.printStackTrace();
-			return Bukkit.getWorlds().get(0);
-		}
+		return (World) getServer().getLevel(getEntityPlayer(player).getRespawnDimension()).getWorld();
 	}
 
 	//Get block destroy time per tick which is based on player
 	public static float getPlayerDestroyTime(Player player, Material block) {
-		try {
-			IBlockData blockData = (IBlockData) Block_defaultBlockState.get(getBlock(block));
-			net.minecraft.world.entity.player.EntityHuman entityHuman = getEntityHuman(player);
-			return (float) EntityHuman_getDestroySpeed.invoke(entityHuman, blockData);
-		} catch (ReflectiveOperationException | IllegalArgumentException e) {
-			e.printStackTrace();
-			return 0;
-		}
+		return getEntityHuman(player).getDestroySpeed(getBlock(block).defaultBlockState());
 	}
 
 	//Get raw block destroy time which is not based on player
 	public static float getBlockDestroyTime(Material block) {
-		try {
-			IBlockData blockData = (IBlockData) Block_defaultBlockState.get(getBlock(block));
-			return (float) BlockBase_BlockData_destroySpeed.get(blockData);
-		} catch (ReflectiveOperationException | IllegalArgumentException e) {
-			e.printStackTrace();
-			return -1;
-		}
-	}
-
-	//Sets what the block drops, for some reason does not work with
-	//block that by default do not drop anything, like, bedrock
-	public static void setBlockDrop(Material block, Material drop) {
-		try {
-			BlockBase baseBlock = (BlockBase) getBlock(block);
-			BlockBase baseDrop = (BlockBase) getBlock(drop);
-
-			Object original = BlockBase_drops.get(baseDrop);
-			BlockBase_drops.set(baseDrop, null);
-			Object updated = BlockBase_getLootTable.invoke(baseDrop);
-			BlockBase_drops.set(baseDrop, original);
-
-			BlockBase_drops.set(baseBlock, updated);
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			e.printStackTrace();
-		}
-	}
-
-	//MIX_ID is required to prevent weird visual bug when client side and server side breaking are overlapping
-	//Making two animations replace each other at the same time
-	public static void destroyBlockProgress(org.bukkit.block.Block block, int progress, int mix_id) {
-		for (Player player : block.getWorld().getPlayers()) {
-			double d0 = (double) block.getX() - player.getLocation().getX();
-			double d1 = (double) block.getY() - player.getLocation().getY();
-			double d2 = (double) block.getZ() - player.getLocation().getZ();
-
-			if (d0 * d0 + d1 * d1 + d2 * d2 >= 1024.0D) { continue; }
-			BlockPosition location = new BlockPosition(block.getX(), block.getY(), block.getZ());
-			ReflectionUtils.sendPacket(player, new PacketPlayOutBlockBreakAnimation(player.getEntityId()+mix_id, location, progress));
-		}
-	}
-
-	public static void destroyBlock(Player player, org.bukkit.block.Block block) {
-		destroyBlockProgress(block, -1, 0);
-		BlockPosition location = new BlockPosition(block.getX(), block.getY(), block.getZ());
-		int id = ReflectionUtils.getBlockId(block.getType());
-		ReflectionUtils.sendPacket(player, new PacketPlayOutWorldEvent(2001, location, id, false));
-		player.breakBlock(block);
+		return getBlock(block).defaultBlockState().destroySpeed;
 	}
 
 	public static void popResource(Location location, ItemStack item) {
 		try {
-			net.minecraft.world.level.World world = getWorld(location.getWorld());
-			BlockPosition position = new BlockPosition((int) location.getX(), (int) location.getY(), (int) location.getZ());
-			Block_popResource.invoke(Block_popResource, world, position, asNMSCopy(item));
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			net.minecraft.world.level.Level world = getWorld(location.getWorld());
+			BlockPos position = new BlockPos((int) location.getX(), (int) location.getY(), (int) location.getZ());
+			Block.popResource(world, position, asNMSCopy(item));
+		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		}
 	}
 
 	public static void setInvulnerableTicks(Player player, int ticks) {
-		EntityPlayer entityPlayer = getEntityPlayer(player);
-
-		if (EntityPlayer_invulnerableTicks == null) {
-			for (Field field : EntityPlayer.class.getDeclaredFields()) {
-				try {
-					if (!field.getType().equals(int.class)) { continue; }
-					if (((int) field.get(entityPlayer)) != 60) { continue; }
-					EntityPlayer_invulnerableTicks = field;
-					break;
-				} catch (IllegalArgumentException | IllegalAccessException e) {}
-			}
-		}
-
-		try {
-			EntityPlayer_invulnerableTicks.set(entityPlayer, ticks);
-		} catch (IllegalArgumentException | IllegalAccessException e) {
-			e.printStackTrace();
-		}
+		getEntityPlayer(player).spawnInvulnerableTime = ticks;
 	}
 
-	public static PlayerAbilities getPlayerAbilities(Player player) {
-		try {
-			return (PlayerAbilities) EntityHuman_playerAbilities.get(getEntityPlayer(player));
-		} catch (IllegalArgumentException | IllegalAccessException e) {
-			e.printStackTrace();
-			return null;
-		}
+	public static Abilities getPlayerAbilities(Player player) {
+		return getEntityPlayer(player).getAbilities();
 	}
 
 	public static void sendPacket(Player player, Packet<?> packet) {
-		try {
-			Object connection = EntityPlayer_playerConnection.get(getEntityPlayer(player));
-			ServerCommonPacketListenerImpl_send.invoke(connection, packet);
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			e.printStackTrace();
-		}
+		getEntityPlayer(player).connection.send(packet);
 	}
 
 	public static void handlePacket(Player player, Packet<?> packet) {
@@ -612,21 +403,15 @@ public class ReflectionUtils {
 		return MinecraftServer.getServer();
 	}
 
-	public static HashMap<Object, Channel> getConnections() {
-		try {
-			HashMap<Object, Channel> connections = new HashMap<>();
-			ServerConnection serverConnection = (ServerConnection) MinecraftServer_getConnection.invoke(getServer());
-			List<NetworkManager> managers = (List<NetworkManager>) ServerConnection_connections.get(serverConnection);
+	public static Collection<Channel> getConnections() {
+		HashMap<Connection, Channel> connections = new HashMap<>();
+		ServerConnectionListener serverConnection = getServer().getConnection();
 
-			for (NetworkManager manager : managers) {
-				connections.put(manager, (Channel) NetworkManager_channel.get(manager));
-			}
-
-			return connections;
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			e.printStackTrace();
-			return null;
+		for (Connection manager : serverConnection.getConnections()) {
+			connections.put(manager, manager.channel);
 		}
+
+		return connections.values();
 	}
 
 	//Doesn't work in creative, it sets an actual item
@@ -639,144 +424,106 @@ public class ReflectionUtils {
 			slot = 8 - (slot - 36);
 		}
 
-		sendPacket(player, new PacketPlayOutSetSlot(0, 0, slot, asNMSCopy(item)));
+		sendPacket(player, new ClientboundContainerSetSlotPacket(0, 0, slot, asNMSCopy(item)));
+	}
+
+	public static ServerFunctionManager getFunctionManager() {
+		return MinecraftServer.getServer().getFunctions();
 	}
 
 	public static void setInstantBuild(Player player, boolean instantbuild, boolean clientSide, boolean serverSide) {
-		//net.minecraft.world.entity.player.Abilities ->
-		//	boolean instabuild -> d
-
-		PlayerAbilities abilities = getPlayerAbilities(player);
+		Abilities abilities = getPlayerAbilities(player);
 
 		if (clientSide) {
-			boolean temp = abilities.d;
-			abilities.d = instantbuild;
-			sendPacket(player, new PacketPlayOutAbilities(abilities));
-			abilities.d = temp;
+			boolean temp = abilities.instabuild;
+			abilities.instabuild = instantbuild;
+			sendPacket(player, new ClientboundPlayerAbilitiesPacket(abilities));
+			abilities.instabuild = temp;
 		}
 
 		if (serverSide) {
-			abilities.d = instantbuild;
+			abilities.instabuild = instantbuild;
 		}
 	}
 
 	public static void setChatVisibility(Player player, String visibility) {
 		try {
-			for (EnumChatVisibility chat : EnumChatVisibility.values()) {
-				String key = (String) EnumChatVisibility_getKey.invoke(chat);
-				if (!key.equalsIgnoreCase(visibility)) { continue; }
-
-				EntityPlayer entityPlayer = getEntityPlayer(player);
-				EntityPlayer_chatVisibility.set(entityPlayer, chat);
+			for (ChatVisiblity chat : ChatVisiblity.values()) {
+				if (!chat.getKey().equalsIgnoreCase(visibility)) { continue; }
+				EntityPlayer_chatVisibility.set(getEntityPlayer(player), chat);
 			}
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+		} catch (IllegalAccessException | IllegalArgumentException e) {
 			e.printStackTrace();
 		}
 	}
 
 	public static String getChatVisibility(Player player) {
-		try {
-			EntityPlayer entityPlayer = getEntityPlayer(player);
-			EnumChatVisibility chat = (EnumChatVisibility) EntityPlayer_chatVisibility.get(entityPlayer);
-			return (String) EnumChatVisibility_getKey.invoke(chat);
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			e.printStackTrace();
-		}
-
-		return null;
+		return getEntityPlayer(player).getChatVisibility().getKey();
 	}
 
 	//The most useless shit I ever made
 	public static boolean isUsingItem(Player player) {
-		try {
-			DataWatcher entityData = (DataWatcher) Entity_getEntityData.invoke(getEntityPlayer(player));
-			Byte entityFlags = (Byte) EntityData_get.invoke(entityData, DATA_LIVING_ENTITY_FLAGS);
-			return (entityFlags & LIVING_ENTITY_FLAG_IS_USING) > 0;
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			e.printStackTrace();
-			return (player.getItemInUse() != null);
-		}
+		Byte entityFlags = (Byte) getEntityPlayer(player).getEntityData().get(DATA_LIVING_ENTITY_FLAGS);
+		return (entityFlags & LIVING_ENTITY_FLAG_IS_USING) > 0;
 	}
 
 	public static void shootBow(Player player, ItemStack bow, int ticks) {
-		try {
-			net.minecraft.world.item.ItemStack item = asNMSCopy(bow);
-			net.minecraft.world.level.World world = getWorld(player.getWorld());
-			EntityPlayer entityPlayer = getEntityPlayer(player);
-			Item_releaseUsing.invoke(Item_get.invoke(null, 718), item, world, entityPlayer, (72000 - ticks));
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			e.printStackTrace();
-		}
+		net.minecraft.world.item.ItemStack item = asNMSCopy(bow);
+		ServerLevel world = getWorld(player.getWorld());
+		ServerPlayer entityPlayer = getEntityPlayer(player);
+		item.releaseUsing(world, entityPlayer, (72000 - ticks));
 	}
 
-	public static Player addFakePlayer(Location location, UUID uuid, boolean addPlayer, boolean hideOnline, boolean hideWorld) {		
-		//io.netty.util.AttributeKey ATTRIBUTE_SERVERBOUND_PROTOCOL -> b
+	public static Player addFakePlayer(Location location, UUID uuid, boolean addPlayer, boolean hideOnline, boolean hideWorld) {
 		if (uuid == null) { uuid = UUID.randomUUID(); }
 
-		try {
-			MinecraftServer server = getServer();
-			WorldServer world = (WorldServer) getWorld(location.getWorld());
-			ClientInformation clientInformation = (ClientInformation) ClientInformation_createDefault.invoke(null);
-			EntityPlayer entityPlayer = new EntityPlayer(server, world, new GameProfile(uuid, " ".repeat(5)), clientInformation);
+		MinecraftServer server = getServer();
+		ServerLevel world = (ServerLevel) getWorld(location.getWorld());
+		ServerPlayer entityPlayer = new ServerPlayer(server, world, new GameProfile(uuid, " ".repeat(5)), ClientInformation.createDefault());
 
-			NetworkManager networkManager = new NetworkManager(PROTOCL_SERVERBOUND);
-			EmbeddedChannel embeddedChannel = new EmbeddedChannel(new ChannelHandler[] { networkManager });
-			embeddedChannel.attr(NetworkManager.e).set(PROTOCL_PLAY.b(PROTOCL_SERVERBOUND));
+		Connection networkManager = new Connection(PacketFlow.SERVERBOUND);
+		EmbeddedChannel embeddedChannel = new EmbeddedChannel(new ChannelHandler[] { networkManager });
+		embeddedChannel.attr(Connection.ATTRIBUTE_SERVERBOUND_PROTOCOL).set(ConnectionProtocol.PLAY.codec(PacketFlow.SERVERBOUND));
 
-			CommonListenerCookie commonListenerCookie = (CommonListenerCookie) CommonListenerCookie_createInitial.invoke(null, new GameProfile(uuid, " ".repeat(5)));
-			PlayerConnection connection = new PlayerConnection(server, networkManager, entityPlayer, commonListenerCookie) {};
-			Player player = (Player) getBukkitEntity(entityPlayer);
+		CommonListenerCookie commonListenerCookie = CommonListenerCookie.createInitial(new GameProfile(uuid, " ".repeat(5)));
+		ServerGamePacketListenerImpl connection = new ServerGamePacketListenerImpl(server, networkManager, entityPlayer, commonListenerCookie) {};
+		Player player = (Player) getBukkitEntity(entityPlayer);
 
-			EntityPlayer_playerConnection.set(entityPlayer, connection);
-			if (addPlayer) { WorldServer_addPlayer.invoke(world, entityPlayer); }
+		entityPlayer.connection = connection;
+		if (addPlayer) { world.addNewPlayer(entityPlayer); }
 
-			//Will hide from Bukkit.getOnlinePlayers()
-			if (addPlayer && hideOnline) {
-				Object playerList = MinecraftServer_playerList.get(server);
-				List<EntityPlayer> players = (List<EntityPlayer>) PlayerList_players.get(playerList);
-				players.removeIf(e -> ((Player) getBukkitEntity(e)).getUniqueId().equals(player.getUniqueId()));
-			}
-
-			//Will hide from World.getPlayers(), but also will prevent mob spawning
-			if (addPlayer && hideWorld) {
-				List<EntityPlayer> players = (List<EntityPlayer>) WorldServer_players.get(world);
-				players.removeIf(e -> ((Player) getBukkitEntity(e)).getUniqueId().equals(player.getUniqueId()));
-			}
-
-			player.setSleepingIgnored(true);
-			return player;
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | SecurityException e) {
-			e.printStackTrace();
-			return null;
+		//Will hide from Bukkit.getOnlinePlayers()
+		if (addPlayer && hideOnline) {
+			List<ServerPlayer> players = server.getPlayerList().players;
+			players.removeIf(e -> ((Player) getBukkitEntity(e)).getUniqueId().equals(player.getUniqueId()));
 		}
+
+		//Will hide from World.getPlayers(), but also will prevent mob spawning
+		if (addPlayer && hideWorld) {
+			world.players().removeIf(e -> ((Player) getBukkitEntity(e)).getUniqueId().equals(player.getUniqueId()));
+		}
+
+		player.setSleepingIgnored(true);
+		return player;
 	}
 
 	public static void removeFakePlayer(Player player) {
-		try {
-			EntityPlayer entityPlayer = getEntityPlayer(player);
-			WorldServer world = (WorldServer) getWorld(player.getWorld());
-			WorldServer_removePlayer.invoke(world, entityPlayer, REASON_DISCARDED);
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | SecurityException e) {
-			e.printStackTrace();
-		}
+		ServerPlayer entityPlayer = getEntityPlayer(player);
+		ServerLevel world = (ServerLevel) getWorld(player.getWorld());
+		world.removePlayerImmediately(entityPlayer, RemovalReason.DISCARDED);
 	}
 
 	//This needed to update player chunks and make them tickable
 	public static void updateFakePlayer(Player player) {
-		try {
-			WorldServer world = (WorldServer) getWorld(player.getWorld());
-			ChunkProviderServer provider = (ChunkProviderServer) WorldServer_getChunkProviderServer.invoke(world);
-			ChunkProviderServer_move.invoke(provider, getEntityPlayer(player));
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			e.printStackTrace();
-		}
+		ServerLevel world = (ServerLevel) getWorld(player.getWorld());
+		world.getChunkSource().move(getEntityPlayer(player));
 	}
 
 	//Open trading screen of a villager
 	public static void startTrading(Player player, Villager villager) {
 		try {
-			EntityVillager entityVillager = getEntityVillager(villager);
-			EntityPlayer entityPlayer = getEntityPlayer(player);
+			net.minecraft.world.entity.npc.Villager entityVillager = getEntityVillager(villager);
+			ServerPlayer entityPlayer = getEntityPlayer(player);
 			EntityVillager_startTrading_Or_updateSpecialPrices.invoke(entityVillager, entityPlayer);
 			player.openMerchant(villager, false);
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | SecurityException e) {
@@ -784,40 +531,26 @@ public class ReflectionUtils {
 		}
 	}
 
-	//Simulate shift+click on specific slot on opened inventory
-	public static void quickMoveStack(Player player, int slot) {
-		try {
-			EntityPlayer entityPlayer = getEntityPlayer(player);
-			Container container = (Container) EntityHuman_container.get(entityPlayer);
-			Container_quickMoveStack.invoke(container, entityPlayer, slot);
-		} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
-			e.printStackTrace();
-		}
+	public static void selectTrade(Player player, int slot) {
+		handlePacket(player, new ServerboundSelectTradePacket(slot));
 	}
 
-	public static void selectTrade(Player player, int slot) {
-		handlePacket(player, new PacketPlayInTrSel(slot));
+	//Simulate shift+click on specific slot on opened inventory
+	public static void quickMoveStack(Player player, int slot) {
+		ServerPlayer entityPlayer = getEntityPlayer(player);
+		entityPlayer.containerMenu.quickMoveStack(entityPlayer, slot);
 	}
 
 	//Gets player's reputation from villager (all types)
 	public static int getPlayerReputation(Villager villager, Player player) {
-		try {
-			EntityVillager entityVillager = getEntityVillager(villager);
-			Reputation reputation = (Reputation) EntityVillager_Reputation.get(entityVillager);
-			Predicate<ReputationType> predicate = (reputationtype) -> { return true; };
-			return (int) Reputation_getReputation.invoke(reputation, player.getUniqueId(), predicate);
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | SecurityException e) {
-			e.printStackTrace();
-		}
-
-		return 0;
+		return getEntityVillager(villager).getPlayerReputation(getEntityPlayer(player));
 	}
 
 	public static boolean registerBrewRecipe(Object base, Material ingredient, Object result) {
-		return registerBrewRecipe((PotionRegistry) base, ingredient, (PotionRegistry) result);
+		return registerBrewRecipe((Potion) base, ingredient, (Potion) result);
 	}
 
-	public static boolean registerBrewRecipe(PotionRegistry base, Material ingredient, PotionRegistry result) {
+	public static boolean registerBrewRecipe(Potion base, Material ingredient, Potion result) {
 		try {
 			Item potionIngredient = getItem(new ItemStack(ingredient));
 			PotionBrewer_register.invoke(PotionBrewer_register, base, potionIngredient, result);
@@ -828,7 +561,7 @@ public class ReflectionUtils {
 		}
 	}
 
-	public static PotionRegistry getPotion(PotionType potionType, boolean extended, boolean upgraded) {
+	public static Potion getPotion(PotionType potionType, boolean extended, boolean upgraded) {
 		if (potionType == PotionType.UNCRAFTABLE) { return null; }
 
 		ItemStack item = new ItemStack(Material.POTION);
@@ -838,57 +571,28 @@ public class ReflectionUtils {
 
 		net.minecraft.world.item.ItemStack nmsItem = asNMSCopy(item);
 		if (nmsItem == null) { return null; }
-
-		try {
-			return (PotionRegistry) PotionUtil_getPotion.invoke(PotionUtil_getPotion, nmsItem);
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			e.printStackTrace();
-		}
-
-		return null;
+		return PotionUtils.getPotion(nmsItem);
 	}
 
 	public static String getPotionRegistryName(Object potion) {
-		return getPotionRegistryName((PotionRegistry) potion);
+		return getPotionRegistryName((Potion) potion);
 	}
 
-	public static String getPotionRegistryName(PotionRegistry potion) {
-		try {
-			return (String) PotionRegistry_getName.invoke(potion, "");
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			e.printStackTrace();
-		}
-
-		return null;
+	public static String getPotionRegistryName(Potion potion) {
+		return potion.getName("");
 	}
 
 	public static String getPotionTag(ItemStack item) {
-		try {
-			net.minecraft.world.item.ItemStack nmsItem = asNMSCopy(item);
-			NBTTagCompound tag = (NBTTagCompound) ItemStack_tag.get(nmsItem);
-			if (tag == null) { return ""; }
-			String potion = (String) NBTTagCompound_getString.invoke(tag, "Potion");
-			return potion.replace("minecraft:", "");
-		} catch (SecurityException | IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
-			e.printStackTrace();
-		}
-
-		return "";
+		CompoundTag tag = asNMSCopy(item).getTag();
+		return (tag != null) ? tag.getString("Potion").replace("minecraft:", "") : "";
 	}
 
 	public static ItemStack setPotionTag(ItemStack item, String name) {
-		try {
-			net.minecraft.world.item.ItemStack nmsItem = asNMSCopy(item);
-			NBTTagCompound tag = (NBTTagCompound) ItemStack_tag.get(nmsItem);
-			if (tag == null) { tag = new NBTTagCompound(); }
-			NBTTagCompound_putString.invoke(tag, "Potion", name);
-			ItemStack_tag.set(nmsItem, tag);
-			return asBukkitMirror(nmsItem);
-		} catch (SecurityException | IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
-			e.printStackTrace();
-		}
-
-		return null;
+		net.minecraft.world.item.ItemStack nmsItem = asNMSCopy(item);
+		CompoundTag tag = (CompoundTag) nmsItem.getOrCreateTag();
+		tag.putString("Potion", name);
+		nmsItem.setTag(tag);
+		return asBukkitMirror(nmsItem);
 	}
 
 	public static void setRegistryFrozen(Object registry, boolean frozen) {
@@ -900,7 +604,7 @@ public class ReflectionUtils {
 	}
 
 	public static void setRegistryMap(Object registry, Object hashMap) {
-		Field[] fields = RegistryMaterials.class.getDeclaredFields();
+		Field[] fields = MappedRegistry.class.getDeclaredFields();
 
 		for (Field field : fields) {
 			if (!field.getType().equals(Map.class)) { continue; }
@@ -909,9 +613,9 @@ public class ReflectionUtils {
 		}
 	}
 
-	public static int getRegistrySize(IRegistry<?> registry) {
+	public static int getRegistrySize(Registry<?> registry) {
 		try {
-			return ((Set<MinecraftKey>) IRegistry_keySet.invoke(registry)).size();
+			return ((Set<ResourceLocation>) IRegistry_keySet.invoke(registry)).size();
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			e.printStackTrace();
 		}
@@ -919,13 +623,12 @@ public class ReflectionUtils {
 		return 0;
 	}
 
-	public static PotionRegistry registerInstantPotion(String name) {
+	public static Potion registerInstantPotion(String name) {
 		try {
 			setRegistryFrozen(POTION, false);
-			PotionRegistry potionRegistry = new PotionRegistry(new MobEffect[0]);
-			potionRegistry = (PotionRegistry) Potions_register.invoke(Potions_register, name, potionRegistry);
+			Potion potionRegistry = new Potion(new MobEffectInstance[0]);
+			potionRegistry = (Potion) Potions_register.invoke(Potions_register, name, potionRegistry);
 			setRegistryFrozen(POTION, true);
-
 			fixHolder(POTION, potionRegistry);
 			return potionRegistry;
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | SecurityException e) {
@@ -936,19 +639,67 @@ public class ReflectionUtils {
 	}
 
 	//FUCK MOJANG DEVELOPERS, how the fuck do you forget to set value of a holder
-	//when registering a new mapping, how brain damaged you must be.
+	//when registering a new mapping, how brain-damaged you must be.
 	public static void fixHolder(Object registry, Object value) {
 		try {
 			int currentId = RegistryMaterials_nextId.getInt(registry)-1;
 			Optional<Holder<?>> holder = (Optional<Holder<?>>) RegistryMaterials_getHolder.invoke(registry, currentId);
-			Holder.c<?> holder_c = (Holder.c<?>) holder.get();
+			Holder.Reference<?> holder_c = (Holder.Reference<?>) holder.get();
 
-			for (Field field : Holder.c.class.getDeclaredFields()) {
+			for (Field field : Holder.Reference.class.getDeclaredFields()) {
 				field.setAccessible(true);
 				if (field.get(holder_c) == null) { field.set(holder_c, value); }
 			}
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			e.printStackTrace();
+		}
+	}
+
+	//MIX_ID is required to prevent weird visual bug when client side and server side breaking are overlapping
+	//Making two animations replace each other at the same time
+	public static void destroyBlockProgress(org.bukkit.block.Block block, int progress, int mix_id) {
+		for (Player player : block.getWorld().getPlayers()) {
+			double d0 = (double) block.getX() - player.getLocation().getX();
+			double d1 = (double) block.getY() - player.getLocation().getY();
+			double d2 = (double) block.getZ() - player.getLocation().getZ();
+
+			if (d0 * d0 + d1 * d1 + d2 * d2 >= 1024.0D) { continue; }
+			BlockPos location = new BlockPos(block.getX(), block.getY(), block.getZ());
+			ReflectionUtils.sendPacket(player, new ClientboundBlockDestructionPacket(player.getEntityId()+mix_id, location, progress));
+		}
+	}
+
+	public static void destroyBlock(Player player, org.bukkit.block.Block block) {
+		destroyBlockProgress(block, -1, 0);
+		BlockPos location = new BlockPos(block.getX(), block.getY(), block.getZ());
+		int id = ReflectionUtils.getBlockId(block.getType());
+		ReflectionUtils.sendPacket(player, new ClientboundLevelEventPacket(2001, location, id, false));
+		player.breakBlock(block);
+	}
+
+	public static void dropBlockItem(org.bukkit.block.Block block, Player player, ItemStack itemStack) {
+		double x = block.getLocation().getX() + 0.5;
+		double y = block.getLocation().getY() + 0.5;
+		double z = block.getLocation().getZ() + 0.5;
+
+		double f = (Utils.ITEM_HEIGHT / 2.0F);
+		double d0 = x + Utils.randomRange(-Utils.ITEM_SPAWN_OFFSET, Utils.ITEM_SPAWN_OFFSET);
+		double d1 = y + Utils.randomRange(-Utils.ITEM_SPAWN_OFFSET, Utils.ITEM_SPAWN_OFFSET) - f;
+		double d2 = z + Utils.randomRange(-Utils.ITEM_SPAWN_OFFSET, Utils.ITEM_SPAWN_OFFSET);
+
+		ItemEntity entityItem = new ItemEntity(ReflectionUtils.getWorld(block.getWorld()), d0, d1, d2, ReflectionUtils.asNMSCopy(itemStack));
+		ReflectionUtils.getBukkitEntity(entityItem).setVelocity(new Vector(Math.random()*0.2F-0.1F, 0.2F, Math.random()*0.2F-0.1F));
+		ArrayList<org.bukkit.entity.Item> items = new ArrayList<>(Arrays.asList((org.bukkit.entity.Item) ReflectionUtils.getBukkitEntity(entityItem)));
+
+		BlockDropItemEvent dropEvent = new BlockDropItemEvent(block, block.getState(), player, items);
+		Bukkit.getServer().getPluginManager().callEvent(dropEvent);
+		if (dropEvent.isCancelled()) { return; }
+
+		for (org.bukkit.entity.Item drop : dropEvent.getItems()) {
+			block.getWorld().spawn(drop.getLocation(), org.bukkit.entity.Item.class, (item) -> {
+				item.setItemStack(drop.getItemStack());
+				item.setVelocity(drop.getVelocity());
+			});
 		}
 	}
 
@@ -959,14 +710,14 @@ public class ReflectionUtils {
 	}
 
 	public static Object getSetCustomFunctionDataTicking(Object data) throws IllegalAccessException {
-		Object functionManager = MinecraftServer_functionManager.get(MinecraftServer.getServer());
+		Object functionManager = MinecraftServer.getServer().getFunctions();
 		Object ticking = CustomFunctionData_ticking.get(functionManager);
 		CustomFunctionData_ticking.set(functionManager, data);
 		return ticking;
 	}
 
 	public static Object getSetCustomFunctionPostReload(Object data) throws IllegalAccessException {
-		Object functionManager = MinecraftServer_functionManager.get(MinecraftServer.getServer());
+		Object functionManager = MinecraftServer.getServer().getFunctions();
 		Object postReload = CustomFunctionData_postReload.get(functionManager);
 		CustomFunctionData_postReload.set(functionManager, data);
 		return postReload;
