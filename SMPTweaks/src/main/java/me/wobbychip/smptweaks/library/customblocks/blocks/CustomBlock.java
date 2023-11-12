@@ -2,7 +2,6 @@ package me.wobbychip.smptweaks.library.customblocks.blocks;
 
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.utils.PersistentUtils;
-import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
@@ -133,7 +132,6 @@ public class CustomBlock implements Listener {
 
     public boolean isCustomBlock(BlockState state) {
         if (state.getType() != block_base) { return false; }
-        Utils.sendMessage("isCustomBlock: " + PersistentUtils.hasPersistentDataString(state, BLOCK_TAG));
         if (!PersistentUtils.hasPersistentDataString(state, BLOCK_TAG)) { return false; }
         return PersistentUtils.getPersistentDataString(state, BLOCK_TAG).equalsIgnoreCase(name);
     }
