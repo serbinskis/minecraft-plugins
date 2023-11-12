@@ -1,15 +1,21 @@
 package me.wobbychip.smptweaks.utils;
 
-import org.bukkit.Bukkit;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
+import org.bukkit.Bukkit;
 
 public class ServerUtils {
 	public static Object levels = null; //Server worlds
 	public static Object ticking = null; //Ticking functions, aka, datapacks
 	public static Object postReload = null;
 	private static boolean shutting = false;
+	private static long tick = 0;
+
+	static {
+		TaskUtils.scheduleSyncRepeatingTask(new Runnable() {
+			public void run() { tick++; }
+		}, 0L, 1L);
+	}
 
 	//This actually doesn't pause your server,
 	//it just removes worlds and functions from ticking
@@ -58,5 +64,9 @@ public class ServerUtils {
 	public static void serverShutdown() {
 		ServerUtils.resumeServer();
 		ServerUtils.shutting = true;
+	}
+
+	public static long getTick() {
+		return tick;
 	}
 }

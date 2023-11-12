@@ -50,6 +50,7 @@ import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionType;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nullable;
 import java.lang.reflect.*;
 import java.util.*;
 
@@ -669,7 +670,7 @@ public class ReflectionUtils {
 		player.breakBlock(block);
 	}
 
-	public static void dropBlockItem(org.bukkit.block.Block block, Player player, ItemStack itemStack) {
+	public static void dropBlockItem(org.bukkit.block.Block block, @Nullable Player player, ItemStack itemStack) {
 		double x = block.getLocation().getX() + 0.5;
 		double y = block.getLocation().getY() + 0.5;
 		double z = block.getLocation().getZ() + 0.5;
@@ -681,13 +682,15 @@ public class ReflectionUtils {
 
 		ItemEntity entityItem = new ItemEntity(getWorld(block.getWorld()), d0, d1, d2, asNMSCopy(itemStack));
 		getBukkitEntity(entityItem).setVelocity(new Vector(Math.random()*0.2F-0.1F, 0.2F, Math.random()*0.2F-0.1F));
-		ArrayList<org.bukkit.entity.Item> items = new ArrayList<>(Arrays.asList((org.bukkit.entity.Item) getBukkitEntity(entityItem)));
+		List<org.bukkit.entity.Item> items = new ArrayList<>(Arrays.asList((org.bukkit.entity.Item) getBukkitEntity(entityItem)));
 
-		BlockDropItemEvent dropEvent = new BlockDropItemEvent(block, block.getState(), player, items);
-		Bukkit.getServer().getPluginManager().callEvent(dropEvent);
-		if (dropEvent.isCancelled()) { return; }
+		if (player != null) {
+			BlockDropItemEvent dropEvent = new BlockDropItemEvent(block, block.getState(), player, items);
+			Bukkit.getServer().getPluginManager().callEvent(dropEvent);
+			if (dropEvent.isCancelled()) { return; } else { items = dropEvent.getItems(); }
+		}
 
-		for (org.bukkit.entity.Item drop : dropEvent.getItems()) {
+		for (org.bukkit.entity.Item drop : items) {
 			block.getWorld().spawn(drop.getLocation(), org.bukkit.entity.Item.class, (item) -> {
 				item.setItemStack(drop.getItemStack());
 				item.setVelocity(drop.getVelocity());

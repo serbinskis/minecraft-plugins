@@ -1,9 +1,5 @@
 package me.wobbychip.smptweaks;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Sound;
-import org.bukkit.plugin.java.JavaPlugin;
-
 import me.wobbychip.smptweaks.commands.Commands;
 import me.wobbychip.smptweaks.custom.allcraftingrecipes.AllCraftingRecipes;
 import me.wobbychip.smptweaks.custom.anticreepergrief.AntiCreeperGrief;
@@ -36,9 +32,13 @@ import me.wobbychip.smptweaks.custom.respawnabledragonegg.RespawnableDragonEgg;
 import me.wobbychip.smptweaks.custom.serverpause.ServerPause;
 import me.wobbychip.smptweaks.custom.shriekercansummon.ShriekerCanSummon;
 import me.wobbychip.smptweaks.custom.silktouchspawners.SilkTouchSpawners;
+import me.wobbychip.smptweaks.library.customblocks.CustomBlocks;
 import me.wobbychip.smptweaks.tweaks.TweakManager;
 import me.wobbychip.smptweaks.utils.GameRules;
 import me.wobbychip.smptweaks.utils.Utils;
+import org.bukkit.Bukkit;
+import org.bukkit.Sound;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin {
 	public static Main plugin;
@@ -46,7 +46,8 @@ public class Main extends JavaPlugin {
 	public static TweakManager manager;
 	public static ClassLoader classLoader;
 	public static String prefix = "SMPTweaks-";
-	public static String color = "&9";
+	public static char sym_color = '§';
+	public static String color = sym_color + "9";
 	public static Sound DENY_SOUND_EFFECT = Sound.BLOCK_NOTE_BLOCK_HARP;
 
 	@Override
@@ -94,6 +95,7 @@ public class Main extends JavaPlugin {
 
 		Main.plugin.getCommand("smptweaks").setExecutor(new Commands());
 		Main.plugin.getCommand("smptweaks").setTabCompleter(new Commands());
+		CustomBlocks.start();
 	}
 
 	@Override

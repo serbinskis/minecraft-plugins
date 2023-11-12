@@ -1,13 +1,10 @@
 package me.wobbychip.smptweaks.custom.autocraft;
 
-import java.util.List;
-
-import org.bukkit.Bukkit;
-
-import me.wobbychip.smptweaks.Main;
+import me.wobbychip.smptweaks.library.customblocks.CustomBlocks;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
-import me.wobbychip.smptweaks.utils.ServerUtils;
 import me.wobbychip.smptweaks.utils.TaskUtils;
+
+import java.util.List;
 
 public class AutoCraft extends CustomTweak {
 	public static CustomTweak tweak;
@@ -23,22 +20,12 @@ public class AutoCraft extends CustomTweak {
 		this.setConfigs(List.of("config.yml"));
 		this.setGameRule("doAutoCraft", true, false);
 		this.setReloadable(true);
-		this.setDescription("Put on a dispenser an item frame with a crafting table. " +
-							"Put a recipe inside the dispenser. " +
-							"Input any container behind the dispenser, output in front.");
+		this.setDescription("Just search on internet about crafter in 1.21");
 	}
 
 	public void onEnable() {
 		this.onReload();
-		AutoCraft.crafters = new Crafters();
-
-		AutoCraft.task = TaskUtils.scheduleSyncRepeatingTask(new Runnable() {
-			public void run() {
-				if (!ServerUtils.isPaused()) { crafters.handleCrafters(); }
-			}
-		}, 0L, AutoCraft.craftCooldown);
-
-		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
+		CustomBlocks.registerBlock(new CrafterBlock());
 	}
 
 	public void onReload() {
