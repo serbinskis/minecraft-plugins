@@ -24,6 +24,7 @@ public class CustomMarker implements Runnable {
     public static String MARKER_TAG = "SMPTWEAKS_CUSTOM_MARKER";
 
     private static final HashMap<String, CustomMarker> markers = new HashMap<>();
+    public static boolean verbose = false;
     private final int task;
     private final BlockDisplay display;
     private final CustomBlock cblock;
@@ -38,17 +39,14 @@ public class CustomMarker implements Runnable {
         String location = Utils.locationToString(block.getLocation());
         if (markers.containsKey(location)) { return markers.get(location); }
 
-        BlockDisplay display = (BlockDisplay) block.getWorld().spawnEntity(block.getLocation(), EntityType.BLOCK_DISPLAY);
+        BlockDisplay display = (BlockDisplay) block.getWorld().spawnEntity(block.getLocation().add(0.5, 0.5, 0.5), EntityType.BLOCK_DISPLAY);
         PersistentUtils.setPersistentDataString(display, BLOCK_TAG, cblock.getName());
         PersistentUtils.setPersistentDataBoolean(display, MARKER_TAG, true);
         display.setInvulnerable(true);
-        display.setGravity(false);
-        display.setSilent(true);
         display.setBlock(getBlockData(block, cblock.getCustomMaterial()));
-        display.setPersistent(true);
 
         Transformation tranf = display.getTransformation();
-        display.setTransformation(new Transformation(new Vector3f(-0.001f), tranf.getLeftRotation(), new Vector3f(1.002f), tranf.getRightRotation()));
+        display.setTransformation(new Transformation(new Vector3f(-0.5001f), tranf.getLeftRotation(), new Vector3f(1.0002f), tranf.getRightRotation()));
 
         CustomMarker marker = new CustomMarker(display, cblock);
         markers.put(location, marker);
@@ -57,7 +55,6 @@ public class CustomMarker implements Runnable {
     }
 
     public static BlockData getBlockData(Block block, Material material) {
-        Utils.sendMessage(material);
         BlockData blockData = material.createBlockData();
         if (!(blockData instanceof Directional)) { return blockData; }
         if (!(block.getBlockData() instanceof Directional dblock)) { return blockData; }
@@ -67,7 +64,6 @@ public class CustomMarker implements Runnable {
 
     public static boolean isMarkerEntity(Entity entity) {
         if (!(entity instanceof BlockDisplay)) { return false; }
-        Block block = entity.getLocation().getBlock();
         return PersistentUtils.hasPersistentDataBoolean(entity, MARKER_TAG);
     }
 
@@ -76,16 +72,8 @@ public class CustomMarker implements Runnable {
         return markers.containsKey(location);
     }
 
-    public static BlockDisplay getMarkerEntity(Block block) {
-        for (Entity entity : block.getWorld().getNearbyEntities(block.getLocation().clone().add(0.5, 0.5, 0.5), 0.5, 0.5, 0.5)) {
-            if (isMarkerEntity(entity)) { return (BlockDisplay) entity; }
-        }
-
-        return null;
-    }
-
     public static CustomMarker getMarker(Block block) {
-        for (Entity entity : block.getWorld().getNearbyEntities(block.getLocation().clone().add(0.5, 0.5, 0.5), 0.5, 0.5, 0.5)) {
+        for (Entity entity : block.getWorld().getNearbyEntities(block.getLocation().add(0.5, 0.5, 0.5), 0.4, 0.4, 0.4)) {
             if (!isMarkerEntity(entity)) { continue; }
             String lcoation = Utils.locationToString(entity.getLocation().getBlock().getLocation());
             if (markers.containsKey(lcoation)) { return markers.get(lcoation); }
@@ -110,10 +98,25 @@ public class CustomMarker implements Runnable {
         return blocks;
     }
 
+    public CustomBlock getCustomBlock() {
+        return cblock;
+    }
+
+    public String getName() {
+        return cblock.getName();
+    }
+
+    private void recreate() {
+        remove(true);
+        Block block = display.getLocation().getBlock();
+        if (block.getType() != cblock.getBlockBase()) { return; }
+        CustomMarker.createMarker(cblock, block);
+    }
+
     public void run() {
         Block block = display.getLocation().getBlock();
         if (!display.getLocation().isChunkLoaded()) { return; }
-        if (!display.isValid()) { remove(false); return; } //This happens when chunks unloads
+        if (!display.isValid()) { recreate(); return; }
         if (block.getType() != cblock.getBlockBase()) { remove(true); return; }
         if (cblock.isTickable()) { cblock.tick(block, ServerUtils.getTick()); }
     }

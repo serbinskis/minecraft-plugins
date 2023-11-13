@@ -27,7 +27,7 @@ public class CustomBlocks {
 			public void run() {
 				for (Map.Entry<Block, BlockDisplay> value : CustomMarker.collectUnmarkedBlocks().entrySet()) {
 					value.getValue().remove();
-					CustomBlock customBlock = getCustomBlock(value.getKey());
+					CustomBlock customBlock = getCustomBlock(value.getValue());
 					if (customBlock != null) { customBlock.createBlock(value.getKey()); }
 				}
 			}
@@ -43,8 +43,13 @@ public class CustomBlocks {
 	}
 
 	public static CustomBlock getCustomBlock(Block block) {
-		if (!PersistentUtils.hasPersistentDataString(block, BLOCK_TAG)) { return null; }
-		return getCustomBlock(PersistentUtils.getPersistentDataString(block, BLOCK_TAG));
+		CustomMarker marker = CustomMarker.getMarker(block);
+		return (marker != null) ? getCustomBlock(marker.getName()) : null;
+	}
+
+	public static CustomBlock getCustomBlock(BlockDisplay display) {
+		String name = PersistentUtils.getPersistentDataString(display, BLOCK_TAG);
+		return getCustomBlock(name);
 	}
 
 	public static CustomBlock getCustomBlock(String name) {

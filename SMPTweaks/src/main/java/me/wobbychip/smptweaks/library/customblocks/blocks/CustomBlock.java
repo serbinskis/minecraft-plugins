@@ -2,12 +2,16 @@ package me.wobbychip.smptweaks.library.customblocks.blocks;
 
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.utils.PersistentUtils;
+import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
+import org.bukkit.block.TileState;
+import org.bukkit.block.data.AnaloguePowerable;
+import org.bukkit.block.data.Powerable;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.inventory.Inventory;
@@ -79,8 +83,21 @@ public class CustomBlock implements Listener {
         return (block_base.createBlockData().createBlockState() instanceof Container);
     }
 
+    public boolean isPersistent(Block block) {
+        return (block.getState() instanceof TileState);
+    }
+
+    public boolean isPowerable() {
+        return (block_base.createBlockData() instanceof Powerable);
+    }
+
+    public boolean isAnaloguePowerable() {
+        return (block_base.createBlockData() instanceof AnaloguePowerable);
+    }
+
     public void createBlock(Block block) {
-        PersistentUtils.setPersistentDataString(block, BLOCK_TAG, name);
+        if (block.getType() != block_base) { return; }
+        if (isPersistent(block)) { PersistentUtils.setPersistentDataString(block, BLOCK_TAG, name); }
         CustomMarker.createMarker(this, block);
 
         if (hasInventory() && (title != null)) {
@@ -91,6 +108,7 @@ public class CustomBlock implements Listener {
     }
 
     public void removeBlock(Block block) {
+        ReflectionUtils.forceUpdateNeighbors(block, 1, Material.COMPARATOR, null);
         CustomMarker customMarker = CustomMarker.getMarker(block);
         if (customMarker != null) { customMarker.remove(true); }
     }
@@ -127,11 +145,12 @@ public class CustomBlock implements Listener {
     }
 
     public boolean isCustomBlock(Block block) {
-        return isCustomBlock(block.getState());
+        CustomMarker marker = CustomMarker.getMarker(block);
+        return ((marker != null) && marker.getName().equalsIgnoreCase(name));
     }
 
     public boolean isCustomBlock(BlockState state) {
-        if (state.getType() != block_base) { return false; }
+        if ((state.getType() != block_base) || !(state instanceof TileState) ){ return false; }
         if (!PersistentUtils.hasPersistentDataString(state, BLOCK_TAG)) { return false; }
         return PersistentUtils.getPersistentDataString(state, BLOCK_TAG).equalsIgnoreCase(name);
     }
@@ -139,5 +158,6 @@ public class CustomBlock implements Listener {
     public boolean prepareCraft(PrepareItemCraftEvent event, World world, ItemStack result) { return true; }
     public ItemStack prepareDropItem() { return new ItemStack(Material.AIR); }
     public Recipe prepareRecipe(NamespacedKey key) { return null; }
+    public int preparePower(Block block) { return -1; }
     public void tick(Block block, long tick) {}
 }

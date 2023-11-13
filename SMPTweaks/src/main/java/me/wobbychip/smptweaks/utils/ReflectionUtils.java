@@ -35,15 +35,19 @@ import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.redstone.NeighborUpdater;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.block.BlockDropItemEvent;
+import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionData;
@@ -79,6 +83,8 @@ public class ReflectionUtils {
 	public static Field CustomFunctionData_postReload;
 	public static Field RegistryMaterials_frozen;
 	public static Field RegistryMaterials_nextId;
+
+	public static final Field BlockPhysicsEvent_changed;
 	public static Method EntityVillager_startTrading_Or_updateSpecialPrices;
 	public static Method IRegistry_keySet;
 	public static Method Potions_register;
@@ -88,37 +94,37 @@ public class ReflectionUtils {
 	static {
 		version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
 
-		CraftServer = loadClass("org.bukkit.craftbukkit." + version + ".CraftServer", true);
-		CraftEntity = loadClass("org.bukkit.craftbukkit." + version + ".entity.CraftEntity", true);
-		CraftHumanEntity = loadClass("org.bukkit.craftbukkit." + version + ".entity.CraftHumanEntity", true);
-		CraftPlayer = loadClass("org.bukkit.craftbukkit." + version + ".entity.CraftPlayer", true);
-		CraftVillager = loadClass("org.bukkit.craftbukkit." + version + ".entity.CraftVillager", true);
-		CraftInventory = loadClass("org.bukkit.craftbukkit." + version + ".inventory.CraftInventory", true);
-		CraftItemStack = loadClass("org.bukkit.craftbukkit." + version + ".inventory.CraftItemStack", true);
-		CraftWorld = loadClass("org.bukkit.craftbukkit." + version + ".CraftWorld", true);
-		CraftMagicNumbers = loadClass("org.bukkit.craftbukkit." + version + ".util.CraftMagicNumbers", true);
+		CraftServer = Objects.requireNonNull(loadClass("org.bukkit.craftbukkit." + version + ".CraftServer", true));
+		CraftEntity = Objects.requireNonNull(loadClass("org.bukkit.craftbukkit." + version + ".entity.CraftEntity", true));
+		CraftHumanEntity = Objects.requireNonNull(loadClass("org.bukkit.craftbukkit." + version + ".entity.CraftHumanEntity", true));
+		CraftPlayer = Objects.requireNonNull(loadClass("org.bukkit.craftbukkit." + version + ".entity.CraftPlayer", true));
+		CraftVillager = Objects.requireNonNull(loadClass("org.bukkit.craftbukkit." + version + ".entity.CraftVillager", true));
+		CraftInventory = Objects.requireNonNull(loadClass("org.bukkit.craftbukkit." + version + ".inventory.CraftInventory", true));
+		CraftItemStack = Objects.requireNonNull(loadClass("org.bukkit.craftbukkit." + version + ".inventory.CraftItemStack", true));
+		CraftWorld = Objects.requireNonNull(loadClass("org.bukkit.craftbukkit." + version + ".CraftWorld", true));
+		CraftMagicNumbers = Objects.requireNonNull(loadClass("org.bukkit.craftbukkit." + version + ".util.CraftMagicNumbers", true));
 
 		//Fuck it I am not interested in updating nms every time
 		//So I will just search fields and methods by their types and arguments
 
-		DATA_LIVING_ENTITY_FLAGS = (EntityDataAccessor<Byte>) getValue(getField(LivingEntity.class, EntityDataAccessor.class, Byte.class, true), null);
+		DATA_LIVING_ENTITY_FLAGS = (EntityDataAccessor<Byte>) Objects.requireNonNull(getValue(getField(LivingEntity.class, EntityDataAccessor.class, Byte.class, true), null));
 		setRegistryMap(POTION, new HashMap<>());
 
-		Entity_bukkitEntity = getField(net.minecraft.world.entity.Entity.class, CraftEntity, null, true);
-		EntityPlayer_playerConnection = getField(ServerPlayer.class, ServerGamePacketListenerImpl.class, null, true);
-		EntityPlayer_chatVisibility = getField(ServerPlayer.class, ChatVisiblity.class, null, true);
-		RegistryMaterials_frozen = getField(MappedRegistry.class, boolean.class, null, true);
-		RegistryMaterials_nextId = getField(MappedRegistry.class, int.class, null, true);
+		MinecraftServer_levels = Objects.requireNonNull(getField(MinecraftServer.class, Map.class, null, true));
+		CustomFunctionData_ticking = Objects.requireNonNull(getField(ServerFunctionManager.class, List.class, null, true));
+		CustomFunctionData_postReload = Objects.requireNonNull(getField(ServerFunctionManager.class, boolean.class, null, true));
 
-		MinecraftServer_levels = getField(MinecraftServer.class, Map.class, null, true);
-		CustomFunctionData_ticking = getField(ServerFunctionManager.class, List.class, null, true);
-		CustomFunctionData_postReload = getField(ServerFunctionManager.class, boolean.class, null, true);
-
-		EntityVillager_startTrading_Or_updateSpecialPrices = findMethod(false, Modifier.PRIVATE, Villager.class, Void.TYPE, null, net.minecraft.world.entity.player.Player.class);
-		IRegistry_keySet = findMethod(true, null, Registry.class, Set.class, ResourceLocation.class);
-		Potions_register = findMethod(false, Modifier.PRIVATE, Potions.class, Potion.class, null, String.class, Potion.class);
-		RegistryMaterials_getHolder = findMethod(true, null, Registry.class, Optional.class, null, int.class);
-		PotionBrewer_register = findMethod(false, null, PotionBrewing.class, Void.TYPE, null, Potion.class, Item.class, Potion.class);
+		Entity_bukkitEntity = Objects.requireNonNull(getField(net.minecraft.world.entity.Entity.class, CraftEntity, null, true));
+		EntityPlayer_playerConnection = Objects.requireNonNull(getField(ServerPlayer.class, ServerGamePacketListenerImpl.class, null, true));
+		EntityPlayer_chatVisibility = Objects.requireNonNull(getField(ServerPlayer.class, ChatVisiblity.class, null, true));
+		RegistryMaterials_frozen = Objects.requireNonNull(getField(MappedRegistry.class, boolean.class, null, true));
+		RegistryMaterials_nextId = Objects.requireNonNull(getField(MappedRegistry.class, int.class, null, true));
+		BlockPhysicsEvent_changed = Objects.requireNonNull(ReflectionUtils.getField(BlockPhysicsEvent.class, BlockData.class, null, true));
+		EntityVillager_startTrading_Or_updateSpecialPrices = Objects.requireNonNull(findMethod(false, Modifier.PRIVATE, net.minecraft.world.entity.npc.Villager.class, Void.TYPE, null, net.minecraft.world.entity.player.Player.class));
+		IRegistry_keySet = Objects.requireNonNull(findMethod(true, null, Registry.class, Set.class, ResourceLocation.class));
+		Potions_register = Objects.requireNonNull(findMethod(false, Modifier.PRIVATE, Potions.class, Potion.class, null, String.class, Potion.class));
+		RegistryMaterials_getHolder = Objects.requireNonNull(findMethod(true, null, Registry.class, Optional.class, null, int.class));
+		PotionBrewer_register = Objects.requireNonNull(findMethod(false, null, PotionBrewing.class, Void.TYPE, null, Potion.class, Item.class, Potion.class));
 	}
 
 	public static Class<?> loadClass(String arg0, boolean verbose) {
@@ -716,5 +722,42 @@ public class ReflectionUtils {
 		Object postReload = CustomFunctionData_postReload.get(functionManager);
 		CustomFunctionData_postReload.set(functionManager, data);
 		return postReload;
+	}
+
+	public static BlockData getChangedBlockData(BlockPhysicsEvent event) {
+		return (BlockData) getValue(BlockPhysicsEvent_changed, event);
+	}
+
+	public static void setBlockNbt(org.bukkit.block.Block block, String name, Object value, boolean applyPhysics) {
+		BlockPos blockPos = new BlockPos(block.getX(), block.getY(), block.getZ());
+		ServerLevel serverLevel = ReflectionUtils.getWorld(block.getLocation().getWorld());
+
+		if (serverLevel == null) { return; }
+		BlockEntity blockEntity = serverLevel.getBlockEntity(blockPos);
+		if (blockEntity == null) { return; }
+		CompoundTag tag = blockEntity.saveWithoutMetadata();
+
+		tag.remove(name);
+
+		if (value.getClass().equals(Boolean.class)) { tag.putBoolean(name, (Boolean) value); }
+		if (value.getClass().equals(Integer.class)) { tag.putInt(name, (Integer) value); }
+		if (value.getClass().equals(String.class)) { tag.putString(name, (String) value); }
+
+		blockEntity.load(tag); //Loading NBT doesn't trigger physics update of block itself
+		if (applyPhysics) { blockEntity.setChanged(); } //This only updates block around (AND IT DOESN'T WORK, FUCK YOU MOJANG)
+		if (applyPhysics) NeighborUpdater.executeUpdate(serverLevel, blockEntity.getBlockState(), blockPos, blockEntity.getBlockState().getBlock(), blockPos, true);
+	}
+
+	public static void forceUpdateBlock(org.bukkit.block.Block block) {
+		BlockPos blockPos = new BlockPos(block.getX(), block.getY(), block.getZ());
+		ServerLevel serverLevel = ReflectionUtils.getWorld(block.getLocation().getWorld());
+		NeighborUpdater.executeUpdate(serverLevel, serverLevel.getBlockState(blockPos), blockPos, serverLevel.getBlockState(blockPos).getBlock(), blockPos, true);
+	}
+
+	public static void forceUpdateNeighbors(org.bukkit.block.Block block, int distance, @Nullable Material type, @Nullable Material exclude) {
+		for (org.bukkit.block.Block nblock: Utils.getNearbyBlocks(block.getLocation(), type, distance)) {
+			if ((exclude != null) && (nblock.getType() == exclude)) { continue; }
+			if (!nblock.getLocation().equals(block.getLocation())) { forceUpdateBlock(nblock); }
+		}
 	}
 }

@@ -17,6 +17,7 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -211,7 +212,7 @@ public class Utils {
 	}
 
 	//Get nearest blocks
-	public static List<Block> getNearbyBlocks(Location location, Material type, double radius) {
+	public static List<Block> getNearbyBlocks(Location location, @Nullable Material type, double radius) {
 		List<Block> nearbyBlock = new ArrayList<>();
 
 		double pX = location.getX();
@@ -222,7 +223,7 @@ public class Utils {
 			for (double y = -radius; y <= radius; y++) {
 				for (double z = -radius; z <= radius; z++) {
 					Block block = location.getWorld().getBlockAt((int) (pX+x), (int) (pY+y), (int) (pZ+z));
-					if (block.getType() == type) { nearbyBlock.add(block); }
+					if ((type == null) || (block.getType() == type)) { nearbyBlock.add(block); }
 				}
 			}
 		}

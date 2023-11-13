@@ -5,11 +5,15 @@ import me.wobbychip.smptweaks.library.customblocks.blocks.CustomBlock;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.Dispenser;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import java.util.Arrays;
 
 public class CrafterBlock extends CustomBlock {
     public CrafterBlock() {
@@ -31,7 +35,7 @@ public class CrafterBlock extends CustomBlock {
 
     @Override
     public ItemStack prepareDropItem() {
-        ItemStack item = new ItemStack(Material.DISPENSER);
+        ItemStack item = new ItemStack(getBlockBase());
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(Main.sym_color + "dCrafter");
         item.setItemMeta(meta);
@@ -41,5 +45,11 @@ public class CrafterBlock extends CustomBlock {
     @Override
     public boolean prepareCraft(PrepareItemCraftEvent event, World world, ItemStack result) {
         return AutoCraft.tweak.getGameRuleBoolean(world);
+    }
+
+    @Override
+    public int preparePower(Block block) {
+        if (!(block.getState() instanceof Dispenser)) { return 0; }
+        return (int) Arrays.stream(((Dispenser) block.getState()).getInventory().getContents()).filter(e -> (e != null && e.getType() != Material.AIR)).count();
     }
 }
