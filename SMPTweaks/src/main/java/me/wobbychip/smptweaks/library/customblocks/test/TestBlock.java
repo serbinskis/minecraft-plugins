@@ -5,7 +5,7 @@ import me.wobbychip.smptweaks.library.customblocks.blocks.CustomBlock;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
-import org.bukkit.block.Dispenser;
+import org.bukkit.block.Container;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
@@ -40,7 +40,7 @@ public class TestBlock extends CustomBlock {
 
     @Override
     public int preparePower(Block block) {
-        if (!(block.getState() instanceof Dispenser)) { return 0; }
-        return (int) Arrays.stream(((Dispenser) block.getState()).getInventory().getContents()).filter(e -> (e != null && e.getType() != Material.AIR)).count();
+        if (!(block.getState() instanceof Container)) { return 0; }
+        return (int) Arrays.stream(((Container) block.getState()).getInventory().getContents()).filter(e -> (e != null && e.getType() != Material.AIR)).count();
     }
 }

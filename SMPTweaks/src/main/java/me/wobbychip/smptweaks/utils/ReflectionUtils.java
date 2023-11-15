@@ -178,7 +178,7 @@ public class ReflectionUtils {
 				if (!(genericType instanceof ParameterizedType)) { continue; }
 				Type[] argTypes = ((ParameterizedType) genericType).getActualTypeArguments();
 				if ((argTypes.length == 0) || !(argTypes[0] instanceof Class)) { continue; }
-				if (!((Class<?>) argTypes[0]).equals(gType)) { continue; }
+				if (!argTypes[0].equals(gType)) { continue; }
 			}
 
 			boolean match = true;
@@ -204,7 +204,7 @@ public class ReflectionUtils {
 				if (!(genericType instanceof ParameterizedType)) { continue; }
 				Type[] argTypes = ((ParameterizedType) genericType).getActualTypeArguments();
 				if ((argTypes.length == 0) || !(argTypes[0] instanceof Class)) { continue; }
-				if (!((Class<?>) argTypes[0]).equals(gType)) { continue; }
+				if (!argTypes[0].equals(gType)) { continue; }
 			}
 
 			field.setAccessible(true);
@@ -406,7 +406,6 @@ public class ReflectionUtils {
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	public static MinecraftServer getServer() {
 		return MinecraftServer.getServer();
 	}
