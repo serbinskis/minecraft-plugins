@@ -25,9 +25,7 @@ import java.util.HashMap;
 public class BlockEvents implements Listener {
 	private final CustomBlock cblock;
 	private final HashMap<String, CustomBlock> elocation = new HashMap<>();
-	private final HashMap<Block, Integer> etest = new HashMap<>();
 	private boolean busy = false;
-	private boolean runi = false;
 
 	public BlockEvents(CustomBlock cblock) {
 		this.cblock = cblock;
