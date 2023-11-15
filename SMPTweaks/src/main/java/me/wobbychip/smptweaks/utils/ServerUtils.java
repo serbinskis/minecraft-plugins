@@ -20,7 +20,7 @@ public class ServerUtils {
 	//This actually doesn't pause your server,
 	//it just removes worlds and functions from ticking
 	//this will only work, if there are no players on the server,
-	//but it maybe can also break something if other plugins that try to access worlds
+	//but it maybe can also break something if other plugins will try to access worlds
 	public static boolean pauseServer() {
 		if (ServerUtils.isPaused() || ServerUtils.shutting) { return false; }
 		if (!Bukkit.getOnlinePlayers().isEmpty()) { return false; }
