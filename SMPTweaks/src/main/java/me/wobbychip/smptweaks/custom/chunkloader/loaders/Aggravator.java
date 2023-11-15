@@ -1,21 +1,15 @@
 package me.wobbychip.smptweaks.custom.chunkloader.loaders;
 
-import java.util.Collection;
-import java.util.UUID;
-
-import org.bukkit.Sound;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.block.Block;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.ItemFrame;
-import org.bukkit.entity.Monster;
-import org.bukkit.entity.PigZombie;
-import org.bukkit.entity.Player;
-
 import me.wobbychip.smptweaks.custom.chunkloader.ChunkLoader;
 import me.wobbychip.smptweaks.utils.PersistentUtils;
 import me.wobbychip.smptweaks.utils.Utils;
+import org.bukkit.Sound;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.block.Block;
+import org.bukkit.entity.*;
+
+import java.util.Collection;
+import java.util.UUID;
 
 public class Aggravator {
 	public Block block;
@@ -62,7 +56,7 @@ public class Aggravator {
 		if (fakePlayer.getPlayer() == null) { return; }
 		if (!fakePlayer.getPlayer().isValid() && doAggravate) { return; }
 
-		Collection<Entity> entities = Utils.getNearbyEntities(block.getLocation().clone().add(0.5, 0.5, 0.5), EntityType.UNKNOWN, ChunkLoader.simulationDistance, false);
+		Collection<Entity> entities = Utils.getNearbyEntities(block.getLocation().add(0.5, 0.5, 0.5), null, ChunkLoader.simulationDistance, false);
 
 		for (Entity entity : entities) {
 			if (!(entity instanceof Monster)) { continue; }

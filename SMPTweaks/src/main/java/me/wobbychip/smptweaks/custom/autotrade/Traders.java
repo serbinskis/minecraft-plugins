@@ -1,10 +1,6 @@
 package me.wobbychip.smptweaks.custom.autotrade;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
+import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -24,7 +20,10 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
 
-import me.wobbychip.smptweaks.utils.Utils;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 public class Traders {
 	public List<Block> traders = new ArrayList<>();
@@ -190,7 +189,7 @@ public class Traders {
 
 	//THIS IS USED ONLY TO CHECK IF TRADER IS STILL THERE
 	public Block getTrader(Block block) {
-		Collection<Entity> entities = Utils.getNearbyEntities(block.getLocation().clone().add(0.5, 0.5, 0.5), EntityType.UNKNOWN, 1.5, false);
+		Collection<Entity> entities = Utils.getNearbyEntities(block.getLocation().add(0.5, 0.5, 0.5), null, 1.5, false);
 
 		for (Entity entity : entities) {
 			Block trader = getTrader(entity);

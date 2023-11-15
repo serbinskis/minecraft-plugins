@@ -34,20 +34,26 @@ import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.level.SignalGetter;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.DiodeBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.redstone.NeighborUpdater;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.type.Comparator;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.block.BlockPhysicsEvent;
+import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
+import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionData;
@@ -78,13 +84,13 @@ public class ReflectionUtils {
 	public static Field EntityPlayer_playerConnection;
 	public static Field EntityPlayer_chatVisibility;
 	public static Field MinecraftServer_levels;
-
 	public static Field CustomFunctionData_ticking;
 	public static Field CustomFunctionData_postReload;
 	public static Field RegistryMaterials_frozen;
 	public static Field RegistryMaterials_nextId;
-
 	public static final Field BlockPhysicsEvent_changed;
+	public static final Field PotionSplashEvent_affectedEntities;
+	public static final Field AreaEffectCloudApplyEvent_affectedEntities;
 	public static Method EntityVillager_startTrading_Or_updateSpecialPrices;
 	public static Method IRegistry_keySet;
 	public static Method Potions_register;
@@ -114,12 +120,15 @@ public class ReflectionUtils {
 		CustomFunctionData_ticking = Objects.requireNonNull(getField(ServerFunctionManager.class, List.class, null, true));
 		CustomFunctionData_postReload = Objects.requireNonNull(getField(ServerFunctionManager.class, boolean.class, null, true));
 
+		BlockPhysicsEvent_changed = Objects.requireNonNull(getField(BlockPhysicsEvent.class, BlockData.class, null, true));
+		PotionSplashEvent_affectedEntities = Objects.requireNonNull(getField(PotionSplashEvent.class, Map.class, null, true));
+		AreaEffectCloudApplyEvent_affectedEntities = Objects.requireNonNull(getField(AreaEffectCloudApplyEvent.class, List.class, null, true));
+
 		Entity_bukkitEntity = Objects.requireNonNull(getField(net.minecraft.world.entity.Entity.class, CraftEntity, null, true));
 		EntityPlayer_playerConnection = Objects.requireNonNull(getField(ServerPlayer.class, ServerGamePacketListenerImpl.class, null, true));
 		EntityPlayer_chatVisibility = Objects.requireNonNull(getField(ServerPlayer.class, ChatVisiblity.class, null, true));
 		RegistryMaterials_frozen = Objects.requireNonNull(getField(MappedRegistry.class, boolean.class, null, true));
 		RegistryMaterials_nextId = Objects.requireNonNull(getField(MappedRegistry.class, int.class, null, true));
-		BlockPhysicsEvent_changed = Objects.requireNonNull(ReflectionUtils.getField(BlockPhysicsEvent.class, BlockData.class, null, true));
 		EntityVillager_startTrading_Or_updateSpecialPrices = Objects.requireNonNull(findMethod(false, Modifier.PRIVATE, net.minecraft.world.entity.npc.Villager.class, Void.TYPE, null, net.minecraft.world.entity.player.Player.class));
 		IRegistry_keySet = Objects.requireNonNull(findMethod(true, null, Registry.class, Set.class, ResourceLocation.class));
 		Potions_register = Objects.requireNonNull(findMethod(false, Modifier.PRIVATE, Potions.class, Potion.class, null, String.class, Potion.class));
@@ -724,10 +733,6 @@ public class ReflectionUtils {
 		return postReload;
 	}
 
-	public static BlockData getChangedBlockData(BlockPhysicsEvent event) {
-		return (BlockData) getValue(BlockPhysicsEvent_changed, event);
-	}
-
 	public static void setBlockNbt(org.bukkit.block.Block block, String name, Object value, boolean applyPhysics) {
 		BlockPos blockPos = new BlockPos(block.getX(), block.getY(), block.getZ());
 		ServerLevel serverLevel = ReflectionUtils.getWorld(block.getLocation().getWorld());
@@ -738,20 +743,36 @@ public class ReflectionUtils {
 		CompoundTag tag = blockEntity.saveWithoutMetadata();
 
 		tag.remove(name);
-
 		if (value.getClass().equals(Boolean.class)) { tag.putBoolean(name, (Boolean) value); }
 		if (value.getClass().equals(Integer.class)) { tag.putInt(name, (Integer) value); }
 		if (value.getClass().equals(String.class)) { tag.putString(name, (String) value); }
 
 		blockEntity.load(tag); //Loading NBT doesn't trigger physics update of block itself
 		if (applyPhysics) { blockEntity.setChanged(); } //This only updates block around (AND IT DOESN'T WORK, FUCK YOU MOJANG)
-		if (applyPhysics) NeighborUpdater.executeUpdate(serverLevel, blockEntity.getBlockState(), blockPos, blockEntity.getBlockState().getBlock(), blockPos, true);
+		if (applyPhysics) { NeighborUpdater.executeUpdate(serverLevel, blockEntity.getBlockState(), blockPos, blockEntity.getBlockState().getBlock(), blockPos, true); }
+	}
+
+	public static <T> T getBlockNbt(org.bukkit.block.Block block, String name) {
+		BlockPos blockPos = new BlockPos(block.getX(), block.getY(), block.getZ());
+		ServerLevel serverLevel = ReflectionUtils.getWorld(block.getLocation().getWorld());
+
+		if (serverLevel == null) { return null; }
+		BlockEntity blockEntity = serverLevel.getBlockEntity(blockPos);
+		if (blockEntity == null) { return null; }
+		CompoundTag tag = blockEntity.saveWithoutMetadata();
+
+		if (tag.getTagType(name) == 1) { return (T) Boolean.valueOf(tag.getBoolean(name)); }
+		if (tag.getTagType(name) == 3) { return (T) Integer.valueOf(tag.getInt(name)); }
+		if (tag.getTagType(name) == 8) { return (T) tag.getString(name); }
+
+		return null;
 	}
 
 	public static void forceUpdateBlock(org.bukkit.block.Block block) {
 		BlockPos blockPos = new BlockPos(block.getX(), block.getY(), block.getZ());
 		ServerLevel serverLevel = ReflectionUtils.getWorld(block.getLocation().getWorld());
-		NeighborUpdater.executeUpdate(serverLevel, serverLevel.getBlockState(blockPos), blockPos, serverLevel.getBlockState(blockPos).getBlock(), blockPos, true);
+		BlockState blockState = serverLevel.getBlockState(blockPos);
+		NeighborUpdater.executeUpdate(serverLevel, blockState, blockPos, blockState.getBlock(), blockPos, true);
 	}
 
 	public static void forceUpdateNeighbors(org.bukkit.block.Block block, int distance, @Nullable Material type, @Nullable Material exclude) {
@@ -759,5 +780,50 @@ public class ReflectionUtils {
 			if ((exclude != null) && (nblock.getType() == exclude)) { continue; }
 			if (!nblock.getLocation().equals(block.getLocation())) { forceUpdateBlock(nblock); }
 		}
+	}
+
+	public static BlockData getChangedBlockData(BlockPhysicsEvent event) {
+		return (BlockData) getValue(BlockPhysicsEvent_changed, event);
+	}
+
+	public static Map<org.bukkit.entity.LivingEntity, Double> getAffectedEntities(PotionSplashEvent event) {
+		return (Map<org.bukkit.entity.LivingEntity, Double>) getValue(PotionSplashEvent_affectedEntities, event);
+	}
+
+	public static List<org.bukkit.entity.LivingEntity> getAffectedEntities(AreaEffectCloudApplyEvent event) {
+		return (List<org.bukkit.entity.LivingEntity>) getValue(AreaEffectCloudApplyEvent_affectedEntities, event);
+	}
+
+	//This is useless and will only set power for 1 tick, because in next tick it will calculate power signal again
+	public static void setComparatorPower(org.bukkit.block.Block block, int power, boolean applyPhysics) {
+		org.bukkit.block.data.type.Comparator comparator = ((Comparator) block.getBlockData());
+		comparator.setPowered(power > 0);
+		block.setBlockData(comparator, false);
+		setBlockNbt(block, "OutputSignal", power, applyPhysics);
+	}
+
+	public static boolean isRedstoneConductor(org.bukkit.block.Block block) {
+		BlockPos blockPos = new BlockPos(block.getX(), block.getY(), block.getZ());
+		ServerLevel serverLevel = ReflectionUtils.getWorld(block.getLocation().getWorld());
+		BlockState blockState = serverLevel.getBlockState(blockPos);
+		return blockState.isRedstoneConductor(serverLevel, blockPos);
+	}
+
+	//This is used to get signal that is going inside comparator
+	public static int getAlternateSignal(org.bukkit.block.Block block) {
+		if (block.getType() != Material.COMPARATOR) { return 0; }
+
+		BlockPos pos = new BlockPos(block.getX(), block.getY(), block.getZ());
+		ServerLevel serverLevel = ReflectionUtils.getWorld(block.getLocation().getWorld());
+		BlockEntity blockEntity = serverLevel.getBlockEntity(pos);
+		BlockState state = blockEntity.getBlockState();
+		SignalGetter world = (SignalGetter) blockEntity.getLevel();
+
+		Direction enumdirection = (Direction) state.getValue(DiodeBlock.FACING);
+		Direction enumdirection1 = enumdirection.getClockWise();
+		Direction enumdirection2 = enumdirection.getCounterClockWise();
+		boolean flag = false;
+
+		return Math.max(world.getControlInputSignal(pos.relative(enumdirection1), enumdirection1, flag), world.getControlInputSignal(pos.relative(enumdirection2), enumdirection2, flag));
 	}
 }

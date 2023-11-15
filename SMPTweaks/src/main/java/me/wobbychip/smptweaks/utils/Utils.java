@@ -8,6 +8,7 @@ import org.bukkit.*;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.advancement.AdvancementProgress;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
@@ -196,18 +197,10 @@ public class Utils {
 	}
 
 	//Get nearest entities
-	public static Collection<Entity> getNearbyEntities(Location location, EntityType type, double distance, boolean maxHeight) {
+	public static Collection<Entity> getNearbyEntities(Location location, @Nullable EntityType type, double distance, boolean maxHeight) {
 		double height = maxHeight ? location.getWorld().getMaxHeight()*2 : distance;
 		Collection<Entity> nearbyEntites = location.getWorld().getNearbyEntities(location, distance, height, distance);
-		if (type == EntityType.UNKNOWN) { return nearbyEntites; }
-		Iterator<Entity> iterator = nearbyEntites.iterator();
-
-		while (iterator.hasNext()) {
-			if (iterator.next().getType() != type) {
-				iterator.remove();
-			}
-		}
-
+		if (type != null) { nearbyEntites.removeIf(entity -> entity.getType() != type); }
 		return nearbyEntites;
 	}
 
@@ -276,7 +269,7 @@ public class Utils {
 
 	//Convert location to string
 	public static String locationToString(Location location) {
-		return location.getWorld().getName() + delimiter + String.valueOf(location.getX()) + delimiter + String.valueOf(location.getY()) + delimiter +  String.valueOf(location.getZ());
+		return location.getWorld().getName() + delimiter + location.getX() + delimiter + location.getY() + delimiter + location.getZ();
 	}
 
 	//Convert string to location
@@ -344,5 +337,25 @@ public class Utils {
 		}
 
 		return false;
+	}
+
+	public static BlockFace getClockWise(BlockFace facing) {
+		switch (facing) {
+			case NORTH: return BlockFace.EAST;
+			case SOUTH: return BlockFace.WEST;
+			case WEST: return BlockFace.NORTH;
+			case EAST: return BlockFace.SOUTH;
+			default: throw new IllegalStateException("Unable to get Y-rotated facing of " + facing);
+		}
+	}
+
+	public static BlockFace getCounterClockWise(BlockFace facing) {
+		switch (facing) {
+			case NORTH: return BlockFace.WEST;
+			case SOUTH: return BlockFace.EAST;
+			case WEST: return BlockFace.SOUTH;
+			case EAST: return BlockFace.NORTH;
+			default: throw new IllegalStateException("Unable to get CCW facing of " + facing);
+		}
 	}
 }

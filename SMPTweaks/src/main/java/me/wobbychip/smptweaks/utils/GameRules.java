@@ -1,10 +1,5 @@
 package me.wobbychip.smptweaks.utils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -13,6 +8,11 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.plugin.Plugin;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
 public class GameRules implements Listener {
 	public HashMap<String, Object> rules = new HashMap<String, Object>();
@@ -53,7 +53,6 @@ public class GameRules implements Listener {
 	public <T> T getGameRule(World world, String name) {
 		if (!rules.containsKey(name)) { return null; }
 		Object object = rules.get(name);
-
 		if (globals.contains(name)) { world = Bukkit.getWorlds().get(0); }
 
 		if (object.getClass().equals(Boolean.class)) {

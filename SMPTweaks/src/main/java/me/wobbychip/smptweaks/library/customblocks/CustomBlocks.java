@@ -5,7 +5,9 @@ import me.wobbychip.smptweaks.library.customblocks.blocks.CustomBlock;
 import me.wobbychip.smptweaks.library.customblocks.blocks.CustomMarker;
 import me.wobbychip.smptweaks.library.customblocks.events.BlockEvents;
 import me.wobbychip.smptweaks.library.customblocks.events.InventoryEvents;
+import me.wobbychip.smptweaks.library.customblocks.test.TestBlock;
 import me.wobbychip.smptweaks.utils.PersistentUtils;
+import me.wobbychip.smptweaks.utils.ServerUtils;
 import me.wobbychip.smptweaks.utils.TaskUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
@@ -25,6 +27,7 @@ public class CustomBlocks {
 
 		TaskUtils.scheduleSyncRepeatingTask(new Runnable() {
 			public void run() {
+				if (ServerUtils.isPaused()) { return; }
 				for (Map.Entry<Block, BlockDisplay> value : CustomMarker.collectUnmarkedBlocks().entrySet()) {
 					value.getValue().remove();
 					CustomBlock customBlock = getCustomBlock(value.getValue());
@@ -32,6 +35,8 @@ public class CustomBlocks {
 				}
 			}
 		}, 1L, 1L);
+
+		if (Main.DEBUG_MODE) { CustomBlocks.registerBlock(new TestBlock()); }
 	}
 
 	public static void registerBlock(CustomBlock block) {

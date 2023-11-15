@@ -35,8 +35,8 @@ import me.wobbychip.smptweaks.custom.silktouchspawners.SilkTouchSpawners;
 import me.wobbychip.smptweaks.library.customblocks.CustomBlocks;
 import me.wobbychip.smptweaks.tweaks.TweakManager;
 import me.wobbychip.smptweaks.utils.GameRules;
+import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import me.wobbychip.smptweaks.utils.Utils;
-import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -44,21 +44,19 @@ public class Main extends JavaPlugin {
 	public static Main plugin;
 	public static GameRules gameRules;
 	public static TweakManager manager;
-	public static ClassLoader classLoader;
 	public static String prefix = "SMPTweaks-";
 	public static char sym_color = '§';
 	public static String color = sym_color + "9";
 	public static Sound DENY_SOUND_EFFECT = Sound.BLOCK_NOTE_BLOCK_HARP;
+	public static boolean DEBUG_MODE = true;
 
 	@Override
 	public void onEnable() {
 		Main.plugin = this;
 		Main.plugin.saveDefaultConfig();
-		Main.classLoader = Main.plugin.getClassLoader();
 		Main.gameRules = new GameRules(Main.plugin);
 
-		String version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
-		Utils.sendMessage("[SMPTweaks] Server Version: " + version);
+		Utils.sendMessage("[SMPTweaks] Server Version: " + ReflectionUtils.version);
 
 		manager = new TweakManager();
 		manager.addTweak(new AllCraftingRecipes());
@@ -95,7 +93,11 @@ public class Main extends JavaPlugin {
 
 		Main.plugin.getCommand("smptweaks").setExecutor(new Commands());
 		Main.plugin.getCommand("smptweaks").setTabCompleter(new Commands());
-		CustomBlocks.start();
+		if (Main.DEBUG_MODE) { CustomBlocks.start(); }
+	}
+
+	public ClassLoader getPluginClassLoader() {
+		return this.getClassLoader();
 	}
 
 	@Override

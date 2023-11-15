@@ -25,7 +25,6 @@ import javax.annotation.Nullable;
 public class CustomBlock implements Listener {
     public static String BLOCK_TAG = "SMPTWEAKS_CUSTOM_BLOCK";
     public static String MARKED_ITEM = "SMPTWEAKS_CBLOCK_MARKED";
-
     private final String name;
     private final Material block_base;
     private String title;

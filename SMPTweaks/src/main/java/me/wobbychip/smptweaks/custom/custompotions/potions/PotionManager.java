@@ -1,28 +1,21 @@
 package me.wobbychip.smptweaks.custom.custompotions.potions;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
-
+import com.google.common.reflect.ClassPath;
+import me.wobbychip.smptweaks.Main;
+import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
+import me.wobbychip.smptweaks.utils.PersistentUtils;
+import me.wobbychip.smptweaks.utils.ReflectionUtils;
+import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.block.BrewingStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionType;
 
-import com.google.common.reflect.ClassPath;
-
-import me.wobbychip.smptweaks.Main;
-import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
-import me.wobbychip.smptweaks.utils.PersistentUtils;
-import me.wobbychip.smptweaks.utils.ReflectionUtils;
-import me.wobbychip.smptweaks.utils.Utils;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
+import java.util.Map.Entry;
 
 public class PotionManager {
 	protected Map<CustomPotion, String> waiting = new HashMap<CustomPotion, String>();
@@ -33,7 +26,7 @@ public class PotionManager {
 		List<CustomPotion> potions = new ArrayList<>();
 
 		try {
-			ClassPath classPath = ClassPath.from(Main.classLoader);
+			ClassPath classPath = ClassPath.from(loader);
 
 			for (ClassPath.ClassInfo classInfo : classPath.getTopLevelClasses(pacakgeName)) {
 				Class<?> clazz = Class.forName(classInfo.getName(), true, loader);

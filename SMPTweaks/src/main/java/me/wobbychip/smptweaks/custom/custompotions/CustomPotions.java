@@ -1,20 +1,15 @@
 package me.wobbychip.smptweaks.custom.custompotions;
 
-import java.util.List;
-
-import org.bukkit.Bukkit;
-
 import me.wobbychip.smptweaks.Config;
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.custom.custompotions.commands.Commands;
-import me.wobbychip.smptweaks.custom.custompotions.events.BowEvents;
-import me.wobbychip.smptweaks.custom.custompotions.events.InventoryEvents;
-import me.wobbychip.smptweaks.custom.custompotions.events.PotionEvents;
-import me.wobbychip.smptweaks.custom.custompotions.events.ProjectileEvents;
-import me.wobbychip.smptweaks.custom.custompotions.events.VillagerEvents;
+import me.wobbychip.smptweaks.custom.custompotions.events.*;
 import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
 import me.wobbychip.smptweaks.custom.custompotions.potions.PotionManager;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
+import org.bukkit.Bukkit;
+
+import java.util.List;
 
 public class CustomPotions extends CustomTweak {
 	public static CustomTweak tweak;
@@ -42,7 +37,7 @@ public class CustomPotions extends CustomTweak {
 		manager = new PotionManager();
 		boolean allowVillagerTrading = CustomPotions.config.getConfig().getConfigurationSection("config").getBoolean("allowVillagerTrading");
 
-		for (CustomPotion potion : manager.getPotions(Main.classLoader, "me.wobbychip.smptweaks.custom.custompotions.custom")) {
+		for (CustomPotion potion : manager.getPotions(Main.plugin.getPluginClassLoader(), "me.wobbychip.smptweaks.custom.custompotions.custom")) {
 			if (!allowVillagerTrading) { potion.setAllowVillagerTrades(allowVillagerTrading); }
 			manager.registerPotion(potion);
 		}

@@ -22,7 +22,6 @@ import static me.wobbychip.smptweaks.library.customblocks.blocks.CustomBlock.BLO
 
 public class CustomMarker implements Runnable {
     public static String MARKER_TAG = "SMPTWEAKS_CUSTOM_MARKER";
-
     private static final HashMap<String, CustomMarker> markers = new HashMap<>();
     public static boolean verbose = false;
     private final int task;
@@ -42,6 +41,8 @@ public class CustomMarker implements Runnable {
         BlockDisplay display = (BlockDisplay) block.getWorld().spawnEntity(block.getLocation().add(0.5, 0.5, 0.5), EntityType.BLOCK_DISPLAY);
         PersistentUtils.setPersistentDataString(display, BLOCK_TAG, cblock.getName());
         PersistentUtils.setPersistentDataBoolean(display, MARKER_TAG, true);
+        display.setCustomName(MARKER_TAG);
+        display.setCustomNameVisible(false);
         display.setInvulnerable(true);
         display.setBlock(getBlockData(block, cblock.getCustomMaterial()));
 
@@ -114,6 +115,7 @@ public class CustomMarker implements Runnable {
     }
 
     public void run() {
+        if (ServerUtils.isPaused()) { return; }
         Block block = display.getLocation().getBlock();
         if (!display.getLocation().isChunkLoaded()) { return; }
         if (!display.isValid()) { recreate(); return; }

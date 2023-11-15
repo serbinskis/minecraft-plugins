@@ -1,9 +1,13 @@
 package me.wobbychip.smptweaks.library.customblocks.events;
 
+import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.library.customblocks.blocks.CustomBlock;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import me.wobbychip.smptweaks.utils.TaskUtils;
 import me.wobbychip.smptweaks.utils.Utils;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -18,12 +22,15 @@ import org.bukkit.event.block.*;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.inventory.ItemStack;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 
 public class BlockEvents implements Listener {
 	private final CustomBlock cblock;
 	private final HashMap<String, CustomBlock> elocation = new HashMap<>();
+	private final HashMap<Block, Integer> etest = new HashMap<>();
 	private boolean busy = false;
+	private boolean runi = false;
 
 	public BlockEvents(CustomBlock cblock) {
 		this.cblock = cblock;
@@ -93,8 +100,20 @@ public class BlockEvents implements Listener {
 		cblock.createBlock(event.getBlockPlaced());
 	}
 
+	//TODO: Not finished, there are still bugs, not also sure about infinite loop in here
+	//TODO: Fix issue with comaprators not substracting correctly when two custom emited are working together
+	//TODO: https://i.imgur.com/QZ80X4z.png , https://i.imgur.com/308qB8o.png
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockPhysicsEvent(BlockPhysicsEvent event) {
+		//if (event.getChangedType() != Material.COMPARATOR) { return; }
+		//Utils.sendMessage(event);
+		//if (Main.DEBUG_MODE) { return; }
+
+		if (Main.DEBUG_MODE && (event.getChangedType() != Material.AIR) && (event.getChangedType() != Material.GRASS_BLOCK)) {
+			int d1 = ReflectionUtils.getAlternateSignal(event.getBlock());
+			Utils.sendMessage(event.getChangedType() + " | busy: " + busy + " | " + Utils.locationToString(event.getBlock().getLocation()) + " | input: " + d1);
+		}
+
 		if (busy || (event.getChangedType() != Material.COMPARATOR)) { return; }
 
 		BlockFace blockFace = ((Directional) event.getBlock().getBlockData()).getFacing();
@@ -102,7 +121,7 @@ public class BlockEvents implements Listener {
 		Block customBlock = null;
 		Block b1 = event.getBlock().getRelative(blockFace, 1);
 		Block b2 = event.getBlock().getRelative(blockFace, 2);
-		if (cblock.isCustomBlock(b2) && !b1.getType().isTransparent()) { customBlock = b2; }
+		if (cblock.isCustomBlock(b2) && ReflectionUtils.isRedstoneConductor(b1)) { customBlock = b2; }
 		if (cblock.isCustomBlock(b1)) { customBlock = b1; }
 		if (customBlock == null) { return; }
 
@@ -110,17 +129,56 @@ public class BlockEvents implements Listener {
 		if (power < 0) { return; }
 		event.setCancelled(true);
 
-		//TODO: calculate substraction power
-		//((Comparator) blockData).getMode()
-		//Need a way to get block NBT
-
-		busy = true;
+		//busy = true;
 		BlockData blockData = ReflectionUtils.getChangedBlockData(event);
+		power = getComparatorOutputSignal(event.getBlock(), blockData, power);
+		ReflectionUtils.setComparatorPower(event.getBlock(), power, false);
+		//ReflectionUtils.forceUpdateBlock(event.getBlock().getLocation().getBlock());
+		//busy = false;
+
+		BlockPos blockPos = new BlockPos(event.getBlock().getX(), event.getBlock().getY(), event.getBlock().getZ());
+		BlockPos blockPos1 = new BlockPos(event.getSourceBlock().getX(), event.getSourceBlock().getY(), event.getSourceBlock().getZ());
+		ServerLevel serverLevel = ReflectionUtils.getWorld(event.getBlock().getLocation().getWorld());
+		BlockEntity blockEntity = serverLevel.getBlockEntity(blockPos);
+		blockEntity.getBlockState().neighborChanged(serverLevel, blockPos, blockEntity.getBlockState().getBlock(), blockPos1, true);
+
+		//ReflectionUtils.forceUpdateBlock(event.getBlock().getRelative(oppositeFace, 1));
+		//ReflectionUtils.forceUpdateBlock(event.getBlock().getRelative(oppositeFace, 2));
+	}
+
+	/*@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void onBlockRedstoneEvent(BlockRedstoneEvent event) {
+		if (event.getBlock().getType() != Material.COMPARATOR) { return; }
+		Utils.sendMessage(event);
+		if (Main.DEBUG_MODE) { return; } //This is useless, it never even runs, like wtf
+
+		BlockFace blockFace = ((Directional) event.getBlock().getBlockData()).getFacing();
+		BlockFace oppositeFace = ((Directional) event.getBlock().getBlockData()).getFacing().getOppositeFace();
+		Block b1 = event.getBlock().getRelative(blockFace, 1);
+		Block b2 = event.getBlock().getRelative(blockFace, 2);
+
+		Block customBlock = null;
+		if (cblock.isCustomBlock(b2) && !b1.getType().isTransparent()) { customBlock = b2; }
+		if (cblock.isCustomBlock(b1)) { customBlock = b1; }
+		if (customBlock == null) { return; }
+
+		int power = cblock.preparePower(customBlock);
+		if (power < 0) { return; }
+
+		BlockData blockData = event.getBlock().getBlockData();
+		power = getComparatorOutputSignal(event.getBlock(), blockData, power);
+		event.setNewCurrent(power > 0 ? 15 : 0);
 		((Comparator) blockData).setPowered(power > 0);
 		event.getBlock().setBlockData(blockData, false); //Update block without triggering physics event
-		ReflectionUtils.setBlockNbt(event.getBlock().getLocation().getBlock(), "OutputSignal", power, false);
-		ReflectionUtils.forceUpdateBlock(event.getBlock().getRelative(oppositeFace, 1));
-		ReflectionUtils.forceUpdateBlock(event.getBlock().getRelative(oppositeFace, 2));
-		busy = false;
+		ReflectionUtils.setBlockNbt(event.getBlock(), "OutputSignal", power, false);
+		//ReflectionUtils.forceUpdateBlock(event.getBlock());
+		//ReflectionUtils.forceUpdateBlock(event.getBlock().getRelative(oppositeFace, 1));
+		//ReflectionUtils.forceUpdateBlock(event.getBlock().getRelative(oppositeFace, 2));
+	}*/
+
+	public int getComparatorOutputSignal(Block block, @Nullable BlockData blockData, int power) {
+		int j = ReflectionUtils.getAlternateSignal(block);
+		if (blockData == null) { blockData = block.getBlockData(); }
+		return (j > power ? 0 : (((Comparator) blockData).getMode() == Comparator.Mode.SUBTRACT ? power - j : power));
 	}
 }
