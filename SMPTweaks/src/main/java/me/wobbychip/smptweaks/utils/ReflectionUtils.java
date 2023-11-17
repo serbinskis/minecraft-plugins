@@ -734,7 +734,7 @@ public class ReflectionUtils {
 
 	public static void setBlockNbt(org.bukkit.block.Block block, String name, Object value, boolean applyPhysics) {
 		BlockPos blockPos = new BlockPos(block.getX(), block.getY(), block.getZ());
-		ServerLevel serverLevel = ReflectionUtils.getWorld(block.getLocation().getWorld());
+		ServerLevel serverLevel = getWorld(block.getLocation().getWorld());
 
 		if (serverLevel == null) { return; }
 		BlockEntity blockEntity = serverLevel.getBlockEntity(blockPos);
@@ -753,7 +753,7 @@ public class ReflectionUtils {
 
 	public static <T> T getBlockNbt(org.bukkit.block.Block block, String name) {
 		BlockPos blockPos = new BlockPos(block.getX(), block.getY(), block.getZ());
-		ServerLevel serverLevel = ReflectionUtils.getWorld(block.getLocation().getWorld());
+		ServerLevel serverLevel = getWorld(block.getLocation().getWorld());
 
 		if (serverLevel == null) { return null; }
 		BlockEntity blockEntity = serverLevel.getBlockEntity(blockPos);
@@ -769,7 +769,7 @@ public class ReflectionUtils {
 
 	public static void forceUpdateBlock(org.bukkit.block.Block block) {
 		BlockPos blockPos = new BlockPos(block.getX(), block.getY(), block.getZ());
-		ServerLevel serverLevel = ReflectionUtils.getWorld(block.getLocation().getWorld());
+		ServerLevel serverLevel = getWorld(block.getLocation().getWorld());
 		BlockState blockState = serverLevel.getBlockState(blockPos);
 		NeighborUpdater.executeUpdate(serverLevel, blockState, blockPos, blockState.getBlock(), blockPos, true);
 	}
@@ -791,7 +791,7 @@ public class ReflectionUtils {
 
 	public static boolean isRedstoneConductor(org.bukkit.block.Block block) {
 		BlockPos blockPos = new BlockPos(block.getX(), block.getY(), block.getZ());
-		ServerLevel serverLevel = ReflectionUtils.getWorld(block.getLocation().getWorld());
+		ServerLevel serverLevel = getWorld(block.getLocation().getWorld());
 		BlockState blockState = serverLevel.getBlockState(blockPos);
 		return blockState.isRedstoneConductor(serverLevel, blockPos);
 	}
@@ -801,7 +801,7 @@ public class ReflectionUtils {
 		if (block.getType() != Material.COMPARATOR) { return 0; }
 
 		BlockPos pos = new BlockPos(block.getX(), block.getY(), block.getZ());
-		ServerLevel serverLevel = ReflectionUtils.getWorld(block.getLocation().getWorld());
+		ServerLevel serverLevel = getWorld(block.getLocation().getWorld());
 		BlockEntity blockEntity = serverLevel.getBlockEntity(pos);
 		BlockState state = blockEntity.getBlockState();
 		SignalGetter world = (SignalGetter) blockEntity.getLevel();

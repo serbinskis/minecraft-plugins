@@ -3,6 +3,7 @@ package me.wobbychip.smptweaks.library.customessentials.events;
 import com.earth2me.essentials.Essentials;
 import com.earth2me.essentials.User;
 import me.wobbychip.smptweaks.utils.TaskUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -19,16 +20,23 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.Plugin;
 
+import java.nio.Buffer;
 import java.util.HashMap;
 import java.util.UUID;
 
 public class PlayerEvents implements Listener {
     private final Essentials essentials;
     private final HashMap<UUID, Integer> reverser = new HashMap<>();
-    private boolean busy;
+    private final HashMap<UUID, Boolean> collidables = new HashMap<>();
 
     public PlayerEvents(Plugin essentials) {
         this.essentials = (Essentials) essentials;
+
+        TaskUtils.scheduleSyncRepeatingTask(new Runnable() {
+            public void run() {
+                for (Player player : Bukkit.getOnlinePlayers()) { onPlayerTick(player); }
+            }
+        }, 1L, 1L);
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
@@ -73,5 +81,12 @@ public class PlayerEvents implements Listener {
         User user = essentials.getUser(player.getUniqueId());
         if (!user.isVanished() || (player.getGameMode() != GameMode.CREATIVE)) { return; }
         event.setCancelled(true);
+    }
+
+    public void onPlayerTick(Player player) {
+        User user = essentials.getUser(player.getUniqueId());
+        if (!player.isCollidable() && user.isVanished() && (player.getGameMode() == GameMode.CREATIVE)) { collidables.put(player.getUniqueId(), true); }
+        if (user.isVanished() && (player.getGameMode() == GameMode.CREATIVE)) { player.setCollidable(false); return; }
+        if (collidables.containsKey(player.getUniqueId())) { player.setCollidable(collidables.remove(player.getUniqueId())); }
     }
 }

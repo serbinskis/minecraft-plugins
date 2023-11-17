@@ -1,19 +1,27 @@
 package me.wobbychip.smptweaks.library.customblocks.events;
 
 import me.wobbychip.smptweaks.Main;
+import me.wobbychip.smptweaks.library.customblocks.blocks.ComparatorBlock;
 import me.wobbychip.smptweaks.library.customblocks.blocks.CustomBlock;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import me.wobbychip.smptweaks.utils.TaskUtils;
 import me.wobbychip.smptweaks.utils.Utils;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.DiodeBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.ComparatorBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.ComparatorMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.type.Comparator;
+import org.bukkit.craftbukkit.v1_20_R2.event.CraftEventFactory;
 import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -24,11 +32,13 @@ import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class BlockEvents implements Listener {
+	public static int DEFAULT_COMPARATOR_DELAY = 2;
 	private final CustomBlock cblock;
 	private final HashMap<String, CustomBlock> elocation = new HashMap<>();
-	private boolean busy = false;
+	private final HashMap<String, Block> ticklist = new HashMap<>();
 
 	public BlockEvents(CustomBlock cblock) {
 		this.cblock = cblock;
@@ -100,22 +110,17 @@ public class BlockEvents implements Listener {
 
 	//TODO: Not finished, there are still bugs, not also sure about infinite loop in here
 	//TODO: Fix issue with comaprators not substracting correctly when two custom emited are working together
-	//TODO: https://i.imgur.com/QZ80X4z.png , https://i.imgur.com/308qB8o.png
+	//TODO: https://i.imgur.com/QZ80X4z.png , https://i.imgur.com/308qB8o.png (KINDA FIXED)
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockPhysicsEvent(BlockPhysicsEvent event) {
-		//if (event.getChangedType() != Material.COMPARATOR) { return; }
-		//Utils.sendMessage(event);
-		//if (Main.DEBUG_MODE) { return; }
-
 		if (Main.DEBUG_MODE && (event.getChangedType() != Material.AIR) && (event.getChangedType() != Material.GRASS_BLOCK)) {
 			int d1 = ReflectionUtils.getAlternateSignal(event.getBlock());
-			Utils.sendMessage(event.getChangedType() + " | busy: " + busy + " | " + Utils.locationToString(event.getBlock().getLocation()) + " | input: " + d1);
+			Utils.sendMessage(event.getChangedType() + " | " + Utils.locationToString(event.getBlock().getLocation()) + " | input: " + d1);
 		}
 
-		if (busy || (event.getChangedType() != Material.COMPARATOR)) { return; }
+		if (event.getChangedType() != Material.COMPARATOR) { return; }
 
 		BlockFace blockFace = ((Directional) event.getBlock().getBlockData()).getFacing();
-		BlockFace oppositeFace = ((Directional) event.getBlock().getBlockData()).getFacing().getOppositeFace();
 		Block customBlock = null;
 		Block b1 = event.getBlock().getRelative(blockFace, 1);
 		Block b2 = event.getBlock().getRelative(blockFace, 2);
@@ -125,55 +130,35 @@ public class BlockEvents implements Listener {
 
 		int power = cblock.preparePower(customBlock);
 		if (power < 0) { return; }
-
-		//busy = true;
-		BlockData blockData = ReflectionUtils.getChangedBlockData(event);
-		power = getComparatorOutputSignal(event.getBlock(), blockData, power);
-		Utils.sendMessage("new power: " + power);
-		ReflectionUtils.setComparatorPower(event.getBlock(), power, false);
-		Utils.sendMessage("set power: " + ReflectionUtils.getBlockNbt(event.getBlock(), "OutputSignal"));
-		//busy = false;
-
 		event.setCancelled(true);
-		//BlockPos blockPos = new BlockPos(event.getBlock().getX(), event.getBlock().getY(), event.getBlock().getZ());
-		//BlockPos blockPos1 = new BlockPos(event.getSourceBlock().getX(), event.getSourceBlock().getY(), event.getSourceBlock().getZ());
-		//ServerLevel serverLevel = ReflectionUtils.getWorld(event.getBlock().getLocation().getWorld());
-		//BlockEntity blockEntity = serverLevel.getBlockEntity(blockPos);
-		//blockEntity.getBlockState().neighborChanged(serverLevel, blockPos, blockEntity.getBlockState().getBlock(), blockPos1, true);
 
-		//ReflectionUtils.forceUpdateBlock(event.getBlock().getRelative(oppositeFace, 1));
-		//ReflectionUtils.forceUpdateBlock(event.getBlock().getRelative(oppositeFace, 2));
+		BlockData blockData = ReflectionUtils.getChangedBlockData(event);
+		int result_power = getComparatorOutputSignal(event.getBlock(), blockData, power);
+		ReflectionUtils.setComparatorPower(event.getBlock(), result_power, false);
+
+		String location = Utils.locationToString(event.getBlock().getLocation());
+		if (ticklist.containsKey(location)) { return; }
+		ticklist.put(location, event.getBlock());
+
+		TaskUtils.scheduleSyncDelayedTask(new Runnable() {
+			public void run() {
+				updateNeighborsInFront(ticklist.remove(location));
+			}
+		}, DEFAULT_COMPARATOR_DELAY);
 	}
 
-	/*@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-	public void onBlockRedstoneEvent(BlockRedstoneEvent event) {
-		if (event.getBlock().getType() != Material.COMPARATOR) { return; }
-		Utils.sendMessage(event);
-		if (Main.DEBUG_MODE) { return; } //This is useless, it never even runs, like wtf
+	public void updateNeighborsInFront(Block block) {
+		BlockPos block_pos = new BlockPos(block.getX(), block.getY(), block.getZ());
+		ServerLevel block_world = Objects.requireNonNull(ReflectionUtils.getWorld(block.getWorld()));
+		BlockState block_sate = block_world.getBlockState(block_pos);
+		net.minecraft.world.level.block.ComparatorBlock block_nms = (net.minecraft.world.level.block.ComparatorBlock) block_sate.getBlock();
 
-		BlockFace blockFace = ((Directional) event.getBlock().getBlockData()).getFacing();
-		BlockFace oppositeFace = ((Directional) event.getBlock().getBlockData()).getFacing().getOppositeFace();
-		Block b1 = event.getBlock().getRelative(blockFace, 1);
-		Block b2 = event.getBlock().getRelative(blockFace, 2);
+		Direction enumdirection = (Direction) block_sate.getValue(DiodeBlock.FACING);
+		BlockPos blockposition1 = block_pos.relative(enumdirection.getOpposite());
 
-		Block customBlock = null;
-		if (cblock.isCustomBlock(b2) && !b1.getType().isTransparent()) { customBlock = b2; }
-		if (cblock.isCustomBlock(b1)) { customBlock = b1; }
-		if (customBlock == null) { return; }
-
-		int power = cblock.preparePower(customBlock);
-		if (power < 0) { return; }
-
-		BlockData blockData = event.getBlock().getBlockData();
-		power = getComparatorOutputSignal(event.getBlock(), blockData, power);
-		event.setNewCurrent(power > 0 ? 15 : 0);
-		((Comparator) blockData).setPowered(power > 0);
-		event.getBlock().setBlockData(blockData, false); //Update block without triggering physics event
-		ReflectionUtils.setBlockNbt(event.getBlock(), "OutputSignal", power, false);
-		//ReflectionUtils.forceUpdateBlock(event.getBlock());
-		//ReflectionUtils.forceUpdateBlock(event.getBlock().getRelative(oppositeFace, 1));
-		//ReflectionUtils.forceUpdateBlock(event.getBlock().getRelative(oppositeFace, 2));
-	}*/
+		block_world.neighborChanged(blockposition1, block_nms, block_pos);
+		block_world.updateNeighborsAtExceptFromFacing(blockposition1, block_nms, enumdirection);
+	}
 
 	public int getComparatorOutputSignal(Block block, @Nullable BlockData blockData, int power) {
 		int j = ReflectionUtils.getAlternateSignal(block);
