@@ -781,18 +781,6 @@ public class ReflectionUtils {
 		}
 	}
 
-	public static BlockData getChangedBlockData(BlockPhysicsEvent event) {
-		return (BlockData) getValue(BlockPhysicsEvent_changed, event);
-	}
-
-	public static Map<org.bukkit.entity.LivingEntity, Double> getAffectedEntities(PotionSplashEvent event) {
-		return (Map<org.bukkit.entity.LivingEntity, Double>) getValue(PotionSplashEvent_affectedEntities, event);
-	}
-
-	public static List<org.bukkit.entity.LivingEntity> getAffectedEntities(AreaEffectCloudApplyEvent event) {
-		return (List<org.bukkit.entity.LivingEntity>) getValue(AreaEffectCloudApplyEvent_affectedEntities, event);
-	}
-
 	//This is useless and will only set power for 1 tick, because in next tick it will calculate power signal again
 	public static void setComparatorPower(org.bukkit.block.Block block, int power, boolean applyPhysics) {
 		org.bukkit.block.data.type.Comparator comparator = ((Comparator) block.getBlockData());
@@ -824,5 +812,17 @@ public class ReflectionUtils {
 		boolean flag = false;
 
 		return Math.max(world.getControlInputSignal(pos.relative(enumdirection1), enumdirection1, flag), world.getControlInputSignal(pos.relative(enumdirection2), enumdirection2, flag));
+	}
+
+	public static BlockData getChangedBlockData(BlockPhysicsEvent event) {
+		return (BlockData) getValue(BlockPhysicsEvent_changed, event);
+	}
+
+	public static Map<org.bukkit.entity.LivingEntity, Double> getAffectedEntities(PotionSplashEvent event) {
+		return (Map<org.bukkit.entity.LivingEntity, Double>) getValue(PotionSplashEvent_affectedEntities, event);
+	}
+
+	public static List<org.bukkit.entity.LivingEntity> getAffectedEntities(AreaEffectCloudApplyEvent event) {
+		return (List<org.bukkit.entity.LivingEntity>) getValue(AreaEffectCloudApplyEvent_affectedEntities, event);
 	}
 }

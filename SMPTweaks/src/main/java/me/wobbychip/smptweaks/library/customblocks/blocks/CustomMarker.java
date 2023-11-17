@@ -18,8 +18,6 @@ import org.joml.Vector3f;
 
 import java.util.HashMap;
 
-import static me.wobbychip.smptweaks.library.customblocks.blocks.CustomBlock.BLOCK_TAG;
-
 public class CustomMarker implements Runnable {
     public static String MARKER_TAG = "SMPTWEAKS_CUSTOM_MARKER";
     private static final HashMap<String, CustomMarker> markers = new HashMap<>();
@@ -39,7 +37,7 @@ public class CustomMarker implements Runnable {
         if (markers.containsKey(location)) { return markers.get(location); }
 
         BlockDisplay display = (BlockDisplay) block.getWorld().spawnEntity(block.getLocation().add(0.5, 0.5, 0.5), EntityType.BLOCK_DISPLAY);
-        PersistentUtils.setPersistentDataString(display, BLOCK_TAG, cblock.getName());
+        PersistentUtils.setPersistentDataString(display, CustomBlock.BLOCK_TAG, cblock.getName());
         PersistentUtils.setPersistentDataBoolean(display, MARKER_TAG, true);
         display.setCustomName(MARKER_TAG);
         display.setCustomNameVisible(false);

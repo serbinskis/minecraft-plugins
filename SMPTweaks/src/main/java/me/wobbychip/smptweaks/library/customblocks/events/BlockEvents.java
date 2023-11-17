@@ -5,6 +5,9 @@ import me.wobbychip.smptweaks.library.customblocks.blocks.CustomBlock;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import me.wobbychip.smptweaks.utils.TaskUtils;
 import me.wobbychip.smptweaks.utils.Utils;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -122,15 +125,16 @@ public class BlockEvents implements Listener {
 
 		int power = cblock.preparePower(customBlock);
 		if (power < 0) { return; }
-		//event.setCancelled(true);
 
 		//busy = true;
 		BlockData blockData = ReflectionUtils.getChangedBlockData(event);
 		power = getComparatorOutputSignal(event.getBlock(), blockData, power);
-		Utils.sendMessage("power: " + power);
+		Utils.sendMessage("new power: " + power);
 		ReflectionUtils.setComparatorPower(event.getBlock(), power, false);
+		Utils.sendMessage("set power: " + ReflectionUtils.getBlockNbt(event.getBlock(), "OutputSignal"));
 		//busy = false;
 
+		event.setCancelled(true);
 		//BlockPos blockPos = new BlockPos(event.getBlock().getX(), event.getBlock().getY(), event.getBlock().getZ());
 		//BlockPos blockPos1 = new BlockPos(event.getSourceBlock().getX(), event.getSourceBlock().getY(), event.getSourceBlock().getZ());
 		//ServerLevel serverLevel = ReflectionUtils.getWorld(event.getBlock().getLocation().getWorld());

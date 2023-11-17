@@ -33,6 +33,7 @@ import me.wobbychip.smptweaks.custom.serverpause.ServerPause;
 import me.wobbychip.smptweaks.custom.shriekercansummon.ShriekerCanSummon;
 import me.wobbychip.smptweaks.custom.silktouchspawners.SilkTouchSpawners;
 import me.wobbychip.smptweaks.library.customblocks.CustomBlocks;
+import me.wobbychip.smptweaks.library.customessentials.CustomEssentials;
 import me.wobbychip.smptweaks.tweaks.TweakManager;
 import me.wobbychip.smptweaks.utils.GameRules;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
@@ -93,7 +94,9 @@ public class Main extends JavaPlugin {
 
 		Main.plugin.getCommand("smptweaks").setExecutor(new Commands());
 		Main.plugin.getCommand("smptweaks").setTabCompleter(new Commands());
+
 		if (Main.DEBUG_MODE) { CustomBlocks.start(); }
+		CustomEssentials.start();
 	}
 
 	public ClassLoader getPluginClassLoader() {
