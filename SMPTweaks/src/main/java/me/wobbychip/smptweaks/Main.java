@@ -49,7 +49,7 @@ public class Main extends JavaPlugin {
 	public static char sym_color = '§';
 	public static String color = sym_color + "9";
 	public static Sound DENY_SOUND_EFFECT = Sound.BLOCK_NOTE_BLOCK_HARP;
-	public static boolean DEBUG_MODE = true;
+	public static boolean DEBUG_MODE = System.getenv("computername").equalsIgnoreCase("WOBBYCHIP-PC");
 
 	@Override
 	public void onEnable() {
@@ -95,7 +95,7 @@ public class Main extends JavaPlugin {
 		Main.plugin.getCommand("smptweaks").setExecutor(new Commands());
 		Main.plugin.getCommand("smptweaks").setTabCompleter(new Commands());
 
-		if (Main.DEBUG_MODE) { CustomBlocks.start(); }
+		CustomBlocks.start();
 		CustomEssentials.start();
 	}
 

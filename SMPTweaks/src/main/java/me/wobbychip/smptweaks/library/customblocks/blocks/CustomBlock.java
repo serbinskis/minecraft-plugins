@@ -17,6 +17,8 @@ import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
+import org.bukkit.inventory.meta.BlockStateMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 
 import javax.annotation.Nonnull;
@@ -25,11 +27,11 @@ import javax.annotation.Nullable;
 public class CustomBlock implements Listener {
     public static String BLOCK_TAG = "SMPTWEAKS_CUSTOM_BLOCK";
     public static String MARKED_ITEM = "SMPTWEAKS_CBLOCK_MARKED";
-    private final String name;
-    private final Material block_base;
-    private String title;
-    private boolean tickable = false;
-    private Material custom_material = Material.AIR;
+    public final String name;
+    public final Material block_base;
+    public String title;
+    public boolean tickable = false;
+    public Material custom_material = Material.AIR;
 
     public CustomBlock(String name, Material block_base) {
         this.name = name;
@@ -139,8 +141,15 @@ public class CustomBlock implements Listener {
 
     public boolean isCustomBlock(ItemStack item) {
         if ((item == null) || (item.getType() != block_base)) { return false; }
-        if (!PersistentUtils.hasPersistentDataString(item, BLOCK_TAG)) { return false; }
+        if (!PersistentUtils.hasPersistentDataString(item, BLOCK_TAG)) { return isCustomBlock(item.getItemMeta()); }
         return PersistentUtils.getPersistentDataString(item, BLOCK_TAG).equalsIgnoreCase(name);
+    }
+
+    public boolean isCustomBlock(ItemMeta itemMeta) {
+        if (!(itemMeta instanceof BlockStateMeta blockMeta)) { return false; }
+        if (!(blockMeta.getBlockState() instanceof TileState blockState)) { return false; }
+        if (!PersistentUtils.hasPersistentDataString(blockState, BLOCK_TAG)) { return false; }
+        return PersistentUtils.getPersistentDataString(blockState, BLOCK_TAG).equalsIgnoreCase(name);
     }
 
     public boolean isCustomBlock(Block block) {

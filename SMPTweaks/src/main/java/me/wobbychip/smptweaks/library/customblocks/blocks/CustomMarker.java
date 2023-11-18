@@ -20,11 +20,10 @@ import java.util.HashMap;
 
 public class CustomMarker implements Runnable {
     public static String MARKER_TAG = "SMPTWEAKS_CUSTOM_MARKER";
-    private static final HashMap<String, CustomMarker> markers = new HashMap<>();
-    public static boolean verbose = false;
-    private final int task;
-    private final BlockDisplay display;
-    private final CustomBlock cblock;
+    public static final HashMap<String, CustomMarker> markers = new HashMap<>();
+    public final int task;
+    public final BlockDisplay display;
+    public final CustomBlock cblock;
 
     private CustomMarker(BlockDisplay display, CustomBlock cblock) {
         this.display = display;

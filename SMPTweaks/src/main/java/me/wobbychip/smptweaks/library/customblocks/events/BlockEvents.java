@@ -1,6 +1,5 @@
 package me.wobbychip.smptweaks.library.customblocks.events;
 
-import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.library.customblocks.blocks.CustomBlock;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import me.wobbychip.smptweaks.utils.TaskUtils;
@@ -22,9 +21,9 @@ import java.util.HashMap;
 
 public class BlockEvents implements Listener {
 	public static int DEFAULT_COMPARATOR_DELAY = 2;
-	private final CustomBlock cblock;
-	private final HashMap<String, CustomBlock> elocation = new HashMap<>();
-	private final HashMap<String, Block> ticklist = new HashMap<>();
+	public final CustomBlock cblock;
+	public final HashMap<String, CustomBlock> elocation = new HashMap<>();
+	public final HashMap<String, Block> ticklist = new HashMap<>();
 
 	public BlockEvents(CustomBlock cblock) {
 		this.cblock = cblock;
@@ -99,12 +98,11 @@ public class BlockEvents implements Listener {
 	//TODO: https://i.imgur.com/QZ80X4z.png , https://i.imgur.com/308qB8o.png (KINDA FIXED)
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockPhysicsEvent(BlockPhysicsEvent event) {
-		if (Main.DEBUG_MODE && (event.getChangedType() == Material.COMPARATOR)) {
-			int d1 = ReflectionUtils.getAlternateSignal(event.getBlock());
-			Utils.sendMessage(event.getChangedType() + " | " + Utils.locationToString(event.getBlock().getLocation()) + " | input: " + d1);
-		}
-
 		if (event.getChangedType() != Material.COMPARATOR) { return; }
+		//if (Main.DEBUG_MODE) { Utils.sendMessage(event.getChangedType() + " | " + Utils.locationToString(event.getBlock().getLocation()) + " | input: " + ReflectionUtils.getAlternateSignal(event.getBlock())); }
+
+		//Here get custom block behind comparator or block behind comparator
+		//Remember comparators can read signal trough block, so we need to check if that block is conductor
 
 		BlockFace blockFace = ((Directional) event.getBlock().getBlockData()).getFacing();
 		Block customBlock = null;
@@ -128,13 +126,21 @@ public class BlockEvents implements Listener {
 		if (ticklist.containsKey(location)) { return; } //Prevent infinite loop like this: https://i.imgur.com/KQcgFqq.png
 		ticklist.put(location, event.getBlock());
 
-		//By default after the BlockPhysicsEvent it runs blockEntity.getBlockState().neighborChanged()
+		//By default, after the BlockPhysicsEvent it runs blockEntity.getBlockState().neighborChanged() which
+		//by default for comparator schedules block tick after 2 (default) ticks, which on its own recalculates
+		//output signal and saves it. So in order to prevent it, we cancel the event and schedule update manually,
+		//and then set data again and update blocks in the front with DiodeBlock#updateNeighborsInFront();
+
+		//But, big but, there are still some minor bugs with timings and updates, which I don't know how to fix,
+		//and kind of don't want to, because currently it fulfills my needs. For example, there are some bugs with
+		//user interaction, like, when switching modes on comparator from side.
 
 		TaskUtils.scheduleSyncDelayedTask(new Runnable() {
 			public void run() {
-				if (event.getBlock().getLocation().getBlock().getType() != Material.COMPARATOR) { return; }
-				ReflectionUtils.setComparatorPower(event.getBlock(), fpower, false);
-				ReflectionUtils.updateNeighborsInFront(ticklist.remove(location));
+				Block block = ticklist.remove(location);
+				if (block.getLocation().getBlock().getType() != Material.COMPARATOR) { return; }
+				ReflectionUtils.setComparatorPower(block, fpower, false);
+				ReflectionUtils.updateNeighborsInFront(block);
 			}
 		}, DEFAULT_COMPARATOR_DELAY);
 	}

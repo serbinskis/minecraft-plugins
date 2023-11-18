@@ -10,7 +10,7 @@ import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class InventoryEvents implements Listener {
-	private final CustomBlock cblock;
+	public final CustomBlock cblock;
 
 	public InventoryEvents(CustomBlock cblock) {
 		this.cblock = cblock;
