@@ -1,27 +1,15 @@
 package me.wobbychip.smptweaks.library.customblocks.events;
 
 import me.wobbychip.smptweaks.Main;
-import me.wobbychip.smptweaks.library.customblocks.blocks.ComparatorBlock;
 import me.wobbychip.smptweaks.library.customblocks.blocks.CustomBlock;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import me.wobbychip.smptweaks.utils.TaskUtils;
 import me.wobbychip.smptweaks.utils.Utils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.DiodeBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.ComparatorBlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.ComparatorMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
-import org.bukkit.block.data.type.Comparator;
-import org.bukkit.craftbukkit.v1_20_R2.event.CraftEventFactory;
 import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -30,9 +18,7 @@ import org.bukkit.event.block.*;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.inventory.ItemStack;
 
-import javax.annotation.Nullable;
 import java.util.HashMap;
-import java.util.Objects;
 
 public class BlockEvents implements Listener {
 	public static int DEFAULT_COMPARATOR_DELAY = 2;
@@ -113,7 +99,7 @@ public class BlockEvents implements Listener {
 	//TODO: https://i.imgur.com/QZ80X4z.png , https://i.imgur.com/308qB8o.png (KINDA FIXED)
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockPhysicsEvent(BlockPhysicsEvent event) {
-		if (Main.DEBUG_MODE && (event.getChangedType() != Material.AIR) && (event.getChangedType() != Material.GRASS_BLOCK)) {
+		if (Main.DEBUG_MODE && (event.getChangedType() == Material.COMPARATOR)) {
 			int d1 = ReflectionUtils.getAlternateSignal(event.getBlock());
 			Utils.sendMessage(event.getChangedType() + " | " + Utils.locationToString(event.getBlock().getLocation()) + " | input: " + d1);
 		}
@@ -129,40 +115,27 @@ public class BlockEvents implements Listener {
 		if (customBlock == null) { return; }
 
 		int power = cblock.preparePower(customBlock);
-		if (power < 0) { return; }
-		event.setCancelled(true);
+		if (power < 0) { return; } else { event.setCancelled(true); }
+
+		//Cancelling event only cancels further block update around, it doesn't prevent block state changing
+		//But those other blocks can trigger block update without BlockPhysicsEvent, like when getting output signal it updates and saves it
 
 		BlockData blockData = ReflectionUtils.getChangedBlockData(event);
-		int result_power = getComparatorOutputSignal(event.getBlock(), blockData, power);
-		ReflectionUtils.setComparatorPower(event.getBlock(), result_power, false);
+		final int fpower = ReflectionUtils.getComparatorOutputSignal(event.getBlock(), blockData, power);
+		ReflectionUtils.setComparatorPower(event.getBlock(), fpower, false);
 
 		String location = Utils.locationToString(event.getBlock().getLocation());
-		if (ticklist.containsKey(location)) { return; }
+		if (ticklist.containsKey(location)) { return; } //Prevent infinite loop like this: https://i.imgur.com/KQcgFqq.png
 		ticklist.put(location, event.getBlock());
+
+		//By default after the BlockPhysicsEvent it runs blockEntity.getBlockState().neighborChanged()
 
 		TaskUtils.scheduleSyncDelayedTask(new Runnable() {
 			public void run() {
-				updateNeighborsInFront(ticklist.remove(location));
+				if (event.getBlock().getLocation().getBlock().getType() != Material.COMPARATOR) { return; }
+				ReflectionUtils.setComparatorPower(event.getBlock(), fpower, false);
+				ReflectionUtils.updateNeighborsInFront(ticklist.remove(location));
 			}
 		}, DEFAULT_COMPARATOR_DELAY);
-	}
-
-	public void updateNeighborsInFront(Block block) {
-		BlockPos block_pos = new BlockPos(block.getX(), block.getY(), block.getZ());
-		ServerLevel block_world = Objects.requireNonNull(ReflectionUtils.getWorld(block.getWorld()));
-		BlockState block_sate = block_world.getBlockState(block_pos);
-		net.minecraft.world.level.block.ComparatorBlock block_nms = (net.minecraft.world.level.block.ComparatorBlock) block_sate.getBlock();
-
-		Direction enumdirection = (Direction) block_sate.getValue(DiodeBlock.FACING);
-		BlockPos blockposition1 = block_pos.relative(enumdirection.getOpposite());
-
-		block_world.neighborChanged(blockposition1, block_nms, block_pos);
-		block_world.updateNeighborsAtExceptFromFacing(blockposition1, block_nms, enumdirection);
-	}
-
-	public int getComparatorOutputSignal(Block block, @Nullable BlockData blockData, int power) {
-		int j = ReflectionUtils.getAlternateSignal(block);
-		if (blockData == null) { blockData = block.getBlockData(); }
-		return (j > power ? 0 : (((Comparator) blockData).getMode() == Comparator.Mode.SUBTRACT ? power - j : power));
 	}
 }

@@ -781,6 +781,25 @@ public class ReflectionUtils {
 		}
 	}
 
+	public static void updateNeighborsInFront(org.bukkit.block.Block block) {
+		BlockPos block_pos = new BlockPos(block.getX(), block.getY(), block.getZ());
+		ServerLevel block_world = getWorld(block.getWorld());
+		BlockState block_sate = block_world.getBlockState(block_pos);
+		net.minecraft.world.level.block.ComparatorBlock block_nms = (net.minecraft.world.level.block.ComparatorBlock) block_sate.getBlock();
+
+		Direction enumdirection = (Direction) block_sate.getValue(DiodeBlock.FACING);
+		BlockPos blockposition1 = block_pos.relative(enumdirection.getOpposite());
+
+		block_world.neighborChanged(blockposition1, block_nms, block_pos);
+		block_world.updateNeighborsAtExceptFromFacing(blockposition1, block_nms, enumdirection);
+	}
+
+	public static int getComparatorOutputSignal(org.bukkit.block.Block block, @Nullable BlockData blockData, int power) {
+		int j = getAlternateSignal(block);
+		if (blockData == null) { blockData = block.getBlockData(); }
+		return ((((Comparator) blockData).getMode() == Comparator.Mode.SUBTRACT)) ? Math.max(power-j, 0) : power;
+	}
+
 	//This is useless and will only set power for 1 tick, because in next tick it will calculate power signal again
 	public static void setComparatorPower(org.bukkit.block.Block block, int power, boolean applyPhysics) {
 		org.bukkit.block.data.type.Comparator comparator = ((Comparator) block.getBlockData());
