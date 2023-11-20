@@ -4,26 +4,11 @@ import me.wobbychip.smptweaks.library.customblocks.blocks.CustomBlock;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import me.wobbychip.smptweaks.utils.TaskUtils;
 import me.wobbychip.smptweaks.utils.Utils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.dispenser.BlockSource;
-import net.minecraft.core.dispenser.DispenseItemBehavior;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.Container;
-import net.minecraft.world.level.block.DispenserBlock;
-import net.minecraft.world.level.block.DropperBlock;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.entity.DispenserBlockEntity;
-import net.minecraft.world.level.block.entity.HopperBlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.DoubleChest;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
-import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftItemStack;
 import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -34,7 +19,6 @@ import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -133,7 +117,7 @@ public class BlockEvents implements Listener {
 		busy = true;
 
 		for (Map.Entry<ItemStack, Map.Entry<ItemStack, Integer>> drop : dispense.entrySet()) {
-			dispenseItem(block, drop.getKey(), drop.getValue().getKey(), drop.getValue().getValue());
+			ReflectionUtils.dispenseItem(block, drop.getKey(), drop.getValue().getKey(), drop.getValue().getValue());
 		}
 
 		//Set result of custom dispense back to inventory, since even if you cancel event it will still set back old item
@@ -146,6 +130,7 @@ public class BlockEvents implements Listener {
 
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onInventoryMoveItemEvent(InventoryMoveItemEvent event) {
+		Block source = event.getInitiator().getLocation().getBlock();
 		Block destination = event.getDestination().getLocation().getBlock();
 
 		//Fix for 1 tick gap inside BlockDispenseEvent
@@ -153,11 +138,34 @@ public class BlockEvents implements Listener {
 			TaskUtils.finishSyncRepeatingTask(busy_task);
 		}
 
-		Block source = event.getInitiator().getLocation().getBlock();
-		if (!cblock.isCustomBlock(source)) { return; }
+		if (busy || !cblock.isCustomBlock(source)) { return; }
 		if (cblock.getDispensable() == CustomBlock.Dispensable.IGNORE) { return; }
+		if (cblock.getDispensable() != CustomBlock.Dispensable.IGNORE) { event.setCancelled(true); }
+		if (cblock.getDispensable() == CustomBlock.Dispensable.DISABLE) { return; }
 
-		//Now manually move items and remove them from slots
+		String location = Utils.locationToString(source.getLocation());
+		ItemStack[] pitems = dispenselist.remove(location); //Get items before the event inside BlockPhysicsEvent
+		if (pitems == null) { return; }
+
+		Inventory inventory = ((org.bukkit.block.Container) source.getState()).getInventory();
+		ItemStack[] sitems = inventory.getContents(); //Save items in case if prepareDispense() returns false
+		inventory.setContents(pitems); //Set items from physics event for custom dispense
+
+		HashMap<ItemStack, Map.Entry<ItemStack, Integer>> dispense = new HashMap<>();
+		if (!cblock.prepareDispense(source, dispense)) { inventory.setContents(sitems); return; }
+
+		busy = true;
+
+		for (Map.Entry<ItemStack, Map.Entry<ItemStack, Integer>> drop : dispense.entrySet()) {
+			ReflectionUtils.dispenseItem(source, drop.getKey(), drop.getValue().getKey(), drop.getValue().getValue());
+		}
+
+		//Set result of custom dispense back to inventory, since even if you cancel event it will still set back old item
+		//(FIXED) This 1 tick allows to for hopper to move items which just replaces moved item from mover
+		ItemStack[] citems = ((org.bukkit.block.Container) source.getState()).getInventory().getContents();
+		busy_task = TaskUtils.scheduleSyncDelayedTask(() -> inventory.setContents(citems), 1L);
+
+		busy = false;
 	}
 
 	//TODO: Not finished, there are still bugs, not also sure about infinite loop in here
@@ -213,111 +221,5 @@ public class BlockEvents implements Listener {
 				ReflectionUtils.updateNeighborsInFront(block);
 			}, DEFAULT_COMPARATOR_DELAY);
 		}
-	}
-
-	//ItemStack to remove can be null which means it will not take any items at all from source inventory and only dispense.
-	//If slot is positive it will try to take item from that slot, but if it fails it will take from first available,
-	//slot can be also negative, then it will immediately take from first available slot, if item is not found it will (TODO: fail or succeed?)
-	public boolean dispenseItem(Block source, ItemStack drop, @Nullable ItemStack remove, int slot) {
-		if (source.getType() == Material.DISPENSER) { return dispenseDispenser(source, drop, remove, slot); }
-		if (source.getType() == Material.DROPPER) { return dispenseDropper(source, drop, remove, slot); }
-		return false;
-	}
-
-	//TODO: Should we remove item, if result of dispense is modified item? (Currently: NO)
-	private boolean dispenseDispenser(Block source, ItemStack drop, @Nullable ItemStack remove, int slot) {
-		if (drop.getAmount() <= 0) { return true; }
-		if (source.getType() != Material.DISPENSER) { return false; }
-		if (remove == null) { remove = new ItemStack(Material.AIR); }
-		if (remove.getType() == Material.AIR) { slot = -1; }
-		drop = drop.clone(); remove = remove.clone(); //Make sure drop and remove are not the same item
-
-		BlockPos blockPos = new BlockPos(source.getX(), source.getY(), source.getZ());
-		ServerLevel serverLevel = ReflectionUtils.getWorld(source.getLocation().getWorld());
-		BlockState blockState = serverLevel.getBlockState(blockPos);
-		DispenserBlockEntity tileentitydispenser = (DispenserBlockEntity) serverLevel.getBlockEntity(blockPos, BlockEntityType.DISPENSER).orElse(null);
-		BlockSource blockSource = new BlockSource(serverLevel, blockPos, blockState, tileentitydispenser);
-
-		DispenseItemBehavior dispenseItemBehavior = DispenserBlock.DISPENSER_REGISTRY.get(ReflectionUtils.asNMSCopy(drop).getItem());
-		net.minecraft.world.item.ItemStack result = dispenseItemBehavior.dispense(blockSource, ReflectionUtils.asNMSCopy(drop));
-		if (result.getCount() == drop.getAmount()) { return false; } //It failed to dispense or item was modified inside called event
-
-		org.bukkit.block.Container container = (org.bukkit.block.Container) source.getState();
-		remove.setAmount(1); //We always remove by 1 item
-		drop.setAmount(result.getCount()); //Update drop amount after dispense
-
-		//IDC, I will not check if item doesn't exist, I will just remove it
-		if (slot < 0) {
-			Utils.removeItem(container.getInventory(), remove); //Fuck you spigot, can't even make simple method to remove items
-		} else {
-			ItemStack itemStack = container.getInventory().getItem(slot);
-			if (itemStack == null) { itemStack = new ItemStack(Material.AIR); }
-			itemStack.setAmount(itemStack.getAmount()-1);
-			if (itemStack.getAmount() <= 0) { itemStack = new ItemStack(Material.AIR); }
-			container.getInventory().setItem(slot, itemStack);
-		}
-
-		//Sadly, but dispense only can dispense by 1 item
-		return dispenseDispenser(source, drop, remove, slot);
-	}
-
-	private boolean dispenseDropper(Block source, ItemStack drop, ItemStack remove, int slot) {
-		BlockPos blockPos = new BlockPos(source.getX(), source.getY(), source.getZ());
-		ServerLevel serverLevel = ReflectionUtils.getWorld(source.getLocation().getWorld());
-		BlockState blockState = serverLevel.getBlockState(blockPos);
-
-		DispenserBlockEntity tileentitydispenser = (DispenserBlockEntity) serverLevel.getBlockEntity(blockPos, BlockEntityType.DISPENSER).orElse(null);
-		BlockSource blockSource = new BlockSource(serverLevel, blockPos, blockState, tileentitydispenser);
-
-		Direction enumdirection = (Direction) serverLevel.getBlockState(blockPos).getValue(DropperBlock.FACING);
-		Container iinventory = HopperBlockEntity.getContainerAt(serverLevel, blockPos.relative(enumdirection));
-		net.minecraft.world.item.ItemStack result = ReflectionUtils.asNMSCopy(remove);
-
-		BlockFace blockFace = ((Directional) source.getBlockData()).getFacing();
-		Block dblock = source.getRelative(blockFace);
-
-		if (dblock.getState() instanceof org.bukkit.block.Container container) {
-			Inventory inventory = (dblock.getState() instanceof DoubleChest) ? ((DoubleChest) dblock.getState()).getInventory() : container.getInventory();
-			InventoryMoveItemEvent event = new InventoryMoveItemEvent(tileentitydispenser.getOwner().getInventory(), oitemstack.clone(), destinationInventory, true);
-			Bukkit.getPluginManager().callEvent(event);
-			if (event.isCancelled()) { return false; }
-
-			/*itemstack1 = HopperBlockEntity.addItem(tileentitydispenser, iinventory, CraftItemStack.asNMSCopy(event.getItem()), enumdirection.getOpposite());
-			if (event.getItem().equals(oitemstack) && itemstack1.isEmpty()) {
-				// CraftBukkit end
-				itemstack1 = itemstack.copy();
-				itemstack1.shrink(1);
-			} else {
-				itemstack1 = itemstack.copy();
-			}*/
-		}
-
-		/*if (iinventory == null) {
-			DispenseItemBehavior DISPENSE_BEHAVIOUR = new DefaultDispenseItemBehavior(true);
-			result = DISPENSE_BEHAVIOUR.dispense(blockSource, ReflectionUtils.asNMSCopy(drop));
-		} else {
-			CraftItemStack oitemstack = CraftItemStack.asCraftMirror(itemstack.copy().split(1));
-
-			org.bukkit.inventory.Inventory destinationInventory;
-			// Have to special case large chests as they work oddly
-			if (iinventory instanceof CompoundContainer) {
-				destinationInventory = new org.bukkit.craftbukkit.v1_20_R2.inventory.CraftInventoryDoubleChest((CompoundContainer) iinventory);
-			} else {
-				destinationInventory = iinventory.getOwner().getInventory();
-			}
-
-			InventoryMoveItemEvent event = new InventoryMoveItemEvent(tileentitydispenser.getOwner().getInventory(), oitemstack.clone(), destinationInventory, true);
-			serverLevel.getCraftServer().getPluginManager().callEvent(event);
-			if (event.isCancelled()) { return; }
-			result = HopperBlockEntity.addItem(tileentitydispenser, iinventory, CraftItemStack.asNMSCopy(event.getItem()), enumdirection.getOpposite());
-			if (event.getItem().equals(oitemstack) && result.isEmpty()) {
-				result = itemstack.copy();
-				result.shrink(1);
-			} else {
-				result = itemstack.copy();
-			}
-		}*/
-
-		return true;
 	}
 }

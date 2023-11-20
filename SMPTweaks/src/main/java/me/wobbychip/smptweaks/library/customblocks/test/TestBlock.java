@@ -17,7 +17,7 @@ import java.util.Map;
 
 public class TestBlock extends CustomBlock {
     public TestBlock() {
-        super("custom_block", Material.DISPENSER);
+        super("custom_block", Material.DROPPER);
         this.setCustomMaterial(Material.PISTON);
         this.setCustomTitle("Custom Block");
         this.setDispensable(Dispensable.CUSTOM);

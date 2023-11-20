@@ -263,6 +263,12 @@ public class Utils {
 		}
 	}
 
+	public static ItemStack cloneItem(ItemStack itemStack, int amount) {
+		ItemStack itemStack1 = itemStack.clone();
+		itemStack1.setAmount(amount);
+		return itemStack1;
+	}
+
 	//Set glow color entity
 	public static void setGlowColor(Entity entity, ChatColor color) {
 		Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();

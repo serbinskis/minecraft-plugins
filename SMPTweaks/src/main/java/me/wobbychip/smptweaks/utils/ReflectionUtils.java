@@ -5,6 +5,8 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.embedded.EmbeddedChannel;
 import net.minecraft.core.*;
+import net.minecraft.core.dispenser.BlockSource;
+import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -22,6 +24,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.network.ServerConnectionListener;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.Container;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity.RemovalReason;
 import net.minecraft.world.entity.LivingEntity;
@@ -37,14 +40,22 @@ import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.SignalGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DiodeBlock;
+import net.minecraft.world.level.block.DispenserBlock;
+import net.minecraft.world.level.block.DropperBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.DispenserBlockEntity;
+import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.redstone.NeighborUpdater;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.DoubleChest;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.type.Comparator;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
@@ -54,6 +65,8 @@ import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionData;
@@ -843,5 +856,99 @@ public class ReflectionUtils {
 
 	public static List<org.bukkit.entity.LivingEntity> getAffectedEntities(AreaEffectCloudApplyEvent event) {
 		return (List<org.bukkit.entity.LivingEntity>) getValue(AreaEffectCloudApplyEvent_affectedEntities, event);
+	}
+
+	//ItemStack to remove can be null which means it will not take any items at all from source inventory and only dispense.
+	//If slot is positive it will try to take item from that slot, but if it fails it will take from first available,
+	//slot can be also negative, then it will immediately take from first available slot, if item is not found it will (TODO: fail or succeed?)
+	public static boolean dispenseItem(org.bukkit.block.Block source, ItemStack drop, @Nullable ItemStack remove, int slot) {
+		if (source.getType() == Material.DISPENSER) { return dispenseDispenser(source, drop, remove, slot); }
+		if (source.getType() == Material.DROPPER) { return dispenseDropper(source, drop, remove, slot); }
+		return false;
+	}
+
+	//TODO: Should we remove item, if result of dispense is modified item? (Currently: NO)
+	private static boolean dispenseDispenser(org.bukkit.block.Block source, ItemStack drop, @Nullable ItemStack remove, int slot) {
+		if (drop.getAmount() <= 0) { return true; }
+		if ((source.getType() != Material.DISPENSER) && (source.getType() != Material.DROPPER)) { return false; }
+		if (remove == null) { remove = new ItemStack(Material.AIR); }
+		if (remove.getType() == Material.AIR) { slot = -1; }
+		drop = drop.clone(); remove = remove.clone(); //Make sure drop and remove are not the same item
+
+		BlockPos blockPos = new BlockPos(source.getX(), source.getY(), source.getZ());
+		ServerLevel serverLevel = ReflectionUtils.getWorld(source.getLocation().getWorld());
+		BlockState blockState = serverLevel.getBlockState(blockPos);
+		DispenserBlockEntity tileentitydispenser = (DispenserBlockEntity) serverLevel.getBlockEntity(blockPos, BlockEntityType.DISPENSER).orElse(null);
+		BlockSource blockSource = new BlockSource(serverLevel, blockPos, blockState, tileentitydispenser);
+
+		DispenseItemBehavior dispenseItemBehavior = DispenserBlock.DISPENSER_REGISTRY.get(ReflectionUtils.asNMSCopy(drop).getItem());
+		net.minecraft.world.item.ItemStack result = dispenseItemBehavior.dispense(blockSource, ReflectionUtils.asNMSCopy(drop));
+		if (result.getCount() == drop.getAmount()) { return false; } //It failed to dispense or item was modified inside called event
+
+		org.bukkit.block.Container container = (org.bukkit.block.Container) source.getState();
+		remove.setAmount(1); //We always remove by 1 item
+		drop.setAmount(result.getCount()); //Update drop amount after dispense
+
+		//IDC, I will not check if item doesn't exist, I will just remove it
+		if (slot < 0) {
+			Utils.removeItem(container.getInventory(), remove); //Fuck you spigot, can't even make simple method to remove items
+		} else {
+			ItemStack itemStack = container.getInventory().getItem(slot);
+			if (itemStack == null) { itemStack = new ItemStack(Material.AIR); }
+			itemStack.setAmount(itemStack.getAmount()-1);
+			if (itemStack.getAmount() <= 0) { itemStack = new ItemStack(Material.AIR); }
+			container.getInventory().setItem(slot, itemStack);
+		}
+
+		//Sadly, but dispense only can dispense by 1 item
+		return dispenseDispenser(source, drop, remove, slot);
+	}
+
+	private static boolean dispenseDropper(org.bukkit.block.Block source, ItemStack drop, ItemStack remove, int slot) {
+		if (drop.getAmount() <= 0) { return true; }
+		if (source.getType() != Material.DROPPER) { return false; }
+		if (remove == null) { remove = new ItemStack(Material.AIR); }
+		if (remove.getType() == Material.AIR) { slot = -1; }
+		drop = drop.clone(); remove = remove.clone();
+
+		BlockPos blockPos = new BlockPos(source.getX(), source.getY(), source.getZ());
+		ServerLevel serverLevel = ReflectionUtils.getWorld(source.getLocation().getWorld());
+		DispenserBlockEntity tileentitydispenser = (DispenserBlockEntity) serverLevel.getBlockEntity(blockPos, BlockEntityType.DROPPER).orElse(null);
+		Direction enumdirection = (Direction) serverLevel.getBlockState(blockPos).getValue(DropperBlock.FACING);
+		Container iinventory = HopperBlockEntity.getContainerAt(serverLevel, blockPos.relative(enumdirection));
+		net.minecraft.world.item.ItemStack result = ReflectionUtils.asNMSCopy(remove);
+		BlockFace blockFace = ((Directional) source.getBlockData()).getFacing();
+		org.bukkit.block.Block dblock = source.getRelative(blockFace);
+
+		//If there is no container in front then just act like dispenser
+		if (!(dblock.getState() instanceof org.bukkit.block.Container container)) {
+			return dispenseDispenser(source, drop, remove, slot);
+		}
+
+		ItemStack event_item = Utils.cloneItem(drop, 1); //We always move by 1 item
+		Inventory destinationInventory = (dblock.getState() instanceof DoubleChest) ? ((DoubleChest) dblock.getState()).getInventory() : container.getInventory();
+		InventoryMoveItemEvent event = new InventoryMoveItemEvent(tileentitydispenser.getOwner().getInventory(), event_item, destinationInventory, true);
+		Bukkit.getPluginManager().callEvent(event);
+		if (event.isCancelled()) { return false; }
+
+		net.minecraft.world.item.ItemStack itemstack1 = HopperBlockEntity.addItem(tileentitydispenser, iinventory, ReflectionUtils.asNMSCopy(event.getItem()), enumdirection.getOpposite());
+		if (!(event.getItem().equals(event_item) && itemstack1.isEmpty())) { return false; } //If item was modified or was not moved successfully return
+
+		org.bukkit.block.Container dropper = (org.bukkit.block.Container) source.getState();
+		remove.setAmount(1); //We always remove by 1 item
+		drop.setAmount(drop.getAmount()-1); //Update drop amount after moving
+
+		//IDC, I will not check if item doesn't exist, I will just remove it
+		if (slot < 0) {
+			Utils.removeItem(dropper.getInventory(), remove); //Fuck you spigot, can't even make simple method to remove items
+		} else {
+			ItemStack itemStack = dropper.getInventory().getItem(slot);
+			if (itemStack == null) { itemStack = new ItemStack(Material.AIR); }
+			itemStack.setAmount(itemStack.getAmount()-1);
+			if (itemStack.getAmount() <= 0) { itemStack = new ItemStack(Material.AIR); }
+			dropper.getInventory().setItem(slot, itemStack);
+		}
+
+		return dispenseDropper(source, drop, remove, slot);
 	}
 }
