@@ -15,6 +15,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class TestBlock extends CustomBlock {
     public TestBlock() {
@@ -51,6 +52,9 @@ public class TestBlock extends CustomBlock {
     @Override
     public boolean prepareDispense(Block block, HashMap<ItemStack, Map.Entry<ItemStack, Integer>> dispense) {
         if (!(block.getState() instanceof Container)) { return false; }
+
+        //ItemStack[] items = ((Container) block.getState()).getInventory().getContents();
+        //for (ItemStack item : items) { Utils.sendMessage("prepareDispense: " + item); }
 
         ItemStack drop = Arrays.stream(((Container) block.getState()).getInventory().getContents()).filter(e -> (e != null && e.getType() != Material.AIR)).findFirst().orElse(null);
         Utils.sendMessage("prepareDispense: " + drop);

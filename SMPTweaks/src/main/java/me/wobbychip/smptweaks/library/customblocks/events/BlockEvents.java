@@ -28,10 +28,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class BlockEvents implements Listener {
@@ -39,7 +42,7 @@ public class BlockEvents implements Listener {
 	public final CustomBlock cblock;
 	public final HashMap<String, CustomBlock> explodelist = new HashMap<>();
 	public final HashMap<String, Block> ticklist = new HashMap<>();
-	public final HashMap<String, Block> dispenselist = new HashMap<>();
+	public final HashMap<String, ItemStack[]> dispenselist = new HashMap<>();
 	public boolean busy = false;
 
 	public BlockEvents(CustomBlock cblock) {
@@ -112,22 +115,35 @@ public class BlockEvents implements Listener {
 		if (cblock.getDispensable() != CustomBlock.Dispensable.IGNORE) { event.setCancelled(true); }
 		if (cblock.getDispensable() == CustomBlock.Dispensable.DISABLE) { return; }
 
-		String location = Utils.locationToString(event.getBlock().getLocation());
-		dispenselist.put(location, event.getBlock());
-		if (true) { return; } //TODO: remove
+		Block block = event.getBlock();
+		String location = Utils.locationToString(block.getLocation());
+		//dispenselist.put(location, event.getBlock());
+		//if (true) { return; } //TODO: remove
+
+		ItemStack[] pitems = dispenselist.remove(location);
+		if (pitems == null) { return; }
+
+		Inventory inventory = ((org.bukkit.block.Container) block.getState()).getInventory();
+		ItemStack[] sitems = inventory.getContents(); //Save items in case if prepareDispense() returns false
+		inventory.setContents(pitems); //Set items from physics event for custom dispense
 
 		HashMap<ItemStack, Map.Entry<ItemStack, Integer>> dispense = new HashMap<>();
-		if (!cblock.prepareDispense(event.getBlock(), dispense)) { return; }
-		Block block = event.getBlock();
-		boolean bdispense = (block.getType() == Material.DISPENSER);
+		if (!cblock.prepareDispense(event.getBlock(), dispense)) { inventory.setContents(sitems); return; }
 
 		busy = true;
+		boolean bdispense = (block.getType() == Material.DISPENSER);
 
 		//TODO: Get content of block and work with them, at the end just use BLock#dispense or Block#drop
 
 		for (Map.Entry<ItemStack, Map.Entry<ItemStack, Integer>> drop : dispense.entrySet()) {
 			dispenseItem(block, drop.getKey(), drop.getValue().getKey(), drop.getValue().getValue(), bdispense);
 		}
+
+		//Set result of custom dispense back to inventory, since even if you cancel event it will still modify inventory
+		ItemStack[] citems = ((org.bukkit.block.Container) block.getState()).getInventory().getContents();
+		for (int i = 0; i < citems.length; i++) { citems[i] = (citems[i] == null) ? null : citems[i].clone(); }
+		for (ItemStack item : citems) { Utils.sendMessage("prepareDispense: " + item); }
+		TaskUtils.scheduleSyncDelayedTask(() -> inventory.setContents(citems), 1L);
 
 		busy = false;
 
@@ -155,28 +171,12 @@ public class BlockEvents implements Listener {
 	//TODO: https://i.imgur.com/QZ80X4z.png , https://i.imgur.com/308qB8o.png (KINDA FIXED)
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockPhysicsEvent(BlockPhysicsEvent event) {
-		/*if (event.getChangedType() == Material.DISPENSER) { //TODO: update dropper
+		if (event.getChangedType() == Material.DISPENSER || event.getChangedType() == Material.DROPPER) {
 			String location = Utils.locationToString(event.getBlock().getLocation());
-			if (!dispenselist.containsKey(location)) { return; }
-
-			HashMap<ItemStack, Map.Entry<ItemStack, Integer>> dispense = new HashMap<>();
-			if (!cblock.prepareDispense(event.getBlock(), dispense)) { return; }
-			Block block = dispenselist.remove(location);
-			boolean bdispense = (block.getType() == Material.DISPENSER);
-
-			busy = true;
-
-			//TODO: Get content of block and work with them, at the end just use BLock#dispense or Block#drop
-
-			for (Map.Entry<ItemStack, Map.Entry<ItemStack, Integer>> drop : dispense.entrySet()) {
-				dispenseItem(block, drop.getKey(), drop.getValue().getKey(), drop.getValue().getValue(), bdispense);
-			}
-
-			busy = false;
-
-			return;
-		}*///TODO: Not working, it is not triggering physics update, WTF is mojang doing, stupid braindead monkeys
-
+			ItemStack[] items = ((org.bukkit.block.Container) event.getBlock().getState()).getInventory().getContents();
+			for (int i = 0; i < items.length; i++) { items[i] = (items[i] == null) ? null : items[i].clone(); } //getContents() returns mirror not clone
+			dispenselist.put(location, items);
+		}
 
 		if (event.getChangedType() != Material.COMPARATOR) { return; }
 		//if (Main.DEBUG_MODE) { Utils.sendMessage(event.getChangedType() + " | " + Utils.locationToString(event.getBlock().getLocation()) + " | input: " + ReflectionUtils.getAlternateSignal(event.getBlock())); }
@@ -266,6 +266,7 @@ public class BlockEvents implements Listener {
 			itemStack.setAmount(itemStack.getAmount()-1);
 			if (itemStack.getAmount() <= 0) { itemStack = new ItemStack(Material.AIR); }
 			container.getInventory().setItem(slot, itemStack);
+			container.update(true, false);
 		}
 
 		//Sadly, but dispense only can dispense by 1 item
