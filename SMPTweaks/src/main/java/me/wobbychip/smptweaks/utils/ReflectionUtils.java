@@ -800,7 +800,7 @@ public class ReflectionUtils {
 		BlockState block_sate = block_world.getBlockState(block_pos);
 		net.minecraft.world.level.block.ComparatorBlock block_nms = (net.minecraft.world.level.block.ComparatorBlock) block_sate.getBlock();
 
-		Direction enumdirection = (Direction) block_sate.getValue(DiodeBlock.FACING);
+		Direction enumdirection = block_sate.getValue(DiodeBlock.FACING);
 		BlockPos blockposition1 = block_pos.relative(enumdirection.getOpposite());
 
 		block_world.neighborChanged(blockposition1, block_nms, block_pos);
@@ -836,9 +836,9 @@ public class ReflectionUtils {
 		ServerLevel serverLevel = getWorld(block.getLocation().getWorld());
 		BlockEntity blockEntity = serverLevel.getBlockEntity(pos);
 		BlockState state = blockEntity.getBlockState();
-		SignalGetter world = (SignalGetter) blockEntity.getLevel();
+		SignalGetter world = blockEntity.getLevel();
 
-		Direction enumdirection = (Direction) state.getValue(DiodeBlock.FACING);
+		Direction enumdirection = state.getValue(DiodeBlock.FACING);
 		Direction enumdirection1 = enumdirection.getClockWise();
 		Direction enumdirection2 = enumdirection.getCounterClockWise();
 		boolean flag = false;
@@ -878,7 +878,7 @@ public class ReflectionUtils {
 		BlockPos blockPos = new BlockPos(source.getX(), source.getY(), source.getZ());
 		ServerLevel serverLevel = ReflectionUtils.getWorld(source.getLocation().getWorld());
 		BlockState blockState = serverLevel.getBlockState(blockPos);
-		DispenserBlockEntity tileentitydispenser = (DispenserBlockEntity) serverLevel.getBlockEntity(blockPos, BlockEntityType.DISPENSER).orElse(null);
+		DispenserBlockEntity tileentitydispenser = serverLevel.getBlockEntity(blockPos, BlockEntityType.DISPENSER).orElse(null);
 		BlockSource blockSource = new BlockSource(serverLevel, blockPos, blockState, tileentitydispenser);
 
 		DispenseItemBehavior dispenseItemBehavior = DispenserBlock.DISPENSER_REGISTRY.get(ReflectionUtils.asNMSCopy(drop).getItem());
@@ -913,10 +913,9 @@ public class ReflectionUtils {
 
 		BlockPos blockPos = new BlockPos(source.getX(), source.getY(), source.getZ());
 		ServerLevel serverLevel = ReflectionUtils.getWorld(source.getLocation().getWorld());
-		DispenserBlockEntity tileentitydispenser = (DispenserBlockEntity) serverLevel.getBlockEntity(blockPos, BlockEntityType.DROPPER).orElse(null);
-		Direction enumdirection = (Direction) serverLevel.getBlockState(blockPos).getValue(DropperBlock.FACING);
+		DispenserBlockEntity tileentitydispenser = serverLevel.getBlockEntity(blockPos, BlockEntityType.DROPPER).orElse(null);
+		Direction enumdirection = serverLevel.getBlockState(blockPos).getValue(DropperBlock.FACING);
 		Container iinventory = HopperBlockEntity.getContainerAt(serverLevel, blockPos.relative(enumdirection));
-		net.minecraft.world.item.ItemStack result = ReflectionUtils.asNMSCopy(remove);
 		BlockFace blockFace = ((Directional) source.getBlockData()).getFacing();
 		org.bukkit.block.Block dblock = source.getRelative(blockFace);
 
