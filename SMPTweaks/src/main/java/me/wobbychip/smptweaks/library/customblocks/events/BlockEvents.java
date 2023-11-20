@@ -32,9 +32,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class BlockEvents implements Listener {
@@ -44,6 +42,7 @@ public class BlockEvents implements Listener {
 	public final HashMap<String, Block> ticklist = new HashMap<>();
 	public final HashMap<String, ItemStack[]> dispenselist = new HashMap<>();
 	public boolean busy = false;
+	public int busy_task = -1;
 
 	public BlockEvents(CustomBlock cblock) {
 		this.cblock = cblock;
@@ -117,10 +116,8 @@ public class BlockEvents implements Listener {
 
 		Block block = event.getBlock();
 		String location = Utils.locationToString(block.getLocation());
-		//dispenselist.put(location, event.getBlock());
-		//if (true) { return; } //TODO: remove
 
-		ItemStack[] pitems = dispenselist.remove(location);
+		ItemStack[] pitems = dispenselist.remove(location); //Get items before the event inside BlockPhysicsEvent
 		if (pitems == null) { return; }
 
 		Inventory inventory = ((org.bukkit.block.Container) block.getState()).getInventory();
@@ -131,34 +128,28 @@ public class BlockEvents implements Listener {
 		if (!cblock.prepareDispense(event.getBlock(), dispense)) { inventory.setContents(sitems); return; }
 
 		busy = true;
-		boolean bdispense = (block.getType() == Material.DISPENSER);
-
-		//TODO: Get content of block and work with them, at the end just use BLock#dispense or Block#drop
 
 		for (Map.Entry<ItemStack, Map.Entry<ItemStack, Integer>> drop : dispense.entrySet()) {
-			dispenseItem(block, drop.getKey(), drop.getValue().getKey(), drop.getValue().getValue(), bdispense);
+			dispenseItem(block, drop.getKey(), drop.getValue().getKey(), drop.getValue().getValue());
 		}
 
-		//Set result of custom dispense back to inventory, since even if you cancel event it will still modify inventory
+		//Set result of custom dispense back to inventory, since even if you cancel event it will still set back old item
+		//(FIXED) This 1 tick allows to for hopper to move items which just replaces moved item from mover
 		ItemStack[] citems = ((org.bukkit.block.Container) block.getState()).getInventory().getContents();
-		for (int i = 0; i < citems.length; i++) { citems[i] = (citems[i] == null) ? null : citems[i].clone(); }
-		for (ItemStack item : citems) { Utils.sendMessage("prepareDispense: " + item); }
-		TaskUtils.scheduleSyncDelayedTask(() -> inventory.setContents(citems), 1L);
+		busy_task = TaskUtils.scheduleSyncDelayedTask(() -> inventory.setContents(citems), 1L);
 
 		busy = false;
-
-		//TODO: Why the fuck in the moment of the event item is already removed inside of container
-		//TODO: There is no fucking code that would do that, WTF
-
-		//TODO: If event cancels it fucking sets item back, so even if I remove items will fucking revert it.
-		//TODO: I actually can depend on scheduled runnable, because dispenser can only dispense once a tick
-
-		//Now manually dispense items and remove them from slots, integer in entry is slot from where to remove item.
-		//If that slot is -1 then just remove from first available slot, but need to first sort non -1 to remove
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onInventoryMoveItemEvent(InventoryMoveItemEvent event) {
+		Block destination = event.getDestination().getLocation().getBlock();
+
+		//Fix for 1 tick gap inside BlockDispenseEvent
+		if ((destination.getType() == Material.DISPENSER || destination.getType() == Material.DROPPER) && cblock.isCustomBlock(destination)) {
+			TaskUtils.finishSyncRepeatingTask(busy_task);
+		}
+
 		Block source = event.getInitiator().getLocation().getBlock();
 		if (!cblock.isCustomBlock(source)) { return; }
 		if (cblock.getDispensable() == CustomBlock.Dispensable.IGNORE) { return; }
@@ -172,74 +163,71 @@ public class BlockEvents implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockPhysicsEvent(BlockPhysicsEvent event) {
 		if (event.getChangedType() == Material.DISPENSER || event.getChangedType() == Material.DROPPER) {
+			if (!cblock.isCustomBlock(event.getBlock())) { return; }
 			String location = Utils.locationToString(event.getBlock().getLocation());
 			ItemStack[] items = ((org.bukkit.block.Container) event.getBlock().getState()).getInventory().getContents();
-			for (int i = 0; i < items.length; i++) { items[i] = (items[i] == null) ? null : items[i].clone(); } //getContents() returns mirror not clone
+			for (int i = 0; i < items.length; i++) { items[i] = (items[i] == null) ? null : items[i].clone(); } //Inventory#getContents() returns mirror not clone
+			//if (!dispenselist.containsKey(location)) { TaskUtils.scheduleSyncDelayedTask(() -> dispenselist.remove(location), 5L); } //TODO: Possible timings and errors
 			dispenselist.put(location, items);
 		}
 
-		if (event.getChangedType() != Material.COMPARATOR) { return; }
-		//if (Main.DEBUG_MODE) { Utils.sendMessage(event.getChangedType() + " | " + Utils.locationToString(event.getBlock().getLocation()) + " | input: " + ReflectionUtils.getAlternateSignal(event.getBlock())); }
+		if (event.getChangedType() == Material.COMPARATOR) {
+			BlockFace blockFace = ((Directional) event.getBlock().getBlockData()).getFacing();
+			Block customBlock = null;
+			Block b1 = event.getBlock().getRelative(blockFace, 1);
+			Block b2 = event.getBlock().getRelative(blockFace, 2);
+			if (cblock.isCustomBlock(b2) && ReflectionUtils.isRedstoneConductor(b1)) { customBlock = b2; } //Remember comparators can read signal trough block, so we need to check if that block is conductor
+			if (cblock.isCustomBlock(b1)) { customBlock = b1; } //Here get custom block behind comparator or block behind comparator
+			if (customBlock == null) { return; }
 
-		//Here get custom block behind comparator or block behind comparator
-		//Remember comparators can read signal trough block, so we need to check if that block is conductor
+			int power = cblock.preparePower(customBlock);
+			if (power < 0) { return; } else { event.setCancelled(true); }
 
-		BlockFace blockFace = ((Directional) event.getBlock().getBlockData()).getFacing();
-		Block customBlock = null;
-		Block b1 = event.getBlock().getRelative(blockFace, 1);
-		Block b2 = event.getBlock().getRelative(blockFace, 2);
-		if (cblock.isCustomBlock(b2) && ReflectionUtils.isRedstoneConductor(b1)) { customBlock = b2; }
-		if (cblock.isCustomBlock(b1)) { customBlock = b1; }
-		if (customBlock == null) { return; }
+			//Cancelling event only cancels further block update around, it doesn't prevent block state changing
+			//But those other blocks can trigger block update without BlockPhysicsEvent, like when getting output signal it updates and saves it
 
-		int power = cblock.preparePower(customBlock);
-		if (power < 0) { return; } else { event.setCancelled(true); }
+			BlockData blockData = ReflectionUtils.getChangedBlockData(event);
+			final int fpower = ReflectionUtils.getComparatorOutputSignal(event.getBlock(), blockData, power);
+			ReflectionUtils.setComparatorPower(event.getBlock(), fpower, false);
 
-		//Cancelling event only cancels further block update around, it doesn't prevent block state changing
-		//But those other blocks can trigger block update without BlockPhysicsEvent, like when getting output signal it updates and saves it
+			String location = Utils.locationToString(event.getBlock().getLocation());
+			if (ticklist.containsKey(location)) { return; } //Prevent infinite loop like this: https://i.imgur.com/KQcgFqq.png
+			ticklist.put(location, event.getBlock());
 
-		BlockData blockData = ReflectionUtils.getChangedBlockData(event);
-		final int fpower = ReflectionUtils.getComparatorOutputSignal(event.getBlock(), blockData, power);
-		ReflectionUtils.setComparatorPower(event.getBlock(), fpower, false);
+			//By default, after the BlockPhysicsEvent it runs blockEntity.getBlockState().neighborChanged() which
+			//by default for comparator schedules block tick after 2 (default) ticks, which on its own recalculates
+			//output signal and saves it. So in order to prevent it, we cancel the event and schedule update manually,
+			//and then set data again and update blocks in the front with DiodeBlock#updateNeighborsInFront();
 
-		String location = Utils.locationToString(event.getBlock().getLocation());
-		if (ticklist.containsKey(location)) { return; } //Prevent infinite loop like this: https://i.imgur.com/KQcgFqq.png
-		ticklist.put(location, event.getBlock());
+			//But, big but, there are still some minor bugs with timings and updates, which I don't know how to fix,
+			//and kind of don't want to, because currently it fulfills my needs. For example, there are some bugs with
+			//user interaction, like, when switching modes on comparator from side.
 
-		//By default, after the BlockPhysicsEvent it runs blockEntity.getBlockState().neighborChanged() which
-		//by default for comparator schedules block tick after 2 (default) ticks, which on its own recalculates
-		//output signal and saves it. So in order to prevent it, we cancel the event and schedule update manually,
-		//and then set data again and update blocks in the front with DiodeBlock#updateNeighborsInFront();
-
-		//But, big but, there are still some minor bugs with timings and updates, which I don't know how to fix,
-		//and kind of don't want to, because currently it fulfills my needs. For example, there are some bugs with
-		//user interaction, like, when switching modes on comparator from side.
-
-		TaskUtils.scheduleSyncDelayedTask(() -> {
-            Block block = ticklist.remove(location);
-            if (block.getLocation().getBlock().getType() != Material.COMPARATOR) { return; }
-            ReflectionUtils.setComparatorPower(block, fpower, false);
-            ReflectionUtils.updateNeighborsInFront(block);
-        }, DEFAULT_COMPARATOR_DELAY);
+			TaskUtils.scheduleSyncDelayedTask(() -> {
+				Block block = ticklist.remove(location);
+				if (block.getLocation().getBlock().getType() != Material.COMPARATOR) { return; }
+				ReflectionUtils.setComparatorPower(block, fpower, false);
+				ReflectionUtils.updateNeighborsInFront(block);
+			}, DEFAULT_COMPARATOR_DELAY);
+		}
 	}
 
 	//ItemStack to remove can be null which means it will not take any items at all from source inventory and only dispense.
 	//If slot is positive it will try to take item from that slot, but if it fails it will take from first available,
 	//slot can be also negative, then it will immediately take from first available slot, if item is not found it will (TODO: fail or succeed?)
-	public void dispenseItem(Block source, ItemStack drop, @Nullable ItemStack remove, int slot, boolean dispense) {
-		if ((source.getType() != Material.DISPENSER) && (source.getType() != Material.DROPPER)) { return; }
-		Utils.sendMessage("dispenseItem: " + dispense + " | " + drop);
-
-		if (dispense) {
-			dispenseDispenser(source, drop, remove, slot);
-		} else {
-			dispenseDropper(source, drop, remove, slot);
-		}
+	public boolean dispenseItem(Block source, ItemStack drop, @Nullable ItemStack remove, int slot) {
+		if (source.getType() == Material.DISPENSER) { return dispenseDispenser(source, drop, remove, slot); }
+		if (source.getType() == Material.DROPPER) { return dispenseDropper(source, drop, remove, slot); }
+		return false;
 	}
 
-	private boolean dispenseDispenser(Block source, ItemStack drop, ItemStack remove, int slot) {
+	//TODO: Should we remove item, if result of dispense is modified item? (Currently: NO)
+	private boolean dispenseDispenser(Block source, ItemStack drop, @Nullable ItemStack remove, int slot) {
 		if (drop.getAmount() <= 0) { return true; }
 		if (source.getType() != Material.DISPENSER) { return false; }
+		if (remove == null) { remove = new ItemStack(Material.AIR); }
+		if (remove.getType() == Material.AIR) { slot = -1; }
+		drop = drop.clone(); remove = remove.clone(); //Make sure drop and remove are not the same item
 
 		BlockPos blockPos = new BlockPos(source.getX(), source.getY(), source.getZ());
 		ServerLevel serverLevel = ReflectionUtils.getWorld(source.getLocation().getWorld());
@@ -249,31 +237,28 @@ public class BlockEvents implements Listener {
 
 		DispenseItemBehavior dispenseItemBehavior = DispenserBlock.DISPENSER_REGISTRY.get(ReflectionUtils.asNMSCopy(drop).getItem());
 		net.minecraft.world.item.ItemStack result = dispenseItemBehavior.dispense(blockSource, ReflectionUtils.asNMSCopy(drop));
-		if (result.getCount() == drop.getAmount()) { return false; } //It failed to dispense or item was modified inside caleld event
+		if (result.getCount() == drop.getAmount()) { return false; } //It failed to dispense or item was modified inside called event
 
 		org.bukkit.block.Container container = (org.bukkit.block.Container) source.getState();
 		remove.setAmount(1); //We always remove by 1 item
 		drop.setAmount(result.getCount()); //Update drop amount after dispense
 
-		//TODO: Should we remove item, if result of dispense is modified item?
-
 		//IDC, I will not check if item doesn't exist, I will just remove it
 		if (slot < 0) {
-			container.getInventory().remove(remove);
+			Utils.removeItem(container.getInventory(), remove); //Fuck you spigot, can't even make simple method to remove items
 		} else {
 			ItemStack itemStack = container.getInventory().getItem(slot);
 			if (itemStack == null) { itemStack = new ItemStack(Material.AIR); }
 			itemStack.setAmount(itemStack.getAmount()-1);
 			if (itemStack.getAmount() <= 0) { itemStack = new ItemStack(Material.AIR); }
 			container.getInventory().setItem(slot, itemStack);
-			container.update(true, false);
 		}
 
 		//Sadly, but dispense only can dispense by 1 item
 		return dispenseDispenser(source, drop, remove, slot);
 	}
 
-	private void dispenseDropper(Block source, ItemStack drop, ItemStack remove, int slot) {
+	private boolean dispenseDropper(Block source, ItemStack drop, ItemStack remove, int slot) {
 		BlockPos blockPos = new BlockPos(source.getX(), source.getY(), source.getZ());
 		ServerLevel serverLevel = ReflectionUtils.getWorld(source.getLocation().getWorld());
 		BlockState blockState = serverLevel.getBlockState(blockPos);
@@ -310,5 +295,7 @@ public class BlockEvents implements Listener {
 				result = itemstack.copy();
 			}
 		}*/
+
+		return true;
 	}
 }

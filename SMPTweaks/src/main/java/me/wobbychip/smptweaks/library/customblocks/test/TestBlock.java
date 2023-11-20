@@ -2,7 +2,6 @@ package me.wobbychip.smptweaks.library.customblocks.test;
 
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.library.customblocks.blocks.CustomBlock;
-import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
@@ -15,7 +14,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public class TestBlock extends CustomBlock {
     public TestBlock() {
@@ -53,14 +51,11 @@ public class TestBlock extends CustomBlock {
     public boolean prepareDispense(Block block, HashMap<ItemStack, Map.Entry<ItemStack, Integer>> dispense) {
         if (!(block.getState() instanceof Container)) { return false; }
 
-        //ItemStack[] items = ((Container) block.getState()).getInventory().getContents();
-        //for (ItemStack item : items) { Utils.sendMessage("prepareDispense: " + item); }
-
         ItemStack drop = Arrays.stream(((Container) block.getState()).getInventory().getContents()).filter(e -> (e != null && e.getType() != Material.AIR)).findFirst().orElse(null);
-        Utils.sendMessage("prepareDispense: " + drop);
         if (drop == null) { return false; } else { drop = drop.clone(); }
-        drop.setAmount(1);
+        //drop.setAmount(1);
 
+        //dispense.put(drop, Map.entry(new ItemStack(Material.AIR), -1));
         dispense.put(drop, Map.entry(drop, -1));
         return true;
     }

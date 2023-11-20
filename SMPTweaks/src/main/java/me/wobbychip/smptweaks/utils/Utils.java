@@ -12,6 +12,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.scoreboard.Scoreboard;
@@ -249,6 +250,17 @@ public class Utils {
 		}
 
 		return null;
+	}
+
+	public static void removeItem(Inventory inventory, ItemStack itemStack) {
+		for (int i = 0; i < inventory.getSize(); i++) {
+			ItemStack item = inventory.getItem(i);
+			if ((item == null) || !item.isSimilar(itemStack)) { continue; }
+			item.setAmount(Math.max(item.getAmount()-itemStack.getAmount(), 0));
+			if (item.getAmount() <= 0) { item = new ItemStack(Material.AIR); }
+			inventory.setItem(i, item);
+			return;
+		}
 	}
 
 	//Set glow color entity
