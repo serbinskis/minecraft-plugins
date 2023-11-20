@@ -16,11 +16,14 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.DispenserBlockEntity;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.DoubleChest;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
+import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftItemStack;
 import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -269,6 +272,25 @@ public class BlockEvents implements Listener {
 		Direction enumdirection = (Direction) serverLevel.getBlockState(blockPos).getValue(DropperBlock.FACING);
 		Container iinventory = HopperBlockEntity.getContainerAt(serverLevel, blockPos.relative(enumdirection));
 		net.minecraft.world.item.ItemStack result = ReflectionUtils.asNMSCopy(remove);
+
+		BlockFace blockFace = ((Directional) source.getBlockData()).getFacing();
+		Block dblock = source.getRelative(blockFace);
+
+		if (dblock.getState() instanceof org.bukkit.block.Container container) {
+			Inventory inventory = (dblock.getState() instanceof DoubleChest) ? ((DoubleChest) dblock.getState()).getInventory() : container.getInventory();
+			InventoryMoveItemEvent event = new InventoryMoveItemEvent(tileentitydispenser.getOwner().getInventory(), oitemstack.clone(), destinationInventory, true);
+			Bukkit.getPluginManager().callEvent(event);
+			if (event.isCancelled()) { return false; }
+
+			/*itemstack1 = HopperBlockEntity.addItem(tileentitydispenser, iinventory, CraftItemStack.asNMSCopy(event.getItem()), enumdirection.getOpposite());
+			if (event.getItem().equals(oitemstack) && itemstack1.isEmpty()) {
+				// CraftBukkit end
+				itemstack1 = itemstack.copy();
+				itemstack1.shrink(1);
+			} else {
+				itemstack1 = itemstack.copy();
+			}*/
+		}
 
 		/*if (iinventory == null) {
 			DispenseItemBehavior DISPENSE_BEHAVIOUR = new DefaultDispenseItemBehavior(true);
