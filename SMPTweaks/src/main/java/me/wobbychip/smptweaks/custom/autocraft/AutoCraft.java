@@ -31,11 +31,9 @@ public class AutoCraft extends CustomTweak {
 		this.onReload();
 		AutoCraft.crafters = new Crafters();
 
-		AutoCraft.task = TaskUtils.scheduleSyncRepeatingTask(new Runnable() {
-			public void run() {
-				if (!ServerUtils.isPaused()) { crafters.handleCrafters(); }
-			}
-		}, 0L, AutoCraft.craftCooldown);
+		AutoCraft.task = TaskUtils.scheduleSyncRepeatingTask(() -> {
+            if (!ServerUtils.isPaused()) { crafters.handleCrafters(); }
+        }, 0L, AutoCraft.craftCooldown);
 
 		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 	}

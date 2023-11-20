@@ -23,6 +23,8 @@ import org.bukkit.plugin.Plugin;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CustomBlock implements Listener {
     public static String BLOCK_TAG = "SMPTWEAKS_CUSTOM_BLOCK";
@@ -31,7 +33,9 @@ public class CustomBlock implements Listener {
     public final Material block_base;
     public String title;
     public boolean tickable = false;
+    public Dispensable dispensable = Dispensable.IGNORE;
     public Material custom_material = Material.AIR;
+
 
     public CustomBlock(String name, Material block_base) {
         this.name = name;
@@ -57,6 +61,18 @@ public class CustomBlock implements Listener {
 
     public boolean isTickable() {
         return tickable;
+    }
+
+    public void setDispensable(Dispensable dispensable) {
+        this.dispensable = dispensable;
+    }
+
+    public Dispensable getDispensable() {
+        return dispensable;
+    }
+
+    public boolean isDispensable() {
+        return (dispensable != Dispensable.DISABLE) && (block_base == Material.DISPENSER || block_base == Material.DROPPER);
     }
 
     protected void setCustomTitle(String title) {
@@ -163,9 +179,16 @@ public class CustomBlock implements Listener {
         return PersistentUtils.getPersistentDataString(state, BLOCK_TAG).equalsIgnoreCase(name);
     }
 
+    public boolean dispense(Block block) {
+        return false;
+    }
+
     public boolean prepareCraft(PrepareItemCraftEvent event, World world, ItemStack result) { return true; }
     public ItemStack prepareDropItem() { return new ItemStack(Material.AIR); }
     public Recipe prepareRecipe(NamespacedKey key) { return null; }
     public int preparePower(Block block) { return -1; }
+    public boolean prepareDispense(Block block, HashMap<ItemStack, Map.Entry<ItemStack, Integer>> dispense) { return false; }
     public void tick(Block block, long tick) {}
+
+    public enum Dispensable { DISABLE, IGNORE, CUSTOM }
 }

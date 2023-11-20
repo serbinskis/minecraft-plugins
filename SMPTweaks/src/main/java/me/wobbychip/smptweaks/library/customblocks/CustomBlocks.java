@@ -25,16 +25,14 @@ public class CustomBlocks {
 		//Since block are marked with entities and entities can unload
 		//We collect them every tick and recreate markers
 
-		TaskUtils.scheduleSyncRepeatingTask(new Runnable() {
-			public void run() {
-				if (ServerUtils.isPaused()) { return; }
-				for (Map.Entry<Block, BlockDisplay> value : CustomMarker.collectUnmarkedBlocks().entrySet()) {
-					value.getValue().remove();
-					CustomBlock customBlock = getCustomBlock(value.getValue());
-					if (customBlock != null) { customBlock.createBlock(value.getKey()); }
-				}
-			}
-		}, 1L, 1L);
+		TaskUtils.scheduleSyncRepeatingTask(() -> {
+            if (ServerUtils.isPaused()) { return; }
+            for (Map.Entry<Block, BlockDisplay> value : CustomMarker.collectUnmarkedBlocks().entrySet()) {
+                value.getValue().remove();
+                CustomBlock customBlock = getCustomBlock(value.getValue());
+                if (customBlock != null) { customBlock.createBlock(value.getKey()); }
+            }
+        }, 1L, 1L);
 
 		if (Main.DEBUG_MODE) { CustomBlocks.registerBlock(new TestBlock()); }
 	}

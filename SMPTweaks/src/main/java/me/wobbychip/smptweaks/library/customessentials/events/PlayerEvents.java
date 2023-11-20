@@ -5,12 +5,8 @@ import com.earth2me.essentials.User;
 import me.wobbychip.smptweaks.utils.TaskUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.block.Container;
-import org.bukkit.block.Structure;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -20,7 +16,6 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.Plugin;
 
-import java.nio.Buffer;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -32,10 +27,8 @@ public class PlayerEvents implements Listener {
     public PlayerEvents(Plugin essentials) {
         this.essentials = (Essentials) essentials;
 
-        TaskUtils.scheduleSyncRepeatingTask(new Runnable() {
-            public void run() {
-                for (Player player : Bukkit.getOnlinePlayers()) { onPlayerTick(player); }
-            }
+        TaskUtils.scheduleSyncRepeatingTask(() -> {
+            for (Player player : Bukkit.getOnlinePlayers()) { onPlayerTick(player); }
         }, 1L, 1L);
     }
 
@@ -44,6 +37,7 @@ public class PlayerEvents implements Listener {
         if (!event.getAction().isRightClick() || (event.getClickedBlock() == null)) { return; }
         if (event.getPlayer().isSneaking() && (event.getItem() != null) && (event.getItem().getType() != Material.AIR)) { return; }
         if (event.getPlayer().getGameMode() == GameMode.SPECTATOR) { return; }
+        if (event.getPlayer().isSneaking()) { return; } //Allow open chest normally while sneaking, because in spectator you cannot generate loot inside chests
 
         User user = essentials.getUser(event.getPlayer().getUniqueId());
         if (!user.isVanished()) { return; }
@@ -55,12 +49,10 @@ public class PlayerEvents implements Listener {
         player.setGameMode(GameMode.SPECTATOR);
         if (!isFlying) { player.setFlying(false); }
 
-        int task = TaskUtils.scheduleSyncDelayedTask(new Runnable() {
-            public void run() {
-                reverser.remove(player.getUniqueId());
-                player.setGameMode(gameMode);
-                player.setFlying(isFlying);
-            }
+        int task = TaskUtils.scheduleSyncDelayedTask(() -> {
+            reverser.remove(player.getUniqueId());
+            player.setGameMode(gameMode);
+            player.setFlying(isFlying);
         }, 1L);
 
         reverser.put(player.getUniqueId(), task);

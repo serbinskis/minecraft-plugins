@@ -1,18 +1,17 @@
 package me.wobbychip.smptweaks.custom.repairwithxp;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map.Entry;
-
+import me.wobbychip.smptweaks.tweaks.CustomTweak;
+import me.wobbychip.smptweaks.utils.TaskUtils;
+import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import me.wobbychip.smptweaks.tweaks.CustomTweak;
-import me.wobbychip.smptweaks.utils.TaskUtils;
-import me.wobbychip.smptweaks.utils.Utils;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map.Entry;
 
 public class RepairWithXP extends CustomTweak {
 	public static int task;
@@ -32,11 +31,9 @@ public class RepairWithXP extends CustomTweak {
 	public void onEnable() {
 		this.onReload();
 
-		task = TaskUtils.scheduleSyncRepeatingTask(new Runnable() {
-			public void run() {
-				for (Player player : Bukkit.getOnlinePlayers()) { checkPlayer(player); }
-			}
-		}, 1L, intervalTicks);
+		task = TaskUtils.scheduleSyncRepeatingTask(() -> {
+            for (Player player : Bukkit.getOnlinePlayers()) { checkPlayer(player); }
+        }, 1L, intervalTicks);
 	}
 
 	public void onReload() {

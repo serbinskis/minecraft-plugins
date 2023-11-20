@@ -1,15 +1,14 @@
 package me.wobbychip.smptweaks.tweaks;
 
+import me.wobbychip.smptweaks.Main;
+import me.wobbychip.smptweaks.utils.PaperUtils;
+import org.bukkit.Bukkit;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
-import org.bukkit.Bukkit;
-
-import me.wobbychip.smptweaks.Main;
-import me.wobbychip.smptweaks.utils.PaperUtils;
 
 public class TweakManager {
 	protected Map<String, CustomTweak> tweaks = new HashMap<>();
@@ -31,12 +30,12 @@ public class TweakManager {
 				return;
 			}
 
-			Entry<String, Object> gamerule = tweak.getGameRule();
-			if (gamerule != null) { Main.gameRules.addGameRule(gamerule.getKey(), gamerule.getValue(), tweak.isGameRuleGlobal()); }
-
 			tweak.loadConfigs();
 			tweak.onEnable();
-			tweak.printEnabled();
+
+			if (tweak.isEnabled()) { tweak.printEnabled(); } else { tweak.printDisabled(); }
+			Entry<String, Object> gamerule = tweak.getGameRule();
+			if (tweak.isEnabled() && (gamerule != null)) { Main.gameRules.addGameRule(gamerule.getKey(), gamerule.getValue(), tweak.isGameRuleGlobal()); }
 		} else {
 			tweak.printDisabled();
 		}

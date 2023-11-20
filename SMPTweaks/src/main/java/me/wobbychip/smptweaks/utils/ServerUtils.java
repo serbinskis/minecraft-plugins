@@ -11,11 +11,7 @@ public class ServerUtils {
 	private static boolean shutting = false;
 	private static long tick = 0;
 
-	static {
-		TaskUtils.scheduleSyncRepeatingTask(new Runnable() {
-			public void run() { tick++; }
-		}, 0L, 1L);
-	}
+	static { TaskUtils.scheduleSyncRepeatingTask(() -> tick++, 0L, 1L); }
 
 	//This actually doesn't pause your server,
 	//it just removes worlds and functions from ticking

@@ -28,27 +28,25 @@ public class Events implements Listener {
 		//and this will trigger this event
 		if (ServerPause.delayTask > -1) { TaskUtils.cancelSyncDelayedTask(ServerPause.delayTask); }
 
-		ServerPause.delayTask = TaskUtils.scheduleSyncDelayedTask(new Runnable() {
-			public void run() {
-				int delayTask = ServerPause.delayTask;
-				ServerPause.delayTask = -1;
-				if (!ServerPause.canPause(false)) { return; }
+		ServerPause.delayTask = TaskUtils.scheduleSyncDelayedTask(() -> {
+            int delayTask = ServerPause.delayTask;
+            ServerPause.delayTask = -1;
+            if (!ServerPause.canPause(false)) { return; }
 
-				//Save worlds before pausing server, since when server is paused
-				//worlds cannot be saved
-				if (!ServerUtils.isPaused()) {
-					for (World world: Bukkit.getWorlds()) { world.save(); }
-				}
+            //Save worlds before pausing server, since when server is paused
+            //worlds cannot be saved
+            if (!ServerUtils.isPaused()) {
+                for (World world: Bukkit.getWorlds()) { world.save(); }
+            }
 
-				//If AsyncPlayerPreLoginEvent executed and someone is connecting, then we
-				//cannot pause the server and this task should be rescheduled
-				if (isConnecting > -1) { TaskUtils.rescheduleSyncDelayedTask(delayTask, ServerPause.pauseDelay); }
-				if (isConnecting > -1) { return; }
+            //If AsyncPlayerPreLoginEvent executed and someone is connecting, then we
+            //cannot pause the server and this task should be rescheduled
+            if (isConnecting > -1) { TaskUtils.rescheduleSyncDelayedTask(delayTask, ServerPause.pauseDelay); }
+            if (isConnecting > -1) { return; }
 
-				boolean success = ServerUtils.pauseServer();
-				if (success) { Utils.sendMessage("Server is now paused. (Worlds saved)"); }
-			}
-		}, ServerPause.pauseDelay);
+            boolean success = ServerUtils.pauseServer();
+            if (success) { Utils.sendMessage("Server is now paused. (Worlds saved)"); }
+        }, ServerPause.pauseDelay);
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
@@ -65,10 +63,7 @@ public class Events implements Listener {
 		//PlayerQuitEvent runnable, we set isConnecting to true, but revert it in
 		//sync with another runnable, because runnables are synchronized
 		if (isConnecting > -1) { TaskUtils.cancelSyncDelayedTask(isConnecting); }
-
-		isConnecting = TaskUtils.scheduleSyncDelayedTask(new Runnable() {
-			public void run() { isConnecting = -1; }
-		}, 1);
+		isConnecting = TaskUtils.scheduleSyncDelayedTask(() -> isConnecting = -1, 1);
 
 		//Resume server if player is trying to connect to the server
 		boolean success = ServerUtils.resumeServer();
@@ -78,16 +73,13 @@ public class Events implements Listener {
 		//Check if something happened and player did not get into server
 		//Banned, whitelist, connection timeout, etc
 		//ERROR: if player takes longer than 5s to connect it will throw an error
-		connectingTask = TaskUtils.scheduleSyncDelayedTask(new Runnable() {
-			public void run() {
-				//If there is delay task then we don't need to pasue server again
-				connectingTask = -1;
-				if (ServerPause.delayTask > -1) { return; }
-				if (!ServerPause.canPause(true)) { return; }
-				boolean success = ServerUtils.pauseServer();
-				if (success) { Utils.sendMessage("Server is now paused."); }
-			}
-		}, 20L*5);
+		connectingTask = TaskUtils.scheduleSyncDelayedTask(() -> {
+            connectingTask = -1;
+            if (ServerPause.delayTask > -1) { return; } //If there is delay task then we don't need to pasue server again
+            if (!ServerPause.canPause(true)) { return; }
+            boolean success1 = ServerUtils.pauseServer();
+            if (success1) { Utils.sendMessage("Server is now paused."); }
+        }, 20L*ServerPause.CONNECTION_MAX_TIME);
 	}
 
 	//We also must resume server, when command is being executed

@@ -1,12 +1,5 @@
 package me.wobbychip.smptweaks.custom.serverpause;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-
-import net.minecraft.network.Connection;
-import org.bukkit.Bukkit;
-
 import io.netty.channel.Channel;
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.events.ServerConnectionEvent;
@@ -15,9 +8,14 @@ import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import me.wobbychip.smptweaks.utils.ServerUtils;
 import me.wobbychip.smptweaks.utils.TaskUtils;
 import me.wobbychip.smptweaks.utils.Utils;
+import org.bukkit.Bukkit;
+
+import java.util.Collection;
+import java.util.List;
 
 public class ServerPause extends CustomTweak {
 	public static CustomTweak tweak;
+	public static int CONNECTION_MAX_TIME = 10;
 	public static boolean gamerule = true;
 	public static boolean enabled = true;
 	public static int delayTask = -1;
@@ -41,23 +39,19 @@ public class ServerPause extends CustomTweak {
 
 		//Delay event registration so that other plugins can do their thing
 		//Tbh, I don't know if this actaully is required, but just in case
-		TaskUtils.scheduleSyncDelayedTask(new Runnable() {
-			public void run() {
-				Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
-				if (!ServerPause.canPause(false)) { return; }
-				boolean success = ServerUtils.pauseServer();
-				if (success) { Utils.sendMessage("Server is now paused."); }
-			}
-		}, 20L);
+		TaskUtils.scheduleSyncDelayedTask(() -> {
+            Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
+            if (!ServerPause.canPause(false)) { return; }
+            boolean success = ServerUtils.pauseServer();
+            if (success) { Utils.sendMessage("Server is now paused."); }
+        }, 20L);
 
-		TaskUtils.scheduleSyncRepeatingTask(new Runnable() {
-			public void run() {
-				Collection<Channel> connections = ReflectionUtils.getConnections();
-				if (connections.size() == cconnections) { return; } else { cconnections = connections.size(); }
-				boolean online = ReflectionUtils.getConnections().stream().anyMatch(e -> ((e != null) && e.isOpen()));
-				Bukkit.getPluginManager().callEvent(new ServerConnectionEvent(cconnections, online));
-			}
-		}, 20L, 1L);
+		TaskUtils.scheduleSyncRepeatingTask(() -> {
+            Collection<Channel> connections = ReflectionUtils.getConnections();
+            if (connections.size() == cconnections) { return; } else { cconnections = connections.size(); }
+            boolean online = ReflectionUtils.getConnections().stream().anyMatch(e -> ((e != null) && e.isOpen()));
+            Bukkit.getPluginManager().callEvent(new ServerConnectionEvent(cconnections, online));
+        }, 20L, 1L);
 	}
 
 	public void onDisable() {

@@ -1,18 +1,17 @@
 package me.wobbychip.smptweaks.custom.autotrade;
 
-import java.util.List;
-import java.util.UUID;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
-
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import me.wobbychip.smptweaks.utils.ServerUtils;
 import me.wobbychip.smptweaks.utils.TaskUtils;
 import me.wobbychip.smptweaks.utils.Utils;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+
+import java.util.List;
+import java.util.UUID;
 
 public class AutoTrade extends CustomTweak {
 	public static CustomTweak tweak;
@@ -48,11 +47,9 @@ public class AutoTrade extends CustomTweak {
 			Utils.grantAdvancemnt(fakePlayer, advancement);
 		});
 
-		AutoTrade.task = TaskUtils.scheduleSyncRepeatingTask(new Runnable() {
-			public void run() {
-				if (!ServerUtils.isPaused()) { traders.handleTraders(); }
-			}
-		}, 1L, AutoTrade.tradeCooldown);
+		AutoTrade.task = TaskUtils.scheduleSyncRepeatingTask(() -> {
+            if (!ServerUtils.isPaused()) { traders.handleTraders(); }
+        }, 1L, AutoTrade.tradeCooldown);
 
 		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 	}

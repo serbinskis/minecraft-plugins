@@ -20,6 +20,7 @@ import me.wobbychip.smptweaks.custom.globaltrading.GlobalTrading;
 import me.wobbychip.smptweaks.custom.gravitycontrol.GravityControl;
 import me.wobbychip.smptweaks.custom.headdrops.HeadDrops;
 import me.wobbychip.smptweaks.custom.holograms.Holograms;
+import me.wobbychip.smptweaks.custom.removedatapackitems.RemoveDatapackItems;
 import me.wobbychip.smptweaks.custom.ipprotect.IpProtect;
 import me.wobbychip.smptweaks.custom.noadvancements.NoAdvancements;
 import me.wobbychip.smptweaks.custom.noarrowinfinity.NoArrowInfinity;
@@ -86,6 +87,7 @@ public class Main extends JavaPlugin {
 		manager.addTweak(new NoTooExpensive());
 		manager.addTweak(new PreventDropCentering());
 		manager.addTweak(new PvPDropInventory());
+		manager.addTweak(new RemoveDatapackItems());
 		manager.addTweak(new RepairWithXP());
 		manager.addTweak(new RespawnableDragonEgg());
 		manager.addTweak(new ServerPause());
@@ -95,7 +97,7 @@ public class Main extends JavaPlugin {
 		Main.plugin.getCommand("smptweaks").setExecutor(new Commands());
 		Main.plugin.getCommand("smptweaks").setTabCompleter(new Commands());
 
-		CustomBlocks.start();
+		if (Main.DEBUG_MODE) { CustomBlocks.start(); }
 		CustomEssentials.start();
 	}
 
