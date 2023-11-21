@@ -30,12 +30,14 @@ public class TweakManager {
 				return;
 			}
 
+			Entry<String, Object> gamerule = tweak.getGameRule();
+			if (gamerule != null) { Main.gameRules.addGameRule(gamerule.getKey(), gamerule.getValue(), tweak.isGameRuleGlobal()); }
+
 			tweak.loadConfigs();
 			tweak.onEnable();
 
 			if (tweak.isEnabled()) { tweak.printEnabled(); } else { tweak.printDisabled(); }
-			Entry<String, Object> gamerule = tweak.getGameRule();
-			if (tweak.isEnabled() && (gamerule != null)) { Main.gameRules.addGameRule(gamerule.getKey(), gamerule.getValue(), tweak.isGameRuleGlobal()); }
+			if (!tweak.isEnabled() && (gamerule != null)) { Main.gameRules.removeGameRule(gamerule.getKey()); }
 		} else {
 			tweak.printDisabled();
 		}

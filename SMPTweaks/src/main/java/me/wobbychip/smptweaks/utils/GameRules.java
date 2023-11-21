@@ -30,6 +30,11 @@ public class GameRules implements Listener {
 		return true;
 	}
 
+	public boolean removeGameRule(String name) {
+		if (!globals.contains(name)) { globals.remove(name); }
+		return (rules.remove(name) != null);
+	}
+
 	public boolean setGameRule(World world, String name, Object value) {
 		if (!rules.containsKey(name)) { return false; }
 		Object object = rules.get(name);

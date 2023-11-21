@@ -44,6 +44,7 @@ public class Events implements Listener {
 		if (event.getPlayer().isSneaking()) { return; } //Allow open chest normally while sneaking, because in spectator you cannot generate loot inside chests
 
 		User user = essentials.getUser(event.getPlayer().getUniqueId());
+		if (user == null) { return; }
 		if (!user.isVanished()) { return; }
 		if (!(event.getClickedBlock().getState() instanceof Container container)) { return; }
 
@@ -66,6 +67,7 @@ public class Events implements Listener {
 	public void onInventoryOpenEvent(InventoryOpenEvent event) {
 		if (!this.tweak.getGameRuleBoolean(event.getPlayer().getWorld())) { return; }
 		User user = essentials.getUser(event.getPlayer().getUniqueId());
+		if (user == null) { return; }
 		if (!user.isVanished()) { return; }
 
 		if (!reverser.containsKey(user.getUUID())) { return; }
@@ -77,12 +79,14 @@ public class Events implements Listener {
 		if (!(event.getEntity() instanceof Player player)) { return; }
 		if (!this.tweak.getGameRuleBoolean(player.getWorld())) { return; }
 		User user = essentials.getUser(player.getUniqueId());
+		if (user == null) { return; }
 		if (!user.isVanished() || (player.getGameMode() != GameMode.CREATIVE)) { return; }
 		event.setCancelled(true);
 	}
 
 	public void onPlayerTick(Player player) {
 		User user = essentials.getUser(player.getUniqueId());
+		if (user == null) { return; }
 		boolean b1 = this.tweak.getGameRuleBoolean(player.getWorld());
 		if (b1 && !player.isCollidable() && user.isVanished() && (player.getGameMode() == GameMode.CREATIVE)) { collidables.put(player.getUniqueId(), true); }
 		if (b1 && user.isVanished() && (player.getGameMode() == GameMode.CREATIVE)) { player.setCollidable(false); return; }
