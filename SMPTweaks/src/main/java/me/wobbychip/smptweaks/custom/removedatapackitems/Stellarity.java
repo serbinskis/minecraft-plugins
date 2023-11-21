@@ -8,6 +8,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.LootGenerateEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
@@ -36,16 +37,11 @@ public class Stellarity {
 
     public static void onPlayerInteractAtEntityEvent(PlayerInteractAtEntityEvent event) {
         if (!(event.getRightClicked() instanceof ArmorStand stand)) { return; }
-        ItemStack[] armorContents = stand.getEquipment().getArmorContents();
-        boolean update = false;
 
-        for (int i = 0; i < armorContents.length; i++) {
-            if (!isStellarityItem(armorContents[i])) { continue; }
-            armorContents[i] = RemoveDatapackItems.normalizeDatapackItem(armorContents[i]);
-            update = true;
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            if (!isStellarityItem(stand.getItem(slot))) { continue; }
+            stand.setItem(slot, RemoveDatapackItems.normalizeDatapackItem(stand.getItem(slot)));
         }
-
-        if (update) { stand.getEquipment().setArmorContents(armorContents); }
     }
 
     public static void onChunkLoadEvent(ChunkLoadEvent event) {
