@@ -913,7 +913,7 @@ public class ReflectionUtils {
 		drop = drop.clone(); remove = remove.clone();
 
 		BlockPos blockPos = new BlockPos(source.getX(), source.getY(), source.getZ());
-		ServerLevel serverLevel = ReflectionUtils.getWorld(source.getLocation().getWorld());
+		ServerLevel serverLevel = getWorld(source.getLocation().getWorld());
 		DispenserBlockEntity tileentitydispenser = serverLevel.getBlockEntity(blockPos, BlockEntityType.DROPPER).orElse(null);
 		Direction enumdirection = serverLevel.getBlockState(blockPos).getValue(DropperBlock.FACING);
 		Container iinventory = HopperBlockEntity.getContainerAt(serverLevel, blockPos.relative(enumdirection));
@@ -931,7 +931,7 @@ public class ReflectionUtils {
 		Bukkit.getPluginManager().callEvent(event);
 		if (event.isCancelled()) { return false; }
 
-		net.minecraft.world.item.ItemStack itemstack1 = HopperBlockEntity.addItem(tileentitydispenser, iinventory, ReflectionUtils.asNMSCopy(event.getItem()), enumdirection.getOpposite());
+		net.minecraft.world.item.ItemStack itemstack1 = HopperBlockEntity.addItem(tileentitydispenser, iinventory, asNMSCopy(event.getItem()), enumdirection.getOpposite());
 		if (!(event.getItem().equals(event_item) && itemstack1.isEmpty())) { return false; } //If item was modified or was not moved successfully return
 
 		org.bukkit.block.Container dropper = (org.bukkit.block.Container) source.getState();
