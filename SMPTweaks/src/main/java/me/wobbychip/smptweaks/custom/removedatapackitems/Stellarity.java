@@ -1,10 +1,8 @@
 package me.wobbychip.smptweaks.custom.removedatapackitems;
 
+import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import org.bukkit.World;
-import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.ItemFrame;
+import org.bukkit.entity.*;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
@@ -13,23 +11,25 @@ import org.bukkit.event.world.LootGenerateEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
-public class Incendium {
+import java.util.Arrays;
+
+public class Stellarity {
     public static void onLootGenerateEvent(LootGenerateEvent event) {
         for (int i = 0; i < event.getLoot().size(); i++) {
-            if (!isIncendiumItem(event.getLoot().get(i))) { continue; }
+            if (!isStellarityItem(event.getLoot().get(i))) { continue; }
             ItemStack itemStack = RemoveDatapackItems.normalizeDatapackItem(event.getLoot().get(i));
             event.getLoot().set(i, itemStack);
         }
     }
 
     public static void onItemSpawnEvent(ItemSpawnEvent event) {
-        if (!isIncendiumItem(event.getEntity().getItemStack())) { return; }
+        if (!isStellarityItem(event.getEntity().getItemStack())) { return; }
         ItemStack itemStack = RemoveDatapackItems.normalizeDatapackItem(event.getEntity().getItemStack());
         event.getEntity().setItemStack(itemStack);
     }
 
     public static void onInventoryClickEvent(InventoryClickEvent event) {
-        if (!isIncendiumItem(event.getCurrentItem())) { return; }
+        if (!isStellarityItem(event.getCurrentItem())) { return; }
         ItemStack itemStack = RemoveDatapackItems.normalizeDatapackItem(event.getCurrentItem());
         event.setCurrentItem(itemStack);
     }
@@ -40,7 +40,7 @@ public class Incendium {
         boolean update = false;
 
         for (int i = 0; i < armorContents.length; i++) {
-            if (!isIncendiumItem(armorContents[i])) { continue; }
+            if (!isStellarityItem(armorContents[i])) { continue; }
             armorContents[i] = RemoveDatapackItems.normalizeDatapackItem(armorContents[i]);
             update = true;
         }
@@ -49,15 +49,15 @@ public class Incendium {
     }
 
     public static void onChunkLoadEvent(ChunkLoadEvent event) {
-        if (event.getWorld().getEnvironment() != World.Environment.NETHER) { return; }
+        if (event.getWorld().getEnvironment() != World.Environment.THE_END) { return; }
 
         for (Entity entity : event.getChunk().getEntities()) {
             if (entity instanceof Item item) {
-                if (isIncendiumItem(item.getItemStack())) { item.remove(); }
+                if (isStellarityItem(item.getItemStack())) { item.remove(); }
             }
 
             if (entity instanceof ItemFrame itemFrame) {
-                if (!isIncendiumItem(itemFrame.getItem())) { continue; }
+                if (!isStellarityItem(itemFrame.getItem())) { continue; }
                 itemFrame.setItem(RemoveDatapackItems.normalizeDatapackItem(itemFrame.getItem()));
             }
 
@@ -69,14 +69,12 @@ public class Incendium {
     }
 
     public static void processItemEntity(Item entity) {
-        if (!isIncendiumItem(entity.getItemStack())) { return; }
+        if (!isStellarityItem(entity.getItemStack())) { return; }
         entity.setItemStack(RemoveDatapackItems.normalizeDatapackItem(entity.getItemStack()));
     }
 
-    public static boolean isIncendiumItem(ItemStack itemStack) {
+    public static boolean isStellarityItem(ItemStack itemStack) {
         if (itemStack == null) { return false; }
-        if (itemStack.getItemMeta() == null) { return false; }
-        if (itemStack.getItemMeta().getLore() == null) { return false; }
-        return itemStack.getItemMeta().getLore().stream().anyMatch(e -> e.toLowerCase().contains("incendium"));
+        return (ReflectionUtils.getItemNbt(itemStack, Arrays.asList("stellarity.special_item")) != null);
     }
 }

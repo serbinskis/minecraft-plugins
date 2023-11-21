@@ -13,6 +13,7 @@ import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
 import me.wobbychip.smptweaks.custom.disableinvulnerability.DisableInvulnerability;
 import me.wobbychip.smptweaks.custom.dropcursedpumpkin.DropCursedPumpkin;
 import me.wobbychip.smptweaks.custom.entitylimit.EntityLimit;
+import me.wobbychip.smptweaks.custom.essentials.Essentials;
 import me.wobbychip.smptweaks.custom.expbottles.ExpBottles;
 import me.wobbychip.smptweaks.custom.fastcuring.FastCuring;
 import me.wobbychip.smptweaks.custom.funnymessages.FunnyMessages;
@@ -20,7 +21,6 @@ import me.wobbychip.smptweaks.custom.globaltrading.GlobalTrading;
 import me.wobbychip.smptweaks.custom.gravitycontrol.GravityControl;
 import me.wobbychip.smptweaks.custom.headdrops.HeadDrops;
 import me.wobbychip.smptweaks.custom.holograms.Holograms;
-import me.wobbychip.smptweaks.custom.removedatapackitems.RemoveDatapackItems;
 import me.wobbychip.smptweaks.custom.ipprotect.IpProtect;
 import me.wobbychip.smptweaks.custom.noadvancements.NoAdvancements;
 import me.wobbychip.smptweaks.custom.noarrowinfinity.NoArrowInfinity;
@@ -28,13 +28,13 @@ import me.wobbychip.smptweaks.custom.noendportal.NoEndPortal;
 import me.wobbychip.smptweaks.custom.notooexpensive.NoTooExpensive;
 import me.wobbychip.smptweaks.custom.preventdropcentering.PreventDropCentering;
 import me.wobbychip.smptweaks.custom.pvpdropinventory.PvPDropInventory;
+import me.wobbychip.smptweaks.custom.removedatapackitems.RemoveDatapackItems;
 import me.wobbychip.smptweaks.custom.repairwithxp.RepairWithXP;
 import me.wobbychip.smptweaks.custom.respawnabledragonegg.RespawnableDragonEgg;
 import me.wobbychip.smptweaks.custom.serverpause.ServerPause;
 import me.wobbychip.smptweaks.custom.shriekercansummon.ShriekerCanSummon;
 import me.wobbychip.smptweaks.custom.silktouchspawners.SilkTouchSpawners;
 import me.wobbychip.smptweaks.library.customblocks.CustomBlocks;
-import me.wobbychip.smptweaks.library.customessentials.CustomEssentials;
 import me.wobbychip.smptweaks.tweaks.TweakManager;
 import me.wobbychip.smptweaks.utils.GameRules;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
@@ -73,6 +73,7 @@ public class Main extends JavaPlugin {
 		manager.addTweak(new DisableInvulnerability());
 		manager.addTweak(new DropCursedPumpkin());
 		manager.addTweak(new EntityLimit());
+		manager.addTweak(new Essentials());
 		manager.addTweak(new ExpBottles());
 		manager.addTweak(new FastCuring());
 		manager.addTweak(new FunnyMessages());
@@ -96,9 +97,7 @@ public class Main extends JavaPlugin {
 
 		Main.plugin.getCommand("smptweaks").setExecutor(new Commands());
 		Main.plugin.getCommand("smptweaks").setTabCompleter(new Commands());
-
 		if (Main.DEBUG_MODE) { CustomBlocks.start(); }
-		CustomEssentials.start();
 	}
 
 	public ClassLoader getPluginClassLoader() {

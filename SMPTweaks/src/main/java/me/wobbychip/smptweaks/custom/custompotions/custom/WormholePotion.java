@@ -1,8 +1,7 @@
 package me.wobbychip.smptweaks.custom.custompotions.custom;
 
-import java.util.Arrays;
-import java.util.UUID;
-
+import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
+import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -10,7 +9,10 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
@@ -18,8 +20,8 @@ import org.bukkit.scoreboard.Criteria;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 
-import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
-import me.wobbychip.smptweaks.utils.Utils;
+import java.util.Arrays;
+import java.util.UUID;
 
 public class WormholePotion extends CustomPotion {
 	public WormholePotion() {
@@ -56,6 +58,11 @@ public class WormholePotion extends CustomPotion {
 		}
 	}
 
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void onPlayerDeathEvent(PlayerDeathEvent event) {
+		unmarkPlayer(event.getPlayer());
+	}
+
 	public void saveTarget(Player target, Arrow arrow) {
 		if (!(arrow.getShooter() instanceof Player)) { return; }
 		Player attacker = (Player) arrow.getShooter();
@@ -77,6 +84,14 @@ public class WormholePotion extends CustomPotion {
 
 		Utils.sendActionMessage(target, "You have been marked by " + attacker.getName() + ".");
 		Utils.sendActionMessage(attacker, "You marked " + target.getName() + ".");
+	}
+
+	public void unmarkPlayer(Player player) {
+		for (Objective objective : Bukkit.getScoreboardManager().getMainScoreboard().getObjectives()) {
+			if (!objective.getName().startsWith(this.getName() + "_")) { continue; }
+			if (!objective.getDisplayName().equals(player.getUniqueId().toString())) { continue; }
+			objective.unregister();
+		}
 	}
 
 	public void teleportAttacker(Player player) {

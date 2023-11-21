@@ -10,6 +10,7 @@ import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.protocol.Packet;
@@ -746,6 +747,25 @@ public class ReflectionUtils {
 		return postReload;
 	}
 
+	public static <T> T getItemNbt(ItemStack itemStack, List<String> location) {
+		if (location.size() == 0) { return null; }
+		net.minecraft.world.item.ItemStack item = asNMSCopy(itemStack);
+		if (!item.hasTag()) { return null; }
+		CompoundTag tag = item.getTag();
+
+		while ((location.size() > 0) && (tag.getTagType(location.get(0)) == Tag.TAG_COMPOUND)) {
+			tag.getCompound(location.get(0));
+			location.remove(0);
+		}
+
+		if (location.size() == 0) { return (T) tag; }
+		if (tag.getTagType(location.get(0)) == Tag.TAG_BYTE) { return (T) Boolean.valueOf(tag.getBoolean(location.get(0))); }
+		if (tag.getTagType(location.get(0)) == Tag.TAG_INT) { return (T) Integer.valueOf(tag.getInt(location.get(0))); }
+		if (tag.getTagType(location.get(0)) == Tag.TAG_STRING) { return (T) tag.getString(location.get(0)); }
+
+		return null;
+	}
+
 	public static void setBlockNbt(org.bukkit.block.Block block, String name, Object value, boolean applyPhysics) {
 		BlockPos blockPos = new BlockPos(block.getX(), block.getY(), block.getZ());
 		ServerLevel serverLevel = getWorld(block.getLocation().getWorld());
@@ -774,9 +794,9 @@ public class ReflectionUtils {
 		if (blockEntity == null) { return null; }
 		CompoundTag tag = blockEntity.saveWithoutMetadata();
 
-		if (tag.getTagType(name) == 1) { return (T) Boolean.valueOf(tag.getBoolean(name)); }
-		if (tag.getTagType(name) == 3) { return (T) Integer.valueOf(tag.getInt(name)); }
-		if (tag.getTagType(name) == 8) { return (T) tag.getString(name); }
+		if (tag.getTagType(name) == Tag.TAG_BYTE) { return (T) Boolean.valueOf(tag.getBoolean(name)); }
+		if (tag.getTagType(name) == Tag.TAG_INT) { return (T) Integer.valueOf(tag.getInt(name)); }
+		if (tag.getTagType(name) == Tag.TAG_STRING) { return (T) tag.getString(name); }
 
 		return null;
 	}
