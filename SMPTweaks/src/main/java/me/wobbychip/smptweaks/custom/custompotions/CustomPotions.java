@@ -24,7 +24,7 @@ public class CustomPotions extends CustomTweak {
 		super(CustomPotions.class, false, false);
 		this.comands = new Commands(this, "cpotions");
 		this.setConfigs(List.of("config.yml"));
-		this.setGameRule("doCustomPotion", true, false);
+		this.setGameRule("doCustomPotions", true, false);
 		this.setDescription("Adds to the server different new potions and new brewing recipes. " +
 							"To get more info about potions use command /smptweaks execute info.");
 		
