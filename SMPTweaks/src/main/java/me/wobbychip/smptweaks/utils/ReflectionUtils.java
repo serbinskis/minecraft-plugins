@@ -6,6 +6,7 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.embedded.EmbeddedChannel;
 import net.minecraft.core.*;
 import net.minecraft.core.dispenser.BlockSource;
+import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -876,13 +877,13 @@ public class ReflectionUtils {
 		drop = drop.clone(); remove = remove.clone(); //Make sure drop and remove are not the same item
 
 		BlockPos blockPos = new BlockPos(source.getX(), source.getY(), source.getZ());
-		ServerLevel serverLevel = ReflectionUtils.getWorld(source.getLocation().getWorld());
+		ServerLevel serverLevel = getWorld(source.getLocation().getWorld());
 		BlockState blockState = serverLevel.getBlockState(blockPos);
 		DispenserBlockEntity tileentitydispenser = serverLevel.getBlockEntity(blockPos, BlockEntityType.DISPENSER).orElse(null);
 		BlockSource blockSource = new BlockSource(serverLevel, blockPos, blockState, tileentitydispenser);
 
-		DispenseItemBehavior dispenseItemBehavior = DispenserBlock.DISPENSER_REGISTRY.get(ReflectionUtils.asNMSCopy(drop).getItem());
-		net.minecraft.world.item.ItemStack result = dispenseItemBehavior.dispense(blockSource, ReflectionUtils.asNMSCopy(drop));
+		DispenseItemBehavior dispenseItemBehavior = (source.getType() == Material.DISPENSER) ? DispenserBlock.DISPENSER_REGISTRY.get(asNMSCopy(drop).getItem()) : new DefaultDispenseItemBehavior(true);
+		net.minecraft.world.item.ItemStack result = dispenseItemBehavior.dispense(blockSource, asNMSCopy(drop));
 		if (result.getCount() == drop.getAmount()) { return false; } //It failed to dispense or item was modified inside called event
 
 		org.bukkit.block.Container container = (org.bukkit.block.Container) source.getState();
