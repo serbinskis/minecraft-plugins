@@ -68,11 +68,6 @@ public class Incendium {
         }
     }
 
-    public static void processItemEntity(Item entity) {
-        if (!isIncendiumItem(entity.getItemStack())) { return; }
-        entity.setItemStack(RemoveDatapackItems.normalizeDatapackItem(entity.getItemStack()));
-    }
-
     public static boolean isIncendiumItem(ItemStack itemStack) {
         if (itemStack == null) { return false; }
         if (itemStack.getItemMeta() == null) { return false; }

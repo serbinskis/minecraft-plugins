@@ -68,11 +68,6 @@ public class Stellarity {
         }
     }
 
-    public static void processItemEntity(Item entity) {
-        if (!isStellarityItem(entity.getItemStack())) { return; }
-        entity.setItemStack(RemoveDatapackItems.normalizeDatapackItem(entity.getItemStack()));
-    }
-
     public static boolean isStellarityItem(ItemStack itemStack) {
         if (itemStack == null) { return false; }
         return (ReflectionUtils.getItemNbt(itemStack, Arrays.asList("stellarity.special_item")) != null);

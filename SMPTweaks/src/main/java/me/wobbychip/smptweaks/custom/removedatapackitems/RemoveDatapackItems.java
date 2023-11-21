@@ -6,11 +6,7 @@ import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Banner;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
@@ -42,19 +38,6 @@ public class RemoveDatapackItems extends CustomTweak {
 
 		fakePlayer = ReflectionUtils.addFakePlayer(new Location(Bukkit.getWorlds().get(0), 0, 0, 0), new UUID(0, 0), false, true, true);
 		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
-		//TaskUtils.scheduleSyncRepeatingTask(() -> normalizeDatapackItems(), 20L, 20L);
-	}
-
-	public static void normalizeDatapackItems() {
-		for (World world : Bukkit.getWorlds()) {
-			if (!RemoveDatapackItems.tweak.getGameRuleBoolean(world)) { continue; }
-
-			for (Entity entity : world.getEntities()) {
-				if (entity.getType() != EntityType.DROPPED_ITEM) { continue; }
-				if (incendium) { Incendium.processItemEntity((Item) entity); }
-				if (incendium) { Stellarity.processItemEntity((Item) entity); }
-			}
-		}
 	}
 
 	public static ItemStack normalizeDatapackItem(ItemStack itemStack) {
