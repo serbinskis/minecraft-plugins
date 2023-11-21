@@ -15,7 +15,7 @@ public class Commands extends TweakCommands {
 	public static String NO_POTION = Main.color + "Couldn\'t find the potion!";
 
 	public Commands(CustomTweak tweak, String command) {
-		super(tweak, command, Arrays.asList("list", "info", "get"));
+		super(tweak, command, Arrays.asList("set"));
 	}
 
 	public boolean onTweakCommand(CustomTweak tweak, final CommandSender sender, final Command command, final String label, final String[] args) {
@@ -25,9 +25,7 @@ public class Commands extends TweakCommands {
 		}
 
 		switch (args[0].toLowerCase()) {
-			case "list": return ListCommand.onTweakCommand(tweak, sender, command, args[0], Arrays.copyOfRange(args, 1, args.length));
-			case "info": return InfoCommand.onTweakCommand(tweak, sender, command, args[0], Arrays.copyOfRange(args, 1, args.length));
-			case "get": return GetCommand.onTweakCommand(tweak, sender, command, args[0], Arrays.copyOfRange(args, 1, args.length));
+			case "set": return SetCommand.onTweakCommand(tweak, sender, command, args[0], Arrays.copyOfRange(args, 1, args.length));
 		}
 
 		Utils.sendMessage(sender, this.getUsage());
@@ -39,8 +37,7 @@ public class Commands extends TweakCommands {
 
 		if (args.length > 1) {
 			switch (args[0].toLowerCase()) {
-				case "info": return InfoCommand.onTweakTabComplete(tweak, sender, command, alias, args);
-				case "get": return GetCommand.onTweakTabComplete(tweak, sender, command, alias, args);
+				case "set": return SetCommand.onTweakTabComplete(tweak, sender, command, alias, args);
 			}
 		}
 
