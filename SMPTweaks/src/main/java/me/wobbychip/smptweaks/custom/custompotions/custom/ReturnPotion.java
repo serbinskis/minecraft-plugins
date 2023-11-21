@@ -1,8 +1,10 @@
 package me.wobbychip.smptweaks.custom.custompotions.custom;
 
 import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
-import me.wobbychip.smptweaks.utils.ReflectionUtils;
-import org.bukkit.*;
+import org.bukkit.Color;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -14,48 +16,42 @@ import org.bukkit.util.Vector;
 
 import java.util.Arrays;
 
-public class RecallPotion extends CustomPotion {
-	public RecallPotion() {
-		super("amethyst", Material.CHORUS_FRUIT, "recall", Color.fromRGB(23, 193, 224));
-		this.setDisplayName("§r§fPotion of Recalling");
-		this.setLore(Arrays.asList("§9Teleports to Spawnpoint"));
-		this.setTippedArrow(true, "§r§fArrow of Recalling");
+public class ReturnPotion extends CustomPotion {
+	public ReturnPotion() {
+		super("recall", Material.ENDER_EYE, "return", Color.fromRGB(129, 111, 179));
+		this.setDisplayName("§r§fPotion of Return");
+		this.setLore(Arrays.asList("§9Teleports to Deathpoint"));
+		this.setTippedArrow(true, "§r§fArrow of Return");
 		this.setAllowVillagerTrades(true);
 	}
 
 	public void onPotionConsume(PlayerItemConsumeEvent event) {
-		respawnPlayer(event.getPlayer());
+		teleportPlayer(event.getPlayer());
 	}
 
 	public void onPotionSplash(PotionSplashEvent event) {
 		for (LivingEntity livingEntity : event.getAffectedEntities()) {
-			if (livingEntity instanceof Player) { respawnPlayer((Player) livingEntity); }
+			if (livingEntity instanceof Player) { teleportPlayer((Player) livingEntity); }
 		}
 	}
 
 	public void onAreaEffectCloudApply(AreaEffectCloudApplyEvent event) {
 		for (LivingEntity livingEntity : event.getAffectedEntities()) {
-			if (livingEntity instanceof Player) { respawnPlayer((Player) livingEntity); }
+			if (livingEntity instanceof Player) { teleportPlayer((Player) livingEntity); }
 		}
 	}
 
 	public void onProjectileHit(ProjectileHitEvent event) {
 		if (event.getEntity() instanceof Arrow) {
 			if (event.getHitEntity() instanceof Player) {
-				respawnPlayer((Player) event.getHitEntity());
+				teleportPlayer((Player) event.getHitEntity());
 			}
 		}
 	}
 
-	public void respawnPlayer(Player player) {
-		Location location = player.getBedSpawnLocation();
-
-		if (location == null) {
-			World world = ReflectionUtils.getRespawnWorld(player);
-			location = world.getSpawnLocation().clone().add(.5, 0, .5);
-			while ((location.getY() >= world.getMinHeight()) && (location.getBlock().getType() == Material.AIR)) { location.setY(location.getY()-1); }
-			while ((location.getY() < world.getMaxHeight()) && (location.getBlock().getType() != Material.AIR)) { location.setY(location.getY()+1); }
-		}
+	public void teleportPlayer(Player player) {
+		Location location = player.getLastDeathLocation();
+		if (location == null) { return; }
 
 		location.setDirection(player.getLocation().getDirection());
 		player.setVelocity(new Vector(0, 0, 0));
