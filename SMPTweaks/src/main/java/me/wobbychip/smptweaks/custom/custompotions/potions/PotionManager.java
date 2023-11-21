@@ -74,14 +74,21 @@ public class PotionManager {
 		//Register potions that are based on current potion
 		Iterator<Entry<CustomPotion, String>> iterator = waiting.entrySet().iterator();
 
-		while (iterator.hasNext()) {
-			Entry<CustomPotion, String> entry = iterator.next();
-			if (entry.getValue().equals(potion.getName())) {
-				entry.getKey().setBase(result);
-				CustomPotions.tweak.printMessage("Registering '" + entry.getKey().getName() + "' with the base '" + potion.getName() + "'", true);
-				registerPotion(entry.getKey());
-				iterator.remove();
+		while (true) {
+			CustomPotion toRemove = null;
+
+			for (Entry<CustomPotion, String> entry : waiting.entrySet()) {
+				if (entry.getValue().equals(potion.getName())) {
+					entry.getKey().setBase(result);
+					CustomPotions.tweak.printMessage("Registering '" + entry.getKey().getName() + "' with the base '" + potion.getName() + "'", true);
+					toRemove = entry.getKey();
+					registerPotion(toRemove);
+					break;
+				}
 			}
+
+			if (toRemove != null) { waiting.remove(toRemove); }
+			if (toRemove == null) { break; }
 		}
 
 		//If potion disabled register it, but don't add brew recipe and events
