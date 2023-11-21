@@ -44,11 +44,11 @@ public class RepairWithXP extends CustomTweak {
 
 	@SuppressWarnings("deprecation")
 	public void checkPlayer(Player player) {
-		//Check if gamerule enabled
-		if (!this.getGameRuleBoolean(player.getWorld())) { return; }
-
 		//Check if player is sneaking
 		if (!player.isSneaking()) { return; }
+
+		//Check if gamerule enabled
+		if (!this.getGameRuleBoolean(player.getWorld())) { return; }
 
 		//Check if player has enough exp
 		if (Utils.getPlayerExp(player) < amountXP) { return; }
