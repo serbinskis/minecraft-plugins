@@ -19,11 +19,14 @@ public class SetCommand {
 		if (!(sender instanceof Player player)) { Utils.sendMessage(sender, Commands.NO_CONSOLE); return true; }
 		if (!Utils.hasPermissions(sender, "cworld.set")) { Utils.sendMessage(sender, Commands.NO_PERMISSIONS); return true; }
 		if (args.length < 1) { Utils.sendMessage(sender, tweak.getCommand().getUsage() + " " + USAGE_MESSAGE); return true; }
+		CustomWorld.Type type = CustomWorld.getCustomType(args[0]);
 
-		switch (args[0].toLowerCase()) {
-			case "void" -> PersistentUtils.setPersistentDataString(player.getWorld(), CustomWorld.CUSTOM_WORLD_TAG, "void");
-			case "none" -> PersistentUtils.removePersistentData(player.getWorld(), CustomWorld.CUSTOM_WORLD_TAG);
-			default -> { Utils.sendMessage(sender, USAGE_MESSAGE); return true; }
+		if (type == null) {
+			Utils.sendMessage(sender, USAGE_MESSAGE); return true;
+		} else if (type == CustomWorld.Type.NONE) {
+			PersistentUtils.removePersistentData(player.getWorld(), CustomWorld.CUSTOM_WORLD_TAG);
+		} else {
+			PersistentUtils.setPersistentDataString(player.getWorld(), CustomWorld.CUSTOM_WORLD_TAG, args[0].toLowerCase());
 		}
 
 		Utils.sendMessage(sender, Main.color + "Set custom world to " + args[0].toLowerCase() + ". To see changes relogin.");
@@ -32,6 +35,6 @@ public class SetCommand {
 
 	public static List<String> onTweakTabComplete(CustomTweak tweak, CommandSender sender, Command command, String alias, String[] args) {
 		if (!Utils.hasPermissions(sender, "cworld.set")) { return null; }
-		return Arrays.asList("void", "none");
+		return Arrays.stream(CustomWorld.Type.values()).map(e -> e.toString().toLowerCase()).toList();
 	}
 }

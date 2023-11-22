@@ -10,7 +10,6 @@ import me.wobbychip.smptweaks.utils.PersistentUtils;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import net.minecraft.network.protocol.Packet;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 public class ProtocolEvents extends PacketAdapter {
@@ -21,13 +20,14 @@ public class ProtocolEvents extends PacketAdapter {
 
 	@Override
 	public void onPacketSending(PacketEvent event) {
-		Player player = event.getPlayer();
 		PacketType packetType = event.getPacket().getType();
-		if (player == null) { return; }
-		if (!PersistentUtils.hasPersistentDataString(player.getWorld(), CustomWorld.CUSTOM_WORLD_TAG)) { return; }
-		if (packetType != PacketType.Play.Server.LOGIN && packetType != PacketType.Play.Server.RESPAWN) { return; }
+		if (((packetType != PacketType.Play.Server.LOGIN) && (packetType != PacketType.Play.Server.RESPAWN)) || (event.getPlayer() == null)) { return; }
+		if (!PersistentUtils.hasPersistentDataString(event.getPlayer().getWorld(), CustomWorld.CUSTOM_WORLD_TAG)) { return; }
+
+		CustomWorld.Type type = CustomWorld.getCustomType(PersistentUtils.getPersistentDataString(event.getPlayer().getWorld(), CustomWorld.CUSTOM_WORLD_TAG));
+		if (type != CustomWorld.Type.END) { return; }
 
 		Packet<?> packet = ReflectionUtils.editSpawnPacket((Packet<?>) event.getPacket().getHandle(), true, World.Environment.THE_END);
-		event.setPacket(PacketContainer.fromPacket(packet));
+		event.setPacket(PacketContainer.fromPacket(packet)); //PS: This will not work with overworld because end minY is 0 while overworld minY is -64
 	}
 }
