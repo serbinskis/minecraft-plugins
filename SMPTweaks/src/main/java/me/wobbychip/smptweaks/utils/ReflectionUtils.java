@@ -5,11 +5,11 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.embedded.EmbeddedChannel;
 import net.minecraft.core.*;
-import net.minecraft.core.Registry;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.Connection;
@@ -21,6 +21,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.RegistryLayer;
 import net.minecraft.server.ServerFunctionManager;
 import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerLevel;
@@ -28,6 +29,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.network.ServerConnectionListener;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity.RemovalReason;
@@ -55,8 +57,12 @@ import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.redstone.NeighborUpdater;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.block.data.BlockData;
@@ -106,9 +112,15 @@ public class ReflectionUtils {
 	public static Field CustomFunctionData_postReload;
 	public static Field RegistryMaterials_frozen;
 	public static Field RegistryMaterials_nextId;
-	public static final Field BlockPhysicsEvent_changed;
-	public static final Field PotionSplashEvent_affectedEntities;
-	public static final Field AreaEffectCloudApplyEvent_affectedEntities;
+	public static Field BlockPhysicsEvent_changed;
+	public static Field PotionSplashEvent_affectedEntities;
+	public static Field AreaEffectCloudApplyEvent_affectedEntities;
+	public static Field MinecraftServer_registries;
+	public static Field Level_dimensionTypeRegistration;
+	public static Field Holder_owner;
+	public static Field Holder_tags;
+	public static Field Holder_key;
+	public static Field Holder_value;
 	public static Method EntityVillager_startTrading_Or_updateSpecialPrices;
 	public static Method IRegistry_keySet;
 	public static Method Potions_register;
@@ -152,6 +164,12 @@ public class ReflectionUtils {
 		Potions_register = Objects.requireNonNull(findMethod(false, Modifier.PRIVATE, Potions.class, Potion.class, null, String.class, Potion.class));
 		RegistryMaterials_getHolder = Objects.requireNonNull(findMethod(true, null, Registry.class, Optional.class, null, int.class));
 		PotionBrewer_register = Objects.requireNonNull(findMethod(false, null, PotionBrewing.class, Void.TYPE, null, Potion.class, Item.class, Potion.class));
+		MinecraftServer_registries = Objects.requireNonNull(getField(MinecraftServer.class, LayeredRegistryAccess.class, RegistryLayer.class, true));
+		Level_dimensionTypeRegistration = Objects.requireNonNull(getField(Level.class, Holder.class, DimensionType.class, true));
+		Holder_owner = Objects.requireNonNull(getField(Holder.Reference.class, HolderOwner.class, null, true));
+		Holder_tags = Objects.requireNonNull(getField(Holder.Reference.class, Set.class, null, true));
+		Holder_key = Objects.requireNonNull(getField(Holder.Reference.class, ResourceKey.class, null, true));
+		Holder_value = Objects.requireNonNull(getField(Holder.Reference.class, Object.class, null, true));
 	}
 
 	public static Class<?> loadClass(String arg0, boolean verbose) {
@@ -1015,5 +1033,41 @@ public class ReflectionUtils {
 		Optional<GlobalPos> lastDeathLocation = commonPlayerSpawnInfo.lastDeathLocation();
 		int portalCooldown = commonPlayerSpawnInfo.portalCooldown();
 		return new CommonPlayerSpawnInfo(dimensionType, dimension, seed, gameType, previousGameType, isDebug, isFlat, lastDeathLocation, portalCooldown);
+	}
+
+	//This is very unstable and can produce server crash, for example changing minY will crash server with 99% chance
+	public static void setCustomDimension(World world, @Nullable DimensionType copy, @Nullable World.Environment environment, @Nullable Long fixedTime, @Nullable Boolean hasSkyLight, @Nullable Boolean hasCeiling, @Nullable Boolean ultraWarm, @Nullable Boolean natural, @Nullable Double coordinateScale, @Nullable Boolean bedWorks, @Nullable Boolean respawnAnchorWorks, @Nullable Integer minY, @Nullable Integer height, @Nullable Integer logicalHeight, @Nullable TagKey<Block> infiniburn, @Nullable ResourceLocation effectsLocation, @Nullable Float ambientLight, @Nullable DimensionType.MonsterSettings monsterSettings) {
+		ServerLevel level = getWorld(world);
+		DimensionType original = level.dimensionType();
+
+		LayeredRegistryAccess<RegistryLayer> registries = (LayeredRegistryAccess<RegistryLayer>) getValue(MinecraftServer_registries, MinecraftServer.getServer());
+		Registry<LevelStem> dimensions = registries.compositeAccess().registryOrThrow(Registries.LEVEL_STEM);
+
+		if (environment == World.Environment.NORMAL) { copy = dimensions.get(LevelStem.OVERWORLD.location()).type().value(); }
+		if (environment == World.Environment.NETHER) { copy = dimensions.get(LevelStem.NETHER.location()).type().value(); }
+		if (environment == World.Environment.THE_END) { copy = dimensions.get(LevelStem.END.location()).type().value(); }
+
+		DimensionType type = new DimensionType(
+			(fixedTime == null) ? ((copy == null) ? original.fixedTime() : copy.fixedTime()) : OptionalLong.of(fixedTime),
+			(hasSkyLight == null) ? ((copy == null) ? original.hasSkyLight() : copy.hasSkyLight()) : hasSkyLight,
+			(hasCeiling == null) ? ((copy == null) ? original.hasCeiling() : copy.hasCeiling()) : hasCeiling,
+			(ultraWarm == null) ? ((copy == null) ? original.ultraWarm() : copy.ultraWarm()) : ultraWarm,
+			(natural == null) ? ((copy == null) ? original.natural() : copy.natural()) : natural,
+			(coordinateScale == null) ? ((copy == null) ? original.coordinateScale() : copy.coordinateScale()) : coordinateScale,
+			(bedWorks == null) ? ((copy == null) ? original.bedWorks() : copy.bedWorks()) : bedWorks,
+			(respawnAnchorWorks == null) ? ((copy == null) ? original.respawnAnchorWorks() : copy.respawnAnchorWorks()) : respawnAnchorWorks,
+			(minY == null) ? ((copy == null) ? original.minY() : copy.minY()) : minY,
+			(height == null) ? ((copy == null) ? original.height() : copy.height()) : height,
+			(logicalHeight == null) ? ((copy == null) ? original.logicalHeight() : copy.logicalHeight()) : logicalHeight,
+			(infiniburn == null) ? ((copy == null) ? original.infiniburn() : copy.infiniburn()) : infiniburn,
+			(effectsLocation == null) ? ((copy == null) ? original.effectsLocation() : copy.effectsLocation()) : effectsLocation,
+			(ambientLight == null) ? ((copy == null) ? original.ambientLight() : copy.ambientLight()) : ambientLight,
+			(monsterSettings == null) ? ((copy == null) ? original.monsterSettings() : copy.monsterSettings()) : monsterSettings
+		);
+
+		Holder<DimensionType> holder = (Holder<DimensionType>) getValue(Level_dimensionTypeRegistration, level); //Get original holder
+		HolderOwner<DimensionType> owner = (HolderOwner<DimensionType>) getValue(Holder_owner, holder); //Get original holder owner
+		Holder<DimensionType> newHolder = Holder.Reference.createIntrusive(owner, type); //Create new holder, so that we don't affect all worlds
+		setValue(Level_dimensionTypeRegistration, level, newHolder); //Replace old holder with new one
 	}
 }
