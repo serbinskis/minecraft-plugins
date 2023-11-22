@@ -1,9 +1,8 @@
 package me.wobbychip.smptweaks.custom.noadvancements;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
+import me.wobbychip.smptweaks.Main;
+import me.wobbychip.smptweaks.utils.ReflectionUtils;
+import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -11,9 +10,9 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 
-import me.wobbychip.smptweaks.Main;
-import me.wobbychip.smptweaks.utils.ReflectionUtils;
-import me.wobbychip.smptweaks.utils.Utils;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class Events implements Listener {
 	public static List<UUID> chats = new ArrayList<>();

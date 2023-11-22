@@ -1,7 +1,7 @@
 package me.wobbychip.smptweaks.custom.custompotions.custom;
 
-import java.util.Arrays;
-
+import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
+import me.wobbychip.smptweaks.custom.custompotions.potions.PotionManager;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.entity.Arrow;
@@ -12,14 +12,13 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.potion.PotionType;
 
-import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
-import me.wobbychip.smptweaks.custom.custompotions.potions.PotionManager;
+import java.util.List;
 
 public class FirePotion extends CustomPotion {
 	public FirePotion() {
 		super(PotionManager.getPotion(PotionType.AWKWARD, false, false), Material.BLAZE_ROD, "fire", Color.fromRGB(226, 88, 34));
 		this.setDisplayName("§r§fPotion of Fire");
-		this.setLore(Arrays.asList("§9Sets on fire"));
+		this.setLore(List.of("§9Sets on fire"));
 		this.setTippedArrow(true, "§r§fArrow of Fire");
 		this.setAllowVillagerTrades(true);
 	}

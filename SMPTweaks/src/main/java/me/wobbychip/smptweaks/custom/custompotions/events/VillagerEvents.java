@@ -1,10 +1,9 @@
 package me.wobbychip.smptweaks.custom.custompotions.events;
 
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
-
+import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
+import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
+import me.wobbychip.smptweaks.utils.ReflectionUtils;
+import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -22,10 +21,10 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
 
-import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
-import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
-import me.wobbychip.smptweaks.utils.ReflectionUtils;
-import me.wobbychip.smptweaks.utils.Utils;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
 
 public class VillagerEvents implements Listener {
 	List<Material> potionTypes = Arrays.asList(Material.POTION, Material.SPLASH_POTION, Material.LINGERING_POTION);
@@ -64,7 +63,7 @@ public class VillagerEvents implements Listener {
 		if ((item == null) || (item.getType() != Material.DEBUG_STICK)) { return; }
 		if (!Utils.hasPermissions(event.getPlayer(), "cpotions.get") && !(event.getPlayer().getGameMode() != GameMode.CREATIVE)) { return; }
 
-		int level = (villager.getVillagerLevel()+1 <= 5) ? villager.getVillagerLevel()+1 : 5;
+		int level = Math.min(villager.getVillagerLevel() + 1, 5);
 		villager.setVillagerLevel(level);
 
 		int experience = ((level == 1) ? 10 : (level == 2) ? 70 : (level == 3) ? 150 : (level == 4) ? 250 : 0);

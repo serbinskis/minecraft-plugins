@@ -35,7 +35,7 @@ public class CustomPotions extends CustomTweak {
 		boolean allowVillagerTrading = CustomPotions.config.getConfig().getConfigurationSection("config").getBoolean("allowVillagerTrading");
 
 		for (CustomPotion potion : manager.getPotions(Main.plugin.getPluginClassLoader(), "me.wobbychip.smptweaks.custom.custompotions.custom")) {
-			if (!allowVillagerTrading) { potion.setAllowVillagerTrades(allowVillagerTrading); }
+			if (!allowVillagerTrading) { potion.setAllowVillagerTrades(false); }
 			manager.registerPotion(potion);
 		}
 
