@@ -1,17 +1,16 @@
 package me.wobbychip.smptweaks.custom.serverpause;
 
-import java.util.Arrays;
-import java.util.List;
-
-import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
 import me.wobbychip.smptweaks.tweaks.TweakCommands;
 import me.wobbychip.smptweaks.utils.ServerUtils;
 import me.wobbychip.smptweaks.utils.Utils;
+import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class Commands extends TweakCommands {
 	public Commands(CustomTweak tweak, String command) {
@@ -21,7 +20,7 @@ public class Commands extends TweakCommands {
 	@Override
 	public boolean onTweakCommand(CustomTweak tweak, final CommandSender sender, final Command command, final String label, final String[] args) {
 		if (!Utils.hasPermissions(sender, "smptweaks.serverpause")) {
-			Utils.sendMessage(sender, me.wobbychip.smptweaks.commands.Commands.NO_PERMISSIONS);
+			Utils.sendMessage(sender, Commands.NO_PERMISSIONS);
 			return true;
 		}
 
