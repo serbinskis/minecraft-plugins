@@ -127,7 +127,11 @@ public class Utils {
 		int minY = chunk.getWorld().getMinHeight();
 
 		if (removeEntity) {
-			for (Entity entity : chunk.getEntities()) { entity.remove(); }
+			for (Entity entity : chunk.getEntities()) {
+				if (entity.getType() != EntityType.PLAYER) {
+					try { entity.remove(); } catch (Exception e) {}
+				}
+			}
 		}
 
 		for (int x = 0; x < 16; ++x) {
