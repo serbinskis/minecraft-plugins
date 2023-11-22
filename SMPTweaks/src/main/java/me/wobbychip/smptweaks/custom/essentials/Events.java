@@ -46,7 +46,7 @@ public class Events implements Listener {
 		User user = essentials.getUser(event.getPlayer().getUniqueId());
 		if (user == null) { return; }
 		if (!user.isVanished()) { return; }
-		if (!(event.getClickedBlock().getState() instanceof Container container)) { return; }
+		if (!(event.getClickedBlock().getState() instanceof Container)) { return; }
 
 		Player player = event.getPlayer();
 		GameMode gameMode = player.getGameMode();

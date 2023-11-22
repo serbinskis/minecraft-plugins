@@ -5,6 +5,7 @@ import me.wobbychip.smptweaks.utils.ServerUtils;
 import me.wobbychip.smptweaks.utils.TaskUtils;
 import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -114,7 +115,8 @@ public class CustomMarker implements Runnable {
     public void run() {
         if (ServerUtils.isPaused()) { return; }
         Block block = display.getLocation().getBlock();
-        if (!display.getLocation().isChunkLoaded()) { return; }
+        Location location = display.getLocation();
+        if (!location.getWorld().isChunkLoaded(location.getBlockX() >> 4, location.getBlockZ() >> 4)) { return; }
         if (!display.isValid()) { recreate(); return; }
         if (block.getType() != cblock.getBlockBase()) { remove(true); return; }
         if (cblock.isTickable()) { cblock.tick(block, ServerUtils.getTick()); }
