@@ -29,7 +29,7 @@ public class Commands extends TweakCommands {
 			return true;
 		}
 
-		if (args[0].toLowerCase().equalsIgnoreCase("enable")) {
+		if (args[0].equalsIgnoreCase("enable")) {
 			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
 				public void run() {
 					ServerPause.enabled = true;
@@ -42,7 +42,7 @@ public class Commands extends TweakCommands {
 			}, 1L);
 		}
 
-		if (args[0].toLowerCase().equalsIgnoreCase("disable")) {
+		if (args[0].equalsIgnoreCase("disable")) {
 			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
 				public void run() {
 					ServerPause.enabled = false;

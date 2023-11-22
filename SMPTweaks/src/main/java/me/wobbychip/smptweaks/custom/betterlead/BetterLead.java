@@ -1,17 +1,16 @@
 package me.wobbychip.smptweaks.custom.betterlead;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
+import me.wobbychip.smptweaks.Main;
+import me.wobbychip.smptweaks.tweaks.CustomTweak;
+import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 
-import me.wobbychip.smptweaks.Main;
-import me.wobbychip.smptweaks.tweaks.CustomTweak;
-import me.wobbychip.smptweaks.utils.Utils;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class BetterLead extends CustomTweak {
 	public static CustomTweak tweak;
@@ -22,11 +21,11 @@ public class BetterLead extends CustomTweak {
 
 	public BetterLead() {
 		super(BetterLead.class, false, true);
-		BetterLead.tweak = this;
 		this.setConfigs(List.of("config.yml"));
 		this.setGameRule("doBetterLead", true, false);
 		this.setReloadable(true);
 		this.setDescription("Make lead much longer and allow lead other pre-configured mobs.");
+		BetterLead.tweak = this;
 	}
 
 	public void onEnable() {

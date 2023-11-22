@@ -18,22 +18,19 @@ public class CustomPotions extends CustomTweak {
 	public static int tradingArrowChance = 5;
 	public static Config config;
 	public static PotionManager manager;
-	public Commands comands;
 
 	public CustomPotions() {
 		super(CustomPotions.class, false, false);
-		this.comands = new Commands(this, "cpotions");
+		this.setCommand(new Commands(this, "cpotions"));
 		this.setConfigs(List.of("config.yml"));
 		this.setGameRule("doCustomPotions", true, false);
 		this.setDescription("Adds to the server different new potions and new brewing recipes. " +
 							"To get more info about potions use command /smptweaks execute info.");
-		
+		CustomPotions.tweak = this;
 	}
 
 	public void onEnable() {
 		this.onReload();
-		this.setCommand(this.comands);
-		CustomPotions.tweak = this;
 		manager = new PotionManager();
 		boolean allowVillagerTrading = CustomPotions.config.getConfig().getConfigurationSection("config").getBoolean("allowVillagerTrading");
 

@@ -24,14 +24,14 @@ public class RemoveDatapackItems extends CustomTweak {
 
 	public RemoveDatapackItems() {
 		super(RemoveDatapackItems.class, true, false);
-		RemoveDatapackItems.tweak = this;
 		this.setGameRule("doRemoveDatapackItems", true, false);
 		this.setDescription("Removes or normalizes custom items from datapacks: Incendium, Stellarity.");
+		RemoveDatapackItems.tweak = this;
 	}
 
 	public void onEnable() {
-		incendium = Bukkit.getDatapackManager().getPacks().stream().filter(e -> e.getName().toLowerCase().contains("incendium")).count() > 0;
-		stellarity = Bukkit.getDatapackManager().getPacks().stream().filter(e -> e.getName().toLowerCase().contains("stellarity")).count() > 0;
+		incendium = Bukkit.getDatapackManager().getPacks().stream().anyMatch(e -> e.getName().toLowerCase().contains("incendium"));
+		stellarity = Bukkit.getDatapackManager().getPacks().stream().anyMatch(e -> e.getName().toLowerCase().contains("stellarity"));
 
 		this.setEnabled(incendium || stellarity);
 		if (!this.isEnabled()) { return; }

@@ -71,7 +71,7 @@ public class ServerPause extends CustomTweak {
 	public static boolean canPause(boolean bConnections) {
 		if (!ServerPause.enabled) { return false; }
 		gamerule = ServerUtils.isPaused() ? gamerule : ServerPause.tweak.getGameRuleBoolean(null);
-		boolean online = (ReflectionUtils.getConnections().size() > 0);
-		return (Bukkit.getOnlinePlayers().size() == 0) && (!online || !bConnections) && gamerule;
+		boolean online = (!ReflectionUtils.getConnections().isEmpty());
+		return (Bukkit.getOnlinePlayers().isEmpty()) && (!online || !bConnections) && gamerule;
 	}
 }

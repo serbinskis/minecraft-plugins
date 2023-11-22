@@ -1,18 +1,16 @@
 package me.wobbychip.smptweaks.tweaks;
 
+import me.wobbychip.smptweaks.Config;
+import me.wobbychip.smptweaks.Main;
+import me.wobbychip.smptweaks.utils.Utils;
+import org.bukkit.World;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import org.bukkit.World;
-
-import me.wobbychip.smptweaks.Config;
-import me.wobbychip.smptweaks.Main;
-import me.wobbychip.smptweaks.utils.Utils;
 
 public class CustomTweak {
 	private Class<?> clazz;
@@ -58,6 +56,7 @@ public class CustomTweak {
 
 	@Nullable
 	public TweakCommands getCommand() {
+		if (!enabled) { return null; }
 		return this.command;
 	}
 

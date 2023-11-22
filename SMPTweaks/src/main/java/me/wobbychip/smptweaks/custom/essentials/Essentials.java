@@ -10,9 +10,9 @@ public class Essentials extends CustomTweak {
 
 	public Essentials() {
 		super(Essentials.class, true, false);
-		Essentials.tweak = this;
 		this.setGameRule("doCustomEssentials", true, false);
 		this.setDescription("Adds custom tweaks to EssentialsX.");
+		Essentials.tweak = this;
 	}
 
 	public void onEnable() {

@@ -1,10 +1,5 @@
 package me.wobbychip.smptweaks.custom.chunkloader;
 
-import java.util.List;
-
-import org.bukkit.Bukkit;
-import org.bukkit.configuration.file.FileConfiguration;
-
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.custom.chunkloader.events.BlockEvents;
 import me.wobbychip.smptweaks.custom.chunkloader.events.EntityEvents;
@@ -13,6 +8,10 @@ import me.wobbychip.smptweaks.custom.chunkloader.events.PotionEvents;
 import me.wobbychip.smptweaks.custom.chunkloader.loaders.Chunks;
 import me.wobbychip.smptweaks.custom.chunkloader.loaders.Manager;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
+import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
+
+import java.util.List;
 
 public class ChunkLoader extends CustomTweak {
 	public static String isChunkLoader = "isChunkLoader";
@@ -33,11 +32,11 @@ public class ChunkLoader extends CustomTweak {
 							"Crops do grow and mobs also spawn. " +
 							"Put on top of a lodestone item frame with nether star. " +
 							"Power lodestone with redstone and enjoy.");
+		ChunkLoader.tweak = this;
 	}
 
 	public void onEnable() {
 		this.onReload();
-		ChunkLoader.tweak = this;
 		ChunkLoader.chunks = new Chunks();
 		ChunkLoader.manager = new Manager(this.getConfig(1));
 

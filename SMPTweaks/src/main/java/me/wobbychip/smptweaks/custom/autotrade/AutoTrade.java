@@ -26,7 +26,6 @@ public class AutoTrade extends CustomTweak {
 
 	public AutoTrade() {
 		super(AutoTrade.class, false, false);
-		AutoTrade.tweak = this;
 		this.setConfigs(List.of("config.yml"));
 		this.setGameRule("doAutoTrade", true, false);
 		this.setReloadable(true);
@@ -35,6 +34,7 @@ public class AutoTrade extends CustomTweak {
 							"Move villager to the dispenser in 2 block radius. " +
 							"Input any container behind the dispenser, output in front. " +
 							"Experience from trades is also saved and given upon opening dispenser.");
+		AutoTrade.tweak = this;
 	}
 
 	public void onEnable() {
