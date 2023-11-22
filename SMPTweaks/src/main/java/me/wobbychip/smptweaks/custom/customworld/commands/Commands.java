@@ -1,4 +1,4 @@
-package me.wobbychip.smptweaks.custom.customsky.commands;
+package me.wobbychip.smptweaks.custom.customworld.commands;
 
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
@@ -11,7 +11,6 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Commands extends TweakCommands {
-	public static String NO_PERMISSIONS = "&cYou do not have permissions!";
 	public static String NO_POTION = Main.color + "Couldn\'t find the potion!";
 
 	public Commands(CustomTweak tweak, String command) {

@@ -5,6 +5,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.embedded.EmbeddedChannel;
 import net.minecraft.core.*;
+import net.minecraft.core.Registry;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
@@ -17,6 +18,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerFunctionManager;
@@ -39,6 +41,8 @@ import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.SignalGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DiodeBlock;
@@ -49,11 +53,10 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.DispenserBlockEntity;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
+import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.redstone.NeighborUpdater;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.block.data.BlockData;
@@ -970,5 +973,47 @@ public class ReflectionUtils {
 		}
 
 		return dispenseDropper(source, drop, remove, slot);
+	}
+
+	public static Packet<?> editSpawnPacket(Packet<?> packet, @Nullable Boolean isFlat, @Nullable World.Environment env) {
+		if (packet instanceof ClientboundLoginPacket lPacket) {
+			int playerId = lPacket.playerId();
+			boolean hardcore = lPacket.hardcore();
+			Set<ResourceKey<Level>> levels = lPacket.levels();
+			int maxPlayers = lPacket.maxPlayers();
+			int chunkRadius = lPacket.chunkRadius();
+			int simulationDistance = lPacket.simulationDistance();
+			boolean reducedDebugInfo = lPacket.reducedDebugInfo();
+			boolean showDeathScreen = lPacket.showDeathScreen();
+			boolean doLimitedCrafting = lPacket.doLimitedCrafting();
+
+			CommonPlayerSpawnInfo commonPlayerSpawnInfo = editCommonPlayerSpawnInfo(lPacket.commonPlayerSpawnInfo(), isFlat, env);
+			return new ClientboundLoginPacket(playerId, hardcore, levels, maxPlayers, chunkRadius, simulationDistance, reducedDebugInfo, showDeathScreen, doLimitedCrafting, commonPlayerSpawnInfo);
+		}
+
+		if (packet instanceof ClientboundRespawnPacket rPacket) {
+			CommonPlayerSpawnInfo commonPlayerSpawnInfo = editCommonPlayerSpawnInfo(rPacket.commonPlayerSpawnInfo(), isFlat, env);
+			return new ClientboundRespawnPacket(commonPlayerSpawnInfo, rPacket.dataToKeep());
+		}
+
+		return null;
+	}
+
+	public static CommonPlayerSpawnInfo editCommonPlayerSpawnInfo(CommonPlayerSpawnInfo commonPlayerSpawnInfo,  @Nullable Boolean isFlat, @Nullable World.Environment env) {
+		ResourceKey<DimensionType> dimensionType = commonPlayerSpawnInfo.dimensionType();
+
+		if ((env != null) && env.equals(World.Environment.NORMAL)) { dimensionType = BuiltinDimensionTypes.OVERWORLD; }
+		if ((env != null) && env.equals(World.Environment.NETHER)) { dimensionType = BuiltinDimensionTypes.NETHER; }
+		if ((env != null) && env.equals(World.Environment.THE_END)) { dimensionType = BuiltinDimensionTypes.END; }
+
+		ResourceKey<Level> dimension = commonPlayerSpawnInfo.dimension();
+		long seed = commonPlayerSpawnInfo.seed();
+		GameType gameType = commonPlayerSpawnInfo.gameType();
+		GameType previousGameType = commonPlayerSpawnInfo.previousGameType();
+		boolean isDebug = commonPlayerSpawnInfo.isDebug();
+		isFlat = (isFlat != null) ? isFlat : commonPlayerSpawnInfo.isFlat();
+		Optional<GlobalPos> lastDeathLocation = commonPlayerSpawnInfo.lastDeathLocation();
+		int portalCooldown = commonPlayerSpawnInfo.portalCooldown();
+		return new CommonPlayerSpawnInfo(dimensionType, dimension, seed, gameType, previousGameType, isDebug, isFlat, lastDeathLocation, portalCooldown);
 	}
 }

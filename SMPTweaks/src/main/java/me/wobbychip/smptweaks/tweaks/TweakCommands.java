@@ -1,12 +1,14 @@
 package me.wobbychip.smptweaks.tweaks;
 
-import java.util.List;
-
+import me.wobbychip.smptweaks.Main;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import me.wobbychip.smptweaks.Main;
+
+import java.util.List;
 
 public class TweakCommands {
+	public static String NO_CONSOLE = Main.color + "This command can only be executed by a player!";
+	public static String NO_PERMISSIONS = "&cYou do not have permissions!";
 	private CustomTweak tweak;
 	private String command;
 	private List<String> arguments;

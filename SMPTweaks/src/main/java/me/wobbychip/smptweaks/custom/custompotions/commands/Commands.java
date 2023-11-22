@@ -1,18 +1,16 @@
 package me.wobbychip.smptweaks.custom.custompotions.commands;
 
-import java.util.Arrays;
-import java.util.List;
-
+import me.wobbychip.smptweaks.Main;
+import me.wobbychip.smptweaks.tweaks.CustomTweak;
+import me.wobbychip.smptweaks.tweaks.TweakCommands;
+import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
-import me.wobbychip.smptweaks.Main;
-import me.wobbychip.smptweaks.utils.Utils;
-import me.wobbychip.smptweaks.tweaks.CustomTweak;
-import me.wobbychip.smptweaks.tweaks.TweakCommands;
+import java.util.Arrays;
+import java.util.List;
 
 public class Commands extends TweakCommands {
-	public static String NO_PERMISSIONS = "&cYou do not have permissions!";
 	public static String NO_POTION = Main.color + "Couldn\'t find the potion!";
 
 	public Commands(CustomTweak tweak, String command) {

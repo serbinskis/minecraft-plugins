@@ -1,9 +1,10 @@
 package me.wobbychip.smptweaks.custom.custompotions.commands;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
+import me.wobbychip.smptweaks.Main;
+import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
+import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
+import me.wobbychip.smptweaks.tweaks.CustomTweak;
+import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -11,23 +12,20 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import me.wobbychip.smptweaks.Main;
-import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
-import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
-import me.wobbychip.smptweaks.tweaks.CustomTweak;
-import me.wobbychip.smptweaks.utils.Utils;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class GetCommand {
 	public static List<String> arguments = Arrays.asList("potion", "splash", "lingering", "arrow");
 	public static String USAGE_MESSAGE = "get <potion_name> [potion | splash | lingering | arrow]";
-	public static String NO_CONSOLE = Main.color + "This command can only be executed by a player!";
 	public static String ARROW_DISABLED = Main.color + "Arrows for this potion is disabled!";
 
 	public static boolean onTweakCommand(CustomTweak tweak, final CommandSender sender, final Command command, final String label, final String[] args) {
 		boolean isCreative = ((sender instanceof Player) && (((Player) sender).getGameMode() == GameMode.CREATIVE));
 
 		if (!(sender instanceof Player)) {
-			Utils.sendMessage(sender, NO_CONSOLE);
+			Utils.sendMessage(sender, Commands.NO_CONSOLE);
 			return true;
 		}
 

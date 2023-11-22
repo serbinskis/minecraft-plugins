@@ -1,4 +1,4 @@
-package me.wobbychip.smptweaks.custom.customsky;
+package me.wobbychip.smptweaks.custom.customworld;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
@@ -6,7 +6,10 @@ import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
-import net.minecraft.network.protocol.game.ClientboundLoginPacket;
+import me.wobbychip.smptweaks.utils.PersistentUtils;
+import me.wobbychip.smptweaks.utils.ReflectionUtils;
+import net.minecraft.network.protocol.Packet;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -19,18 +22,12 @@ public class ProtocolEvents extends PacketAdapter {
 	@Override
 	public void onPacketSending(PacketEvent event) {
 		Player player = event.getPlayer();
-		if (player == null) { return; }
-		PacketContainer packet = event.getPacket();
 		PacketType packetType = event.getPacket().getType();
-		if (packetType != PacketType.Play.Server.LOGIN) { return; }
+		if (player == null) { return; }
+		if (!PersistentUtils.hasPersistentDataString(player.getWorld(), CustomWorld.CUSTOM_WORLD_TAG)) { return; }
+		if (packetType != PacketType.Play.Server.LOGIN && packetType != PacketType.Play.Server.RESPAWN) { return; }
 
-		//WrapperPlayServerLogin wrapperPlayServerLogin = new WrapperPlayServerLogin(event.getPacket());
-		//wrapperPlayServerLogin.setLevelType(WorldType.FLAT);
-		//wrapperPlayServerLogin.setDimension(1); //Set -1: nether, 0: overworld, 1: end.
-		packet.getIntegers().write(0, -1);
-		//net.minecraft.network.protocol.game.CommonPlayerSpawnInfo
-		ClientboundLoginPacket loginPacket = (ClientboundLoginPacket) event.getPacket().getHandle();
-		loginPacket.commonPlayerSpawnInfo().dimension();
-		//Utils.sendMessage(event.getPacket().getMinecraftKeys().getField(0)); //out of bounds
+		Packet<?> packet = ReflectionUtils.editSpawnPacket((Packet<?>) event.getPacket().getHandle(), true, World.Environment.THE_END);
+		event.setPacket(PacketContainer.fromPacket(packet));
 	}
 }

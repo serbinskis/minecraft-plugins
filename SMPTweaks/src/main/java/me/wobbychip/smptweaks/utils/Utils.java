@@ -122,6 +122,25 @@ public class Utils {
 		return true;
 	}
 
+	public static void fillChunk(Chunk chunk, Material material, boolean removeEntity) {
+		int maxY = chunk.getWorld().getMaxHeight();
+		int minY = chunk.getWorld().getMinHeight();
+
+		if (removeEntity) {
+			for (Entity entity : chunk.getEntities()) { entity.remove(); }
+		}
+
+		for (int x = 0; x < 16; ++x) {
+			for (int z = 0; z < 16 ; ++z) {
+				for (int y = minY; y <= maxY; ++y) {
+					Block block = chunk.getBlock(x, y, z);
+					if (block.getType() == material) { continue; }
+					block.setType(material, false);
+				}
+			}
+		}
+	}
+
 	//Get distance between two locations
 	public static double distance(Location l1, Location l2) {
 		double x = Math.pow(l1.getX()-l2.getX(), 2);
