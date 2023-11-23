@@ -117,6 +117,7 @@ public class ReflectionUtils {
 	public static Field AreaEffectCloudApplyEvent_affectedEntities;
 	public static Field MinecraftServer_registries;
 	public static Field Level_dimensionTypeRegistration;
+	public static Field Level_dimensionTypeId;
 	public static Field Holder_owner;
 	public static Field Holder_tags;
 	public static Field Holder_key;
@@ -166,6 +167,7 @@ public class ReflectionUtils {
 		PotionBrewer_register = Objects.requireNonNull(findMethod(false, null, PotionBrewing.class, Void.TYPE, null, Potion.class, Item.class, Potion.class));
 		MinecraftServer_registries = Objects.requireNonNull(getField(MinecraftServer.class, LayeredRegistryAccess.class, RegistryLayer.class, true));
 		Level_dimensionTypeRegistration = Objects.requireNonNull(getField(Level.class, Holder.class, DimensionType.class, true));
+		Level_dimensionTypeId = Objects.requireNonNull(getField(Level.class, ResourceKey.class, DimensionType.class, true));
 		Holder_owner = Objects.requireNonNull(getField(Holder.Reference.class, HolderOwner.class, null, true));
 		Holder_tags = Objects.requireNonNull(getField(Holder.Reference.class, Set.class, null, true));
 		Holder_key = Objects.requireNonNull(getField(Holder.Reference.class, ResourceKey.class, null, true));
@@ -231,8 +233,8 @@ public class ReflectionUtils {
 		return null;
 	}
 
-	public static Field getField(Class<?> clazz, Class<?> fType, Class<?> gType, boolean bDeclared) {
-		for (Field field : bDeclared ? clazz.getDeclaredFields() : clazz.getFields()) {
+	public static Field getField(Class<?> clazz, Class<?> fType, Class<?> gType, boolean isPrivate) {
+		for (Field field : isPrivate ? clazz.getDeclaredFields() : clazz.getFields()) {
 			if (!field.getType().equals(fType)) { continue; }
 
 			if (gType != null) {
@@ -269,9 +271,9 @@ public class ReflectionUtils {
 		}
 	}
 
-	public static Object newInstance(boolean verbose, boolean bDeclared, Class<?> clazz, Class<?>[] parameters, Object[] args) {
+	public static Object newInstance(boolean verbose, boolean isPrivate, Class<?> clazz, Class<?>[] parameters, Object[] args) {
 		try {
-			Constructor<?> constructor = bDeclared ? clazz.getDeclaredConstructor(parameters) : clazz.getConstructor(parameters);
+			Constructor<?> constructor = isPrivate ? clazz.getDeclaredConstructor(parameters) : clazz.getConstructor(parameters);
 			return constructor.newInstance(args);
 		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			if (verbose) { e.printStackTrace(); }
@@ -1020,9 +1022,9 @@ public class ReflectionUtils {
 	public static CommonPlayerSpawnInfo editCommonPlayerSpawnInfo(CommonPlayerSpawnInfo commonPlayerSpawnInfo,  @Nullable Boolean isFlat, @Nullable World.Environment env) {
 		ResourceKey<DimensionType> dimensionType = commonPlayerSpawnInfo.dimensionType();
 
-		if ((env != null) && env.equals(World.Environment.NORMAL)) { dimensionType = BuiltinDimensionTypes.OVERWORLD; }
-		if ((env != null) && env.equals(World.Environment.NETHER)) { dimensionType = BuiltinDimensionTypes.NETHER; }
-		if ((env != null) && env.equals(World.Environment.THE_END)) { dimensionType = BuiltinDimensionTypes.END; }
+		if (env == World.Environment.NORMAL) { dimensionType = BuiltinDimensionTypes.OVERWORLD; }
+		if (env == World.Environment.NETHER) { dimensionType = BuiltinDimensionTypes.NETHER; }
+		if (env == World.Environment.THE_END) { dimensionType = BuiltinDimensionTypes.END; }
 
 		ResourceKey<Level> dimension = commonPlayerSpawnInfo.dimension();
 		long seed = commonPlayerSpawnInfo.seed();
@@ -1036,38 +1038,62 @@ public class ReflectionUtils {
 	}
 
 	//This is very unstable and can produce server crash, for example changing minY will crash server with 99% chance
-	public static void setCustomDimension(World world, @Nullable DimensionType copy, @Nullable World.Environment environment, @Nullable Long fixedTime, @Nullable Boolean hasSkyLight, @Nullable Boolean hasCeiling, @Nullable Boolean ultraWarm, @Nullable Boolean natural, @Nullable Double coordinateScale, @Nullable Boolean bedWorks, @Nullable Boolean respawnAnchorWorks, @Nullable Integer minY, @Nullable Integer height, @Nullable Integer logicalHeight, @Nullable TagKey<Block> infiniburn, @Nullable ResourceLocation effectsLocation, @Nullable Float ambientLight, @Nullable DimensionType.MonsterSettings monsterSettings) {
+	public static void setCustomDimension(World world, @Nullable DimensionType copy, @Nullable World.Environment env, @Nullable Long fixedTime, @Nullable Boolean hasSkyLight, @Nullable Boolean hasCeiling, @Nullable Boolean ultraWarm, @Nullable Boolean natural, @Nullable Double coordinateScale, @Nullable Boolean bedWorks, @Nullable Boolean respawnAnchorWorks, @Nullable Integer minY, @Nullable Integer height, @Nullable Integer logicalHeight, @Nullable TagKey<Block> infiniburn, @Nullable ResourceLocation effectsLocation, @Nullable Float ambientLight, @Nullable DimensionType.MonsterSettings monsterSettings) {
 		ServerLevel level = getWorld(world);
 		DimensionType original = level.dimensionType();
 
+		//Field CraftWorld_environment = getField(CraftWorld, World.Environment.class, null, true);
+		//setValue(CraftWorld_environment, level.getWorld(), World.Environment.THE_END);
+
+		//Get registry for default dimensions
 		LayeredRegistryAccess<RegistryLayer> registries = (LayeredRegistryAccess<RegistryLayer>) getValue(MinecraftServer_registries, MinecraftServer.getServer());
 		Registry<LevelStem> dimensions = registries.compositeAccess().registryOrThrow(Registries.LEVEL_STEM);
 
-		if (environment == World.Environment.NORMAL) { copy = dimensions.get(LevelStem.OVERWORLD.location()).type().value(); }
-		if (environment == World.Environment.NETHER) { copy = dimensions.get(LevelStem.NETHER.location()).type().value(); }
-		if (environment == World.Environment.THE_END) { copy = dimensions.get(LevelStem.END.location()).type().value(); }
+		//Select dimension data if environment parameter is used and others are not
+		boolean b1 = (fixedTime == null) && (hasSkyLight == null) && (hasCeiling == null) && (ultraWarm == null) && (natural == null) && (coordinateScale == null) && (bedWorks == null) && (respawnAnchorWorks == null) && (minY == null) && (height == null) && (logicalHeight == null) && (infiniburn == null) && (effectsLocation == null) && (ambientLight == null) && (monsterSettings == null);
+		if (b1 && (env == World.Environment.NORMAL)) { copy = dimensions.get(LevelStem.OVERWORLD.location()).type().value(); }
+		if (b1 && (env == World.Environment.NETHER)) { copy = dimensions.get(LevelStem.NETHER.location()).type().value(); }
+		if (b1 && (env == World.Environment.THE_END)) { copy = dimensions.get(LevelStem.END.location()).type().value(); }
 
+		//Replace dimension type if environment parameter is used
+		if (env == World.Environment.NORMAL) { setValue(Level_dimensionTypeId, level, BuiltinDimensionTypes.OVERWORLD); }
+		if (env == World.Environment.NETHER) { setValue(Level_dimensionTypeId, level, BuiltinDimensionTypes.NETHER); }
+		if (env == World.Environment.THE_END) { setValue(Level_dimensionTypeId, level, BuiltinDimensionTypes.END); }
+
+		//Create new dimension data from given parameters
 		DimensionType type = new DimensionType(
-			(fixedTime == null) ? ((copy == null) ? original.fixedTime() : copy.fixedTime()) : OptionalLong.of(fixedTime),
-			(hasSkyLight == null) ? ((copy == null) ? original.hasSkyLight() : copy.hasSkyLight()) : hasSkyLight,
-			(hasCeiling == null) ? ((copy == null) ? original.hasCeiling() : copy.hasCeiling()) : hasCeiling,
-			(ultraWarm == null) ? ((copy == null) ? original.ultraWarm() : copy.ultraWarm()) : ultraWarm,
-			(natural == null) ? ((copy == null) ? original.natural() : copy.natural()) : natural,
-			(coordinateScale == null) ? ((copy == null) ? original.coordinateScale() : copy.coordinateScale()) : coordinateScale,
-			(bedWorks == null) ? ((copy == null) ? original.bedWorks() : copy.bedWorks()) : bedWorks,
-			(respawnAnchorWorks == null) ? ((copy == null) ? original.respawnAnchorWorks() : copy.respawnAnchorWorks()) : respawnAnchorWorks,
-			(minY == null) ? ((copy == null) ? original.minY() : copy.minY()) : minY,
-			(height == null) ? ((copy == null) ? original.height() : copy.height()) : height,
-			(logicalHeight == null) ? ((copy == null) ? original.logicalHeight() : copy.logicalHeight()) : logicalHeight,
-			(infiniburn == null) ? ((copy == null) ? original.infiniburn() : copy.infiniburn()) : infiniburn,
-			(effectsLocation == null) ? ((copy == null) ? original.effectsLocation() : copy.effectsLocation()) : effectsLocation,
-			(ambientLight == null) ? ((copy == null) ? original.ambientLight() : copy.ambientLight()) : ambientLight,
-			(monsterSettings == null) ? ((copy == null) ? original.monsterSettings() : copy.monsterSettings()) : monsterSettings
+				(fixedTime == null) ? ((copy == null) ? original.fixedTime() : copy.fixedTime()) : OptionalLong.of(fixedTime),
+				(hasSkyLight == null) ? ((copy == null) ? original.hasSkyLight() : copy.hasSkyLight()) : hasSkyLight,
+				(hasCeiling == null) ? ((copy == null) ? original.hasCeiling() : copy.hasCeiling()) : hasCeiling,
+				(ultraWarm == null) ? ((copy == null) ? original.ultraWarm() : copy.ultraWarm()) : ultraWarm,
+				(natural == null) ? ((copy == null) ? original.natural() : copy.natural()) : natural,
+				(coordinateScale == null) ? ((copy == null) ? original.coordinateScale() : copy.coordinateScale()) : coordinateScale,
+				(bedWorks == null) ? ((copy == null) ? original.bedWorks() : copy.bedWorks()) : bedWorks,
+				(respawnAnchorWorks == null) ? ((copy == null) ? original.respawnAnchorWorks() : copy.respawnAnchorWorks()) : respawnAnchorWorks,
+				(minY == null) ? ((copy == null) ? original.minY() : copy.minY()) : minY,
+				(height == null) ? ((copy == null) ? original.height() : copy.height()) : height,
+				(logicalHeight == null) ? ((copy == null) ? original.logicalHeight() : copy.logicalHeight()) : logicalHeight,
+				(infiniburn == null) ? ((copy == null) ? original.infiniburn() : copy.infiniburn()) : infiniburn,
+				(effectsLocation == null) ? ((copy == null) ? original.effectsLocation() : copy.effectsLocation()) : effectsLocation,
+				(ambientLight == null) ? ((copy == null) ? original.ambientLight() : copy.ambientLight()) : ambientLight,
+				(monsterSettings == null) ? ((copy == null) ? original.monsterSettings() : copy.monsterSettings()) : monsterSettings
 		);
 
+		//Create holder and replace dimension data inside level
 		Holder<DimensionType> holder = (Holder<DimensionType>) getValue(Level_dimensionTypeRegistration, level); //Get original holder
 		HolderOwner<DimensionType> owner = (HolderOwner<DimensionType>) getValue(Holder_owner, holder); //Get original holder owner
 		Holder<DimensionType> newHolder = Holder.Reference.createIntrusive(owner, type); //Create new holder, so that we don't affect all worlds
 		setValue(Level_dimensionTypeRegistration, level, newHolder); //Replace old holder with new one
+
+		//Replace stupid paper EntityLookup system, because it initializes and uses old minY and height variables
+		//FUCK YOU PAPER -> io.papermc.paper.chunk.system.entity.EntityLookup -> minSection = WorldUtil.getMinSection(world)
+		if (PaperUtils.isPaper()) {
+			Field ServerLevel_entityLookup = getField(ServerLevel.class, PaperUtils.EntityLookup, null, true);
+			Field EntityLookup_worldCallback = getField(PaperUtils.EntityLookup, net.minecraft.world.level.entity.LevelCallback.class, null, true);
+			net.minecraft.world.level.entity.LevelCallback<?> callback = (net.minecraft.world.level.entity.LevelCallback<?>) getValue(EntityLookup_worldCallback, level.getEntityLookup());
+			Class<?>[] parameters = { ServerLevel.class, net.minecraft.world.level.entity.LevelCallback.class };
+			Object entityLookup = newInstance(true, false, PaperUtils.EntityLookup, parameters, new Object[]{ level, callback });
+			setValue(ServerLevel_entityLookup, level, entityLookup);
+		}
 	}
 }

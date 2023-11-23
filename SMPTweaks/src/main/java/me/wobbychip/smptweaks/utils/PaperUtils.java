@@ -1,12 +1,14 @@
 package me.wobbychip.smptweaks.utils;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.UUID;
-
 import org.bukkit.entity.Villager;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Objects;
+import java.util.UUID;
+
 public class PaperUtils {
+	public static Class<?> EntityLookup;
 	public static Class<?> Reputation;
 	public static Class<?> ReputationType;
 	public static Method v_getReputation = null;
@@ -17,14 +19,15 @@ public class PaperUtils {
 
 	static {
 		if (isPaper) {
-			Reputation = ReflectionUtils.loadClass("com.destroystokyo.paper.entity.villager.Reputation", true);
-			ReputationType = ReflectionUtils.loadClass("com.destroystokyo.paper.entity.villager.ReputationType", true);
+			EntityLookup = Objects.requireNonNull(ReflectionUtils.loadClass("io.papermc.paper.chunk.system.entity.EntityLookup", true));
+			Reputation = Objects.requireNonNull(ReflectionUtils.loadClass("com.destroystokyo.paper.entity.villager.Reputation", true));
+			ReputationType = Objects.requireNonNull(ReflectionUtils.loadClass("com.destroystokyo.paper.entity.villager.ReputationType", true));
 
-			v_getReputation = ReflectionUtils.getMethod(Villager.class, "getReputation", UUID.class);
-			v_setReputation = ReflectionUtils.getMethod(Villager.class, "setReputation", UUID.class, Reputation);
+			v_getReputation = Objects.requireNonNull(ReflectionUtils.getMethod(Villager.class, "getReputation", UUID.class));
+			v_setReputation = Objects.requireNonNull(ReflectionUtils.getMethod(Villager.class, "setReputation", UUID.class, Reputation));
 
-			r_getReputation = ReflectionUtils.getMethod(Reputation, "getReputation", ReputationType);
-			r_setReputation = ReflectionUtils.getMethod(Reputation, "setReputation", ReputationType, int.class);
+			r_getReputation = Objects.requireNonNull(ReflectionUtils.getMethod(Reputation, "getReputation", ReputationType));
+			r_setReputation = Objects.requireNonNull(ReflectionUtils.getMethod(Reputation, "setReputation", ReputationType, int.class));
 		}
 	}
 
