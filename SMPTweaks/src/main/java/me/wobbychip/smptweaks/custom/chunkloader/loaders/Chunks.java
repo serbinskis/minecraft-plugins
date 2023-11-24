@@ -24,12 +24,10 @@ public class Chunks {
 		}
 
 		for (int x = -radius; x <= radius; x++) {
-			for (int y = -radius; y <= radius; y++) {
-				for (int z = -radius; z <= radius; z++) {
-					if (!addOrRemove && !world.isChunkLoaded(pX+x, pZ+z)) { continue; }
-					Chunk chunk = world.getChunkAt(pX+x, pZ+z);
-					if (addOrRemove) { addChunk(chunk); } else { removeChunk(chunk); }
-				}
+			for (int z = -radius; z <= radius; z++) {
+				if (!addOrRemove && !world.isChunkLoaded(pX+x, pZ+z)) { continue; }
+				Chunk chunk = world.getChunkAt(pX+x, pZ+z);
+				if (addOrRemove) { addChunk(chunk); } else { removeChunk(chunk); }
 			}
 		}
 	}
