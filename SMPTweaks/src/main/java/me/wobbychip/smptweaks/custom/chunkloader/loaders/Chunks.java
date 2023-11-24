@@ -1,20 +1,21 @@
 package me.wobbychip.smptweaks.custom.chunkloader.loaders;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.utils.Utils;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.World;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class Chunks {
 	public static Map<String, Integer> chunks = new HashMap<>();
 
 	public static void markChunks(Location location, int radius, boolean addOrRemove) {
-		double pX = location.getChunk().getX();
-		double pZ = location.getChunk().getZ();
+		int pX = location.getChunk().getX();
+		int pZ = location.getChunk().getZ();
+		World world = location.getWorld();
 
 		if (addOrRemove) {
 			addChunk(location.getChunk());
@@ -22,10 +23,11 @@ public class Chunks {
 			removeChunk(location.getChunk());
 		}
 
-		for (double x = -radius; x <= radius; x++) {
-			for (double y = -radius; y <= radius; y++) {
-				for (double z = -radius; z <= radius; z++) {
-					Chunk chunk = location.getWorld().getChunkAt((int) (pX+x), (int) (pZ+z));
+		for (int x = -radius; x <= radius; x++) {
+			for (int y = -radius; y <= radius; y++) {
+				for (int z = -radius; z <= radius; z++) {
+					if (!addOrRemove && !world.isChunkLoaded(pX+x, pZ+z)) { continue; }
+					Chunk chunk = world.getChunkAt(pX+x, pZ+z);
 					if (addOrRemove) { addChunk(chunk); } else { removeChunk(chunk); }
 				}
 			}
