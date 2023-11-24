@@ -24,7 +24,9 @@ public class CustomTweak {
 	private boolean gameruleGlobal = false;
 	private boolean requiresPaper;
 	private boolean requiresProtocolLib;
+	private boolean startup = false;
 	private boolean enabled = true;
+	private boolean loaded = false;
 	private boolean isReloadable = false;
 
 	public CustomTweak(Class<?> clazz, boolean requiresPaper, boolean requiresProtocolLib) {
@@ -79,6 +81,22 @@ public class CustomTweak {
 			String configPath = String.join("/", list.subList(0, list.size()-1)) + "/" + configName;
 			this.configs.add(new Config(configPath, "/tweaks/" + this.name + "/" + configName));
 		}
+	}
+
+	public void setStartup(boolean startup) {
+		this.startup = startup;
+	}
+
+	public boolean isStartup() {
+		return startup;
+	}
+
+	public void setLoaded(boolean loaded) {
+		this.loaded = loaded;
+	}
+
+	public boolean isLoaded() {
+		return loaded;
 	}
 
 	public void setGameRule(String gamerule, Object value, boolean global) {

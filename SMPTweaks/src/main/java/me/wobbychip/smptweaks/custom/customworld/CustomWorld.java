@@ -14,7 +14,8 @@ public class CustomWorld extends CustomTweak {
 	public CustomWorld() {
 		super(CustomWorld.class, false, true);
 		this.setCommand(new Commands(this, "cworld"));
-		this.setDescription("Custom world setting for my server.");
+		this.setDescription("Custom world setting for my server. (VERY BROKEN)");
+		this.setStartup(true);
 		CustomWorld.tweak = this;
 	}
 

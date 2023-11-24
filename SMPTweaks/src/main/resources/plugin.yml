@@ -2,6 +2,7 @@ main: me.wobbychip.smptweaks.Main
 name: SMPTweaks
 api-version: 1.13
 version: 1.0
+load: STARTUP
 author: WobbyChip
 softdepend: [ ProtocolLib ]
 

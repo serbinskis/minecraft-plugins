@@ -39,6 +39,7 @@ import me.wobbychip.smptweaks.library.customblocks.CustomBlocks;
 import me.wobbychip.smptweaks.tweaks.TweakManager;
 import me.wobbychip.smptweaks.utils.GameRules;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
+import me.wobbychip.smptweaks.utils.TaskUtils;
 import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Sound;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -53,11 +54,12 @@ public class Main extends JavaPlugin {
 	public static Sound DENY_SOUND_EFFECT = Sound.BLOCK_NOTE_BLOCK_HARP;
 	public static boolean DEBUG_MODE = System.getenv("computername").equalsIgnoreCase("WOBBYCHIP-PC");
 
+
 	@Override
 	public void onEnable() {
 		Main.plugin = this;
 		Main.plugin.saveDefaultConfig();
-		Main.gameRules = new GameRules(Main.plugin);
+		Main.gameRules = new GameRules(Main.plugin).register();
 
 		Utils.sendMessage("[SMPTweaks] Server Version: " + ReflectionUtils.version);
 
@@ -96,10 +98,14 @@ public class Main extends JavaPlugin {
 		manager.addTweak(new ServerPause());
 		manager.addTweak(new ShriekerCanSummon());
 		manager.addTweak(new SilkTouchSpawners());
+		manager.loadTweaks(true);
 
-		Main.plugin.getCommand("smptweaks").setExecutor(new Commands());
-		Main.plugin.getCommand("smptweaks").setTabCompleter(new Commands());
-		if (Main.DEBUG_MODE) { CustomBlocks.start(); }
+		TaskUtils.scheduleSyncDelayedTask(() -> {
+			manager.loadTweaks(false);
+			Main.plugin.getCommand("smptweaks").setExecutor(new Commands());
+			Main.plugin.getCommand("smptweaks").setTabCompleter(new Commands());
+			if (Main.DEBUG_MODE) { CustomBlocks.start(); }
+		}, 0L);
 	}
 
 	public ClassLoader getPluginClassLoader() {

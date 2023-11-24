@@ -18,9 +18,15 @@ public class GameRules implements Listener {
 	public HashMap<String, Object> rules = new HashMap<String, Object>();
 	public List<String> globals = new ArrayList<>();
 	public List<?> allowed = Arrays.asList(Boolean.class, Integer.class);
+	private Plugin plugin;
 
 	public GameRules(Plugin plugin) {
-		Bukkit.getPluginManager().registerEvents(this, plugin);
+		this.plugin = plugin;
+	}
+
+	public GameRules register() {
+		Bukkit.getPluginManager().registerEvents(this, this.plugin);
+		return this;
 	}
 
 	public boolean addGameRule(String name, Object value, boolean global) {

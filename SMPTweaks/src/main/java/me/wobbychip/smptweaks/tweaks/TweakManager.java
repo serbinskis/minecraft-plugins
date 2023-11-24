@@ -14,9 +14,18 @@ public class TweakManager {
 	protected Map<String, CustomTweak> tweaks = new HashMap<>();
 	public boolean isProtocolLib = (Bukkit.getServer().getPluginManager().getPlugin("ProtocolLib") != null);
 
+	public void loadTweaks(boolean startup) {
+		for (CustomTweak tweak : tweaks.values()) {
+			if (startup && tweak.isStartup()) { loadTweak(tweak); }
+			if (!startup && !tweak.isStartup()) { loadTweak(tweak); }
+		}
+	}
+
 	public void addTweak(CustomTweak tweak) {
 		tweaks.put(tweak.getName(), tweak);
+	}
 
+	private void loadTweak(CustomTweak tweak) {
 		if (tweak.isEnabled()) {
 			if (tweak.requiresPaper() && !PaperUtils.isPaper) {
 				tweak.setEnabled(false);
@@ -38,6 +47,7 @@ public class TweakManager {
 
 			if (tweak.isEnabled()) { tweak.printEnabled(); } else { tweak.printDisabled(); }
 			if (!tweak.isEnabled() && (gamerule != null)) { Main.gameRules.removeGameRule(gamerule.getKey()); }
+			if (tweak.isEnabled()) { tweak.setLoaded(true); }
 		} else {
 			tweak.printDisabled();
 		}
@@ -71,7 +81,7 @@ public class TweakManager {
 
 	public void disableAll() {
 		for (CustomTweak tweak : tweaks.values()) {
-			if (tweak.isEnabled()) { tweak.onDisable(); }
+			if (tweak.isEnabled() && tweak.isLoaded()) { tweak.onDisable(); }
 		}
 	}
 }
