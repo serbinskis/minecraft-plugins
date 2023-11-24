@@ -50,10 +50,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DiodeBlock;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.DropperBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.entity.DispenserBlockEntity;
-import net.minecraft.world.level.block.entity.HopperBlockEntity;
+import net.minecraft.world.level.block.entity.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
@@ -888,6 +885,19 @@ public class ReflectionUtils {
 		boolean flag = false;
 
 		return Math.max(world.getControlInputSignal(pos.relative(enumdirection1), enumdirection1, flag), world.getControlInputSignal(pos.relative(enumdirection2), enumdirection2, flag));
+	}
+
+	public static void unpackLoot(org.bukkit.block.Block block) {
+		if (!(block.getState() instanceof org.bukkit.block.Container)) { return; }
+		if (getBlockNbt(block, "LootTable") == null) { return; }
+
+		ServerLevel serverLevel = getWorld(block.getLocation().getWorld());
+		if (serverLevel == null) { return; }
+		BlockEntity blockEntity = serverLevel.getBlockEntity(new BlockPos(block.getX(), block.getY(), block.getZ()));
+		if (blockEntity == null) { return; }
+
+		if (!(blockEntity instanceof RandomizableContainerBlockEntity lootableBlock)) { return; }
+		lootableBlock.unpackLootTable(null);
 	}
 
 	public static BlockData getChangedBlockData(BlockPhysicsEvent event) {

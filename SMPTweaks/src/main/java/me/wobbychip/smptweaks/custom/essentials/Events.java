@@ -3,6 +3,7 @@ package me.wobbychip.smptweaks.custom.essentials;
 import com.earth2me.essentials.Essentials;
 import com.earth2me.essentials.User;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
+import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import me.wobbychip.smptweaks.utils.TaskUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -41,12 +42,11 @@ public class Events implements Listener {
 		if (!event.getAction().isRightClick() || (event.getClickedBlock() == null)) { return; }
 		if (event.getPlayer().isSneaking() && (event.getItem() != null) && (event.getItem().getType() != Material.AIR)) { return; }
 		if (event.getPlayer().getGameMode() == GameMode.SPECTATOR) { return; }
-		if (event.getPlayer().isSneaking()) { return; } //Allow open chest normally while sneaking, because in spectator you cannot generate loot inside chests
 
 		User user = essentials.getUser(event.getPlayer().getUniqueId());
-		if (user == null) { return; }
-		if (!user.isVanished()) { return; }
+		if ((user == null) || !user.isVanished()) { return; }
 		if (!(event.getClickedBlock().getState() instanceof Container)) { return; }
+		ReflectionUtils.unpackLoot(event.getClickedBlock()); //Generate loot, this function will check everything else
 
 		Player player = event.getPlayer();
 		GameMode gameMode = player.getGameMode();
@@ -67,8 +67,7 @@ public class Events implements Listener {
 	public void onInventoryOpenEvent(InventoryOpenEvent event) {
 		if (!this.tweak.getGameRuleBoolean(event.getPlayer().getWorld())) { return; }
 		User user = essentials.getUser(event.getPlayer().getUniqueId());
-		if (user == null) { return; }
-		if (!user.isVanished()) { return; }
+		if ((user == null) || !user.isVanished()) { return; }
 
 		if (!reverser.containsKey(user.getUUID())) { return; }
 		TaskUtils.finishSyncDelayedTask(reverser.get(user.getUUID()));
@@ -79,8 +78,7 @@ public class Events implements Listener {
 		if (!(event.getEntity() instanceof Player player)) { return; }
 		if (!this.tweak.getGameRuleBoolean(player.getWorld())) { return; }
 		User user = essentials.getUser(player.getUniqueId());
-		if (user == null) { return; }
-		if (!user.isVanished() || (player.getGameMode() != GameMode.CREATIVE)) { return; }
+		if ((user == null) || !user.isVanished() || player.isSneaking()) { return; }
 		event.setCancelled(true);
 	}
 
@@ -88,8 +86,8 @@ public class Events implements Listener {
 		User user = essentials.getUser(player.getUniqueId());
 		if (user == null) { return; }
 		boolean b1 = this.tweak.getGameRuleBoolean(player.getWorld());
-		if (b1 && !player.isCollidable() && user.isVanished() && (player.getGameMode() == GameMode.CREATIVE)) { collidables.put(player.getUniqueId(), true); }
-		if (b1 && user.isVanished() && (player.getGameMode() == GameMode.CREATIVE)) { player.setCollidable(false); return; }
+		if (b1 && !player.isCollidable() && user.isVanished() && !player.isSneaking()) { collidables.put(player.getUniqueId(), true); }
+		if (b1 && user.isVanished() && !player.isSneaking()) { player.setCollidable(false); return; }
 		if (collidables.containsKey(player.getUniqueId())) { player.setCollidable(collidables.remove(player.getUniqueId())); }
 	}
 }

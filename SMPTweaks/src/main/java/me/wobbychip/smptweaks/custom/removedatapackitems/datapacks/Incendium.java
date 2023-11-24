@@ -59,8 +59,7 @@ public class Incendium {
             }
 
             if (entity instanceof ArmorStand stand) {
-                PlayerInteractAtEntityEvent event1 = new PlayerInteractAtEntityEvent(RemoveDatapackItems.fakePlayer, stand, new Vector());
-                onPlayerInteractAtEntityEvent(event1);
+                onPlayerInteractAtEntityEvent(new PlayerInteractAtEntityEvent(null, stand, new Vector()));
             }
         }
     }
