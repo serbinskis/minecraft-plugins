@@ -1,5 +1,7 @@
 package me.wobbychip.smptweaks.custom.removedatapackitems;
 
+import me.wobbychip.smptweaks.custom.removedatapackitems.datapacks.Incendium;
+import me.wobbychip.smptweaks.custom.removedatapackitems.datapacks.Stellarity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;

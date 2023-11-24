@@ -1,5 +1,6 @@
-package me.wobbychip.smptweaks.custom.removedatapackitems;
+package me.wobbychip.smptweaks.custom.removedatapackitems.datapacks;
 
+import me.wobbychip.smptweaks.custom.removedatapackitems.RemoveDatapackItems;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import org.bukkit.World;
 import org.bukkit.entity.*;
