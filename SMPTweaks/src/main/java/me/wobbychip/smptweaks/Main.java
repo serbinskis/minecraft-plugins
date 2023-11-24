@@ -54,7 +54,6 @@ public class Main extends JavaPlugin {
 	public static Sound DENY_SOUND_EFFECT = Sound.BLOCK_NOTE_BLOCK_HARP;
 	public static boolean DEBUG_MODE = System.getenv("computername").equalsIgnoreCase("WOBBYCHIP-PC");
 
-
 	@Override
 	public void onEnable() {
 		Main.plugin = this;
