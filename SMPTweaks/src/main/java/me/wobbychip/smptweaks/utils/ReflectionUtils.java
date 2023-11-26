@@ -231,6 +231,10 @@ public class ReflectionUtils {
 	}
 
 	public static Field getField(Class<?> clazz, Class<?> fType, Class<?> gType, boolean isPrivate) {
+		return getField(clazz, fType, gType, null, null, isPrivate);
+	}
+
+	public static Field getField(Class<?> clazz, Class<?> fType, Class<?> gType, Object parent, Object value, boolean isPrivate) {
 		for (Field field : isPrivate ? clazz.getDeclaredFields() : clazz.getFields()) {
 			if (!field.getType().equals(fType)) { continue; }
 
@@ -240,6 +244,11 @@ public class ReflectionUtils {
 				Type[] argTypes = ((ParameterizedType) genericType).getActualTypeArguments();
 				if ((argTypes.length == 0) || !(argTypes[0] instanceof Class)) { continue; }
 				if (!argTypes[0].equals(gType)) { continue; }
+			}
+
+			if ((parent != null) && (value != null)) {
+				Object pvalue = getValue(field, parent);
+				if ((pvalue == null) || !pvalue.equals(value)) { continue; }
 			}
 
 			field.setAccessible(true);
@@ -1047,13 +1056,13 @@ public class ReflectionUtils {
 		return new CommonPlayerSpawnInfo(dimensionType, dimension, seed, gameType, previousGameType, isDebug, isFlat, lastDeathLocation, portalCooldown);
 	}
 
-	//This is very unstable and can produce server crash, for example changing minY will crash server with 99% chance
+	//This is very unstable and can produce server crash, use only in WorldInitEvent
 	public static void setCustomDimension(World world, @Nullable DimensionType copy, @Nullable World.Environment env, @Nullable Long fixedTime, @Nullable Boolean hasSkyLight, @Nullable Boolean hasCeiling, @Nullable Boolean ultraWarm, @Nullable Boolean natural, @Nullable Double coordinateScale, @Nullable Boolean bedWorks, @Nullable Boolean respawnAnchorWorks, @Nullable Integer minY, @Nullable Integer height, @Nullable Integer logicalHeight, @Nullable TagKey<Block> infiniburn, @Nullable ResourceLocation effectsLocation, @Nullable Float ambientLight, @Nullable DimensionType.MonsterSettings monsterSettings) {
 		ServerLevel level = getWorld(world);
 		DimensionType original = level.dimensionType();
 
-		//Field CraftWorld_environment = getField(CraftWorld, World.Environment.class, null, true);
-		//setValue(CraftWorld_environment, level.getWorld(), World.Environment.THE_END);
+		Field CraftWorld_environment = getField(CraftWorld, World.Environment.class, null, true);
+		if (env != null) { setValue(CraftWorld_environment, level.getWorld(), env); }
 
 		//Get registry for default dimensions
 		LayeredRegistryAccess<RegistryLayer> registries = (LayeredRegistryAccess<RegistryLayer>) getValue(MinecraftServer_registries, MinecraftServer.getServer());
@@ -1104,6 +1113,13 @@ public class ReflectionUtils {
 			Class<?>[] parameters = { ServerLevel.class, net.minecraft.world.level.entity.LevelCallback.class };
 			Object entityLookup = newInstance(true, false, PaperUtils.EntityLookup, parameters, new Object[]{ level, callback });
 			setValue(ServerLevel_entityLookup, level, entityLookup);
+
+			//FUCK YOU PAPER, it took me like 5 days to find this, idk why I can modify final, but *this is fine*
+			Field Level_minSection = getField(Level.class, int.class, null, level, level.minSection, false);
+			Field Level_maxSection = getField(Level.class, int.class, null, level, level.maxSection, false);
+			setValue(Level_minSection, level, (type.minY() >> 4));
+			int maxSection = (((((type.minY() + type.height()) - 1) >> 4) + 1) - 1); //WorldUtil.getMaxSection()
+			setValue(Level_maxSection, level, maxSection);
 		}
 	}
 }

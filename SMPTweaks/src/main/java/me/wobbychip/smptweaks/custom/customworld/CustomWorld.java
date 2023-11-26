@@ -12,7 +12,7 @@ public class CustomWorld extends CustomTweak {
 	public Commands commands;
 
 	public CustomWorld() {
-		super(CustomWorld.class, false, true);
+		super(CustomWorld.class, false, false);
 		this.setCommand(new Commands(this, "cworld"));
 		this.setDescription("Custom world setting for my server. (VERY BROKEN)");
 		this.setStartup(true);
@@ -20,7 +20,6 @@ public class CustomWorld extends CustomTweak {
 	}
 
 	public void onEnable() {
-		new ProtocolEvents(Main.plugin);
 		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 	}
 

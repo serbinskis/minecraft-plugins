@@ -5,6 +5,7 @@ import me.wobbychip.smptweaks.custom.removedatapackitems.datapacks.Stellarity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
@@ -24,6 +25,13 @@ public class Events implements Listener {
 		if (!RemoveDatapackItems.tweak.getGameRuleBoolean(event.getEntity().getWorld())) { return; }
 		if (RemoveDatapackItems.incendium) { Incendium.onItemSpawnEvent(event); }
 		if (RemoveDatapackItems.stellarity) { Stellarity.onItemSpawnEvent(event); }
+	}
+
+	@EventHandler(priority = EventPriority.LOWEST)
+	public void onEntitySpawnEvent(EntitySpawnEvent event) {
+		if (!RemoveDatapackItems.tweak.getGameRuleBoolean(event.getEntity().getWorld())) { return; }
+		if (RemoveDatapackItems.incendium) { Incendium.onEntitySpawnEvent(event); }
+		if (RemoveDatapackItems.stellarity) { Stellarity.onEntitySpawnEvent(event); }
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)

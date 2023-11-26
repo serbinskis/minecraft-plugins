@@ -2,10 +2,8 @@ package me.wobbychip.smptweaks.custom.removedatapackitems.datapacks;
 
 import me.wobbychip.smptweaks.custom.removedatapackitems.RemoveDatapackItems;
 import org.bukkit.World;
-import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.ItemFrame;
+import org.bukkit.entity.*;
+import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
@@ -28,6 +26,12 @@ public class Incendium {
         if (!isIncendiumItem(event.getEntity().getItemStack())) { return; }
         ItemStack itemStack = RemoveDatapackItems.normalizeDatapackItem(event.getEntity().getItemStack());
         event.getEntity().setItemStack(itemStack);
+    }
+
+    public static void onEntitySpawnEvent(EntitySpawnEvent event) {
+        if (!(event.getEntity() instanceof PiglinBrute piglinBrute)) { return; }
+        if (piglinBrute.getScoreboardTags().stream().noneMatch(e -> e.equalsIgnoreCase("in.flying"))) { return; }
+        piglinBrute.remove();
     }
 
     public static void onInventoryClickEvent(InventoryClickEvent event) {
