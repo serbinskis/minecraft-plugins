@@ -1118,8 +1118,7 @@ public class ReflectionUtils {
 			Field Level_minSection = getField(Level.class, int.class, null, level, level.minSection, false);
 			Field Level_maxSection = getField(Level.class, int.class, null, level, level.maxSection, false);
 			setValue(Level_minSection, level, (type.minY() >> 4));
-			int maxSection = (((((type.minY() + type.height()) - 1) >> 4) + 1) - 1); //WorldUtil.getMaxSection()
-			setValue(Level_maxSection, level, maxSection);
+			setValue(Level_maxSection, level, ((type.minY() + type.height() - 1) >> 4));
 		}
 	}
 }
