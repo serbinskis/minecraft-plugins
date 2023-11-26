@@ -41,7 +41,7 @@ public class Events implements Listener {
 		if (!this.tweak.getGameRuleBoolean(event.getPlayer().getWorld())) { return; }
 		if (!event.getAction().isRightClick() || (event.getClickedBlock() == null)) { return; }
 		if (event.getPlayer().isSneaking() && (event.getItem() != null) && (event.getItem().getType() != Material.AIR)) { return; }
-		if (event.getPlayer().getGameMode() == GameMode.SPECTATOR) { return; }
+		if (event.getPlayer().getGameMode() == GameMode.SPECTATOR) { ReflectionUtils.unpackLoot(event.getClickedBlock()); return; }
 
 		User user = essentials.getUser(event.getPlayer().getUniqueId());
 		if ((user == null) || !user.isVanished()) { return; }
