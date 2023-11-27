@@ -39,12 +39,16 @@ import me.wobbychip.smptweaks.library.customblocks.CustomBlocks;
 import me.wobbychip.smptweaks.tweaks.TweakManager;
 import me.wobbychip.smptweaks.utils.GameRules;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
-import me.wobbychip.smptweaks.utils.TaskUtils;
 import me.wobbychip.smptweaks.utils.Utils;
+import org.bukkit.Bukkit;
 import org.bukkit.Sound;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.server.ServerLoadEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class Main extends JavaPlugin {
+public class Main extends JavaPlugin implements Listener {
 	public static Main plugin;
 	public static GameRules gameRules;
 	public static TweakManager manager;
@@ -60,51 +64,56 @@ public class Main extends JavaPlugin {
 		Main.plugin.saveDefaultConfig();
 		Main.gameRules = new GameRules(Main.plugin).register();
 
-		Utils.sendMessage("[SMPTweaks] Server Version: " + ReflectionUtils.version);
+		Utils.sendMessage("[SMPTweaks] Server Version: " + ReflectionUtils.version + " (STARTUP)");
+		Bukkit.getPluginManager().registerEvents(Main.plugin, Main.plugin);
 
-		manager = new TweakManager();
-		manager.addTweak(new AllCraftingRecipes());
-		manager.addTweak(new AntiCreeperGrief());
-		manager.addTweak(new AntiEndermanGrief());
-		manager.addTweak(new AutoCraft());
-		manager.addTweak(new AutoTrade());
-		manager.addTweak(new BetterLead());
-		manager.addTweak(new BreakableBedrock());
-		manager.addTweak(new ChunkLoader());
-		manager.addTweak(new CustomPotions());
-		manager.addTweak(new CustomWorld());
-		manager.addTweak(new DisableInvulnerability());
-		manager.addTweak(new DropCursedPumpkin());
-		manager.addTweak(new EntityLimit());
-		manager.addTweak(new Essentials());
-		manager.addTweak(new ExpBottles());
-		manager.addTweak(new FastCuring());
-		manager.addTweak(new FunnyMessages());
-		manager.addTweak(new GlobalTrading());
-		manager.addTweak(new GravityControl());
-		manager.addTweak(new HeadDrops());
-		manager.addTweak(new Holograms());
-		manager.addTweak(new IpProtect());
-		manager.addTweak(new NoAdvancements());
-		manager.addTweak(new NoArrowInfinity());
-		manager.addTweak(new NoEndPortal());
-		manager.addTweak(new NoTooExpensive());
-		manager.addTweak(new PreventDropCentering());
-		manager.addTweak(new PvPDropInventory());
-		manager.addTweak(new RemoveDatapackItems());
-		manager.addTweak(new RepairWithXP());
-		manager.addTweak(new RespawnableDragonEgg());
-		manager.addTweak(new ServerPause());
-		manager.addTweak(new ShriekerCanSummon());
-		manager.addTweak(new SilkTouchSpawners());
-		manager.loadTweaks(true);
+		Main.manager = new TweakManager();
+		Main.manager.addTweak(new AllCraftingRecipes());
+		Main.manager.addTweak(new AntiCreeperGrief());
+		Main.manager.addTweak(new AntiEndermanGrief());
+		Main.manager.addTweak(new AutoCraft());
+		Main.manager.addTweak(new AutoTrade());
+		Main.manager.addTweak(new BetterLead());
+		Main.manager.addTweak(new BreakableBedrock());
+		Main.manager.addTweak(new ChunkLoader());
+		Main.manager.addTweak(new CustomPotions());
+		Main.manager.addTweak(new CustomWorld());
+		Main.manager.addTweak(new DisableInvulnerability());
+		Main.manager.addTweak(new DropCursedPumpkin());
+		Main.manager.addTweak(new EntityLimit());
+		Main.manager.addTweak(new Essentials());
+		Main.manager.addTweak(new ExpBottles());
+		Main.manager.addTweak(new FastCuring());
+		Main.manager.addTweak(new FunnyMessages());
+		Main.manager.addTweak(new GlobalTrading());
+		Main.manager.addTweak(new GravityControl());
+		Main.manager.addTweak(new HeadDrops());
+		Main.manager.addTweak(new Holograms());
+		Main.manager.addTweak(new IpProtect());
+		Main.manager.addTweak(new NoAdvancements());
+		Main.manager.addTweak(new NoArrowInfinity());
+		Main.manager.addTweak(new NoEndPortal());
+		Main.manager.addTweak(new NoTooExpensive());
+		Main.manager.addTweak(new PreventDropCentering());
+		Main.manager.addTweak(new PvPDropInventory());
+		Main.manager.addTweak(new RemoveDatapackItems());
+		Main.manager.addTweak(new RepairWithXP());
+		Main.manager.addTweak(new RespawnableDragonEgg());
+		Main.manager.addTweak(new ServerPause());
+		Main.manager.addTweak(new ShriekerCanSummon());
+		Main.manager.addTweak(new SilkTouchSpawners());
+		Main.manager.loadTweaks(true);
+	}
 
-		TaskUtils.scheduleSyncDelayedTask(() -> {
-			manager.loadTweaks(false);
-			Main.plugin.getCommand("smptweaks").setExecutor(new Commands());
-			Main.plugin.getCommand("smptweaks").setTabCompleter(new Commands());
-			if (Main.DEBUG_MODE) { CustomBlocks.start(); }
-		}, 0L);
+	@EventHandler(priority = EventPriority.LOWEST)
+	public void onServerLoadEvent(ServerLoadEvent event) {                                                   //Actually it is POSTWORLD -> MinecraftServer.java
+		if (event.getType() != ServerLoadEvent.LoadType.STARTUP) { return; }                                 //this.server.enablePlugins(org.bukkit.plugin.PluginLoadOrder.POSTWORLD);
+		Utils.sendMessage("[SMPTweaks] Server Version: " + ReflectionUtils.version + " (POSTWORLD)");   //this.server.getPluginManager().callEvent(new ServerLoadEvent(ServerLoadEvent.LoadType.STARTUP));
+                                                                                                             //this.connection.acceptConnections();
+		Main.manager.loadTweaks(false);
+		Main.plugin.getCommand("smptweaks").setExecutor(new Commands());
+		Main.plugin.getCommand("smptweaks").setTabCompleter(new Commands());
+		if (Main.DEBUG_MODE) { CustomBlocks.start(); }
 	}
 
 	public ClassLoader getPluginClassLoader() {

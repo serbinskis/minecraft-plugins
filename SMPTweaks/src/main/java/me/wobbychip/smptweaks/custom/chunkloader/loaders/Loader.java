@@ -1,25 +1,15 @@
 package me.wobbychip.smptweaks.custom.chunkloader.loaders;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.GlowItemFrame;
-import org.bukkit.entity.ItemFrame;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Shulker;
-import org.bukkit.inventory.ItemStack;
-
-import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.custom.chunkloader.ChunkLoader;
 import me.wobbychip.smptweaks.utils.PersistentUtils;
 import me.wobbychip.smptweaks.utils.ServerUtils;
+import me.wobbychip.smptweaks.utils.TaskUtils;
 import me.wobbychip.smptweaks.utils.Utils;
+import org.bukkit.*;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.entity.*;
+import org.bukkit.inventory.ItemStack;
 
 public class Loader {
 	public Location location;
@@ -29,7 +19,7 @@ public class Loader {
 	public Aggravator aggravator;
 	public boolean previous = false;
 	public int task;
-	public int updator;
+	public int updater;
 
 	public Loader(Block block) {
 		this.location = block.getLocation();
@@ -39,29 +29,21 @@ public class Loader {
 		this.aggravator = new Aggravator(block, fakePlayer);
 		this.update(true);
 
-		this.updator = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
-			public void run() {
-				update(false);
-			}
-		}, 1L, 1L);
+		this.updater = TaskUtils.scheduleSyncRepeatingTask(() -> update(false), 1L, 1L);
 
-		this.task = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
-			public void run() {
-				if (ServerUtils.isPaused()) { return; }
-				border.update();
-				fakePlayer.update();
-				aggravator.update();
-			}
+		this.task = TaskUtils.scheduleSyncRepeatingTask(() -> {
+			if (ServerUtils.isPaused()) { return; }
+			border.update();
+			fakePlayer.update();
+			aggravator.update();
 		}, 1L, 5L);
 
 		location.getWorld().playSound(location, Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1, 1);
 
 		//Fix visual bug when adding nether star to powered block
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
-			public void run() {
-				ItemFrame frame = getItemFrame(location);
-				if (frame != null) { frame.setItem(frame.getItem()); }
-			}
+		TaskUtils.scheduleSyncDelayedTask(() -> {
+			ItemFrame frame = getItemFrame(location);
+			if (frame != null) { frame.setItem(frame.getItem()); }
 		}, 1L);
 
 		//Since aggravator setting is stored inside an entity and these are not loaded instantly
@@ -71,12 +53,10 @@ public class Loader {
 		if (block.getChunk().isEntitiesLoaded() || !previous) { return; }
 		int[] task = { 0 };
 
-		task[0] = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
-			public void run() {
-				if (!block.getChunk().isEntitiesLoaded()) { return; }
-				Bukkit.getServer().getScheduler().cancelTask(task[0]);
-				update(true);
-			}
+		task[0] = TaskUtils.scheduleSyncRepeatingTask(() -> {
+			if (!block.getChunk().isEntitiesLoaded()) { return; }
+			TaskUtils.cancelSyncRepeatingTask(task[0]);
+			update(true);
 		}, 1L, 5L);
 	}
 
@@ -121,12 +101,7 @@ public class Loader {
 		Chunks.markChunks(location, ChunkLoader.viewDistance, isPowered);
 
 		boolean isAggravator = aggravator.isEnabled() && ChunkLoader.enableAggravator;
-
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
-			public void run() {
-				outline.setColor(isPowered ? (isAggravator ? ChatColor.GOLD : ChatColor.GREEN) : ChatColor.RED);
-			}
-		}, 2L);
+		TaskUtils.scheduleSyncDelayedTask(() -> outline.setColor(isPowered ? (isAggravator ? ChatColor.GOLD : ChatColor.GREEN) : ChatColor.RED), 2L);
 	}
 
 	public void remove(boolean disable, boolean dropFrame) {
@@ -135,23 +110,20 @@ public class Loader {
 		if (!disable) { aggravator.remove(); }
 		fakePlayer.remove();
 
-		Bukkit.getServer().getScheduler().cancelTask(task);
-		Bukkit.getServer().getScheduler().cancelTask(updator);
+		TaskUtils.cancelSyncRepeatingTask(task);
+		TaskUtils.cancelSyncRepeatingTask(updater);
 
 		if (disable) { return; }
 		location.getWorld().playSound(location, Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1, 1);
 		if (!dropFrame) { return; }
 
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
-			public void run() {
-				ItemFrame frame = getItemFrame(location);
-				if ((frame != null) && (location.getBlock().getType() == Material.AIR)) {
-					location.getWorld().dropItemNaturally(frame.getLocation(), frame.getItem());
-					location.getWorld().dropItemNaturally(frame.getLocation(), new ItemStack((frame instanceof GlowItemFrame) ? Material.GLOW_ITEM_FRAME : Material.ITEM_FRAME));
-					frame.remove();
-				}
-			}
-		}, 1L);
+		TaskUtils.scheduleSyncDelayedTask(() -> {
+			ItemFrame frame = getItemFrame(location);
+			if ((frame == null) || (location.getBlock().getType() != Material.AIR)) { return; }
+			location.getWorld().dropItemNaturally(frame.getLocation(), frame.getItem());
+			location.getWorld().dropItemNaturally(frame.getLocation(), new ItemStack((frame instanceof GlowItemFrame) ? Material.GLOW_ITEM_FRAME : Material.ITEM_FRAME));
+			frame.remove();
+  		}, 1L);
 	}
 
 	public static ItemFrame getItemFrame(Location location) {

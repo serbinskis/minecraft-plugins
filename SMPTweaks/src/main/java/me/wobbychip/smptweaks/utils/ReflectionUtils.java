@@ -77,6 +77,10 @@ import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginDescriptionFile;
+import org.bukkit.plugin.PluginLoadOrder;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionType;
 import org.bukkit.util.Vector;
@@ -277,7 +281,7 @@ public class ReflectionUtils {
 		}
 	}
 
-	public static Object newInstance(boolean verbose, boolean isPrivate, Class<?> clazz, Class<?>[] parameters, Object[] args) {
+	public static Object newInstance(Class<?> clazz, Class<?>[] parameters, Object[] args, boolean isPrivate, boolean verbose) {
 		try {
 			Constructor<?> constructor = isPrivate ? clazz.getDeclaredConstructor(parameters) : clazz.getConstructor(parameters);
 			return constructor.newInstance(args);
@@ -396,8 +400,7 @@ public class ReflectionUtils {
 	}
 
 	public static Block getBlock(Material block) {
-		if (!block.isBlock()) { return null; }
-		return ((BlockItem) getItem(new ItemStack(block))).getBlock();
+		return block.isBlock() ? ((BlockItem) getItem(new ItemStack(block))).getBlock() : null;
 	}
 
 	public static int getBlockId(Material block) {
@@ -419,12 +422,8 @@ public class ReflectionUtils {
 	}
 
 	public static void popResource(Location location, ItemStack item) {
-		try {
-			BlockPos position = new BlockPos((int) location.getX(), (int) location.getY(), (int) location.getZ());
-			Block.popResource(getWorld(location.getWorld()), position, asNMSCopy(item));
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		}
+		BlockPos position = new BlockPos((int) location.getX(), (int) location.getY(), (int) location.getZ());
+		Block.popResource(getWorld(location.getWorld()), position, asNMSCopy(item));
 	}
 
 	public static void setInvulnerableTicks(Player player, int ticks) {
@@ -1110,7 +1109,7 @@ public class ReflectionUtils {
 			Field EntityLookup_worldCallback = getField(PaperUtils.EntityLookup, net.minecraft.world.level.entity.LevelCallback.class, null, true);
 			net.minecraft.world.level.entity.LevelCallback<?> callback = (net.minecraft.world.level.entity.LevelCallback<?>) getValue(EntityLookup_worldCallback, level.getEntityLookup());
 			Class<?>[] parameters = { ServerLevel.class, net.minecraft.world.level.entity.LevelCallback.class };
-			Object entityLookup = newInstance(true, false, PaperUtils.EntityLookup, parameters, new Object[]{ level, callback });
+			Object entityLookup = newInstance(PaperUtils.EntityLookup, parameters, new Object[]{ level, callback }, true, true);
 			setValue(ServerLevel_entityLookup, level, entityLookup);
 
 			//FUCK YOU PAPER, it took me like 5 days to find this, idk why I can modify final, but *this is fine*
@@ -1119,5 +1118,16 @@ public class ReflectionUtils {
 			setValue(Level_minSection, level, (type.minY() >> 4));
 			setValue(Level_maxSection, level, ((type.minY() + type.height() - 1) >> 4));
 		}
+	}
+
+	//Kinda useless, changing order will not change if the plugin is enabled, and
+	//if plugin is enabled it won't enable it again, so you must change not just order,
+	//but also set isEnabled to false, but this on other side disables any events.
+	public static void setPluginLoad(Plugin plugin, PluginLoadOrder load) {
+		if (plugin.getDescription().getLoad() == load) { return; }
+		Field PluginDescriptionFile_order = Objects.requireNonNull(getField(PluginDescriptionFile.class, PluginLoadOrder.class, null, true));
+		Field JavaPlugin_isEnabled = Objects.requireNonNull(getField(JavaPlugin.class, boolean.class, null, plugin, plugin.isEnabled(), true));
+		setValue(PluginDescriptionFile_order, plugin.getDescription(), load);
+		setValue(JavaPlugin_isEnabled, plugin, false);
 	}
 }

@@ -26,7 +26,6 @@ public class BowEvents implements Listener {
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onPlayerPickupArrow(PlayerPickupArrowEvent event) {
 		CustomPotion customPotion = CustomPotions.manager.getCustomPotion(event.getArrow());

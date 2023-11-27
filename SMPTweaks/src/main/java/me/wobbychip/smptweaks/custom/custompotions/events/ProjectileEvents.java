@@ -1,7 +1,10 @@
 package me.wobbychip.smptweaks.custom.custompotions.events;
 
-import java.util.HashMap;
-
+import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
+import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
+import me.wobbychip.smptweaks.utils.PersistentUtils;
+import me.wobbychip.smptweaks.utils.ReflectionUtils;
+import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -15,15 +18,11 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
-import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
-import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
-import me.wobbychip.smptweaks.utils.PersistentUtils;
-import me.wobbychip.smptweaks.utils.ReflectionUtils;
-import me.wobbychip.smptweaks.utils.Utils;
+import java.util.HashMap;
 
 public class ProjectileEvents implements Listener {
 	HashMap<Location, ItemStack> fuckBukkit = new HashMap<Location, ItemStack>();
-	//Since bukkit again is shit and not including ItemStack in ProjectileLaunchEvent I have to do workaround
+	//Since bukkit again is shit and not including ItemStack in ProjectileLaunchEvent I have to do a workaround
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onBlockDispenseEvent(BlockDispenseEvent event) {
@@ -35,7 +34,7 @@ public class ProjectileEvents implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onProjectileLaunch(ProjectileLaunchEvent event) {
 		if (event.getEntity() instanceof Arrow) {
-			//Just really fuck bukkit, even entity.getFacing() not working correctly
+			//Just really fuck you bukkit, even entity.getFacing() not working correctly
 			Block block = event.getEntity().getLocation().getBlock();
 			Vector vector = event.getEntity().getVelocity();
 			double x = Math.abs(vector.getX());

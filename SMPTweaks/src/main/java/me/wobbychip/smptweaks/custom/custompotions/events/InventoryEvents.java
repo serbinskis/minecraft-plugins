@@ -1,24 +1,17 @@
 package me.wobbychip.smptweaks.custom.custompotions.events;
 
-import org.bukkit.Bukkit;
+import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
+import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
+import me.wobbychip.smptweaks.utils.TaskUtils;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.BrewEvent;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryMoveItemEvent;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.inventory.PrepareItemCraftEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.inventory.BrewerInventory;
 import org.bukkit.inventory.GrindstoneInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-
-import me.wobbychip.smptweaks.Main;
-import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
-import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
 
 public class InventoryEvents implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -33,14 +26,12 @@ public class InventoryEvents implements Listener {
 		}
 
 		//Because potion tag is lost after the event, we need to update it in the next tick
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
-			public void run() {
-				for (int i = 0; i < 3; i++) {
-					ItemStack item = event.getContents().getItem(i);
-					CustomPotion customPotion = CustomPotions.manager.getCustomPotion(item);
-					if ((customPotion != null) && !gameRule) { event.getResults().set(i, customPotion.getDisabledPotion(item)); }
-					if ((customPotion != null) && gameRule) { event.getContents().setItem(i, customPotion.setProperties(item)); }
-				}
+		TaskUtils.scheduleSyncDelayedTask(() -> {
+			for (int i = 0; i < 3; i++) {
+				ItemStack item = event.getContents().getItem(i);
+				CustomPotion customPotion = CustomPotions.manager.getCustomPotion(item);
+				if ((customPotion != null) && !gameRule) { event.getResults().set(i, customPotion.getDisabledPotion(item)); }
+				if ((customPotion != null) && gameRule) { event.getContents().setItem(i, customPotion.setProperties(item)); }
 			}
 		}, 1L);
 	}
@@ -55,12 +46,10 @@ public class InventoryEvents implements Listener {
 		}
 
 		if (event.getView().getTopInventory() instanceof GrindstoneInventory) {
-			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
-				public void run() {
-					Inventory inv = event.getView().getTopInventory();
-					CustomPotion customPotion = CustomPotions.manager.getCustomPotion(inv.getItem(2));
-					if (customPotion != null) { inv.setItem(2, new ItemStack(Material.AIR)); }
-				}
+			TaskUtils.scheduleSyncDelayedTask(() -> {
+				Inventory inv = event.getView().getTopInventory();
+				CustomPotion customPotion = CustomPotions.manager.getCustomPotion(inv.getItem(2));
+				if (customPotion != null) { inv.setItem(2, new ItemStack(Material.AIR)); }
 			}, 1L);
 		}
 	}
@@ -68,24 +57,20 @@ public class InventoryEvents implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onInventoryDrag(InventoryDragEvent event) {
 		if (event.getView().getTopInventory() instanceof BrewerInventory) {
-			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
-				public void run() {
-					Inventory inv = event.getView().getTopInventory();
-					for (int i = 0; i < inv.getSize(); i++) {
-						CustomPotion customPotion = CustomPotions.manager.getCustomPotion(inv.getItem(i));
-						if (customPotion != null) { inv.setItem(i, customPotion.setPotionTag(inv.getItem(i))); }
-					}
+			TaskUtils.scheduleSyncDelayedTask(() -> {
+				Inventory inv = event.getView().getTopInventory();
+				for (int i = 0; i < inv.getSize(); i++) {
+					CustomPotion customPotion = CustomPotions.manager.getCustomPotion(inv.getItem(i));
+					if (customPotion != null) { inv.setItem(i, customPotion.setPotionTag(inv.getItem(i))); }
 				}
 			}, 1L);
 		}
 
 		if (event.getView().getTopInventory() instanceof GrindstoneInventory) {
-			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
-				public void run() {
-					Inventory inv = event.getView().getTopInventory();
-					CustomPotion customPotion = CustomPotions.manager.getCustomPotion(inv.getItem(2));
-					if (customPotion != null) { inv.setItem(2, new ItemStack(Material.AIR)); }
-				}
+			TaskUtils.scheduleSyncDelayedTask(() -> {
+				Inventory inv = event.getView().getTopInventory();
+				CustomPotion customPotion = CustomPotions.manager.getCustomPotion(inv.getItem(2));
+				if (customPotion != null) { inv.setItem(2, new ItemStack(Material.AIR)); }
 			}, 1L);
 		}
 	}
@@ -94,13 +79,11 @@ public class InventoryEvents implements Listener {
 	public void onInventoryMoveItem(InventoryMoveItemEvent event) {
 		if (event.getDestination().getType() != InventoryType.BREWING) { return; }
 
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
-			public void run() {
-				Inventory inv = event.getDestination();
-				for (int i = 0; i < inv.getSize(); i++) {
-					CustomPotion customPotion = CustomPotions.manager.getCustomPotion(inv.getItem(i));
-					if (customPotion != null) { inv.setItem(i, customPotion.setPotionTag(inv.getItem(i))); }
-				}
+		TaskUtils.scheduleSyncDelayedTask(() -> {
+			Inventory inv = event.getDestination();
+			for (int i = 0; i < inv.getSize(); i++) {
+				CustomPotion customPotion = CustomPotions.manager.getCustomPotion(inv.getItem(i));
+				if (customPotion != null) { inv.setItem(i, customPotion.setPotionTag(inv.getItem(i))); }
 			}
 		}, 1L);
 	}
