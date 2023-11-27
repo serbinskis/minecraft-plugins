@@ -18,7 +18,7 @@ public class Events implements Listener {
 		if (!PersistentUtils.hasPersistentDataString(event.getWorld(), CustomWorld.CUSTOM_WORLD_TAG)) { return; }
 
 		CustomWorld.Type type = CustomWorld.getCustomType(PersistentUtils.getPersistentDataString(event.getWorld(), CustomWorld.CUSTOM_WORLD_TAG));
-		if ((type != CustomWorld.Type.VOID) && (type != CustomWorld.Type.END)) { return; }
+		if ((type != CustomWorld.Type.END) && (type != CustomWorld.Type.VOID)) { return; }
 		Utils.fillChunk(event.getChunk(), Material.AIR, true);
 	}
 
@@ -26,7 +26,7 @@ public class Events implements Listener {
 	public void onWorldInitEvent(WorldInitEvent event) {
 		if (!PersistentUtils.hasPersistentDataString(event.getWorld(), CustomWorld.CUSTOM_WORLD_TAG)) { return; }
 		CustomWorld.Type type = CustomWorld.getCustomType(PersistentUtils.getPersistentDataString(event.getWorld(), CustomWorld.CUSTOM_WORLD_TAG));
-		if (type != CustomWorld.Type.END) { return; }
+		if (type != CustomWorld.Type.VOID) { return; }
 
 		ReflectionUtils.setCustomDimension(event.getWorld(), null, World.Environment.THE_END, null, null, null, null, null, null, null, null, 0, null, null, null, null, null, null);
 	}

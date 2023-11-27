@@ -420,9 +420,8 @@ public class ReflectionUtils {
 
 	public static void popResource(Location location, ItemStack item) {
 		try {
-			net.minecraft.world.level.Level world = getWorld(location.getWorld());
 			BlockPos position = new BlockPos((int) location.getX(), (int) location.getY(), (int) location.getZ());
-			Block.popResource(world, position, asNMSCopy(item));
+			Block.popResource(getWorld(location.getWorld()), position, asNMSCopy(item));
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		}
@@ -1065,7 +1064,7 @@ public class ReflectionUtils {
 		if (env != null) { setValue(CraftWorld_environment, level.getWorld(), env); }
 
 		//Get registry for default dimensions
-		LayeredRegistryAccess<RegistryLayer> registries = (LayeredRegistryAccess<RegistryLayer>) getValue(MinecraftServer_registries, MinecraftServer.getServer());
+		LayeredRegistryAccess<RegistryLayer> registries = (LayeredRegistryAccess<RegistryLayer>) Objects.requireNonNull(getValue(MinecraftServer_registries, MinecraftServer.getServer()));
 		Registry<LevelStem> dimensions = registries.compositeAccess().registryOrThrow(Registries.LEVEL_STEM);
 
 		//Select dimension data if environment parameter is used and others are not
@@ -1115,8 +1114,8 @@ public class ReflectionUtils {
 			setValue(ServerLevel_entityLookup, level, entityLookup);
 
 			//FUCK YOU PAPER, it took me like 5 days to find this, idk why I can modify final, but *this is fine*
-			Field Level_minSection = getField(Level.class, int.class, null, level, level.minSection, false);
-			Field Level_maxSection = getField(Level.class, int.class, null, level, level.maxSection, false);
+			Field Level_minSection = Objects.requireNonNull(getField(Level.class, int.class, null, level, level.minSection, false));
+			Field Level_maxSection = Objects.requireNonNull(getField(Level.class, int.class, null, level, level.maxSection, false));
 			setValue(Level_minSection, level, (type.minY() >> 4));
 			setValue(Level_maxSection, level, ((type.minY() + type.height() - 1) >> 4));
 		}

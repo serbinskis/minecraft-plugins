@@ -29,7 +29,7 @@ public class SetCommand {
 			PersistentUtils.setPersistentDataString(player.getWorld(), CustomWorld.CUSTOM_WORLD_TAG, args[0].toLowerCase());
 		}
 
-		Utils.sendMessage(sender, Main.color + "Set custom world to " + args[0].toLowerCase() + ". To see changes relogin.");
+		Utils.sendMessage(sender, Main.color + "Set custom world to " + args[0].toLowerCase() + ". (REQUIRES RESTART).");
 		return true;
 	}
 

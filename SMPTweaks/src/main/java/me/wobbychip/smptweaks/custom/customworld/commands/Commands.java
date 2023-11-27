@@ -14,7 +14,7 @@ public class Commands extends TweakCommands {
 	public static String NO_POTION = Main.color + "Couldn\'t find the potion!";
 
 	public Commands(CustomTweak tweak, String command) {
-		super(tweak, command, Arrays.asList("set"));
+		super(tweak, command, Arrays.asList("set", "get"));
 	}
 
 	public boolean onTweakCommand(CustomTweak tweak, final CommandSender sender, final Command command, final String label, final String[] args) {
@@ -25,6 +25,7 @@ public class Commands extends TweakCommands {
 
 		switch (args[0].toLowerCase()) {
 			case "set": return SetCommand.onTweakCommand(tweak, sender, command, args[0], Arrays.copyOfRange(args, 1, args.length));
+			case "get": return GetCommand.onTweakCommand(tweak, sender, command, args[0], Arrays.copyOfRange(args, 1, args.length));
 		}
 
 		Utils.sendMessage(sender, this.getUsage());
