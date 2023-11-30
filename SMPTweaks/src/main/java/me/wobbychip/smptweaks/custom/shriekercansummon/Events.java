@@ -1,7 +1,7 @@
 package me.wobbychip.smptweaks.custom.shriekercansummon;
 
-import java.util.Collection;
-
+import me.wobbychip.smptweaks.utils.PersistentUtils;
+import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -19,14 +19,13 @@ import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
-import me.wobbychip.smptweaks.utils.PersistentUtils;
-import me.wobbychip.smptweaks.utils.Utils;
+import java.util.Collection;
 
 public class Events implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockPlace(BlockPlaceEvent event)  {
 		if (event.getBlock().getType() == Material.SCULK_SHRIEKER) {
-			PersistentUtils.setPersistentDataBoolean(event.getBlock(), ShriekerCanSummon.isPlayerPlaced, true);
+			PersistentUtils.setPersistentDataBoolean(event.getBlock(), ShriekerCanSummon.TAG_IS_PLAYER_PLACED, true);
 		}
 	}
 
@@ -39,8 +38,8 @@ public class Events implements Listener {
 		Block block = event.getClickedBlock();
 		if (canSummon(block)) { return; }
 		
-		if (!PersistentUtils.hasPersistentDataBoolean(block, ShriekerCanSummon.isPlayerPlaced)) {
-			PersistentUtils.setPersistentDataBoolean(block, ShriekerCanSummon.isPlayerPlaced, true);
+		if (!PersistentUtils.hasPersistentDataBoolean(block, ShriekerCanSummon.TAG_IS_PLAYER_PLACED)) {
+			PersistentUtils.setPersistentDataBoolean(block, ShriekerCanSummon.TAG_IS_PLAYER_PLACED, true);
 		}
 
 		setCanSummon(block, true);
@@ -63,7 +62,7 @@ public class Events implements Listener {
 		Collection<Block> blocks = Utils.getNearbyBlocks(creature.getLocation(), Material.SCULK_SHRIEKER, ShriekerCanSummon.WARDEN_SPAWN_DISATNCE);
 
 		for (Block block : blocks) {
-			if (PersistentUtils.hasPersistentDataBoolean(block, ShriekerCanSummon.isPlayerPlaced) && canSummon(block)) {
+			if (PersistentUtils.hasPersistentDataBoolean(block, ShriekerCanSummon.TAG_IS_PLAYER_PLACED) && canSummon(block)) {
 				setCanSummon(block, false);
 				break;
 			}

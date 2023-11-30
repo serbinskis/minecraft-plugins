@@ -1,31 +1,26 @@
 package me.wobbychip.smptweaks.custom.holograms;
 
-import java.util.UUID;
-
+import me.wobbychip.smptweaks.utils.PersistentUtils;
+import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Interaction;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.TextDisplay;
-import org.bukkit.entity.TextDisplay.TextAlignment;
 import org.bukkit.entity.Display.Billboard;
+import org.bukkit.entity.*;
+import org.bukkit.entity.TextDisplay.TextAlignment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
-import me.wobbychip.smptweaks.utils.PersistentUtils;
-import me.wobbychip.smptweaks.utils.Utils;
+import java.util.UUID;
 
 public class Hologram {
-	private static String TAG_IS_HOLOGRAM = "tag_is_hologram";
-	private static String TAG_POSITION = "tag_hologram_position";
-	private static String TAG_DISPLAY = "tag_hologram_display";
-	private TextDisplay display;
-	private Interaction interaction;
-	private int y;
+	public static String TAG_IS_HOLOGRAM = "tag_is_hologram";
+	public static String TAG_POSITION = "tag_hologram_position";
+	public static String TAG_DISPLAY = "tag_hologram_display";
+	public TextDisplay display;
+	public Interaction interaction;
+	public int y;
 
 	private Hologram(TextDisplay display, Interaction interaction, int y) {
 		this.display = display;

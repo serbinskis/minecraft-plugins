@@ -1,7 +1,7 @@
 package me.wobbychip.smptweaks.custom.custompotions.custom;
 
-import java.util.Arrays;
-
+import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
+import me.wobbychip.smptweaks.custom.custompotions.potions.PotionManager;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -13,14 +13,13 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.potion.PotionType;
 
-import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
-import me.wobbychip.smptweaks.custom.custompotions.potions.PotionManager;
+import java.util.List;
 
 public class ExplosionPotion extends CustomPotion {
 	public ExplosionPotion() {
 		super(PotionManager.getPotion(PotionType.AWKWARD, false, false), Material.TNT, "explosion", Color.fromRGB(255, 0, 0));
 		this.setDisplayName("§r§fPotion of Explosion");
-		this.setLore(Arrays.asList("§9Creates an explosion"));
+		this.setLore(List.of("§9Creates an explosion"));
 		this.setTippedArrow(true, "§r§fArrow of Explosion");
 		this.setAllowVillagerTrades(true);
 	}

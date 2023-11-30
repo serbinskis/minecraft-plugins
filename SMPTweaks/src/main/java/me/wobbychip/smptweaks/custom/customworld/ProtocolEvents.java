@@ -22,9 +22,9 @@ public class ProtocolEvents extends PacketAdapter {
     public void onPacketSending(PacketEvent event) {
         PacketType packetType = event.getPacket().getType();
         if (((packetType != PacketType.Play.Server.LOGIN) && (packetType != PacketType.Play.Server.RESPAWN)) || (event.getPlayer() == null)) { return; }
-        if (!PersistentUtils.hasPersistentDataString(event.getPlayer().getWorld(), CustomWorld.CUSTOM_WORLD_TAG)) { return; }
+        if (!PersistentUtils.hasPersistentDataString(event.getPlayer().getWorld(), CustomWorld.TAG_CUSTOM_WORLD)) { return; }
 
-        CustomWorld.Type type = CustomWorld.getCustomType(PersistentUtils.getPersistentDataString(event.getPlayer().getWorld(), CustomWorld.CUSTOM_WORLD_TAG));
+        CustomWorld.Type type = CustomWorld.getCustomType(PersistentUtils.getPersistentDataString(event.getPlayer().getWorld(), CustomWorld.TAG_CUSTOM_WORLD));
         if (type != CustomWorld.Type.END) { return; }
 
         Packet<?> packet = ReflectionUtils.editSpawnPacket((Packet<?>) event.getPacket().getHandle(), true, World.Environment.THE_END);

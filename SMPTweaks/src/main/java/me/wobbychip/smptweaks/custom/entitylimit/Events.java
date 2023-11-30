@@ -24,14 +24,11 @@ public class Events implements Listener {
 
 		//Get entity count
 		int nearbyEntities = Utils.getNearbyEntities(entity.getLocation(), entity.getType(), EntityLimit.maximumDistance, true).size();
+		if (nearbyEntities < EntityLimit.limit) { return; }
+		event.setCancelled(true); //Cancel entity if count is over limit
 
-		//Cancel entity if count is over limit
-		if (nearbyEntities >= EntityLimit.limit) {
-			event.setCancelled(true);
-			if (player == null) { return; }
-
-			String replacedMessage = EntityLimit.tooManyEntity.replace("%value%", String.valueOf(EntityLimit.limit));
-			Utils.sendActionMessage(player, replacedMessage);
-		}
+		if (player == null) { return; }
+		String replacedMessage = EntityLimit.tooManyEntity.replace("%value%", String.valueOf(EntityLimit.limit));
+		Utils.sendActionMessage(player, replacedMessage);
 	}
 }

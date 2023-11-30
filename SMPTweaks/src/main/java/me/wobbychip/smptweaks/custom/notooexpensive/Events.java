@@ -22,7 +22,7 @@ public class Events implements Listener {
 		if (!NoTooExpensive.tweak.getGameRuleBoolean(world)) { return; }
 
 		for (HumanEntity player : event.getViewers()) {
-			if (((Player) player).getGameMode() == GameMode.CREATIVE) { continue; }
+			if (player.getGameMode() == GameMode.CREATIVE) { continue; }
 			boolean flag = event.getInventory().getRepairCost() > NoTooExpensive.MAXIMUM_REPAIR_COST;
 			ReflectionUtils.setInstantBuild((Player) player, flag, true, false);
 		}

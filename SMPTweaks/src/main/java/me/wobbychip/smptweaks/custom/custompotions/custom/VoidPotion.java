@@ -1,12 +1,7 @@
 package me.wobbychip.smptweaks.custom.custompotions.custom;
 
-import java.util.Arrays;
-
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
+import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Arrow;
@@ -15,14 +10,14 @@ import org.bukkit.event.entity.LingeringPotionSplashEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 
-import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
+import java.util.List;
 
 public class VoidPotion extends CustomPotion {
 	public VoidPotion() {
 		super("base", Material.CRYING_OBSIDIAN, "void", Color.fromRGB(0, 0, 0));
-		this.setDisplayName("Â§rÂ§fPotion of Void");
-		this.setLore(Arrays.asList("Â§9Destroys bedrock"));
-		this.setTippedArrow(true, "Â§rÂ§fArrow of Void");
+		this.setDisplayName("§r§fPotion of Void");
+		this.setLore(List.of("§9Destroys bedrock"));
+		this.setTippedArrow(true, "§r§fArrow of Void");
 		this.setAllowVillagerTrades(false);
 	}
 

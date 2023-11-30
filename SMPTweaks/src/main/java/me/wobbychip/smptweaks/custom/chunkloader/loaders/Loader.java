@@ -55,7 +55,7 @@ public class Loader {
 
 		task[0] = TaskUtils.scheduleSyncRepeatingTask(() -> {
 			if (!block.getChunk().isEntitiesLoaded()) { return; }
-			TaskUtils.cancelSyncRepeatingTask(task[0]);
+			TaskUtils.cancelTask(task[0]);
 			update(true);
 		}, 1L, 5L);
 	}
@@ -110,8 +110,8 @@ public class Loader {
 		if (!disable) { aggravator.remove(); }
 		fakePlayer.remove();
 
-		TaskUtils.cancelSyncRepeatingTask(task);
-		TaskUtils.cancelSyncRepeatingTask(updater);
+		TaskUtils.cancelTask(task);
+		TaskUtils.cancelTask(updater);
 
 		if (disable) { return; }
 		location.getWorld().playSound(location, Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1, 1);

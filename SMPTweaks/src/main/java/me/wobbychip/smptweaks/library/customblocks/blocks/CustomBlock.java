@@ -27,8 +27,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CustomBlock implements Listener {
-    public static String BLOCK_TAG = "SMPTWEAKS_CUSTOM_BLOCK";
-    public static String MARKED_ITEM = "SMPTWEAKS_CBLOCK_MARKED";
+    public static String TAG_BLOCK = "SMPTWEAKS_CUSTOM_BLOCK";
+    public static String TAG_MARKED_ITEM = "SMPTWEAKS_CBLOCK_MARKED";
     public final String name;
     public final Material block_base;
     public String title;
@@ -52,7 +52,7 @@ public class CustomBlock implements Listener {
 
     @Nonnull
     public ItemStack getDropItem() {
-        return PersistentUtils.setPersistentDataString(prepareDropItem(), BLOCK_TAG, name);
+        return PersistentUtils.setPersistentDataString(prepareDropItem(), TAG_BLOCK, name);
     }
 
     public void setTickable(boolean tickable) {
@@ -114,7 +114,7 @@ public class CustomBlock implements Listener {
 
     public void createBlock(Block block) {
         if (block.getType() != block_base) { return; }
-        if (isPersistent(block)) { PersistentUtils.setPersistentDataString(block, BLOCK_TAG, name); }
+        if (isPersistent(block)) { PersistentUtils.setPersistentDataString(block, TAG_BLOCK, name); }
         CustomMarker.createMarker(this, block);
 
         if (hasInventory() && (title != null)) {
@@ -144,28 +144,28 @@ public class CustomBlock implements Listener {
     }
 
     public boolean isMarkedItem(ItemStack item) {
-        return PersistentUtils.hasPersistentDataString(item, MARKED_ITEM);
+        return PersistentUtils.hasPersistentDataString(item, TAG_MARKED_ITEM);
     }
 
     public ItemStack setMarkedItem(ItemStack item) {
-        return PersistentUtils.setPersistentDataString(item, MARKED_ITEM, name);
+        return PersistentUtils.setPersistentDataString(item, TAG_MARKED_ITEM, name);
     }
 
     public ItemStack removeMarkedItem(ItemStack item) {
-        return PersistentUtils.removePersistentData(item, MARKED_ITEM);
+        return PersistentUtils.removePersistentData(item, TAG_MARKED_ITEM);
     }
 
     public boolean isCustomBlock(ItemStack item) {
         if ((item == null) || (item.getType() != block_base)) { return false; }
-        if (!PersistentUtils.hasPersistentDataString(item, BLOCK_TAG)) { return isCustomBlock(item.getItemMeta()); }
-        return PersistentUtils.getPersistentDataString(item, BLOCK_TAG).equalsIgnoreCase(name);
+        if (!PersistentUtils.hasPersistentDataString(item, TAG_BLOCK)) { return isCustomBlock(item.getItemMeta()); }
+        return PersistentUtils.getPersistentDataString(item, TAG_BLOCK).equalsIgnoreCase(name);
     }
 
     public boolean isCustomBlock(ItemMeta itemMeta) {
         if (!(itemMeta instanceof BlockStateMeta blockMeta)) { return false; }
         if (!(blockMeta.getBlockState() instanceof TileState blockState)) { return false; }
-        if (!PersistentUtils.hasPersistentDataString(blockState, BLOCK_TAG)) { return false; }
-        return PersistentUtils.getPersistentDataString(blockState, BLOCK_TAG).equalsIgnoreCase(name);
+        if (!PersistentUtils.hasPersistentDataString(blockState, TAG_BLOCK)) { return false; }
+        return PersistentUtils.getPersistentDataString(blockState, TAG_BLOCK).equalsIgnoreCase(name);
     }
 
     public boolean isCustomBlock(Block block) {
@@ -175,8 +175,8 @@ public class CustomBlock implements Listener {
 
     public boolean isCustomBlock(BlockState state) {
         if ((state.getType() != block_base) || !(state instanceof TileState) ){ return false; }
-        if (!PersistentUtils.hasPersistentDataString(state, BLOCK_TAG)) { return false; }
-        return PersistentUtils.getPersistentDataString(state, BLOCK_TAG).equalsIgnoreCase(name);
+        if (!PersistentUtils.hasPersistentDataString(state, TAG_BLOCK)) { return false; }
+        return PersistentUtils.getPersistentDataString(state, TAG_BLOCK).equalsIgnoreCase(name);
     }
 
     public boolean dispense(Block block) {

@@ -1,21 +1,15 @@
 package me.wobbychip.smptweaks.custom.pvpdropinventory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.UUID;
-
+import me.wobbychip.smptweaks.Config;
+import me.wobbychip.smptweaks.utils.TaskUtils;
+import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
-import me.wobbychip.smptweaks.Config;
-import me.wobbychip.smptweaks.Main;
-import me.wobbychip.smptweaks.utils.Utils;
+import java.util.*;
+import java.util.Map.Entry;
 
 public class PlayerTimer {
 	protected Config config;
@@ -33,17 +27,11 @@ public class PlayerTimer {
 			timers.put(UUID.fromString(key), seconds);
 		}
 
-		taskId = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable(){
-			public void run() {
-				checkPlayers();
-			}
-		}, 1L, 20L);
+		taskId = TaskUtils.scheduleSyncRepeatingTask(() -> checkPlayers(), 1L, 20L);
 	}
 
 	public void save(boolean bStop) {
-		if (bStop) {
-			Bukkit.getServer().getScheduler().cancelTask(taskId);
-		}
+		if (bStop) { TaskUtils.cancelTask(taskId); }
 
 		for (String key : this.config.getConfig().getKeys(false)) {
 			this.config.getConfig().set(key, null);

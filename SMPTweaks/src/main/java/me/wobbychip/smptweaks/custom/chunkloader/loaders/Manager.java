@@ -1,21 +1,15 @@
 package me.wobbychip.smptweaks.custom.chunkloader.loaders;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import org.bukkit.Bukkit;
+import me.wobbychip.smptweaks.Config;
+import me.wobbychip.smptweaks.custom.chunkloader.ChunkLoader;
+import me.wobbychip.smptweaks.utils.TaskUtils;
+import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-import me.wobbychip.smptweaks.Config;
-import me.wobbychip.smptweaks.Main;
-import me.wobbychip.smptweaks.custom.chunkloader.ChunkLoader;
-import me.wobbychip.smptweaks.utils.Utils;
+import java.util.*;
 
 public class Manager {
 	public Config config;
@@ -32,11 +26,7 @@ public class Manager {
 			addLoader(location.getBlock(), false);
 		}
 
-		taskId = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
-			public void run() {
-				updateAll();
-			}
-		}, 5L, 5L);
+		taskId = TaskUtils.scheduleSyncRepeatingTask(() -> updateAll(), 5L, 5L);
 	}
 
 	public Border getBorder(Player player) {
@@ -93,7 +83,7 @@ public class Manager {
 	}
 
 	public void onDisable() {
-		Bukkit.getServer().getScheduler().cancelTask(taskId);
+		TaskUtils.cancelTask(taskId);
 
 		for (Loader loader : loaders.values()) {
 			loader.remove(true, false);

@@ -41,7 +41,7 @@ public class PotionEvents implements Listener {
 		if (!event.isCancelled()) {
 			AreaEffectCloud effectCloud = event.getAreaEffectCloud();
 			effectCloud.addCustomEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 0, 0), false);
-			PersistentUtils.setPersistentDataString(effectCloud, CustomPotions.customTag, customPotion.getName());
+			PersistentUtils.setPersistentDataString(effectCloud, CustomPotions.TAG_CUSTOM_POTION, customPotion.getName());
 			effectCloud.setColor(customPotion.getColor());
 		}
 	}
@@ -58,7 +58,7 @@ public class PotionEvents implements Listener {
 	public void onProjectileHit(ProjectileHitEvent event) {
 		if (event.getEntity() instanceof ThrownPotion) {
 			CustomPotion customPotion = CustomPotions.manager.getCustomPotion(((ThrownPotion) event.getEntity()).getItem());
-			if (customPotion != null) { PersistentUtils.setPersistentDataString(event.getEntity(), CustomPotions.customTag, customPotion.getName()); }			
+			if (customPotion != null) { PersistentUtils.setPersistentDataString(event.getEntity(), CustomPotions.TAG_CUSTOM_POTION, customPotion.getName()); }
 		}
 
 		CustomPotion customPotion = CustomPotions.manager.getCustomPotion(event.getEntity());

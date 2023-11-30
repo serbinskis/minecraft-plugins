@@ -26,7 +26,7 @@ public class Events implements Listener {
 		//We also must stop already running task if there is such,
 		//player can rejoin and leave as many times as they want
 		//and this will trigger this event
-		if (ServerPause.delayTask > -1) { TaskUtils.cancelSyncDelayedTask(ServerPause.delayTask); }
+		if (ServerPause.delayTask > -1) { TaskUtils.cancelTask(ServerPause.delayTask); }
 
 		ServerPause.delayTask = TaskUtils.scheduleSyncDelayedTask(() -> {
             int delayTask = ServerPause.delayTask;
@@ -62,13 +62,13 @@ public class Events implements Listener {
 		//Since this is async event, which means it can run concurrently with
 		//PlayerQuitEvent runnable, we set isConnecting to true, but revert it in
 		//sync with another runnable, because runnables are synchronized
-		if (isConnecting > -1) { TaskUtils.cancelSyncDelayedTask(isConnecting); }
+		if (isConnecting > -1) { TaskUtils.cancelTask(isConnecting); }
 		isConnecting = TaskUtils.scheduleSyncDelayedTask(() -> isConnecting = -1, 1);
 
 		//Resume server if player is trying to connect to the server
 		boolean success = ServerUtils.resumeServer();
 		if (success) { Utils.sendMessage("Server is now resumed."); }
-		if (connectingTask > -1) { TaskUtils.cancelSyncDelayedTask(connectingTask); }
+		if (connectingTask > -1) { TaskUtils.cancelTask(connectingTask); }
 
 		//Check if something happened and player did not get into server
 		//Banned, whitelist, connection timeout, etc

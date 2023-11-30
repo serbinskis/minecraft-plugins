@@ -1,7 +1,7 @@
 package me.wobbychip.smptweaks.custom.noadvancements;
 
-import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
+import me.wobbychip.smptweaks.utils.TaskUtils;
 import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -34,17 +34,15 @@ public class Events implements Listener {
 			float exp = player.getExp();
 			int level = player.getLevel();
 
-			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
-				public void run() {
-					chats.remove(uuid);
-					Player player = Bukkit.getPlayer(uuid);
-					if (player == null) { return; }
-					ReflectionUtils.setChatVisibility(player, visibility);
-					if (totalExperience == player.getTotalExperience()) { return; }
-					player.setTotalExperience(totalExperience);
-					player.setExp(exp);
-					player.setLevel(level);
-				}
+			TaskUtils.scheduleSyncDelayedTask(() -> {
+				chats.remove(uuid);
+				Player player1 = Bukkit.getPlayer(uuid);
+				if (player1 == null) { return; }
+				ReflectionUtils.setChatVisibility(player1, visibility);
+				if (totalExperience == player1.getTotalExperience()) { return; }
+				player1.setTotalExperience(totalExperience);
+				player1.setExp(exp);
+				player1.setLevel(level);
 			}, 0L);
 		}
 	}

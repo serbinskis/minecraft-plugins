@@ -12,13 +12,13 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.util.Vector;
 
-import java.util.Arrays;
+import java.util.List;
 
 public class RecallPotion extends CustomPotion {
 	public RecallPotion() {
 		super("amethyst", Material.CHORUS_FRUIT, "recall", Color.fromRGB(23, 193, 224));
 		this.setDisplayName("§r§fPotion of Recalling");
-		this.setLore(Arrays.asList("§9Teleports to Spawnpoint"));
+		this.setLore(List.of("§9Teleports to Spawnpoint"));
 		this.setTippedArrow(true, "§r§fArrow of Recalling");
 		this.setAllowVillagerTrades(true);
 	}

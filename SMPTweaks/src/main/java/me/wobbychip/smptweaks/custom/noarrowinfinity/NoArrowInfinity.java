@@ -1,8 +1,10 @@
 package me.wobbychip.smptweaks.custom.noarrowinfinity;
 
-import java.util.Arrays;
-import java.util.List;
-
+import me.wobbychip.smptweaks.Main;
+import me.wobbychip.smptweaks.tweaks.CustomTweak;
+import me.wobbychip.smptweaks.utils.ReflectionUtils;
+import me.wobbychip.smptweaks.utils.TaskUtils;
+import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -10,13 +12,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 
-import me.wobbychip.smptweaks.Main;
-import me.wobbychip.smptweaks.tweaks.CustomTweak;
-import me.wobbychip.smptweaks.utils.ReflectionUtils;
-import me.wobbychip.smptweaks.utils.Utils;
+import java.util.Arrays;
+import java.util.List;
 
 public class NoArrowInfinity extends CustomTweak {
-	public static String isCreativeOnly = "isCreativeOnly";
+	public final static String TAG_IS_CREATIVE_ONLY = "SMPTWEAKS_IS_CREATIVE_ONLY";
 	public static List<String> infinity = Arrays.asList("mendfinity", "infinity");
 
 	public NoArrowInfinity() {
@@ -26,18 +26,14 @@ public class NoArrowInfinity extends CustomTweak {
 	}
 
 	public void onEnable() {
-		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
-			public void run() {
-				for (Player player : Bukkit.getOnlinePlayers()) {
-					checkPlayer(player);
-				}
-			}
-		}, 1L, 1L);
+		TaskUtils.scheduleSyncRepeatingTask(() -> {
+            for (Player player : Bukkit.getOnlinePlayers()) { checkPlayer(player); }
+        }, 1L, 1L);
 
 		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 	}
 
-	//Instant build is not creative mode and it gives different perks to player
+	//Instant build is not creative mode, and it gives different perks to player
 	//Such as shooting with no arrows, infinite consumables and infinite durability
 	//To prevent everything from above and get only shooting with no arrows
 	//Give instant build only to client and not server

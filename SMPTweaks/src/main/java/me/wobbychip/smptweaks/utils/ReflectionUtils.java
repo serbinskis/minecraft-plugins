@@ -65,10 +65,7 @@ import org.bukkit.block.DoubleChest;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.type.Comparator;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Villager;
+import org.bukkit.entity.*;
 import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
@@ -514,6 +511,10 @@ public class ReflectionUtils {
 	public static boolean isUsingItem(Player player) {
 		Byte entityFlags = (Byte) getEntityPlayer(player).getEntityData().get(DATA_LIVING_ENTITY_FLAGS);
 		return (entityFlags & LIVING_ENTITY_FLAG_IS_USING) > 0;
+	}
+
+	public static void setDisabledSlots(ArmorStand stand, int slots) {
+		((net.minecraft.world.entity.decoration.ArmorStand) getEntity(stand)).disabledSlots = slots;
 	}
 
 	public static void shootBow(Player player, ItemStack bow, int ticks) {

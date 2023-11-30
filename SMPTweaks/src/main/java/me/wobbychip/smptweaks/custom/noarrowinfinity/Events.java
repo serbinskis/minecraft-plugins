@@ -1,6 +1,8 @@
 package me.wobbychip.smptweaks.custom.noarrowinfinity;
 
-import org.bukkit.Bukkit;
+import me.wobbychip.smptweaks.utils.PersistentUtils;
+import me.wobbychip.smptweaks.utils.ReflectionUtils;
+import me.wobbychip.smptweaks.utils.TaskUtils;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.AbstractArrow.PickupStatus;
@@ -14,10 +16,6 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerPickupArrowEvent;
 import org.bukkit.inventory.ItemStack;
-
-import me.wobbychip.smptweaks.Main;
-import me.wobbychip.smptweaks.utils.PersistentUtils;
-import me.wobbychip.smptweaks.utils.ReflectionUtils;
 
 public class Events implements Listener {
 	//BUG LIST
@@ -33,13 +31,11 @@ public class Events implements Listener {
 	public void onProjectileLaunchEvent(ProjectileLaunchEvent event) {
 		if (!(event.getEntity() instanceof Arrow)) { return; }
 
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
-			public void run() {
-				Arrow arrow = (Arrow) event.getEntity();
-				if (arrow.getPickupStatus() != PickupStatus.CREATIVE_ONLY) { return; }
-				arrow.setPickupStatus(PickupStatus.ALLOWED);
-				PersistentUtils.setPersistentDataBoolean(event.getEntity(), NoArrowInfinity.isCreativeOnly, true);
-			}
+		TaskUtils.scheduleSyncDelayedTask(() -> {
+			Arrow arrow = (Arrow) event.getEntity();
+			if (arrow.getPickupStatus() != PickupStatus.CREATIVE_ONLY) { return; }
+			arrow.setPickupStatus(PickupStatus.ALLOWED);
+			PersistentUtils.setPersistentDataBoolean(event.getEntity(), NoArrowInfinity.TAG_IS_CREATIVE_ONLY, true);
 		}, 1L);
 	}
 
@@ -56,24 +52,21 @@ public class Events implements Listener {
 
 		//Set isCreativeOnly if player is using infinity bow and arrow is normal arrow
 		if (NoArrowInfinity.isInfinityBow(event.getBow()) && (event.getConsumable().getType() == Material.ARROW)) {
-			PersistentUtils.setPersistentDataBoolean(event.getProjectile(), NoArrowInfinity.isCreativeOnly, true);
+			PersistentUtils.setPersistentDataBoolean(event.getProjectile(), NoArrowInfinity.TAG_IS_CREATIVE_ONLY, true);
 		}
 
 		//Delay just in case if other plugins change pickup status
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
-			public void run() {
-				Arrow arrow = (Arrow) event.getProjectile();
-				if (arrow.getPickupStatus() != PickupStatus.CREATIVE_ONLY) { return; }
-				arrow.setPickupStatus(PickupStatus.ALLOWED);
-				PersistentUtils.setPersistentDataBoolean(event.getProjectile(), NoArrowInfinity.isCreativeOnly, true);
-			}
+		TaskUtils.scheduleSyncDelayedTask(() -> {
+			Arrow arrow = (Arrow) event.getProjectile();
+			if (arrow.getPickupStatus() != PickupStatus.CREATIVE_ONLY) { return; }
+			arrow.setPickupStatus(PickupStatus.ALLOWED);
+			PersistentUtils.setPersistentDataBoolean(event.getProjectile(), NoArrowInfinity.TAG_IS_CREATIVE_ONLY, true);
 		}, 1L);
 	}
 
-	@SuppressWarnings("deprecation")
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onPlayerPickupArrow(PlayerPickupArrowEvent event) {
-		if (!PersistentUtils.hasPersistentDataBoolean(event.getArrow(), NoArrowInfinity.isCreativeOnly)) { return; }
+		if (!PersistentUtils.hasPersistentDataBoolean(event.getArrow(), NoArrowInfinity.TAG_IS_CREATIVE_ONLY)) { return; }
 
 		//If player in creative allow them pickup arrows
 		if (event.getPlayer().getGameMode() == GameMode.CREATIVE) {
@@ -98,12 +91,10 @@ public class Events implements Listener {
 
 		//In case if player don't shoot make a timer and do checks
 		int[] task = { 0 };
-		task[0] = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
-			public void run() {
-				if (player.getItemInUse() == null) {
-					ReflectionUtils.setInstantBuild(player, false, false, true);
-					Bukkit.getServer().getScheduler().cancelTask(task[0]);
-				}
+		task[0] = TaskUtils.scheduleSyncRepeatingTask(() -> {
+			if (player.getItemInUse() == null) {
+				ReflectionUtils.setInstantBuild(player, false, false, true);
+				TaskUtils.cancelTask(task[0]);
 			}
 		}, 1L, 1L);
 	}

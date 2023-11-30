@@ -123,8 +123,8 @@ public class PotionManager {
 	}
 
 	public CustomPotion getCustomPotion(Entity entity) {
-		if (!PersistentUtils.hasPersistentDataString(entity, CustomPotions.customTag)) { return null; }
-		String name = PersistentUtils.getPersistentDataString(entity, CustomPotions.customTag);
+		if (!PersistentUtils.hasPersistentDataString(entity, CustomPotions.TAG_CUSTOM_POTION)) { return null; }
+		String name = PersistentUtils.getPersistentDataString(entity, CustomPotions.TAG_CUSTOM_POTION);
 		return potions.containsKey(name) ? potions.get(name) : null;
 	}
 
@@ -136,8 +136,8 @@ public class PotionManager {
 			return potions.get(name);
 		}
 
-		if (PersistentUtils.hasPersistentDataString(item, CustomPotions.customTag)) {
-			name = PersistentUtils.getPersistentDataString(item, CustomPotions.customTag);
+		if (PersistentUtils.hasPersistentDataString(item, CustomPotions.TAG_CUSTOM_POTION)) {
+			name = PersistentUtils.getPersistentDataString(item, CustomPotions.TAG_CUSTOM_POTION);
 		}
 
 		return potions.containsKey(name) ? potions.get(name) : null;

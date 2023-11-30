@@ -1,11 +1,10 @@
 package me.wobbychip.smptweaks.custom.pvpdropinventory;
 
-import java.util.List;
-
-import org.bukkit.Bukkit;
-
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
+import org.bukkit.Bukkit;
+
+import java.util.List;
 
 public class PvPDropInventory extends CustomTweak {
 	public static CustomTweak tweak;
@@ -18,12 +17,12 @@ public class PvPDropInventory extends CustomTweak {
 
 	public PvPDropInventory() {
 		super(PvPDropInventory.class, false, false);
-		PvPDropInventory.tweak = this;
 		this.setConfigs(List.of("config.yml", "players.yml"));
 		this.setGameRule("doPvPDropInventory", false, false);
 		this.setReloadable(true);
 		this.setDescription("Drop inventory when a player dies in the middle of PvP. " +
-							"Ment to be used with keep inventory enabled.");
+							"Meant to be used with keep inventory enabled.");
+		PvPDropInventory.tweak = this;
 	}
 
 	public void onEnable() {

@@ -24,9 +24,9 @@ public class SetCommand {
 		if (type == null) {
 			Utils.sendMessage(sender, USAGE_MESSAGE); return true;
 		} else if (type == CustomWorld.Type.NONE) {
-			PersistentUtils.removePersistentData(player.getWorld(), CustomWorld.CUSTOM_WORLD_TAG);
+			PersistentUtils.removePersistentData(player.getWorld(), CustomWorld.TAG_CUSTOM_WORLD);
 		} else {
-			PersistentUtils.setPersistentDataString(player.getWorld(), CustomWorld.CUSTOM_WORLD_TAG, args[0].toLowerCase());
+			PersistentUtils.setPersistentDataString(player.getWorld(), CustomWorld.TAG_CUSTOM_WORLD, args[0].toLowerCase());
 		}
 
 		Utils.sendMessage(sender, Main.color + "Set custom world to " + args[0].toLowerCase() + ". (REQUIRES RESTART).");

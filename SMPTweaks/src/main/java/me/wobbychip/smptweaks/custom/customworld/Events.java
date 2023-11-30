@@ -15,17 +15,17 @@ public class Events implements Listener {
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onChunkLoadEvent(ChunkLoadEvent event) {
 		if (!event.isNewChunk()) { return; }
-		if (!PersistentUtils.hasPersistentDataString(event.getWorld(), CustomWorld.CUSTOM_WORLD_TAG)) { return; }
+		if (!PersistentUtils.hasPersistentDataString(event.getWorld(), CustomWorld.TAG_CUSTOM_WORLD)) { return; }
 
-		CustomWorld.Type type = CustomWorld.getCustomType(PersistentUtils.getPersistentDataString(event.getWorld(), CustomWorld.CUSTOM_WORLD_TAG));
+		CustomWorld.Type type = CustomWorld.getCustomType(PersistentUtils.getPersistentDataString(event.getWorld(), CustomWorld.TAG_CUSTOM_WORLD));
 		if ((type != CustomWorld.Type.END) && (type != CustomWorld.Type.VOID)) { return; }
 		Utils.fillChunk(event.getChunk(), Material.AIR, true);
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onWorldInitEvent(WorldInitEvent event) {
-		if (!PersistentUtils.hasPersistentDataString(event.getWorld(), CustomWorld.CUSTOM_WORLD_TAG)) { return; }
-		CustomWorld.Type type = CustomWorld.getCustomType(PersistentUtils.getPersistentDataString(event.getWorld(), CustomWorld.CUSTOM_WORLD_TAG));
+		if (!PersistentUtils.hasPersistentDataString(event.getWorld(), CustomWorld.TAG_CUSTOM_WORLD)) { return; }
+		CustomWorld.Type type = CustomWorld.getCustomType(PersistentUtils.getPersistentDataString(event.getWorld(), CustomWorld.TAG_CUSTOM_WORLD));
 		if (type != CustomWorld.Type.VOID) { return; }
 
 		ReflectionUtils.setCustomDimension(event.getWorld(), null, World.Environment.THE_END, null, null, null, null, null, null, null, null, 0, null, null, null, null, null, null);

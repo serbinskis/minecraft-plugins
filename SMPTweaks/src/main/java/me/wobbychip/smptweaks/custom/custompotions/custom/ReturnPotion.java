@@ -14,13 +14,13 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.util.Vector;
 
-import java.util.Arrays;
+import java.util.List;
 
 public class ReturnPotion extends CustomPotion {
 	public ReturnPotion() {
 		super("recall", Material.ENDER_EYE, "return", Color.fromRGB(129, 111, 179));
 		this.setDisplayName("§r§fPotion of Return");
-		this.setLore(Arrays.asList("§9Teleports to Deathpoint"));
+		this.setLore(List.of("§9Teleports to Deathpoint"));
 		this.setTippedArrow(true, "§r§fArrow of Return");
 		this.setAllowVillagerTrades(true);
 	}

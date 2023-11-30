@@ -135,7 +135,7 @@ public class BlockEvents implements Listener {
 
 		//Fix for 1 tick gap inside BlockDispenseEvent
 		if ((destination.getType() == Material.DISPENSER || destination.getType() == Material.DROPPER) && cblock.isCustomBlock(destination)) {
-			TaskUtils.finishSyncRepeatingTask(busy_task);
+			TaskUtils.finishTask(busy_task);
 		}
 
 		if (busy || !cblock.isCustomBlock(source)) { return; }

@@ -65,7 +65,7 @@ public class ServerPause extends CustomTweak {
 
 		if (delayTask < 0) { return; }
 		delayTask = TaskUtils.rescheduleSyncDelayedTask(delayTask, pauseDelay);
-		if (pauseDelay <= 0) { TaskUtils.finishSyncDelayedTask(delayTask); }
+		if (pauseDelay <= 0) { TaskUtils.finishTask(delayTask); }
 	}
 
 	public static boolean canPause(boolean bConnections) {

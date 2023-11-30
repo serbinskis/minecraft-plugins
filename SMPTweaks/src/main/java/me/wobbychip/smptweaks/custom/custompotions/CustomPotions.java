@@ -13,7 +13,7 @@ import java.util.List;
 
 public class CustomPotions extends CustomTweak {
 	public static CustomTweak tweak;
-	public static String customTag = "CustomPotion";
+	public final static String TAG_CUSTOM_POTION = "CustomPotion";
 	public static int tradingPotionChance = 5;
 	public static int tradingArrowChance = 5;
 	public static Config config;

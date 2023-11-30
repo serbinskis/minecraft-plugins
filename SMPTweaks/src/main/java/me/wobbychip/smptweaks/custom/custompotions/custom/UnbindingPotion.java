@@ -1,7 +1,7 @@
 package me.wobbychip.smptweaks.custom.custompotions.custom;
 
-import java.util.Arrays;
-
+import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
+import me.wobbychip.smptweaks.custom.custompotions.potions.PotionManager;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -15,14 +15,13 @@ import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionType;
 
-import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
-import me.wobbychip.smptweaks.custom.custompotions.potions.PotionManager;
+import java.util.List;
 
 public class UnbindingPotion extends CustomPotion {
 	public UnbindingPotion() {
 		super(PotionManager.getPotion(PotionType.AWKWARD, false, false), Material.HONEY_BLOCK, "unbinding", Color.fromRGB(255, 128, 0));
 		this.setDisplayName("§r§fPotion of Unbinding");
-		this.setLore(Arrays.asList("§9Drops armour with curse of binding"));
+		this.setLore(List.of("§9Drops armour with curse of binding"));
 		this.setTippedArrow(true, "§r§fArrow of Unbinding");
 		this.setAllowVillagerTrades(true);
 	}

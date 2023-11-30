@@ -53,10 +53,8 @@ public class ServerUtils {
 		return ((levels != null) || (ticking != null) || (postReload != null));
 	}
 
-	//This does not shutdown the server
-	//this indicates that the server is shutting down
-	//which will make the server to resume
-	//because it is required for propper shutdown
+	//This does not shut down the server, this indicates that the server is shutting down
+	//which will make the server to resume, because it is required for proper shutdown
 	public static void serverShutdown() {
 		ServerUtils.resumeServer();
 		ServerUtils.shutting = true;

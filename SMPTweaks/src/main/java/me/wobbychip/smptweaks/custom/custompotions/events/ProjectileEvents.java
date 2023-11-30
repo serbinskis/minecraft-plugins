@@ -52,20 +52,18 @@ public class ProjectileEvents implements Listener {
 			if (fuckBukkit.containsKey(block.getLocation())) {
 				ItemStack item = fuckBukkit.remove(block.getLocation());
 				CustomPotion customPotion = CustomPotions.manager.getCustomPotion(item);
-				if (customPotion != null) { PersistentUtils.setPersistentDataString(event.getEntity(), CustomPotions.customTag, customPotion.getName()); }
+				if (customPotion != null) { PersistentUtils.setPersistentDataString(event.getEntity(), CustomPotions.TAG_CUSTOM_POTION, customPotion.getName()); }
 				if (event.isCancelled() || !customPotion.isEnabled()) { return; }
 				customPotion.onProjectileLaunch(event);
 			}
 		}
 
-		if (event.getEntity() instanceof ThrownPotion) {
+		if (event.getEntity() instanceof ThrownPotion potion) {
 			//Some plugins don't work with custom potion tag, e.g. WorldGuard
 			//Since potion name is also saved in LocName, we can set potion tag back to empty
 			//Technically these tags are only needed in brewing stand
 
-			ThrownPotion potion = (ThrownPotion) event.getEntity();
 			if ((potion.getItem() == null) || (potion.getItem().getType() != Material.SPLASH_POTION)) { return; }
-
 			CustomPotion customPotion = CustomPotions.manager.getCustomPotion(potion.getItem());
 			if (customPotion == null) { return; }
 

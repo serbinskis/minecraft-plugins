@@ -149,7 +149,7 @@ public class CustomPotion implements Listener {
 			if (lore != null) { potionMeta.setLore(lore); }
 			potionMeta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
 			item.setItemMeta(potionMeta);
-			PersistentUtils.setPersistentDataString(item, CustomPotions.customTag, name);
+			PersistentUtils.setPersistentDataString(item, CustomPotions.TAG_CUSTOM_POTION, name);
 			return item;
 		} else {
 			return new ItemStack(Material.AIR);
@@ -167,7 +167,7 @@ public class CustomPotion implements Listener {
 		if (lore != null) { potionMeta.setLore(lore); }
 		potionMeta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
 		item.setItemMeta(potionMeta);
-		PersistentUtils.setPersistentDataString(item, CustomPotions.customTag, name);
+		PersistentUtils.setPersistentDataString(item, CustomPotions.TAG_CUSTOM_POTION, name);
 
 		return setPotionTag(item);
 	}

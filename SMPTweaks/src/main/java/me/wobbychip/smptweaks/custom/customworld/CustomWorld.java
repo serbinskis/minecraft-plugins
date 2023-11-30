@@ -7,7 +7,7 @@ import org.bukkit.Bukkit;
 
 public class CustomWorld extends CustomTweak {
 	public static CustomTweak tweak;
-	public static String CUSTOM_WORLD_TAG = "SMPTWEAKS_CUSTOM_WORLD";
+	public static String TAG_CUSTOM_WORLD = "SMPTWEAKS_CUSTOM_WORLD";
 	public enum Type { END, VOID, NONE }
 	public Commands commands;
 

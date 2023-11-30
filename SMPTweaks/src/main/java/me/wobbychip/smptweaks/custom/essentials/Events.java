@@ -70,7 +70,7 @@ public class Events implements Listener {
 		if ((user == null) || !user.isVanished()) { return; }
 
 		if (!reverser.containsKey(user.getUUID())) { return; }
-		TaskUtils.finishSyncDelayedTask(reverser.get(user.getUUID()));
+		TaskUtils.finishTask(reverser.get(user.getUUID()));
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)

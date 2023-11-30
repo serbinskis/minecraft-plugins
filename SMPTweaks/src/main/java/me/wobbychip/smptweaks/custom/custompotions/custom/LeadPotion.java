@@ -1,13 +1,11 @@
 package me.wobbychip.smptweaks.custom.custompotions.custom;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-
+import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
+import me.wobbychip.smptweaks.utils.PersistentUtils;
+import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.entity.AreaEffectCloud;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -20,18 +18,17 @@ import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.projectiles.ProjectileSource;
 
-import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
-import me.wobbychip.smptweaks.utils.PersistentUtils;
-import me.wobbychip.smptweaks.utils.Utils;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LeadPotion extends CustomPotion {
-	public static String isLeashedCustom = "isLeashedCustom";
+	public static String TAG_IS_LEASHED_CUSTOM = "SMPTWEAKS_IS_LEAD_CUSTOM";
 	public static int MAX_LEADS = 5;
 
 	public LeadPotion() {
 		super("amethyst", Material.LEAD, "lead", Color.fromRGB(164, 102, 60));
 		this.setDisplayName("§r§fPotion of Lead");
-		this.setLore(Arrays.asList("§9Leads nearby mobs"));
+		this.setLore(List.of("§9Leads nearby mobs"));
 		this.setTippedArrow(true, "§r§fArrow of Lead");
 		this.setAllowVillagerTrades(true);
 	}
@@ -41,8 +38,8 @@ public class LeadPotion extends CustomPotion {
 		if (!(source instanceof Player)) { return; }
 
 		Location loc = ((Player) source).getLocation();
-		ArrayList<LivingEntity> list = new ArrayList<>(event.getAffectedEntities());
-		Collections.sort(list, (a, b) -> (int) (Utils.distance(loc, a.getLocation()) - Utils.distance(loc, b.getLocation())));
+		ArrayList<LivingEntity> list = (new ArrayList<>(event.getAffectedEntities()));
+		list.sort((a, b) -> (int) (Utils.distance(loc, a.getLocation()) - Utils.distance(loc, b.getLocation())));
 		int counter = 0;
 
 		for (LivingEntity entity : list) {
@@ -52,12 +49,11 @@ public class LeadPotion extends CustomPotion {
 	}
 
 	public void onAreaEffectCloudApply(AreaEffectCloudApplyEvent event) {
-		ProjectileSource source = ((AreaEffectCloud) event.getEntity()).getSource();
-		if (!(source instanceof Player)) { return; }
+		if (!(event.getEntity().getSource() instanceof Player player)) { return; }
 		int counter = 0;
 
 		for (LivingEntity livingEntity : event.getAffectedEntities()) {
-			if (leadEntity(((Player) source), livingEntity)) { counter++; }
+			if (leadEntity(player, livingEntity)) { counter++; }
 			if (counter >= MAX_LEADS) { break; }
 		}
 
@@ -79,7 +75,7 @@ public class LeadPotion extends CustomPotion {
 	public boolean leadEntity(Player player, LivingEntity entity) {
 		if ((player == null) || !Utils.isLeashable(entity)) { return false; }
 		if (Utils.distance(player.getLocation(), entity.getLocation()) >= 10) { return false; }
-		PersistentUtils.setPersistentDataBoolean(entity, isLeashedCustom, true);
+		PersistentUtils.setPersistentDataBoolean(entity, TAG_IS_LEASHED_CUSTOM, true);
 		return entity.setLeashHolder(player);
 	}
 
@@ -90,8 +86,8 @@ public class LeadPotion extends CustomPotion {
 
 		for (Entity entity : location.getWorld().getNearbyEntities(location, 0.01, 0.01, 0.01)) {
 			if (!(entity instanceof LivingEntity)) { continue; }
-			if (!PersistentUtils.hasPersistentDataBoolean(entity, isLeashedCustom)) { continue; }
-			PersistentUtils.removePersistentData(entity, isLeashedCustom);
+			if (!PersistentUtils.hasPersistentDataBoolean(entity, TAG_IS_LEASHED_CUSTOM)) { continue; }
+			PersistentUtils.removePersistentData(entity, TAG_IS_LEASHED_CUSTOM);
 
 			event.setCancelled(true);
 			break;

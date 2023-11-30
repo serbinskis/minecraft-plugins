@@ -9,11 +9,9 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 
 import java.util.Collection;
-import java.util.UUID;
 
 public class Aggravator {
 	public Block block;
-	public UUID frameUUID;
 	public FakePlayer fakePlayer;
 
 	public Aggravator(Block block, FakePlayer fakePlayer) {

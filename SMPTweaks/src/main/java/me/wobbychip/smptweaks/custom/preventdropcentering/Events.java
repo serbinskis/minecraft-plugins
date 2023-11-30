@@ -1,6 +1,7 @@
 package me.wobbychip.smptweaks.custom.preventdropcentering;
 
-import org.bukkit.Bukkit;
+import me.wobbychip.smptweaks.utils.TaskUtils;
+import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
@@ -9,9 +10,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.util.Vector;
-
-import me.wobbychip.smptweaks.Main;
-import me.wobbychip.smptweaks.utils.Utils;
 
 public class Events implements Listener {
 	public double ITEM_HEIGHT = 0.25F;
@@ -23,21 +21,19 @@ public class Events implements Listener {
 		if (event.getPlayer() == null) { return; }
 		Location location = event.getBlock().getLocation().add(.5, .5, .5);
 
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
-			public void run() {
-				for (Entity entity : location.getWorld().getNearbyEntities(location, DISTANCE, DISTANCE, DISTANCE)) {
-					if (entity instanceof Item) {
-						double posX = Utils.afterDecimal(entity.getLocation().getX());
-						double posY = Utils.afterDecimal(entity.getLocation().getY());
-						double posZ = Utils.afterDecimal(entity.getLocation().getZ());
+		TaskUtils.scheduleSyncDelayedTask(() -> {
+			for (Entity entity : location.getWorld().getNearbyEntities(location, DISTANCE, DISTANCE, DISTANCE)) {
+				if (entity instanceof Item) {
+					double posX = Utils.afterDecimal(entity.getLocation().getX());
+					double posY = Utils.afterDecimal(entity.getLocation().getY());
+					double posZ = Utils.afterDecimal(entity.getLocation().getZ());
 
-						double velX = entity.getVelocity().getX();
-						double velY = entity.getVelocity().getY();
-						double velZ = entity.getVelocity().getZ();
+					double velX = entity.getVelocity().getX();
+					double velY = entity.getVelocity().getY();
+					double velZ = entity.getVelocity().getZ();
 
-						if ((velX == 0.0F) && (velY == 0.0F) && (velZ == 0.0F) && (posX == 0.5F) && (posY == 0.5F) && (posZ == 0.5F)) {
-							popResource(entity, location);
-						}
+					if ((velX == 0.0F) && (velY == 0.0F) && (velZ == 0.0F) && (posX == 0.5F) && (posY == 0.5F) && (posZ == 0.5F)) {
+						popResource(entity, location);
 					}
 				}
 			}

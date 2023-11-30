@@ -20,14 +20,14 @@ import org.bukkit.scoreboard.Criteria;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 public class WormholePotion extends CustomPotion {
 	public WormholePotion() {
 		super("recall", Material.ENDER_EYE, "wormhole", Color.fromRGB(120, 105, 235));
 		this.setDisplayName("§r§fPotion of Wormhole");
-		this.setLore(Arrays.asList("§9Shoot a player and then use the potion."));
+		this.setLore(List.of("§9Shoot a player and then use the potion."));
 		this.setTippedArrow(true, "§r§fArrow of Wormhole");
 		this.setAllowVillagerTrades(true);
 	}
@@ -64,8 +64,7 @@ public class WormholePotion extends CustomPotion {
 	}
 
 	public void saveTarget(Player target, Arrow arrow) {
-		if (!(arrow.getShooter() instanceof Player)) { return; }
-		Player attacker = (Player) arrow.getShooter();
+		if (!(arrow.getShooter() instanceof Player attacker)) { return; }
 
 		if (target.getUniqueId().equals(attacker.getUniqueId())) {
 			Utils.sendActionMessage(target, "You cannot mark yourself.");
@@ -95,7 +94,7 @@ public class WormholePotion extends CustomPotion {
 	}
 
 	public void teleportAttacker(Player player) {
-		String objectiveName = this.getName() + "_" + player.getUniqueId().toString();
+		String objectiveName = this.getName() + "_" + player.getUniqueId();
 		Objective objective = Bukkit.getScoreboardManager().getMainScoreboard().getObjective(objectiveName);
 
 		if (objective == null) {

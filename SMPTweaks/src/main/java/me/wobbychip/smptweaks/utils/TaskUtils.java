@@ -1,16 +1,15 @@
 package me.wobbychip.smptweaks.utils;
 
-import java.util.HashMap;
-
+import me.wobbychip.smptweaks.Main;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
-import me.wobbychip.smptweaks.Main;
+
+import java.util.HashMap;
 
 public class TaskUtils implements Listener {
-	private static HashMap<Integer, Runnable> runnables0 = new HashMap<Integer, Runnable>();
-	private static HashMap<Runnable, Integer> runnables1 = new HashMap<Runnable, Integer>();
+	private static final HashMap<Integer, Runnable> runnables0 = new HashMap<Integer, Runnable>();
+	private static final HashMap<Runnable, Integer> runnables1 = new HashMap<Runnable, Integer>();
 
-	//Sync delayed task
 	public static int scheduleSyncDelayedTask(Runnable runnable, long ticks) {
 		Runnable wrapper = new Runnable() { public void run() {
 			Integer task = runnables1.remove(this);
@@ -26,26 +25,14 @@ public class TaskUtils implements Listener {
 
 	public static int rescheduleSyncDelayedTask(int task, long ticks) {
 		if (!runnables0.containsKey(task)) { return -1; }
-		Runnable runnable = runnables0.remove(task);
-		if (runnable != null) { runnables1.remove(runnable); }
 		Bukkit.getScheduler().cancelTask(task);
+		Runnable runnable = runnables0.remove(task);
+		runnables1.remove(runnable);
 
 		task = Bukkit.getScheduler().scheduleSyncDelayedTask(Main.plugin, runnable, ticks);
 		runnables0.put(task, runnable);
 		runnables1.put(runnable, task);
 		return task;
-	}
-
-	public static void cancelSyncDelayedTask(int task) {
-		Runnable runnable = runnables0.remove(task);
-		if (runnable != null) { runnables1.remove(runnable); }
-		Bukkit.getScheduler().cancelTask(task);
-	}
-
-	public static void finishSyncDelayedTask(int task) {
-		if (!runnables0.containsKey(task)) { return; }
-		runnables0.get(task).run();
-		Bukkit.getScheduler().cancelTask(task);
 	}
 
 	//Sync repeating task
@@ -57,20 +44,20 @@ public class TaskUtils implements Listener {
 
 	public static int rescheduleSyncRepeatingTask(int task, long first, long interval) {
 		if (!runnables0.containsKey(task)) { return -1; }
-		Runnable runnable = runnables0.remove(task);
 		Bukkit.getScheduler().cancelTask(task);
+		Runnable runnable = runnables0.remove(task);
 		return scheduleSyncRepeatingTask(runnable, first, interval);
 	}
 
-	public static void cancelSyncRepeatingTask(int task) {
+	public static void finishTask(int task) {
 		if (!runnables0.containsKey(task)) { return; }
-		runnables0.remove(task);
 		Bukkit.getScheduler().cancelTask(task);
+		runnables0.remove(task).run(); //Don't care, because inside wrapper we also use runnables0.remove()
 	}
 
-	public static void finishSyncRepeatingTask(int task) {
+	public static void cancelTask(int task) {
 		if (!runnables0.containsKey(task)) { return; }
 		Bukkit.getScheduler().cancelTask(task);
-		runnables0.remove(task).run();
+		runnables1.remove(runnables0.remove(task)); //I do not care if runnables1.remove() will return null
 	}
 }

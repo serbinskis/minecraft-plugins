@@ -1,8 +1,7 @@
 package me.wobbychip.smptweaks.custom.custompotions.custom;
 
-import java.util.Arrays;
-import java.util.Random;
-
+import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
+import me.wobbychip.smptweaks.custom.custompotions.potions.PotionManager;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -21,14 +20,14 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.weather.LightningStrikeEvent;
 
-import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
-import me.wobbychip.smptweaks.custom.custompotions.potions.PotionManager;
+import java.util.List;
+import java.util.Random;
 
 public class LightingPotion extends CustomPotion {
 	public LightingPotion() {
 		super("copper", null, "lighting", Color.fromRGB(197, 235, 252));
 		this.setDisplayName("§r§fPotion of Lighting");
-		this.setLore(Arrays.asList("§9Strike brewing stand with lighting"));
+		this.setLore(List.of("§9Strike brewing stand with lighting"));
 		this.setTippedArrow(true, "§r§fArrow of Lighting");
 		this.setAllowVillagerTrades(true);
 	}
@@ -38,7 +37,7 @@ public class LightingPotion extends CustomPotion {
 	}
 
 	public void onAreaEffectCloudApply(AreaEffectCloudApplyEvent event) {
-		if (event.getAffectedEntities().size() <= 0) { return; }
+		if (event.getAffectedEntities().isEmpty()) { return; }
 		int i = new Random().nextInt(event.getAffectedEntities().size());
 		summonLighting(((LivingEntity) event.getAffectedEntities().toArray()[i]).getLocation());
 	}

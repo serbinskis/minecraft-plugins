@@ -16,7 +16,7 @@ import org.bukkit.entity.BlockDisplay;
 import java.util.HashMap;
 import java.util.Map;
 
-import static me.wobbychip.smptweaks.library.customblocks.blocks.CustomBlock.BLOCK_TAG;
+import static me.wobbychip.smptweaks.library.customblocks.blocks.CustomBlock.TAG_BLOCK;
 
 public class CustomBlocks {
 	public static HashMap<String, CustomBlock> cblocks = new HashMap<>();
@@ -51,7 +51,7 @@ public class CustomBlocks {
 	}
 
 	public static CustomBlock getCustomBlock(BlockDisplay display) {
-		String name = PersistentUtils.getPersistentDataString(display, BLOCK_TAG);
+		String name = PersistentUtils.getPersistentDataString(display, TAG_BLOCK);
 		return getCustomBlock(name);
 	}
 

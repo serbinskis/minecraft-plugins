@@ -20,7 +20,7 @@ import org.joml.Vector3f;
 import java.util.HashMap;
 
 public class CustomMarker implements Runnable {
-    public static String MARKER_TAG = "SMPTWEAKS_CUSTOM_MARKER";
+    public static String TAG_MARKER = "SMPTWEAKS_CUSTOM_MARKER";
     public static final HashMap<String, CustomMarker> markers = new HashMap<>();
     public final int task;
     public final BlockDisplay display;
@@ -37,9 +37,9 @@ public class CustomMarker implements Runnable {
         if (markers.containsKey(location)) { return markers.get(location); }
 
         BlockDisplay display = (BlockDisplay) block.getWorld().spawnEntity(block.getLocation().add(0.5, 0.5, 0.5), EntityType.BLOCK_DISPLAY);
-        PersistentUtils.setPersistentDataString(display, CustomBlock.BLOCK_TAG, cblock.getName());
-        PersistentUtils.setPersistentDataBoolean(display, MARKER_TAG, true);
-        display.setCustomName(MARKER_TAG);
+        PersistentUtils.setPersistentDataString(display, CustomBlock.TAG_BLOCK, cblock.getName());
+        PersistentUtils.setPersistentDataBoolean(display, TAG_MARKER, true);
+        display.setCustomName(TAG_MARKER);
         display.setCustomNameVisible(false);
         display.setInvulnerable(true);
         display.setBlock(getBlockData(block, cblock.getCustomMaterial()));
@@ -63,7 +63,7 @@ public class CustomMarker implements Runnable {
 
     public static boolean isMarkerEntity(Entity entity) {
         if (!(entity instanceof BlockDisplay)) { return false; }
-        return PersistentUtils.hasPersistentDataBoolean(entity, MARKER_TAG);
+        return PersistentUtils.hasPersistentDataBoolean(entity, TAG_MARKER);
     }
 
     public static boolean containsMarkerEntity(Entity entity) {
@@ -124,7 +124,7 @@ public class CustomMarker implements Runnable {
 
     public void remove(boolean rmarker) {
         markers.remove(Utils.locationToString(display.getLocation().getBlock().getLocation()));
-        TaskUtils.cancelSyncRepeatingTask(task);
+        TaskUtils.cancelTask(task);
         if (rmarker) { display.remove(); }
     }
 }

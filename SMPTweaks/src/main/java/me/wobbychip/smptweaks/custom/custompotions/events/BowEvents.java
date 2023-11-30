@@ -21,7 +21,7 @@ public class BowEvents implements Listener {
 
 		if (!event.isCancelled()) {
 			Arrow projectile = (Arrow) event.getProjectile();
-			PersistentUtils.setPersistentDataString(projectile, CustomPotions.customTag, customPotion.getName());
+			PersistentUtils.setPersistentDataString(projectile, CustomPotions.TAG_CUSTOM_POTION, customPotion.getName());
 			projectile.setColor(customPotion.getColor());
 		}
 	}
