@@ -1,9 +1,8 @@
 package me.wobbychip.smptweaks.custom.betterlead;
 
-import java.util.HashMap;
-import java.util.UUID;
-
-import org.bukkit.Bukkit;
+import me.wobbychip.smptweaks.utils.PersistentUtils;
+import me.wobbychip.smptweaks.utils.TaskUtils;
+import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -14,15 +13,14 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityUnleashEvent;
-import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.entity.EntityUnleashEvent.UnleashReason;
+import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
-import me.wobbychip.smptweaks.Main;
-import me.wobbychip.smptweaks.utils.PersistentUtils;
-import me.wobbychip.smptweaks.utils.Utils;
+import java.util.HashMap;
+import java.util.UUID;
 
 public class Events implements Listener {
 	public HashMap<UUID, Player> holders = new HashMap<>();
@@ -40,24 +38,22 @@ public class Events implements Listener {
 		if (!Utils.isLeashable(entity)) { return; }
 		event.setCancelled(true);
 
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
-			public void run() {
-				if (!(event.getRightClicked() instanceof LivingEntity)) { return; }
-				ItemStack item = event.getPlayer().getInventory().getItem(event.getHand());
-				if (item.getType() != Material.LEAD) { return; }
+		TaskUtils.scheduleSyncDelayedTask(() -> {
+			if (!(event.getRightClicked() instanceof LivingEntity)) { return; }
+			ItemStack item1 = event.getPlayer().getInventory().getItem(event.getHand());
+			if (item1.getType() != Material.LEAD) { return; }
 
-				LivingEntity entity = (LivingEntity) event.getRightClicked();
-				if (!Utils.isLeashable(entity)) { return; }
+			LivingEntity entity1 = (LivingEntity) event.getRightClicked();
+			if (!Utils.isLeashable(entity1)) { return; }
 
-				entity.setLeashHolder(event.getPlayer());
-				boolean isLeashed = entity.setLeashHolder(event.getPlayer());
+			entity1.setLeashHolder(event.getPlayer());
+			boolean isLeashed = entity1.setLeashHolder(event.getPlayer());
 
-				if (isLeashed && (event.getHand() == EquipmentSlot.HAND)) { event.getPlayer().swingMainHand(); }
-				if (isLeashed && (event.getHand() == EquipmentSlot.OFF_HAND)) { event.getPlayer().swingOffHand(); }
+			if (isLeashed && (event.getHand() == EquipmentSlot.HAND)) { event.getPlayer().swingMainHand(); }
+			if (isLeashed && (event.getHand() == EquipmentSlot.OFF_HAND)) { event.getPlayer().swingOffHand(); }
 
-				if ((event.getPlayer().getGameMode() != GameMode.CREATIVE) && isLeashed) {
-					item.setAmount(item.getAmount()-1);
-				}
+			if ((event.getPlayer().getGameMode() != GameMode.CREATIVE) && isLeashed) {
+				item1.setAmount(item1.getAmount()-1);
 			}
 		}, 1);
 	}
@@ -91,12 +87,7 @@ public class Events implements Listener {
 				((LivingEntity) entity).setLeashHolder(player);
 				BetterLead.preventPacket.add(entity.getUniqueId());
 				holders.remove(entity.getUniqueId());
-
-				Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
-					public void run() {
-						BetterLead.preventPacket.remove(entity.getUniqueId());
-					}
-				}, 1);
+				TaskUtils.scheduleSyncDelayedTask(() -> BetterLead.preventPacket.remove(entity.getUniqueId()), 1);
 			}
 
 			event.setCancelled(true);

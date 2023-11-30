@@ -1,16 +1,14 @@
 package me.wobbychip.smptweaks.custom.breakablebedrock;
 
-import java.util.HashMap;
-import java.util.UUID;
-
-import org.bukkit.Bukkit;
+import me.wobbychip.smptweaks.utils.ReflectionUtils;
+import me.wobbychip.smptweaks.utils.TaskUtils;
+import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-import me.wobbychip.smptweaks.Main;
-import me.wobbychip.smptweaks.utils.ReflectionUtils;
-import me.wobbychip.smptweaks.utils.Utils;
+import java.util.HashMap;
+import java.util.UUID;
 
 public class BedrockBreaker {
 	public static HashMap<UUID, BedrockBreaker> breakers = new HashMap<UUID, BedrockBreaker>();
@@ -26,19 +24,14 @@ public class BedrockBreaker {
 	public BedrockBreaker(Player player, Block block) {
 		this.player = player;
 		this.block = block;
-
-		this.timer = Bukkit.getScheduler().scheduleSyncRepeatingTask(Main.plugin, new Runnable() {
-			public void run() {
-				update(true);
-			}
-		}, 1L, 1L);
+		this.timer = TaskUtils.scheduleSyncRepeatingTask(() -> update(true), 1L, 1L);
 
 		update(false); //Update visuals and do checks
 	}
 
 	public void remove() {
 		if (block.getType() == Material.BEDROCK) { ReflectionUtils.destroyBlockProgress(block, -1, MIX_ID); }
-		Bukkit.getServer().getScheduler().cancelTask(timer);
+		TaskUtils.cancelTask(timer);
 		breakers.remove(player.getUniqueId());
 	}
 

@@ -10,9 +10,9 @@ public class GlobalTrading extends CustomTweak {
 
 	public GlobalTrading() {
 		super(GlobalTrading.class, true, false);
-		GlobalTrading.tweak = this;
 		this.setGameRule("doGlobalTrading", true, false);
 		this.setDescription("Shares cured villager prices among all players.");
+		GlobalTrading.tweak = this;
 	}
 
 	public void onEnable() {

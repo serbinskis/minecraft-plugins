@@ -1,24 +1,22 @@
 package me.wobbychip.smptweaks.custom.expbottles;
 
-import java.util.HashMap;
-
-import org.bukkit.Bukkit;
+import me.wobbychip.smptweaks.utils.TaskUtils;
+import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.Event.Result;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import me.wobbychip.smptweaks.Main;
-import me.wobbychip.smptweaks.utils.Utils;
+import java.util.HashMap;
 
 public class Events implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -59,13 +57,11 @@ public class Events implements Listener {
 		//Make this to avoid twice event glitch
 		//Since replacing item in main hand will trigger event to run again
 		//This also causes duplication glitch if clicking too fast, like with macro fast
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
-			public void run() {
-				if ((player.getGameMode() != GameMode.CREATIVE) && (itemMeta != null) && itemMeta.isUnbreakable()) { item.setAmount(0); }
-				ItemStack expBootle = new ItemStack(Material.EXPERIENCE_BOTTLE);
-				HashMap<Integer, ItemStack> items = player.getInventory().addItem(expBootle);
-				if (!items.isEmpty()) { Utils.dropItem(player, expBootle); }
-			}
+		TaskUtils.scheduleSyncDelayedTask(() -> {
+			if ((player.getGameMode() != GameMode.CREATIVE) && (itemMeta != null) && itemMeta.isUnbreakable()) { item.setAmount(0); }
+			ItemStack expBootle = new ItemStack(Material.EXPERIENCE_BOTTLE);
+			HashMap<Integer, ItemStack> items = player.getInventory().addItem(expBootle);
+			if (!items.isEmpty()) { Utils.dropItem(player, expBootle); }
 		}, 1L);
 
 		event.setUseInteractedBlock(Result.DENY);

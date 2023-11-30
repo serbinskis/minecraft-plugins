@@ -1,11 +1,10 @@
 package me.wobbychip.smptweaks.custom.fastcuring;
 
-import java.util.List;
-
-import org.bukkit.Bukkit;
-
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
+import org.bukkit.Bukkit;
+
+import java.util.List;
 
 public class FastCuring extends CustomTweak {
 	public static CustomTweak tweak;
@@ -13,11 +12,11 @@ public class FastCuring extends CustomTweak {
 
 	public FastCuring() {
 		super(FastCuring.class, false, false);
-		FastCuring.tweak = this;
 		this.setConfigs(List.of("config.yml"));
 		this.setGameRule("doFastCuring", true, false);
 		this.setReloadable(true);
 		this.setDescription("Makes curing villagers much faster.");
+		FastCuring.tweak = this;
 	}
 
 	public void onEnable() {

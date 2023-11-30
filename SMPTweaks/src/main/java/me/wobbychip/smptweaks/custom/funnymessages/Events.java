@@ -10,7 +10,7 @@ import me.wobbychip.smptweaks.utils.Utils;
 public class Events implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerDeath(PlayerDeathEvent event) {
-		if (FunnyMessages.messages.size() == 0) { return; }
+		if (FunnyMessages.messages.isEmpty()) { return; }
 		int index = Utils.randomRange(0, FunnyMessages.messages.size()-1);
 		String message = FunnyMessages.messages.get(index).replace("<player>", event.getEntity().getName());
 		Utils.sendMessage(event.getDeathMessage());
