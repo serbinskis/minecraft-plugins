@@ -57,12 +57,12 @@ public class Aggravator {
 		Collection<Entity> entities = Utils.getNearbyEntities(block.getLocation().add(0.5, 0.5, 0.5), null, ChunkLoader.simulationDistance, false);
 
 		for (Entity entity : entities) {
-			if (!(entity instanceof Monster)) { continue; }
+			if (!(entity instanceof Monster monster)) { continue; }
 
 			if (doAggravate) {
-				aggravate((Monster) entity, fakePlayer.getPlayer());
+				aggravate(monster, fakePlayer.getPlayer());
 			} else {
-				deaggravate((Monster) entity, fakePlayer.getPlayer());
+				deaggravate(monster, fakePlayer.getPlayer());
 			}
 		}
 	}
@@ -70,7 +70,6 @@ public class Aggravator {
 	public void aggravate(Monster monster, Player player) {
 		boolean isTargetSame = false;
 		boolean isTargetValid = false;
-		boolean doAggravate = false;
 
 		if (monster.getTarget() != null) {
 			isTargetSame = monster.getTarget().getUniqueId().equals(player.getUniqueId());
@@ -78,7 +77,7 @@ public class Aggravator {
 			if (!isTargetSame) { return; }
 		}
 
-		doAggravate = !isTargetSame || !isTargetValid;
+		boolean doAggravate = !isTargetSame || !isTargetValid;
 		if ((monster instanceof PigZombie) && doAggravate) { ((PigZombie) monster).setAngry(true); }
 		if (doAggravate) { setTarget(monster, player); }
 	}

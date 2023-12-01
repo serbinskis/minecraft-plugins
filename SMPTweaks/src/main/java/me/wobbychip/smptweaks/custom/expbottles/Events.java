@@ -28,9 +28,7 @@ public class Events implements Listener {
 
 		//Prevent player from using both hands at the same time
 		ItemStack itemMainHand = event.getPlayer().getInventory().getItemInMainHand();
-		if ((event.getHand() == EquipmentSlot.OFF_HAND) && (itemMainHand != null) && (itemMainHand.getType() == Material.GLASS_BOTTLE)) {
-			return;
-		}
+		if ((event.getHand() == EquipmentSlot.OFF_HAND) && (itemMainHand != null) && (itemMainHand.getType() == Material.GLASS_BOTTLE)) { return; }
 
 		Player player = event.getPlayer();
 		ItemStack item = event.getItem();

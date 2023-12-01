@@ -141,7 +141,7 @@ public class Hologram {
 		//By default 4 lines can fit in 1 block
 		location = location.getBlock().getLocation();
 		float height = (getText().split("\r\n|\r|\n").length * 0.25f);
-		interaction.setInteractionHeight((height > 1f) ? height : 1f);
+		interaction.setInteractionHeight(Math.max(height, 1f));
 		display.setViewRange(getText().isBlank() ? 0f : 1f);
 
 		this.y = location.getBlockY();

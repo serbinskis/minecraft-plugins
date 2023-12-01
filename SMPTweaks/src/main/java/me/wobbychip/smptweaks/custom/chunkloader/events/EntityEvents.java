@@ -1,6 +1,8 @@
 package me.wobbychip.smptweaks.custom.chunkloader.events;
 
-import org.bukkit.Bukkit;
+import me.wobbychip.smptweaks.custom.chunkloader.ChunkLoader;
+import me.wobbychip.smptweaks.utils.PersistentUtils;
+import me.wobbychip.smptweaks.utils.TaskUtils;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -12,10 +14,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
-
-import me.wobbychip.smptweaks.Main;
-import me.wobbychip.smptweaks.custom.chunkloader.ChunkLoader;
-import me.wobbychip.smptweaks.utils.PersistentUtils;
 
 public class EntityEvents implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -39,12 +37,10 @@ public class EntityEvents implements Listener {
 		ItemFrame frame = (ItemFrame) event.getEntity();
 		if (frame.getAttachedFace() != BlockFace.DOWN) { return; }
 
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
-			public void run() {
-				if (frame.getItem().getType() == Material.NETHER_STAR) { return; }
-				Block block = frame.getLocation().getBlock().getRelative(frame.getAttachedFace());
-				ChunkLoader.manager.removeLoader(block, true);
-			}
+		TaskUtils.scheduleSyncDelayedTask(() -> {
+			if (frame.getItem().getType() == Material.NETHER_STAR) { return; }
+			Block block = frame.getLocation().getBlock().getRelative(frame.getAttachedFace());
+			ChunkLoader.manager.removeLoader(block, true);
 		}, 1L);
 	}
 }

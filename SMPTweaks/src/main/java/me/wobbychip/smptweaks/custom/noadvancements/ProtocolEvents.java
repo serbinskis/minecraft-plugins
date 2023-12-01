@@ -10,11 +10,7 @@ import com.comphenix.protocol.events.PacketEvent;
 
 public class ProtocolEvents extends PacketAdapter {
 	public ProtocolEvents(Plugin plugin) {
-		super(plugin, new PacketType[] {
-			PacketType.Play.Server.EXPERIENCE,
-			PacketType.Play.Server.NAMED_SOUND_EFFECT,
-		});
-
+		super(plugin, PacketType.Play.Server.EXPERIENCE, PacketType.Play.Server.NAMED_SOUND_EFFECT);
 		ProtocolLibrary.getProtocolManager().addPacketListener(this);
 	}
 

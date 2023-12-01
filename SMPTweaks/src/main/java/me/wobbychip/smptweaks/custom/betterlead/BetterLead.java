@@ -14,9 +14,9 @@ import java.util.UUID;
 
 public class BetterLead extends CustomTweak {
 	public static CustomTweak tweak;
-	public static String isUnbreakableLeash = "isUnbreakableLeash";
+	public static String TAG_IS_UNBREAKABLE_LEASH = "isUnbreakableLeash";
 	public static int maxDistance = 100;
-	public static List<String> custom = new ArrayList<>();;
+	public static List<String> custom = new ArrayList<>();
 	public static List<UUID> preventPacket = new ArrayList<>();
 
 	public BetterLead() {

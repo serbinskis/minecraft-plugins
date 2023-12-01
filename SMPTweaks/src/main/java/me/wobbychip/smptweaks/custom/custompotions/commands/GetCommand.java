@@ -75,13 +75,10 @@ public class GetCommand {
 
 	public static List<String> onTweakTabComplete(CustomTweak tweak, CommandSender sender, Command command, String alias, String[] args) {
 		boolean isCreative = ((sender instanceof Player) && (((Player) sender).getGameMode() == GameMode.CREATIVE));
-
-		if (!Utils.hasPermissions(sender, "cpotions.get") && !isCreative) {
-			return null;
-		}
+		if (!Utils.hasPermissions(sender, "cpotions.get") && !isCreative) { return null; }
 
 		if (args.length == 2) {
-			ArrayList<String> potions = new ArrayList<String>();
+			ArrayList<String> potions = new ArrayList<>();
 
 			for (String name : CustomPotions.manager.getPotionSet()) {
 				if (!CustomPotions.manager.getCustomPotion(name).isEnabled()) { continue; }
@@ -91,10 +88,7 @@ public class GetCommand {
 			return potions;
 		}
 
-		if (args.length == 3) {
-			return arguments;
-		}
-
+		if (args.length == 3) { return arguments; }
 		return null;
 	}
 }

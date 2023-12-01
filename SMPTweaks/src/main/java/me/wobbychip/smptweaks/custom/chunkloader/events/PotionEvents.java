@@ -10,28 +10,15 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
 
-import java.util.Iterator;
-import java.util.Map.Entry;
-
 public class PotionEvents implements Listener {
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onPotionSplash(PotionSplashEvent event) {
-		Iterator<Entry<LivingEntity, Double>> iterator = ReflectionUtils.getAffectedEntities(event).entrySet().iterator();
-
-		while (iterator.hasNext()) {
-			if (!isChunkLoader(iterator.next().getKey())) { continue; }
-			iterator.remove();
-		}
+        ReflectionUtils.getAffectedEntities(event).entrySet().removeIf(e -> !isChunkLoader(e.getKey()));
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onAreaEffectCloudApply(AreaEffectCloudApplyEvent event) {
-		Iterator<LivingEntity> iterator = ReflectionUtils.getAffectedEntities(event).iterator();
-
-		while (iterator.hasNext()) {
-			if (!isChunkLoader(iterator.next())) { continue; }
-			iterator.remove();
-		}
+        ReflectionUtils.getAffectedEntities(event).removeIf(this::isChunkLoader);
 	}
 
 	public boolean isChunkLoader(LivingEntity entity) {

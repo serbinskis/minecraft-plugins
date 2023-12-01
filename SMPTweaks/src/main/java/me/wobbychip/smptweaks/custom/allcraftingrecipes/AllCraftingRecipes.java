@@ -1,15 +1,14 @@
 package me.wobbychip.smptweaks.custom.allcraftingrecipes;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import me.wobbychip.smptweaks.Main;
+import me.wobbychip.smptweaks.tweaks.CustomTweak;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
 
-import me.wobbychip.smptweaks.Main;
-import me.wobbychip.smptweaks.tweaks.CustomTweak;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AllCraftingRecipes extends CustomTweak {
 	public static List<NamespacedKey> recipeKeys = new ArrayList<>();
@@ -29,7 +28,7 @@ public class AllCraftingRecipes extends CustomTweak {
 				recipeKeys.add(((ShapedRecipe) recipe).getKey());
 			}
 		});
-		
+
 		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 	}
 }

@@ -76,10 +76,9 @@ public class Traders {
 		List<ItemStack> outputItems = new ArrayList<>();
 		getResultItems(villager, recipe, trader, consumeItems, outputItems);
 
-		if ((outputItems.size() == 0) || (consumeItems.size() == 0)) { return false; }
-		if (!setResultItems(block, villager, recipe, source, destination, consumeItems, outputItems)) { return false; }
-		return true;
-	}
+		if ((outputItems.isEmpty()) || (consumeItems.isEmpty())) { return false; }
+        return setResultItems(block, villager, recipe, source, destination, consumeItems, outputItems);
+    }
 
 	public Inventory getSource(Block traders) {
 		BlockFace targetFace = ((org.bukkit.block.data.type.Dispenser) traders.getBlockData()).getFacing();

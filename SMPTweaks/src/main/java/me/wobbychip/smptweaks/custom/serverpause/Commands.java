@@ -1,11 +1,10 @@
 package me.wobbychip.smptweaks.custom.serverpause;
 
-import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
 import me.wobbychip.smptweaks.tweaks.TweakCommands;
 import me.wobbychip.smptweaks.utils.ServerUtils;
+import me.wobbychip.smptweaks.utils.TaskUtils;
 import me.wobbychip.smptweaks.utils.Utils;
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
@@ -30,27 +29,23 @@ public class Commands extends TweakCommands {
 		}
 
 		if (args[0].equalsIgnoreCase("enable")) {
-			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
-				public void run() {
-					ServerPause.enabled = true;
-					Utils.sendMessage(sender, "Server pause is now enabled.");
-					if (ServerUtils.isPaused()) { Utils.sendMessage(sender, "Server is already paused."); }
-					if (!ServerPause.canPause(false)) { Utils.sendMessage(sender, "Cannot pause server."); }
-					boolean success = ServerUtils.pauseServer();
-					if (success) { Utils.sendMessage(sender, "Server is now paused."); }
-				}
+			TaskUtils.scheduleSyncDelayedTask(() -> {
+				ServerPause.enabled = true;
+				Utils.sendMessage(sender, "Server pause is now enabled.");
+				if (ServerUtils.isPaused()) { Utils.sendMessage(sender, "Server is already paused."); }
+				if (!ServerPause.canPause(false)) { Utils.sendMessage(sender, "Cannot pause server."); }
+				boolean success = ServerUtils.pauseServer();
+				if (success) { Utils.sendMessage(sender, "Server is now paused."); }
 			}, 1L);
 		}
 
 		if (args[0].equalsIgnoreCase("disable")) {
-			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
-				public void run() {
-					ServerPause.enabled = false;
-					Utils.sendMessage(sender, "Server pause is now disabled.");
-					if (!ServerUtils.isPaused()) { Utils.sendMessage(sender, "Server is already resumed."); }
-					boolean success = ServerUtils.resumeServer();
-					if (success) { Utils.sendMessage(sender, "Server is now resumed."); }
-				}
+			TaskUtils.scheduleSyncDelayedTask(() -> {
+				ServerPause.enabled = false;
+				Utils.sendMessage(sender, "Server pause is now disabled.");
+				if (!ServerUtils.isPaused()) { Utils.sendMessage(sender, "Server is already resumed."); }
+				boolean success = ServerUtils.resumeServer();
+				if (success) { Utils.sendMessage(sender, "Server is now resumed."); }
 			}, 1L);
 		}
 

@@ -11,14 +11,14 @@ import java.util.HashMap;
 import java.util.UUID;
 
 public class BedrockBreaker {
-	public static HashMap<UUID, BedrockBreaker> breakers = new HashMap<UUID, BedrockBreaker>();
+	public static HashMap<UUID, BedrockBreaker> breakers = new HashMap<>();
 	public static int MIX_ID = 1000000;
 	public static float BREAK_AFTER = 1.0F;
 
 	public Player player;
 	public Block block;
+	public int timer;
 	public long ticks = 0;
-	public int timer = -1;
 	public float progress = 0;
 
 	public BedrockBreaker(Player player, Block block) {

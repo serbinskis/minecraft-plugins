@@ -16,7 +16,7 @@ import java.util.UUID;
 public class AutoTrade extends CustomTweak {
 	public static CustomTweak tweak;
 	public static int task = -1;
-	public static String isAutoTrade = "isAutoTrade";
+	public static String TAG_IS_AUTO_TRADE = "isAutoTrade";
 	public static int tradeCooldown = 20;
 	public static int tradeDistance = 2;
 	public static String redstoneMode = "indirect";

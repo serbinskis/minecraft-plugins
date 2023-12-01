@@ -1,5 +1,9 @@
 package me.wobbychip.smptweaks.custom.serverpause;
 
+import me.wobbychip.smptweaks.events.ServerConnectionEvent;
+import me.wobbychip.smptweaks.utils.ServerUtils;
+import me.wobbychip.smptweaks.utils.TaskUtils;
+import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;
@@ -8,12 +12,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.ServerCommandEvent;
-
-import me.wobbychip.smptweaks.Main;
-import me.wobbychip.smptweaks.events.ServerConnectionEvent;
-import me.wobbychip.smptweaks.utils.ServerUtils;
-import me.wobbychip.smptweaks.utils.TaskUtils;
-import me.wobbychip.smptweaks.utils.Utils;
 
 public class Events implements Listener {
 	public int isConnecting = -1;
@@ -29,24 +27,24 @@ public class Events implements Listener {
 		if (ServerPause.delayTask > -1) { TaskUtils.cancelTask(ServerPause.delayTask); }
 
 		ServerPause.delayTask = TaskUtils.scheduleSyncDelayedTask(() -> {
-            int delayTask = ServerPause.delayTask;
-            ServerPause.delayTask = -1;
-            if (!ServerPause.canPause(false)) { return; }
+			int delayTask = ServerPause.delayTask;
+			ServerPause.delayTask = -1;
+			if (!ServerPause.canPause(false)) { return; }
 
-            //Save worlds before pausing server, since when server is paused
-            //worlds cannot be saved
-            if (!ServerUtils.isPaused()) {
-                for (World world: Bukkit.getWorlds()) { world.save(); }
-            }
+			//Save worlds before pausing server, since when server is paused
+			//worlds cannot be saved
+			if (!ServerUtils.isPaused()) {
+				for (World world: Bukkit.getWorlds()) { world.save(); }
+			}
 
-            //If AsyncPlayerPreLoginEvent executed and someone is connecting, then we
-            //cannot pause the server and this task should be rescheduled
-            if (isConnecting > -1) { TaskUtils.rescheduleSyncDelayedTask(delayTask, ServerPause.pauseDelay); }
-            if (isConnecting > -1) { return; }
+			//If AsyncPlayerPreLoginEvent executed and someone is connecting, then we
+			//cannot pause the server and this task should be rescheduled
+			if (isConnecting > -1) { TaskUtils.rescheduleSyncDelayedTask(delayTask, ServerPause.pauseDelay); }
+			if (isConnecting > -1) { return; }
 
-            boolean success = ServerUtils.pauseServer();
-            if (success) { Utils.sendMessage("Server is now paused. (Worlds saved)"); }
-        }, ServerPause.pauseDelay);
+			boolean success = ServerUtils.pauseServer();
+			if (success) { Utils.sendMessage("Server is now paused. (Worlds saved)"); }
+		}, ServerPause.pauseDelay);
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
@@ -74,36 +72,32 @@ public class Events implements Listener {
 		//Banned, whitelist, connection timeout, etc
 		//ERROR: if player takes longer than 5s to connect it will throw an error
 		connectingTask = TaskUtils.scheduleSyncDelayedTask(() -> {
-            connectingTask = -1;
-            if (ServerPause.delayTask > -1) { return; } //If there is delay task then we don't need to pasue server again
-            if (!ServerPause.canPause(true)) { return; }
-            boolean success1 = ServerUtils.pauseServer();
-            if (success1) { Utils.sendMessage("Server is now paused."); }
-        }, 20L*ServerPause.CONNECTION_MAX_TIME);
+			connectingTask = -1;
+			if (ServerPause.delayTask > -1) { return; } //If there is delay task then we don't need to pause server again
+			if (!ServerPause.canPause(true)) { return; }
+			boolean success1 = ServerUtils.pauseServer();
+			if (success1) { Utils.sendMessage("Server is now paused."); }
+		}, 20L*ServerPause.CONNECTION_MAX_TIME);
 	}
 
 	//We also must resume server, when command is being executed
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onServerCommandEvent(ServerCommandEvent event) {
-		boolean success = ServerUtils.resumeServer();
-		if (!success) { return; }
+		if (!ServerUtils.resumeServer()) { return; }
 
 		if (!ServerPause.quiteCommands) {
 			Utils.sendMessage("Server is now resumed. (Required for commands)");
 		}
 
-		//This will set server back to pause in the beggining of the next tick, after all events
+		//This will set server back to pause in the beginning of the next tick, after all events
 		//so that it does not affect commands, because, for example, when stopping server,
 		//the server must be unpaused, which means that when there is console command,
 		//server must be resumed for 1 tick, this does not affect player commands, since
 		//when players are online server is always resumed
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
-			public void run() {
-				if (ServerPause.delayTask > -1) { return; }
-				if (!ServerPause.canPause(false)) { return; }
-				boolean success = ServerUtils.pauseServer();
-				if (success && !ServerPause.quiteCommands) { Utils.sendMessage("Server is now paused."); }
-			}
+		TaskUtils.scheduleSyncDelayedTask(() -> {
+			if (ServerPause.delayTask > -1) { return; }
+			if (!ServerPause.canPause(false)) { return; }
+			if (ServerUtils.pauseServer() && !ServerPause.quiteCommands) { Utils.sendMessage("Server is now paused."); }
 		}, 0L);
 	}
 }

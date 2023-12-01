@@ -28,22 +28,18 @@ public class Events implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onPlayerInteractEntityEvent(PlayerInteractEntityEvent event) {
 		if (!BetterLead.tweak.getGameRuleBoolean(event.getPlayer().getWorld())) { return; }
-		if (!(event.getRightClicked() instanceof LivingEntity)) { return; }
+		if (!(event.getRightClicked() instanceof LivingEntity entity)) { return; }
 		ItemStack item = event.getPlayer().getInventory().getItem(event.getHand());
 		if (item.getType() != Material.LEAD) { return; }
 
-		LivingEntity entity = (LivingEntity) event.getRightClicked();
-		boolean isEmpty = (BetterLead.custom.size() <= 0);
-		if (!isEmpty && !BetterLead.custom.contains(entity.getType().toString())) { return; }
+		if (!BetterLead.custom.isEmpty() && !BetterLead.custom.contains(entity.getType().toString())) { return; }
 		if (!Utils.isLeashable(entity)) { return; }
 		event.setCancelled(true);
 
 		TaskUtils.scheduleSyncDelayedTask(() -> {
-			if (!(event.getRightClicked() instanceof LivingEntity)) { return; }
+			if (!(event.getRightClicked() instanceof LivingEntity entity1)) { return; }
 			ItemStack item1 = event.getPlayer().getInventory().getItem(event.getHand());
 			if (item1.getType() != Material.LEAD) { return; }
-
-			LivingEntity entity1 = (LivingEntity) event.getRightClicked();
 			if (!Utils.isLeashable(entity1)) { return; }
 
 			entity1.setLeashHolder(event.getPlayer());
@@ -62,13 +58,12 @@ public class Events implements Listener {
 	public void onEntityUnleashEvent(EntityUnleashEvent event) {
 		if (!BetterLead.tweak.getGameRuleBoolean(event.getEntity().getWorld())) { return; }
 		if ((event.getReason() != UnleashReason.DISTANCE)) { return; }
-		if (!(event.getEntity() instanceof LivingEntity)) { return; }
-		Entity holder = ((LivingEntity) event.getEntity()).getLeashHolder();
-		if (!(holder instanceof Player)) { return; }
+		if (!(event.getEntity() instanceof LivingEntity entity)) { return; }
+		if (!(entity.getLeashHolder() instanceof Player player)) { return; }
 
-		if (Utils.distance(holder.getLocation(), event.getEntity().getLocation()) > BetterLead.maxDistance) { return; }
-		PersistentUtils.setPersistentDataBoolean(event.getEntity(), BetterLead.isUnbreakableLeash, true);
-		holders.put(event.getEntity().getUniqueId(), (Player) holder);
+		if (Utils.distance(player.getLocation(), event.getEntity().getLocation()) > BetterLead.maxDistance) { return; }
+		PersistentUtils.setPersistentDataBoolean(event.getEntity(), BetterLead.TAG_IS_UNBREAKABLE_LEASH, true);
+		holders.put(event.getEntity().getUniqueId(), player);
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -78,8 +73,8 @@ public class Events implements Listener {
 
 		for (Entity entity : location.getWorld().getNearbyEntities(location, 0.01, 0.01, 0.01)) {
 			if (!(entity instanceof LivingEntity)) { continue; }
-			if (!PersistentUtils.hasPersistentDataBoolean(entity, BetterLead.isUnbreakableLeash)) { continue; }
-			PersistentUtils.removePersistentData(entity, BetterLead.isUnbreakableLeash);
+			if (!PersistentUtils.hasPersistentDataBoolean(entity, BetterLead.TAG_IS_UNBREAKABLE_LEASH)) { continue; }
+			PersistentUtils.removePersistentData(entity, BetterLead.TAG_IS_UNBREAKABLE_LEASH);
 
 			if (holders.containsKey(entity.getUniqueId())) {
 				Player player = holders.get(entity.getUniqueId());

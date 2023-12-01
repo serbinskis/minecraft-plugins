@@ -1,6 +1,6 @@
 package me.wobbychip.smptweaks.custom.autotrade;
 
-import org.bukkit.Bukkit;
+import me.wobbychip.smptweaks.utils.TaskUtils;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -17,8 +17,6 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.BlockInventoryHolder;
 import org.bukkit.inventory.InventoryHolder;
-
-import me.wobbychip.smptweaks.Main;
 
 public class Events implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -81,12 +79,10 @@ public class Events implements Listener {
 		Block block = frame.getLocation().getBlock().getRelative(frame.getAttachedFace());
 		if (block.getType() != Material.DISPENSER) { return; }
 
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
-			public void run() {
-				Block trader = AutoTrade.traders.getTrader(block);
-				if (trader != null) { return; }
-				Villagers.releaseXp(block, block.getLocation().clone().add(0.5, 1.2, 0.5));
-			}
+		TaskUtils.scheduleSyncDelayedTask(() -> {
+			Block trader = AutoTrade.traders.getTrader(block);
+			if (trader != null) { return; }
+			Villagers.releaseXp(block, block.getLocation().clone().add(0.5, 1.2, 0.5));
 		}, 1L);
 	}
 }

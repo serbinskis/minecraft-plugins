@@ -1,8 +1,11 @@
 package me.wobbychip.smptweaks.custom.chunkloader.events;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import me.wobbychip.smptweaks.custom.chunkloader.ChunkLoader;
+import me.wobbychip.smptweaks.custom.chunkloader.loaders.Aggravator;
+import me.wobbychip.smptweaks.custom.chunkloader.loaders.Border;
+import me.wobbychip.smptweaks.custom.chunkloader.loaders.Loader;
+import me.wobbychip.smptweaks.utils.ReflectionUtils;
+import me.wobbychip.smptweaks.utils.TaskUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -20,12 +23,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
-import me.wobbychip.smptweaks.Main;
-import me.wobbychip.smptweaks.custom.chunkloader.ChunkLoader;
-import me.wobbychip.smptweaks.custom.chunkloader.loaders.Aggravator;
-import me.wobbychip.smptweaks.custom.chunkloader.loaders.Border;
-import me.wobbychip.smptweaks.custom.chunkloader.loaders.Loader;
-import me.wobbychip.smptweaks.utils.ReflectionUtils;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PlayerEvents implements Listener {
 	public List<Player> chats = new ArrayList<>();
@@ -33,16 +32,13 @@ public class PlayerEvents implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onPlayerInteractAtEntityEvent(PlayerInteractAtEntityEvent event) {
 		if (!ChunkLoader.tweak.getGameRuleBoolean(event.getPlayer().getWorld())) { return; }
-		if (!(event.getRightClicked() instanceof ItemFrame)) { return; }
-		ItemFrame frame = (ItemFrame) event.getRightClicked();
+		if (!(event.getRightClicked() instanceof ItemFrame frame)) { return; }
 		if (frame.getAttachedFace() != BlockFace.DOWN) { return; }
 
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
-			public void run() {
-				if (frame.getItem().getType() != Material.NETHER_STAR) { return; }
-				Block block = frame.getLocation().getBlock().getRelative(frame.getAttachedFace());
-				ChunkLoader.manager.addLoader(block, true);
-			}
+		TaskUtils.scheduleSyncDelayedTask(() -> {
+			if (frame.getItem().getType() != Material.NETHER_STAR) { return; }
+			Block block = frame.getLocation().getBlock().getRelative(frame.getAttachedFace());
+			ChunkLoader.manager.addLoader(block, true);
 		}, 1L);
 	}
 
@@ -86,11 +82,9 @@ public class PlayerEvents implements Listener {
 			String visibility = ReflectionUtils.getChatVisibility(player);
 			ReflectionUtils.setChatVisibility(player, "options.chat.visibility.hidden");
 
-			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Main.plugin, new Runnable() {
-				public void run() {
-					chats.remove(player);
-					ReflectionUtils.setChatVisibility(player, visibility);
-				}
+			TaskUtils.scheduleSyncDelayedTask(() -> {
+				chats.remove(player);
+				ReflectionUtils.setChatVisibility(player, visibility);
 			}, 1L);
 		}
 	}

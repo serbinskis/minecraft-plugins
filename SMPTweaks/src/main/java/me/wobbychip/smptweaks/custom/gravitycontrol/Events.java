@@ -1,9 +1,5 @@
 package me.wobbychip.smptweaks.custom.gravitycontrol;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -14,6 +10,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 
 public class Events implements Listener {
 	public double HORIZONTAL_COEFFICIENT = 1.46D;
@@ -30,10 +30,8 @@ public class Events implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onEntityChangeBlockEvent(EntityChangeBlockEvent event) {
 		if (exclude.contains(event.getTo())) { return; }
-		if (!(event.getEntity() instanceof FallingBlock)) { return; }
+		if (!(event.getEntity() instanceof FallingBlock falling)) { return; }
 		if (!GravityControl.tweak.getGameRuleBoolean(event.getEntity().getWorld())) { return; }
-
-		FallingBlock falling = (FallingBlock) event.getEntity();
 		BoundingBox boundingBox = falling.getBoundingBox().expand(-0.01D);
 
 		for (Vector direction : DIRECTIONS) {

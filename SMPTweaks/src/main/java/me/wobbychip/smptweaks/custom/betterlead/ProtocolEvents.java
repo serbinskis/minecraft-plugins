@@ -11,10 +11,7 @@ import com.comphenix.protocol.events.PacketEvent;
 
 public class ProtocolEvents extends PacketAdapter {
 	public ProtocolEvents(Plugin plugin) {
-		super(plugin, new PacketType[] {
-			PacketType.Play.Server.ATTACH_ENTITY
-		});
-
+		super(plugin, PacketType.Play.Server.ATTACH_ENTITY);
 		ProtocolLibrary.getProtocolManager().addPacketListener(this);
 	}
 

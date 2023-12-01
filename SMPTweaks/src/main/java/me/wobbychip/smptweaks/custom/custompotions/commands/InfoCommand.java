@@ -1,16 +1,15 @@
 package me.wobbychip.smptweaks.custom.custompotions.commands;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-
 import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
 import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
 import me.wobbychip.smptweaks.utils.Utils;
+import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class InfoCommand {
 	public static String USAGE_MESSAGE = "info <potion_name>";
@@ -50,7 +49,7 @@ public class InfoCommand {
 
 	public static List<String> onTweakTabComplete(CustomTweak tweak, CommandSender sender, Command command, String alias, String[] args) {
 		if (args.length == 2) {
-			ArrayList<String> potions = new ArrayList<String>();
+			List<String> potions = new ArrayList<>();
 
 			for (String name : CustomPotions.manager.getPotionSet()) {
 				if (!CustomPotions.manager.getCustomPotion(name).isEnabled()) { continue; }
