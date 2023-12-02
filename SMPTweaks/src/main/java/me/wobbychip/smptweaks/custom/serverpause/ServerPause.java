@@ -16,6 +16,7 @@ import java.util.List;
 public class ServerPause extends CustomTweak {
 	public static CustomTweak tweak;
 	public static int CONNECTION_MAX_TIME = 10;
+	public static int STARTUP_DELAY = 60;
 	public static boolean gamerule = true;
 	public static boolean enabled = true;
 	public static int delayTask = -1;
@@ -40,18 +41,18 @@ public class ServerPause extends CustomTweak {
 		//Delay event registration so that other plugins can do their thing
 		//Tbh, I don't know if this actaully is required, but just in case
 		TaskUtils.scheduleSyncDelayedTask(() -> {
-            Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
-            if (!ServerPause.canPause(false)) { return; }
-            boolean success = ServerUtils.pauseServer();
-            if (success) { Utils.sendMessage("Server is now paused."); }
-        }, 20L);
+			Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
+			if (!ServerPause.canPause(false)) { return; }
+			boolean success = ServerUtils.pauseServer();
+			if (success) { Utils.sendMessage("Server is now paused."); }
+		}, 20L*STARTUP_DELAY);
 
 		TaskUtils.scheduleSyncRepeatingTask(() -> {
-            Collection<Channel> connections = ReflectionUtils.getConnections();
-            if (connections.size() == cconnections) { return; } else { cconnections = connections.size(); }
-            boolean online = ReflectionUtils.getConnections().stream().anyMatch(e -> ((e != null) && e.isOpen()));
-            Bukkit.getPluginManager().callEvent(new ServerConnectionEvent(cconnections, online));
-        }, 20L, 1L);
+			Collection<Channel> connections = ReflectionUtils.getConnections();
+			if (connections.size() == cconnections) { return; } else { cconnections = connections.size(); }
+			boolean online = ReflectionUtils.getConnections().stream().anyMatch(e -> ((e != null) && e.isOpen()));
+			Bukkit.getPluginManager().callEvent(new ServerConnectionEvent(cconnections, online));
+		}, 20L*STARTUP_DELAY, 1L);
 	}
 
 	public void onDisable() {

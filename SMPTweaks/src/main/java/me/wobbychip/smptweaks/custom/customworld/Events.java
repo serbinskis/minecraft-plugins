@@ -1,10 +1,12 @@
 package me.wobbychip.smptweaks.custom.customworld;
 
+import me.wobbychip.smptweaks.custom.customworld.biomes.BiomeManager;
+import me.wobbychip.smptweaks.custom.customworld.biomes.CustomBiome;
+import me.wobbychip.smptweaks.custom.customworld.biomes.CustomWorld;
 import me.wobbychip.smptweaks.utils.PersistentUtils;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -15,19 +17,22 @@ public class Events implements Listener {
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onChunkLoadEvent(ChunkLoadEvent event) {
 		if (!event.isNewChunk()) { return; }
-		if (!PersistentUtils.hasPersistentDataString(event.getWorld(), CustomWorld.TAG_CUSTOM_WORLD)) { return; }
+		if (!PersistentUtils.hasPersistentDataString(event.getWorld(), CustomWorlds.TAG_CUSTOM_WORLD)) { return; }
 
-		CustomWorld.Type type = CustomWorld.getCustomType(PersistentUtils.getPersistentDataString(event.getWorld(), CustomWorld.TAG_CUSTOM_WORLD));
-		if ((type != CustomWorld.Type.END) && (type != CustomWorld.Type.VOID)) { return; }
+		CustomWorld type = CustomWorld.getCustomType(PersistentUtils.getPersistentDataString(event.getWorld(), CustomWorlds.TAG_CUSTOM_WORLD));
+		if ((type == null) || !type.isVoid()) { return; }
 		Utils.fillChunk(event.getChunk(), Material.AIR, true);
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onWorldInitEvent(WorldInitEvent event) {
-		if (!PersistentUtils.hasPersistentDataString(event.getWorld(), CustomWorld.TAG_CUSTOM_WORLD)) { return; }
-		CustomWorld.Type type = CustomWorld.getCustomType(PersistentUtils.getPersistentDataString(event.getWorld(), CustomWorld.TAG_CUSTOM_WORLD));
-		if (type != CustomWorld.Type.VOID) { return; }
+		CustomBiome biome = BiomeManager.loadBiome(event.getWorld());
+		if (biome != null) { BiomeManager.registerBiomeAll(biome); }
 
-		ReflectionUtils.setCustomDimension(event.getWorld(), null, World.Environment.THE_END, null, null, null, null, null, null, null, null, 0, null, null, null, null, null, null);
+		if (!PersistentUtils.hasPersistentDataString(event.getWorld(), CustomWorlds.TAG_CUSTOM_WORLD)) { return; }
+		CustomWorld type = CustomWorld.getCustomType(PersistentUtils.getPersistentDataString(event.getWorld(), CustomWorlds.TAG_CUSTOM_WORLD));
+		if ((type == null) || (type == CustomWorld.NONE)) { return; }
+
+		ReflectionUtils.setCustomDimension(event.getWorld(), null, type.getEnvironment(), null, null, null, null, null, null, null, null, 0, null, null, null, null, null, null);
 	}
 }

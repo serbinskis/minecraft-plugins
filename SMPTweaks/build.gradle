@@ -22,14 +22,15 @@ repositories {
     maven { url "https://repo.dmulloy2.net/repository/public/" }
     maven { url "https://oss.sonatype.org/content/groups/public/" }
     maven { url "https://repo.essentialsx.net/releases/" }
+    maven { url "https://maven.enginehub.org/repo/" }
     maven { url "https://jitpack.io" }
 }
 
 dependencies {
+    compileOnly "com.sk89q.worldedit:worldedit-bukkit:7.2.0"
     compileOnly "com.comphenix.protocol:ProtocolLib:5.1.0"
     compileOnly "net.essentialsx:EssentialsX:2.20.0"
     compileOnly "io.papermc.paper:paper-api:${project.minecraft_version}-R0.1-SNAPSHOT"
-    implementation "com.comphenix.packetwrapper:PacketWrapper:1.13-R0.1-SNAPSHOT"
     paperweight.paperDevBundle("${project.minecraft_version}-R0.1-SNAPSHOT")
 }
 

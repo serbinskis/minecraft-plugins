@@ -1,9 +1,11 @@
 package me.wobbychip.smptweaks.utils;
 
 import com.mojang.authlib.GameProfile;
+import com.mojang.serialization.Lifecycle;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.embedded.EmbeddedChannel;
+import me.wobbychip.smptweaks.custom.customworld.biomes.BiomeManager;
+import me.wobbychip.smptweaks.custom.customworld.biomes.CustomBiome;
 import net.minecraft.core.*;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
@@ -46,12 +48,16 @@ import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.SignalGetter;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeSpecialEffects;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DiodeBlock;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.DropperBlock;
 import net.minecraft.world.level.block.entity.*;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
@@ -528,11 +534,11 @@ public class ReflectionUtils {
 		if (uuid == null) { uuid = UUID.randomUUID(); }
 
 		MinecraftServer server = getServer();
-		ServerLevel world = (ServerLevel) getWorld(location.getWorld());
+		ServerLevel world = getWorld(location.getWorld());
 		ServerPlayer entityPlayer = new ServerPlayer(server, world, new GameProfile(uuid, " ".repeat(5)), ClientInformation.createDefault());
 
 		Connection networkManager = new Connection(PacketFlow.SERVERBOUND);
-		EmbeddedChannel embeddedChannel = new EmbeddedChannel(new ChannelHandler[] { networkManager });
+		EmbeddedChannel embeddedChannel = new EmbeddedChannel(networkManager);
 		embeddedChannel.attr(Connection.ATTRIBUTE_SERVERBOUND_PROTOCOL).set(ConnectionProtocol.PLAY.codec(PacketFlow.SERVERBOUND));
 
 		CommonListenerCookie commonListenerCookie = CommonListenerCookie.createInitial(new GameProfile(uuid, " ".repeat(5)));
@@ -545,12 +551,12 @@ public class ReflectionUtils {
 		//Will hide from Bukkit.getOnlinePlayers()
 		if (addPlayer && hideOnline) {
 			List<ServerPlayer> players = server.getPlayerList().players;
-			players.removeIf(e -> ((Player) getBukkitEntity(e)).getUniqueId().equals(player.getUniqueId()));
+			players.removeIf(e -> getBukkitEntity(e).getUniqueId().equals(player.getUniqueId()));
 		}
 
 		//Will hide from World.getPlayers(), but also will prevent mob spawning
 		if (addPlayer && hideWorld) {
-			world.players().removeIf(e -> ((Player) getBukkitEntity(e)).getUniqueId().equals(player.getUniqueId()));
+			world.players().removeIf(e -> getBukkitEntity(e).getUniqueId().equals(player.getUniqueId()));
 		}
 
 		player.setSleepingIgnored(true);
@@ -755,25 +761,40 @@ public class ReflectionUtils {
 		}
 	}
 
-	public static Object getSetLevels(Object data) throws IllegalAccessException {
+	public static Object getSetLevels(Object obj) throws IllegalAccessException {
 		Object levels = MinecraftServer_levels.get(MinecraftServer.getServer());
-		MinecraftServer_levels.set(MinecraftServer.getServer(), data);
+		MinecraftServer_levels.set(MinecraftServer.getServer(), obj);
 		return levels;
 	}
 
-	public static Object getSetCustomFunctionDataTicking(Object data) throws IllegalAccessException {
+	public static Object getSetCustomFunctionDataTicking(Object obj) throws IllegalAccessException {
 		Object functionManager = MinecraftServer.getServer().getFunctions();
 		Object ticking = CustomFunctionData_ticking.get(functionManager);
-		CustomFunctionData_ticking.set(functionManager, data);
+		CustomFunctionData_ticking.set(functionManager, obj);
 		return ticking;
 	}
 
-	public static Object getSetCustomFunctionPostReload(Object data) throws IllegalAccessException {
+	public static Object getSetCustomFunctionPostReload(Object obj) throws IllegalAccessException {
 		Object functionManager = MinecraftServer.getServer().getFunctions();
 		Object postReload = CustomFunctionData_postReload.get(functionManager);
-		CustomFunctionData_postReload.set(functionManager, data);
+		CustomFunctionData_postReload.set(functionManager, obj);
 		return postReload;
 	}
+
+	public static Object getSetImageFrame_itemFrames(Object obj, boolean checkNull) {
+		Class<?> ImageFrame = loadClass("com.loohp.imageframe.ImageFrame", false);
+		if ((ImageFrame == null) || (checkNull && (obj == null))) { return null; }
+
+		Class<?> AnimatedFakeMapManager = loadClass("com.loohp.imageframe.objectholders.AnimatedFakeMapManager", false);
+		Field ImageFrame_animatedFakeMapManager = getField(ImageFrame, AnimatedFakeMapManager, null, false);
+		Field AnimatedFakeMapManager_itemFrames = getField(AnimatedFakeMapManager, Map.class, ItemFrame.class, true);
+
+		Object animatedFakeMapManager = getValue(ImageFrame_animatedFakeMapManager, null);
+		Object itemFrames = getValue(AnimatedFakeMapManager_itemFrames, animatedFakeMapManager);
+		setValue(AnimatedFakeMapManager_itemFrames, animatedFakeMapManager, obj);
+		return itemFrames;
+	}
+
 
 	public static <T> T getItemNbt(ItemStack itemStack, List<String> location) {
 		if (location.size() == 0) { return null; }
@@ -1013,7 +1034,7 @@ public class ReflectionUtils {
 		return dispenseDropper(source, drop, remove, slot);
 	}
 
-	public static Packet<?> editSpawnPacket(Packet<?> packet, @Nullable Boolean isFlat, @Nullable World.Environment env) {
+	public static Packet<?> editSpawnPacket(Object packet, @Nullable Boolean isFlat, @Nullable World.Environment env) {
 		if (packet instanceof ClientboundLoginPacket lPacket) {
 			int playerId = lPacket.playerId();
 			boolean hardcore = lPacket.hardcore();
@@ -1037,7 +1058,48 @@ public class ReflectionUtils {
 		return null;
 	}
 
-	public static CommonPlayerSpawnInfo editCommonPlayerSpawnInfo(CommonPlayerSpawnInfo commonPlayerSpawnInfo,  @Nullable Boolean isFlat, @Nullable World.Environment env) {
+	public static ClientboundLevelChunkWithLightPacket setPacketChunkBiome(World world, Object packet, CustomBiome biome) {
+		ServerLevel level = getWorld(world);
+		int chunkX = ((ClientboundLevelChunkWithLightPacket) packet).getX();
+		int chunkZ = ((ClientboundLevelChunkWithLightPacket) packet).getZ();
+		LevelChunk levelChunk = level.getChunk(chunkX, chunkZ);
+		List<Biome> saved_biomes = new ArrayList<>();
+
+		//Replace with custom biome and save old biomes
+		for (LevelChunkSection section : levelChunk.getSections()) {
+			for (int x = 0; x < 4; ++x) {
+				for (int z = 0; z < 4; ++z) {
+					for (int y = 0; y < 4; ++y) {
+						Holder<Biome> saved_biome = section.getNoiseBiome(x, y, z);
+						saved_biomes.add(saved_biome.value());
+						String bname = saved_biome.unwrapKey().get().location().toString().replaceAll("[:/]", "_");
+
+						CustomBiome biome1 = BiomeManager.getCustomBiome(biome.getName() + "_" + bname);
+						Object cbiome = (biome1 == null) ? biome.getCustomBiome() : biome1.getCustomBiome();
+						section.setBiome(x, y, z, Holder.direct((Biome) cbiome));
+					}
+				}
+			}
+		}
+
+		//Create packet with custom biomes
+		ClientboundLevelChunkWithLightPacket npacket = new ClientboundLevelChunkWithLightPacket(levelChunk, levelChunk.getLevel().getLightEngine(), null, null, true);
+
+		//Restore old biomes, so that we don't lose them
+		for (LevelChunkSection section : levelChunk.getSections()) {
+			for (int x = 0; x < 4; ++x) {
+				for (int z = 0; z < 4; ++z) {
+					for (int y = 0; y < 4; ++y) {
+						section.setBiome(x, y, z, Holder.direct(saved_biomes.remove(0)));
+					}
+				}
+			}
+		}
+
+		return npacket;
+	}
+
+	public static CommonPlayerSpawnInfo editCommonPlayerSpawnInfo(CommonPlayerSpawnInfo commonPlayerSpawnInfo, @Nullable Boolean isFlat, @Nullable World.Environment env) {
 		ResourceKey<DimensionType> dimensionType = commonPlayerSpawnInfo.dimensionType();
 
 		if (env == World.Environment.NORMAL) { dimensionType = BuiltinDimensionTypes.OVERWORLD; }
@@ -1130,5 +1192,77 @@ public class ReflectionUtils {
 		Field JavaPlugin_isEnabled = Objects.requireNonNull(getField(JavaPlugin.class, boolean.class, null, plugin, plugin.isEnabled(), true));
 		setValue(PluginDescriptionFile_order, plugin.getDescription(), load);
 		setValue(JavaPlugin_isEnabled, plugin, false);
+	}
+
+	public static String getBiome(Location location) {
+		ServerLevel level = getWorld(location.getWorld());
+		BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+		return level.getBiome(pos).unwrapKey().get().location().toString();
+	}
+
+	public static List<String> getBiomes(String exnamespace) {
+		ArrayList<ResourceLocation> resourceLocations = new ArrayList<>(MinecraftServer.getServer().registryAccess().registryOrThrow(Registries.BIOME).keySet());
+		if (!exnamespace.isEmpty()) { resourceLocations.removeIf(e -> e.getNamespace().equalsIgnoreCase(exnamespace)); }
+		return resourceLocations.stream().map(ResourceLocation::toString).toList();
+	}
+
+	//This will crash client if he will not rejoin and receive custom biome, because client only receives biomes when joining,
+	// but if we create new biome and send it to client, he won't know what to do with it and crash
+	public static Biome registerBiome(String basename, String namespace, String name, int skyColor, int fogColor, int waterColor, int waterFogColor, int foliageColor, int grassColor) {
+		ResourceKey<Biome> minecraftKey = ResourceKey.create(Registries.BIOME, new ResourceLocation(basename.split(":")[0], basename.split(":")[1]));
+		ResourceKey<Biome> customKey = ResourceKey.create(Registries.BIOME, new ResourceLocation(namespace, name));
+		WritableRegistry<Biome> biomeRegirsty = (WritableRegistry<Biome>) MinecraftServer.getServer().registryAccess().registryOrThrow(Registries.BIOME);
+		Biome minecraftBiome = biomeRegirsty.get(minecraftKey);
+
+		BiomeSpecialEffects.Builder biomeSpecialEffects = new BiomeSpecialEffects.Builder();
+		biomeSpecialEffects.grassColorModifier(minecraftBiome.getSpecialEffects().getGrassColorModifier());
+		biomeSpecialEffects.skyColor((skyColor != -1) ? skyColor : minecraftBiome.getSkyColor());
+		biomeSpecialEffects.fogColor((fogColor != -1) ? fogColor : minecraftBiome.getFogColor());
+		biomeSpecialEffects.waterColor((waterColor != -1) ? waterColor : minecraftBiome.getWaterColor());
+		biomeSpecialEffects.waterFogColor((waterFogColor != -1) ? waterFogColor : minecraftBiome.getWaterFogColor());
+
+		//Default override color can be empty and our color can be -1,
+		//If our color is not -1 set our color
+		//If our color is -1 and override color is not empty set override color
+		//If both are -1 and empty do nothing
+
+		int foliageColorOverride = (foliageColor == -1) ? minecraftBiome.getSpecialEffects().getFoliageColorOverride().orElse(-1) : foliageColor;
+		if (foliageColorOverride != -1) { biomeSpecialEffects.foliageColorOverride(foliageColorOverride); }
+
+		int grassColorOverride = (grassColor == -1) ? minecraftBiome.getSpecialEffects().getGrassColorOverride().orElse(-1) : grassColor;
+		if (grassColorOverride != -1) { biomeSpecialEffects.grassColorOverride(grassColorOverride); }
+
+		Biome.BiomeBuilder biomeBuilder = new Biome.BiomeBuilder();
+		biomeBuilder.downfall(minecraftBiome.climateSettings.downfall());
+		biomeBuilder.mobSpawnSettings(minecraftBiome.getMobSettings());
+		biomeBuilder.generationSettings(minecraftBiome.getGenerationSettings());
+		biomeBuilder.temperature(minecraftBiome.climateSettings.temperature());
+		biomeBuilder.downfall(minecraftBiome.climateSettings.downfall());
+		biomeBuilder.temperatureAdjustment(minecraftBiome.climateSettings.temperatureModifier());
+		biomeBuilder.specialEffects(biomeSpecialEffects.build());
+		Biome customBiome = biomeBuilder.build();
+
+		setRegistryFrozen(biomeRegirsty, false);
+		biomeRegirsty.register(customKey, customBiome, Lifecycle.stable());
+		setRegistryFrozen(biomeRegirsty, true);
+		fixHolder(biomeRegirsty, customBiome);
+
+		return customBiome;
+
+		//This kinda works, but client needs to request in order to process sent data, so this is useless
+		//lost connection: Internal Exception: java.lang.IllegalStateException: Client acknowledged config, but none was requested
+		//connection.switchToConfig();
+
+		/*
+		Player player = Bukkit.getServer().getOnlinePlayers().stream().findFirst().get();
+		ServerGamePacketListenerImpl connection = getEntityPlayer(player).connection;
+		connection.send(new ClientboundStartConfigurationPacket());
+		ConnectionProtocol.CodecData<?> codecData = connection.connection.channel.attr(Connection.ATTRIBUTE_CLIENTBOUND_PROTOCOL).get();
+		connection.connection.channel.attr(Connection.ATTRIBUTE_CLIENTBOUND_PROTOCOL).set(ConnectionProtocol.CONFIGURATION.codec(PacketFlow.CLIENTBOUND));
+		LayeredRegistryAccess<RegistryLayer> layeredregistryaccess = MinecraftServer.getServer().registries();
+		connection.send(new ClientboundRegistryDataPacket((new RegistryAccess.ImmutableRegistryAccess(RegistrySynchronization.networkedRegistries(layeredregistryaccess))).freeze()));
+		connection.send(new ClientboundUpdateTagsPacket(TagNetworkSerialization.serializeTagsToNetwork(layeredregistryaccess)));
+		connection.connection.channel.attr(Connection.ATTRIBUTE_CLIENTBOUND_PROTOCOL).set(codecData);
+		*/
 	}
 }

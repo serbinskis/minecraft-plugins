@@ -32,7 +32,9 @@ public class PaperUtils {
 	}
 
 	public static boolean isPaper() {
-		return (ReflectionUtils.loadClass("com.destroystokyo.paper.ParticleBuilder", false) != null);
+		try {
+			return (com.destroystokyo.paper.ParticleBuilder.class != null);
+		} catch (Exception e) { return false; }
 	}
 
 	public static int getReputation(Villager villager, UUID uuid, String type) {

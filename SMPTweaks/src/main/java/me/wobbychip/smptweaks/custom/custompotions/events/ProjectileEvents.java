@@ -21,7 +21,7 @@ import org.bukkit.util.Vector;
 import java.util.HashMap;
 
 public class ProjectileEvents implements Listener {
-	HashMap<Location, ItemStack> fuckBukkit = new HashMap<Location, ItemStack>();
+	HashMap<Location, ItemStack> fuckBukkit = new HashMap<>();
 	//Since bukkit again is shit and not including ItemStack in ProjectileLaunchEvent I have to do a workaround
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)

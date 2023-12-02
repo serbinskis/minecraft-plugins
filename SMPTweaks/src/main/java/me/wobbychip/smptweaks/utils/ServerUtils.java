@@ -4,10 +4,13 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import org.bukkit.Bukkit;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 public class ServerUtils {
 	public static Object levels = null; //Server worlds
 	public static Object ticking = null; //Ticking functions, aka, datapacks
 	public static Object postReload = null;
+	public static Object ImageFrame_itemFrames = null; //Support for ImageFrame - https://www.spigotmc.org/resources/106031/
 	private static boolean shutting = false;
 	private static long tick = 0;
 
@@ -25,6 +28,7 @@ public class ServerUtils {
 			levels = ReflectionUtils.getSetLevels(Maps.newLinkedHashMap());
 			ticking = ReflectionUtils.getSetCustomFunctionDataTicking(ImmutableList.of());
 			postReload = ReflectionUtils.getSetCustomFunctionPostReload(false);
+			ImageFrame_itemFrames = ReflectionUtils.getSetImageFrame_itemFrames(new ConcurrentHashMap<>(), false);
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 			return false;
@@ -40,7 +44,8 @@ public class ServerUtils {
 			ReflectionUtils.getSetLevels(levels);
 			ReflectionUtils.getSetCustomFunctionDataTicking(ticking);
 			ReflectionUtils.getSetCustomFunctionPostReload(postReload);
-			levels = null; ticking = null; postReload = null;
+			ReflectionUtils.getSetImageFrame_itemFrames(ImageFrame_itemFrames, true);
+			levels = null; ticking = null; postReload = null; ImageFrame_itemFrames = null;
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 			return false;

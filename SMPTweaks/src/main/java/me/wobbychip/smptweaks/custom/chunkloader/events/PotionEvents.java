@@ -13,7 +13,7 @@ import org.bukkit.event.entity.PotionSplashEvent;
 public class PotionEvents implements Listener {
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onPotionSplash(PotionSplashEvent event) {
-        ReflectionUtils.getAffectedEntities(event).entrySet().removeIf(e -> !isChunkLoader(e.getKey()));
+        ReflectionUtils.getAffectedEntities(event).entrySet().removeIf(e -> isChunkLoader(e.getKey()));
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)

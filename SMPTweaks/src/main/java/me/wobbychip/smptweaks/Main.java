@@ -10,7 +10,7 @@ import me.wobbychip.smptweaks.custom.betterlead.BetterLead;
 import me.wobbychip.smptweaks.custom.breakablebedrock.BreakableBedrock;
 import me.wobbychip.smptweaks.custom.chunkloader.ChunkLoader;
 import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
-import me.wobbychip.smptweaks.custom.customworld.CustomWorld;
+import me.wobbychip.smptweaks.custom.customworld.CustomWorlds;
 import me.wobbychip.smptweaks.custom.disableinvulnerability.DisableInvulnerability;
 import me.wobbychip.smptweaks.custom.dropcursedpumpkin.DropCursedPumpkin;
 import me.wobbychip.smptweaks.custom.entitylimit.EntityLimit;
@@ -77,7 +77,7 @@ public class Main extends JavaPlugin implements Listener {
 		Main.manager.addTweak(new BreakableBedrock());
 		Main.manager.addTweak(new ChunkLoader());
 		Main.manager.addTweak(new CustomPotions());
-		Main.manager.addTweak(new CustomWorld());
+		Main.manager.addTweak(new CustomWorlds());
 		Main.manager.addTweak(new DisableInvulnerability());
 		Main.manager.addTweak(new DropCursedPumpkin());
 		Main.manager.addTweak(new EntityLimit());

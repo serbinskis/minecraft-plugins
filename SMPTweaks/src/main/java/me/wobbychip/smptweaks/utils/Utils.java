@@ -4,6 +4,7 @@ import me.wobbychip.smptweaks.Config;
 import me.wobbychip.smptweaks.Main;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.apache.commons.lang.RandomStringUtils;
 import org.bukkit.*;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.advancement.AdvancementProgress;
@@ -25,8 +26,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.UUID;
 
 public class Utils {
 	public static double ITEM_HEIGHT = 0.25F;
@@ -191,6 +195,11 @@ public class Utils {
 
 	public static String reverseString(String s) {
 		return new StringBuilder(s).reverse().toString();
+	}
+
+	public static String randomString(int count, boolean uppercase) {
+		String s = RandomStringUtils.randomAlphanumeric(count);
+		return uppercase ? s.toUpperCase() : s.toLowerCase();
 	}
 
 	public static Entity getEntityByUniqueId(UUID uuid) {
