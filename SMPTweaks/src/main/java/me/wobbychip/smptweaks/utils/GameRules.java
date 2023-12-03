@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class GameRules implements Listener {
-	public HashMap<String, Object> rules = new HashMap<String, Object>();
+	public HashMap<String, Object> rules = new HashMap<>();
 	public List<String> globals = new ArrayList<>();
 	public List<?> allowed = Arrays.asList(Boolean.class, Integer.class);
 	private Plugin plugin;

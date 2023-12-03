@@ -7,8 +7,8 @@ import org.bukkit.event.Listener;
 import java.util.HashMap;
 
 public class TaskUtils implements Listener {
-	private static final HashMap<Integer, Runnable> runnables0 = new HashMap<Integer, Runnable>();
-	private static final HashMap<Runnable, Integer> runnables1 = new HashMap<Runnable, Integer>();
+	private static final HashMap<Integer, Runnable> runnables0 = new HashMap<>();
+	private static final HashMap<Runnable, Integer> runnables1 = new HashMap<>();
 
 	public static int scheduleSyncDelayedTask(Runnable runnable, long ticks) {
 		Runnable wrapper = new Runnable() { public void run() {
