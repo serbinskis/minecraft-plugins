@@ -7,6 +7,7 @@ import me.wobbychip.smptweaks.custom.antiendermangrief.AntiEndermanGrief;
 import me.wobbychip.smptweaks.custom.autocraft.AutoCraft;
 import me.wobbychip.smptweaks.custom.autotrade.AutoTrade;
 import me.wobbychip.smptweaks.custom.betterlead.BetterLead;
+import me.wobbychip.smptweaks.custom.bonemealable.Bonemealable;
 import me.wobbychip.smptweaks.custom.breakablebedrock.BreakableBedrock;
 import me.wobbychip.smptweaks.custom.chunkloader.ChunkLoader;
 import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
@@ -74,6 +75,7 @@ public class Main extends JavaPlugin implements Listener {
 		Main.manager.addTweak(new AutoCraft());
 		Main.manager.addTweak(new AutoTrade());
 		Main.manager.addTweak(new BetterLead());
+		Main.manager.addTweak(new Bonemealable());
 		Main.manager.addTweak(new BreakableBedrock());
 		Main.manager.addTweak(new ChunkLoader());
 		Main.manager.addTweak(new CustomPotions());

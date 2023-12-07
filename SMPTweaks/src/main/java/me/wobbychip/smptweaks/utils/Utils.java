@@ -26,11 +26,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.UUID;
 
 public class Utils {
 	public static double ITEM_HEIGHT = 0.25F;
@@ -124,29 +121,6 @@ public class Utils {
 		}
 
 		return true;
-	}
-
-	public static void fillChunk(Chunk chunk, Material material, boolean removeEntity) {
-		int maxY = chunk.getWorld().getMaxHeight();
-		int minY = chunk.getWorld().getMinHeight();
-
-		if (removeEntity) {
-			for (Entity entity : chunk.getEntities()) {
-				if (entity.getType() != EntityType.PLAYER) {
-					try { entity.remove(); } catch (Exception e) {}
-				}
-			}
-		}
-
-		for (int x = 0; x < 16; ++x) {
-			for (int z = 0; z < 16 ; ++z) {
-				for (int y = minY; y <= maxY; ++y) {
-					Block block = chunk.getBlock(x, y, z);
-					if (block.getType() == material) { continue; }
-					block.setType(material, false);
-				}
-			}
-		}
 	}
 
 	//Get distance between two locations

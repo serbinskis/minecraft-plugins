@@ -34,7 +34,7 @@ public class Commands extends TweakCommands {
 
 		if (args.length > 1) {
 			switch (args[0].toLowerCase()) {
-				case "set": return SetCommand.onTweakTabComplete(tweak, sender, command, alias, args);
+				case "set": return SetCommand.onTweakTabComplete(tweak, sender, command, alias, Arrays.copyOfRange(args, 1, args.length));
 			}
 		}
 

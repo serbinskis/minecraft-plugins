@@ -4,8 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.serialization.Lifecycle;
 import io.netty.channel.Channel;
 import io.netty.channel.embedded.EmbeddedChannel;
-import me.wobbychip.smptweaks.custom.customworld.biomes.BiomeManager;
-import me.wobbychip.smptweaks.custom.customworld.biomes.CustomBiome;
+import net.minecraft.core.Registry;
 import net.minecraft.core.*;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
@@ -29,7 +28,6 @@ import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
-import net.minecraft.server.network.ServerConnectionListener;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
@@ -62,10 +60,7 @@ import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.redstone.NeighborUpdater;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.block.data.BlockData;
@@ -80,10 +75,6 @@ import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.plugin.PluginLoadOrder;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionType;
 import org.bukkit.util.Vector;
@@ -91,6 +82,7 @@ import org.bukkit.util.Vector;
 import javax.annotation.Nullable;
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("unchecked")
 public class ReflectionUtils {
@@ -116,6 +108,7 @@ public class ReflectionUtils {
 	public static Field CustomFunctionData_postReload;
 	public static Field RegistryMaterials_frozen;
 	public static Field RegistryMaterials_nextId;
+	public static Field MappedRegistry_unregisteredIntrusiveHolders;
 	public static Field BlockPhysicsEvent_changed;
 	public static Field PotionSplashEvent_affectedEntities;
 	public static Field AreaEffectCloudApplyEvent_affectedEntities;
@@ -164,6 +157,7 @@ public class ReflectionUtils {
 		EntityPlayer_chatVisibility = Objects.requireNonNull(getField(ServerPlayer.class, ChatVisiblity.class, null, true));
 		RegistryMaterials_frozen = Objects.requireNonNull(getField(MappedRegistry.class, boolean.class, null, true));
 		RegistryMaterials_nextId = Objects.requireNonNull(getField(MappedRegistry.class, int.class, null, true));
+		//MappedRegistry_unregisteredIntrusiveHolders = Objects.requireNonNull(getField(MappedRegistry.class, Map.class, new Class<?>[] { Object.class, Holder.Reference.class }, null, null, true, Modifier.PRIVATE, Modifier.FINAL));
 		EntityVillager_startTrading_Or_updateSpecialPrices = Objects.requireNonNull(findMethod(false, Modifier.PRIVATE, net.minecraft.world.entity.npc.Villager.class, Void.TYPE, null, net.minecraft.world.entity.player.Player.class));
 		IRegistry_keySet = Objects.requireNonNull(findMethod(true, null, Registry.class, Set.class, ResourceLocation.class));
 		Potions_register = Objects.requireNonNull(findMethod(false, Modifier.PRIVATE, Potions.class, Potion.class, null, String.class, Potion.class));
@@ -198,13 +192,17 @@ public class ReflectionUtils {
 		}
 	}
 
-	//isAccessible - Is method accessible, if not use getDeclaredMethods() and then make method accessible
-	//modifier - check modifier of methods, if null then ignored
-	//clazz - Class in which search
-	//rType - Return type, if null then any is ok
-	//gType - Generic type of return type, if null then ignored
-	//parameters - Method argument classes
-
+	/**
+	 * Finds a method within a given class based on specified criteria.
+	 *
+	 * @param isAccessible Flag indicating whether to use getMethods() or getDeclaredMethods()
+	 * @param modifier     The modifier to match for the method (optional).
+	 * @param clazz        The class containing the method.
+	 * @param rType        The return type of the method (optional).
+	 * @param gType        The generic type to match against the actual type argument of the return type (optional).
+	 * @param parameters   The types of the method parameters.
+	 * @return             The {@code Method} object matching the specified criteria, or {@code null} if not found.
+	 */
 	public static Method findMethod(boolean isAccessible, Integer modifier, Class<?> clazz, Class<?> rType, Class<?> gType, Class<?>... parameters) {
 		for (Method method : !isAccessible ? clazz.getDeclaredMethods() : clazz.getMethods()) {
 			if (method.getParameterCount() != parameters.length) { continue; }
@@ -230,7 +228,7 @@ public class ReflectionUtils {
 			}
 
 			if (!match) { continue; }
-			if (!isAccessible) { method.setAccessible(true); }
+			method.setAccessible(true);
 			return method;
 		}
 
@@ -242,18 +240,54 @@ public class ReflectionUtils {
 	}
 
 	public static Field getField(Class<?> clazz, Class<?> fType, Class<?> gType, Object parent, Object value, boolean isPrivate) {
+		return getField(clazz, fType, ((gType != null) ? new Class<?>[] { gType } : null), parent, value, isPrivate, null, null);
+	}
+
+	/**
+	 * Retrieves a {@code Field} object based on specified criteria within a given class.
+	 *
+	 * @param clazz         The class containing the field.
+	 * @param fType         The type of the field to retrieve.
+	 * @param gTypes        An array of generic types to match against the actual type arguments of the field (optional).
+	 * @param parent        The object instance (or null for static fields) whose field value should match (optional).
+	 * @param value         The value that the field should contain (optional).
+	 * @param isPrivate     Flag indicating whether to use getDeclaredFields() or getFields().
+	 * @param modifier      The modifier to match for the field (optional).
+	 * @param notModifier   The modifier to exclude for the field (optional).
+	 * @return              The {@code Field} object matching the specified criteria, or {@code null} if not found.
+	 */
+	public static Field getField(Class<?> clazz, Class<?> fType, Object[] gTypes, Object parent, Object value, boolean isPrivate, Integer modifier, Integer notModifier) {
 		for (Field field : isPrivate ? clazz.getDeclaredFields() : clazz.getFields()) {
 			if (!field.getType().equals(fType)) { continue; }
 
-			if (gType != null) {
+			if ((modifier != null) && ((modifier == Modifier.FINAL) && !Modifier.isFinal(field.getModifiers()))) { continue; }
+			if ((modifier != null) && ((modifier == Modifier.STATIC) && !Modifier.isStatic(field.getModifiers()))) { continue; }
+			if ((modifier != null) && ((modifier == Modifier.PUBLIC) && !Modifier.isPublic(field.getModifiers()))) { continue; }
+			if ((modifier != null) && ((modifier == Modifier.PRIVATE) && !Modifier.isPrivate(field.getModifiers()))) { continue; }
+			if ((modifier != null) && ((modifier == Modifier.PROTECTED) && !Modifier.isProtected(field.getModifiers()))) { continue; }
+
+			if ((notModifier != null) && ((notModifier == Modifier.FINAL) && Modifier.isFinal(field.getModifiers()))) { continue; }
+			if ((notModifier != null) && ((notModifier == Modifier.STATIC) && Modifier.isStatic(field.getModifiers()))) { continue; }
+			if ((notModifier != null) && ((notModifier == Modifier.PUBLIC) && Modifier.isPublic(field.getModifiers()))) { continue; }
+			if ((notModifier != null) && ((notModifier == Modifier.PRIVATE) && Modifier.isPrivate(field.getModifiers()))) { continue; }
+			if ((notModifier != null) && ((notModifier == Modifier.PROTECTED) && Modifier.isProtected(field.getModifiers()))) { continue; }
+
+			if ((gTypes != null) && (gTypes.length > 0)) {
 				Type genericType = field.getGenericType();
 				if (!(genericType instanceof ParameterizedType)) { continue; }
 				Type[] argTypes = ((ParameterizedType) genericType).getActualTypeArguments();
-				if ((argTypes.length == 0) || !(argTypes[0] instanceof Class)) { continue; }
-				if (!argTypes[0].equals(gType)) { continue; }
+				if (argTypes.length < gTypes.length) { continue; }
+
+				boolean match = true;
+				for (int i = 0; i < gTypes.length; i++) {
+					if (argTypes[i] instanceof ParameterizedType) { argTypes[i] = ((ParameterizedType) argTypes[i]).getRawType(); }
+					if ((gTypes[i] instanceof String) && !argTypes[i].getTypeName().equals(gTypes[i])) { match = false; break; }
+					if (!(gTypes[i] instanceof String) && !argTypes[i].equals(gTypes[i])) { match = false; break; }
+				}
+				if (!match) { continue; }
 			}
 
-			if ((parent != null) && (value != null)) {
+			if (value != null) { //if parent is null then value is static
 				Object pvalue = getValue(field, parent);
 				if ((pvalue == null) || !pvalue.equals(value)) { continue; }
 			}
@@ -411,7 +445,7 @@ public class ReflectionUtils {
 	}
 
 	public static World getRespawnWorld(Player player) {
-		return (World) getServer().getLevel(getEntityPlayer(player).getRespawnDimension()).getWorld();
+		return MinecraftServer.getServer().getLevel(getEntityPlayer(player).getRespawnDimension()).getWorld();
 	}
 
 	//Get block destroy time per tick which is based on player
@@ -451,19 +485,9 @@ public class ReflectionUtils {
 		}
 	}
 
-	public static MinecraftServer getServer() {
-		return MinecraftServer.getServer();
-	}
-
 	public static Collection<Channel> getConnections() {
-		HashMap<Connection, Channel> connections = new HashMap<>();
-		ServerConnectionListener serverConnection = getServer().getConnection();
-
-		for (Connection manager : serverConnection.getConnections()) {
-			connections.put(manager, manager.channel);
-		}
-
-		return connections.values();
+		List<Connection> serverConnection = MinecraftServer.getServer().getConnection().getConnections();
+		return serverConnection.stream().collect(Collectors.toMap(e -> e, e -> e.channel)).values();
 	}
 
 	//Doesn't work in creative, it sets an actual item
@@ -477,10 +501,6 @@ public class ReflectionUtils {
 		}
 
 		sendPacket(player, new ClientboundContainerSetSlotPacket(0, 0, slot, asNMSCopy(item)));
-	}
-
-	public static ServerFunctionManager getFunctionManager() {
-		return MinecraftServer.getServer().getFunctions();
 	}
 
 	public static void setInstantBuild(Player player, boolean instantbuild, boolean clientSide, boolean serverSide) {
@@ -515,7 +535,7 @@ public class ReflectionUtils {
 
 	//The most useless shit I ever made
 	public static boolean isUsingItem(Player player) {
-		Byte entityFlags = (Byte) getEntityPlayer(player).getEntityData().get(DATA_LIVING_ENTITY_FLAGS);
+		Byte entityFlags = getEntityPlayer(player).getEntityData().get(DATA_LIVING_ENTITY_FLAGS);
 		return (entityFlags & LIVING_ENTITY_FLAG_IS_USING) > 0;
 	}
 
@@ -524,16 +544,13 @@ public class ReflectionUtils {
 	}
 
 	public static void shootBow(Player player, ItemStack bow, int ticks) {
-		net.minecraft.world.item.ItemStack item = asNMSCopy(bow);
-		ServerLevel world = getWorld(player.getWorld());
-		ServerPlayer entityPlayer = getEntityPlayer(player);
-		item.releaseUsing(world, entityPlayer, (72000 - ticks));
+		asNMSCopy(bow).releaseUsing(getWorld(player.getWorld()), getEntityPlayer(player), (72000 - ticks));
 	}
 
 	public static Player addFakePlayer(Location location, UUID uuid, boolean addPlayer, boolean hideOnline, boolean hideWorld) {
 		if (uuid == null) { uuid = UUID.randomUUID(); }
 
-		MinecraftServer server = getServer();
+		MinecraftServer server = MinecraftServer.getServer();
 		ServerLevel world = getWorld(location.getWorld());
 		ServerPlayer entityPlayer = new ServerPlayer(server, world, new GameProfile(uuid, " ".repeat(5)), ClientInformation.createDefault());
 
@@ -565,13 +582,13 @@ public class ReflectionUtils {
 
 	public static void removeFakePlayer(Player player) {
 		ServerPlayer entityPlayer = getEntityPlayer(player);
-		ServerLevel world = (ServerLevel) getWorld(player.getWorld());
+		ServerLevel world = getWorld(player.getWorld());
 		world.removePlayerImmediately(entityPlayer, RemovalReason.DISCARDED);
 	}
 
 	//This needed to update player chunks and make them tickable
 	public static void updateFakePlayer(Player player) {
-		ServerLevel world = (ServerLevel) getWorld(player.getWorld());
+		ServerLevel world = getWorld(player.getWorld());
 		world.getChunkSource().move(getEntityPlayer(player));
 	}
 
@@ -645,7 +662,7 @@ public class ReflectionUtils {
 
 	public static ItemStack setPotionTag(ItemStack item, String name) {
 		net.minecraft.world.item.ItemStack nmsItem = asNMSCopy(item);
-		CompoundTag tag = (CompoundTag) nmsItem.getOrCreateTag();
+		CompoundTag tag = nmsItem.getOrCreateTag();
 		tag.putString("Potion", name);
 		nmsItem.setTag(tag);
 		return asBukkitMirror(nmsItem);
@@ -664,8 +681,8 @@ public class ReflectionUtils {
 
 		for (Field field : fields) {
 			if (!field.getType().equals(Map.class)) { continue; }
-			if (getValue(field, POTION) != null) { continue; }
-			setValue(field, POTION, hashMap); break;
+			if (getValue(field, registry) != null) { continue; }
+			setValue(field, registry, hashMap); break;
 		}
 	}
 
@@ -1058,7 +1075,7 @@ public class ReflectionUtils {
 		return null;
 	}
 
-	public static ClientboundLevelChunkWithLightPacket setPacketChunkBiome(World world, Object packet, CustomBiome biome) {
+	public static ClientboundLevelChunkWithLightPacket setPacketChunkBiome(World world, Object packet, Object customNmsBiome, @Nullable String customBiomeName, @Nullable HashMap<String, Object> customBiomeMap) {
 		ServerLevel level = getWorld(world);
 		int chunkX = ((ClientboundLevelChunkWithLightPacket) packet).getX();
 		int chunkZ = ((ClientboundLevelChunkWithLightPacket) packet).getZ();
@@ -1066,17 +1083,18 @@ public class ReflectionUtils {
 		List<Biome> saved_biomes = new ArrayList<>();
 
 		//Replace with custom biome and save old biomes
+		//Remember for each custom biome we register copy of that biome for every ingame biomes
+		//So we first get section biome name and then check if there is custom biome for that biome
 		for (LevelChunkSection section : levelChunk.getSections()) {
 			for (int x = 0; x < 4; ++x) {
 				for (int z = 0; z < 4; ++z) {
 					for (int y = 0; y < 4; ++y) {
 						Holder<Biome> saved_biome = section.getNoiseBiome(x, y, z);
 						saved_biomes.add(saved_biome.value());
-						String bname = saved_biome.unwrapKey().get().location().toString().replaceAll("[:/]", "_");
+						String biomeName = saved_biome.unwrapKey().get().location().toString().replaceAll("[:/]", "_");
 
-						CustomBiome biome1 = BiomeManager.getCustomBiome(biome.getName() + "_" + bname);
-						Object cbiome = (biome1 == null) ? biome.getCustomBiome() : biome1.getCustomBiome();
-						section.setBiome(x, y, z, Holder.direct((Biome) cbiome));
+						Object adaptedCustomBiome = ((customBiomeName != null) && (customBiomeMap != null)) ? customBiomeMap.get(customBiomeName + "_" + biomeName) : null;
+						section.setBiome(x, y, z, Holder.direct((Biome) ((adaptedCustomBiome != null) ? adaptedCustomBiome : customNmsBiome)));
 					}
 				}
 			}
@@ -1183,23 +1201,6 @@ public class ReflectionUtils {
 		}
 	}
 
-	//Kinda useless, changing order will not change if the plugin is enabled, and
-	//if plugin is enabled it won't enable it again, so you must change not just order,
-	//but also set isEnabled to false, but this on other side disables any events.
-	public static void setPluginLoad(Plugin plugin, PluginLoadOrder load) {
-		if (plugin.getDescription().getLoad() == load) { return; }
-		Field PluginDescriptionFile_order = Objects.requireNonNull(getField(PluginDescriptionFile.class, PluginLoadOrder.class, null, true));
-		Field JavaPlugin_isEnabled = Objects.requireNonNull(getField(JavaPlugin.class, boolean.class, null, plugin, plugin.isEnabled(), true));
-		setValue(PluginDescriptionFile_order, plugin.getDescription(), load);
-		setValue(JavaPlugin_isEnabled, plugin, false);
-	}
-
-	public static String getBiome(Location location) {
-		ServerLevel level = getWorld(location.getWorld());
-		BlockPos pos = new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
-		return level.getBiome(pos).unwrapKey().get().location().toString();
-	}
-
 	public static List<String> getBiomes(String exnamespace) {
 		ArrayList<ResourceLocation> resourceLocations = new ArrayList<>(MinecraftServer.getServer().registryAccess().registryOrThrow(Registries.BIOME).keySet());
 		if (!exnamespace.isEmpty()) { resourceLocations.removeIf(e -> e.getNamespace().equalsIgnoreCase(exnamespace)); }
@@ -1208,7 +1209,7 @@ public class ReflectionUtils {
 
 	//This will crash client if he will not rejoin and receive custom biome, because client only receives biomes when joining,
 	// but if we create new biome and send it to client, he won't know what to do with it and crash
-	public static Biome registerBiome(String basename, String namespace, String name, int skyColor, int fogColor, int waterColor, int waterFogColor, int foliageColor, int grassColor) {
+	public static Biome registerBiome(String basename, String namespace, String name, int skyColor, int fogColor, int waterColor, int waterFogColor, int foliageColor, int grassColor, boolean effectsEnabled) {
 		ResourceKey<Biome> minecraftKey = ResourceKey.create(Registries.BIOME, new ResourceLocation(basename.split(":")[0], basename.split(":")[1]));
 		ResourceKey<Biome> customKey = ResourceKey.create(Registries.BIOME, new ResourceLocation(namespace, name));
 		WritableRegistry<Biome> biomeRegirsty = (WritableRegistry<Biome>) MinecraftServer.getServer().registryAccess().registryOrThrow(Registries.BIOME);
@@ -1231,6 +1232,14 @@ public class ReflectionUtils {
 
 		int grassColorOverride = (grassColor == -1) ? minecraftBiome.getSpecialEffects().getGrassColorOverride().orElse(-1) : grassColor;
 		if (grassColorOverride != -1) { biomeSpecialEffects.grassColorOverride(grassColorOverride); }
+
+		if (effectsEnabled) {
+			minecraftBiome.getAmbientAdditions().ifPresent(e -> biomeSpecialEffects.ambientAdditionsSound(e));
+			minecraftBiome.getAmbientLoop().ifPresent(e -> biomeSpecialEffects.ambientLoopSound(e));
+			minecraftBiome.getAmbientMood().ifPresent(e -> biomeSpecialEffects.ambientMoodSound(e));
+			minecraftBiome.getAmbientParticle().ifPresent(e -> biomeSpecialEffects.ambientParticle(e));
+			minecraftBiome.getBackgroundMusic().ifPresent(e -> biomeSpecialEffects.backgroundMusic(e));
+		}
 
 		Biome.BiomeBuilder biomeBuilder = new Biome.BiomeBuilder();
 		biomeBuilder.downfall(minecraftBiome.climateSettings.downfall());
@@ -1264,5 +1273,36 @@ public class ReflectionUtils {
 		connection.send(new ClientboundUpdateTagsPacket(TagNetworkSerialization.serializeTagsToNetwork(layeredregistryaccess)));
 		connection.connection.channel.attr(Connection.ATTRIBUTE_CLIENTBOUND_PROTOCOL).set(codecData);
 		*/
+	}
+
+	public static void fillChunk(Chunk chunk, Material material, boolean removeEntity, boolean refresh) {
+		if (!chunk.isLoaded()) { return; }
+
+		if (removeEntity) {
+			for (Entity entity : chunk.getEntities()) {
+				if (entity.getType() != EntityType.PLAYER) {
+					try { entity.remove(); } catch (Exception e) {}
+				}
+			}
+		}
+
+		int maxY = chunk.getWorld().getMaxHeight();
+		int minY = chunk.getWorld().getMinHeight();
+		BlockState state = getBlock(material).defaultBlockState();
+		LevelChunk levelChunk = getWorld(chunk.getWorld()).getChunk(chunk.getX(), chunk.getZ());
+
+		for (int x = 0; x < 16; ++x) {
+			for (int y = minY; y <= maxY; ++y) {
+				for (int z = 0; z < 16 ; ++z) {
+					levelChunk.setBlockState(new BlockPos(x, y, z), state, false);
+				}
+			}
+		}
+
+		if (refresh) {
+			ClientboundLevelChunkWithLightPacket npacket = new ClientboundLevelChunkWithLightPacket(levelChunk, levelChunk.getLevel().getLightEngine(), null, null, true);
+			Collection<Entity> players = Utils.getNearbyEntities(chunk.getBlock(8, 0, 8).getLocation(), EntityType.PLAYER, Bukkit.getViewDistance()*16, true);
+			players.stream().map(Player.class::cast).forEach(e -> sendPacket(e, npacket));
+        }
 	}
 }

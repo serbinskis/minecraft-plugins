@@ -26,9 +26,11 @@ public class ProtocolEvents extends PacketAdapter {
 
 		if (packetType == PacketType.Play.Server.MAP_CHUNK) {
 			World world = event.getPlayer().getWorld();
-			CustomBiome biome = BiomeManager.getCustomBiome(world.getName());
-			if ((biome == null) || (biome.isEmpty())) { return; }
-			event.setPacket(PacketContainer.fromPacket(ReflectionUtils.setPacketChunkBiome(world, event.getPacket().getHandle(), biome)));
+			CustomBiome cbiome = BiomeManager.getCustomBiome(world.getName());
+			if ((cbiome == null) || (cbiome.isEmpty())) { return; }
+
+			Object packet = ReflectionUtils.setPacketChunkBiome(world, event.getPacket().getHandle(), cbiome.getNmsBiome(), cbiome.getName(), BiomeManager.getNmsMap());
+			event.setPacket(PacketContainer.fromPacket(packet));
 			return;
 		}
 

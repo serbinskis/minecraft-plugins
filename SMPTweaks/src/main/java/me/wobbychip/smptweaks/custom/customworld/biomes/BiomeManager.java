@@ -10,6 +10,7 @@ import java.util.HashMap;
 
 public class BiomeManager {
     public static HashMap<String, CustomBiome> cbiomes = new HashMap<>();
+    public static HashMap<String, Object> nmsBiomes = new HashMap<>();
     public static int counter = 0;
 
     public static void registerBiomeAll(CustomBiome cbiome) {
@@ -35,11 +36,13 @@ public class BiomeManager {
                 cbiome.getWaterColor(),
                 cbiome.getWaterFogColor(),
                 cbiome.getFoliageColor(),
-                cbiome.getGrassColor()
+                cbiome.getGrassColor(),
+                cbiome.getEffectsEnabled()
         );
 
-        cbiome.setCustomBiome(customBiome);
+        cbiome.setNmsBiome(customBiome);
         cbiomes.put(cbiome.getName(), cbiome);
+        nmsBiomes.put(cbiome.getName(), customBiome);
     }
 
     public static void saveBiome(World world, CustomBiome cbiome) {
@@ -65,5 +68,9 @@ public class BiomeManager {
 
     public static CustomBiome getCustomBiome(String name) {
         return cbiomes.get(name);
+    }
+
+    public static HashMap<String, Object> getNmsMap() {
+        return nmsBiomes;
     }
 }

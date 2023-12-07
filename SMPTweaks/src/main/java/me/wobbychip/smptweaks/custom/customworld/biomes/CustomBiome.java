@@ -21,7 +21,8 @@ public class CustomBiome {
     private int skyColor = -1;
     private int foliageColor = -1;
     private int grassColor = -1;
-    private Object customBiome;
+    private boolean effectsEnabled = false;
+    private Object nmsBiome;
 
     public CustomBiome(@Nullable String biome_base, @Nullable String namespace, String name) {
         this.biome_base = (biome_base != null) ? biome_base : "minecraft:plains";
@@ -156,12 +157,21 @@ public class CustomBiome {
         return setGrassColor(fromHex(hex));
     }
 
-    public void setCustomBiome(Object customBiome) {
-        this.customBiome = customBiome;
+    public CustomBiome setEffectsEnabled(boolean effectsEnabled) {
+        this.effectsEnabled = effectsEnabled;
+        return this;
     }
 
-    public Object getCustomBiome() {
-        return customBiome;
+    public boolean getEffectsEnabled() {
+        return effectsEnabled;
+    }
+
+    public void setNmsBiome(Object nmsBiome) {
+        this.nmsBiome = nmsBiome;
+    }
+
+    public Object getNmsBiome() {
+        return nmsBiome;
     }
 
     public boolean isEmpty() {

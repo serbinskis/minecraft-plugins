@@ -5,7 +5,6 @@ import me.wobbychip.smptweaks.custom.customworld.biomes.CustomBiome;
 import me.wobbychip.smptweaks.custom.customworld.biomes.CustomWorld;
 import me.wobbychip.smptweaks.utils.PersistentUtils;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
-import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -21,7 +20,7 @@ public class Events implements Listener {
 
 		CustomWorld type = CustomWorld.getCustomType(PersistentUtils.getPersistentDataString(event.getWorld(), CustomWorlds.TAG_CUSTOM_WORLD));
 		if ((type == null) || !type.isVoid()) { return; }
-		Utils.fillChunk(event.getChunk(), Material.AIR, true);
+		ReflectionUtils.fillChunk(event.getChunk(), Material.AIR, true, false);
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
