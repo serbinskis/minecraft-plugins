@@ -4,8 +4,12 @@ import org.bukkit.World;
 
 public enum CustomWorld {
 	NONE("none", false, false, World.Environment.CUSTOM),
+	END("end", false, false, World.Environment.THE_END),
+	NETHER("nether", false, false, World.Environment.NETHER),
+	OVERWORLD("overworld", false, false, World.Environment.NORMAL),
 	END_VOID("end_void", true, true, World.Environment.THE_END),
-	NETHER_VOID("end_nether", true, true, World.Environment.NETHER);
+	NETHER_VOID("nether_void", true, true, World.Environment.NETHER),
+	OVERWORLD_VOID("overworld_void", true, true, World.Environment.NORMAL);
 
 	private String name;
 	private boolean isVoid;

@@ -48,10 +48,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.SignalGetter;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSpecialEffects;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.DiodeBlock;
-import net.minecraft.world.level.block.DispenserBlock;
-import net.minecraft.world.level.block.DropperBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -437,6 +434,7 @@ public class ReflectionUtils {
 	}
 
 	public static Block getBlock(Material block) {
+		if (block == Material.AIR) { return Blocks.AIR; }
 		return block.isBlock() ? ((BlockItem) getItem(new ItemStack(block))).getBlock() : null;
 	}
 
@@ -1291,9 +1289,9 @@ public class ReflectionUtils {
 		BlockState state = getBlock(material).defaultBlockState();
 		LevelChunk levelChunk = getWorld(chunk.getWorld()).getChunk(chunk.getX(), chunk.getZ());
 
-		for (int x = 0; x < 16; ++x) {
-			for (int y = minY; y <= maxY; ++y) {
-				for (int z = 0; z < 16 ; ++z) {
+		for (int x = 0; x < 16; x++) {
+			for (int y = minY; y < maxY; y++) {
+				for (int z = 0; z < 16 ; z++) {
 					levelChunk.setBlockState(new BlockPos(x, y, z), state, false);
 				}
 			}

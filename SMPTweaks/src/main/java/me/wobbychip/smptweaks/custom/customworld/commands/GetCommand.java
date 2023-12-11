@@ -21,12 +21,13 @@ public class GetCommand {
 
 		String message = "&a&lCustomWorld &8» &7" + player.getWorld().getName() + "\n" +
 				"&9Type: &f" + ((type != null) ? type.toString().toLowerCase(): "NONE") + "\n" +
-				"&9SkyColor: &f" + ((cbiome != null) ? cbiome.getSkyColorHex() : "NONE") + "\n" +
-				"&9FogColor: &f" + ((cbiome != null) ? cbiome.getFogColorHex() : "NONE") + "\n" +
-				"&9FoliageColor: &f" + ((cbiome != null) ? cbiome.getFoliageColorHex() : "NONE") + "\n" +
-				"&9GrassColor: &f" + ((cbiome != null) ? cbiome.getGrassColorHex() : "NONE") + "\n" +
-				"&9WaterColor: &f" + ((cbiome != null) ? cbiome.getWaterColorHex() : "NONE") + "\n" +
-				"&9WaterFogColor: &f" + ((cbiome != null) ? cbiome.getWaterFogColorHex() : "NONE") + "\n";
+				"&9Effects: &f" + ((cbiome != null) ? (cbiome.isEffectsEnabled() ? "ENABLED" : "DISABLED") : "IGNORED") + "\n" +
+				"&9SkyColor: &f" + ((cbiome != null) ? cbiome.getSkyColorHex() : "IGNORED") + "\n" +
+				"&9FogColor: &f" + ((cbiome != null) ? cbiome.getFogColorHex() : "IGNORED") + "\n" +
+				"&9FoliageColor: &f" + ((cbiome != null) ? cbiome.getFoliageColorHex() : "IGNORED") + "\n" +
+				"&9GrassColor: &f" + ((cbiome != null) ? cbiome.getGrassColorHex() : "IGNORED") + "\n" +
+				"&9WaterColor: &f" + ((cbiome != null) ? cbiome.getWaterColorHex() : "IGNORED") + "\n" +
+				"&9WaterFogColor: &f" + ((cbiome != null) ? cbiome.getWaterFogColorHex() : "IGNORED") + "\n";
 
 		Utils.sendMessage(sender, message);
 		return true;

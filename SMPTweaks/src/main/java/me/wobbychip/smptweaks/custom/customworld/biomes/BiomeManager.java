@@ -37,7 +37,7 @@ public class BiomeManager {
                 cbiome.getWaterFogColor(),
                 cbiome.getFoliageColor(),
                 cbiome.getGrassColor(),
-                cbiome.getEffectsEnabled()
+                cbiome.isEffectsEnabled()
         );
 
         cbiome.setNmsBiome(customBiome);
@@ -46,6 +46,7 @@ public class BiomeManager {
     }
 
     public static void saveBiome(World world, CustomBiome cbiome) {
+        PersistentUtils.setPersistentDataBoolean(world, CustomBiome.TAG_EFFECTS, cbiome.isEffectsEnabled());
         PersistentUtils.setPersistentDataInteger(world, CustomBiome.TAG_GRASSCOLOR, cbiome.getGrassColor());
         PersistentUtils.setPersistentDataInteger(world, CustomBiome.TAG_FOGCOLOR, cbiome.getFogColor());
         PersistentUtils.setPersistentDataInteger(world, CustomBiome.TAG_FOLIAGECOLOR, cbiome.getFoliageColor());
@@ -56,6 +57,7 @@ public class BiomeManager {
 
     public static CustomBiome loadBiome(World world) {
         CustomBiome biome = new CustomBiome(null, null, world.getName());
+        if (PersistentUtils.hasPersistentDataInteger(world, CustomBiome.TAG_EFFECTS)) { biome.setEffectsEnabled(PersistentUtils.getPersistentDataBoolean(world, CustomBiome.TAG_EFFECTS)); }
         if (PersistentUtils.hasPersistentDataInteger(world, CustomBiome.TAG_GRASSCOLOR)) { biome.setGrassColor(PersistentUtils.getPersistentDataInteger(world, CustomBiome.TAG_GRASSCOLOR)); }
         if (PersistentUtils.hasPersistentDataInteger(world, CustomBiome.TAG_FOGCOLOR)) { biome.setFogColor(PersistentUtils.getPersistentDataInteger(world, CustomBiome.TAG_FOGCOLOR)); }
         if (PersistentUtils.hasPersistentDataInteger(world, CustomBiome.TAG_FOLIAGECOLOR)) { biome.setFoliageColor(PersistentUtils.getPersistentDataInteger(world, CustomBiome.TAG_FOLIAGECOLOR)); }

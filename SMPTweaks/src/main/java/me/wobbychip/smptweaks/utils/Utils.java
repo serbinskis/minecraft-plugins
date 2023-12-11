@@ -291,6 +291,29 @@ public class Utils {
 		entity.setGlowing(!color.equals(ChatColor.RESET));
 	}
 
+	public static void fillChunk(Chunk chunk, Material material, boolean removeEntity) {
+		if (removeEntity) {
+			for (Entity entity : chunk.getEntities()) {
+				if (entity.getType() != EntityType.PLAYER) {
+					try { entity.remove(); } catch (Exception e) {}
+				}
+			}
+		}
+
+		int maxY = chunk.getWorld().getMaxHeight();
+		int minY = chunk.getWorld().getMinHeight();
+
+		for (int x = 0; x < 16; x++) {
+			for (int y = minY; y <= maxY; y++) {
+				for (int z = 0; z < 16 ; z++) {
+					Block block = chunk.getBlock(x, y, z);
+					if (block.getType() == material) { continue; }
+					block.setType(material, false);
+				}
+			}
+		}
+	}
+
 	//Convert location to string
 	public static String locationToString(Location location) {
 		return location.getWorld().getName() + delimiter + location.getX() + delimiter + location.getY() + delimiter + location.getZ();

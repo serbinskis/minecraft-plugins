@@ -5,6 +5,7 @@ import me.wobbychip.smptweaks.custom.customworld.CustomWorlds;
 import javax.annotation.Nullable;
 
 public class CustomBiome {
+    public static String TAG_EFFECTS = CustomWorlds.TAG_BIOME_NAME + "_EFFECTS";
     public static String TAG_GRASSCOLOR = CustomWorlds.TAG_BIOME_NAME + "_GRASSCOLOR";
     public static String TAG_FOGCOLOR = CustomWorlds.TAG_BIOME_NAME + "_FOGCOLOR";
     public static String TAG_FOLIAGECOLOR = CustomWorlds.TAG_BIOME_NAME + "_FOLIAGECOLOR";
@@ -39,7 +40,7 @@ public class CustomBiome {
     }
 
     public static String toHex(int value) {
-        if (value < 0) { return "NONE"; }
+        if (value < 0) { return "IGNORED"; }
         return String.format("#%06X", value);
     }
 
@@ -162,7 +163,7 @@ public class CustomBiome {
         return this;
     }
 
-    public boolean getEffectsEnabled() {
+    public boolean isEffectsEnabled() {
         return effectsEnabled;
     }
 
@@ -187,6 +188,7 @@ public class CustomBiome {
         cbiome.setGrassColor(this.getGrassColor());
         cbiome.setWaterColor(this.getWaterColor());
         cbiome.setWaterFogColor(this.getWaterFogColor());
+        cbiome.setEffectsEnabled(this.isEffectsEnabled());
 
         return cbiome;
     }
