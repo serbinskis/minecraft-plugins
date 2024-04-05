@@ -4,6 +4,8 @@ import me.wobbychip.smptweaks.Config;
 import me.wobbychip.smptweaks.utils.TaskUtils;
 import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Bukkit;
+import org.bukkit.damage.DamageSource;
+import org.bukkit.damage.DamageType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
@@ -85,7 +87,7 @@ public class PlayerTimer {
 			if ((!PvPDropInventory.tweak.getGameRuleBoolean(player.getWorld()))) { iterator.remove(); continue; }
 			
 			int seconds = timers.get(uuid)-1;
-			EntityDamageEvent event = new EntityDamageEvent(player, DamageCause.VOID, 0);
+			EntityDamageEvent event = new EntityDamageEvent(player, DamageCause.VOID, DamageSource.builder(DamageType.GENERIC).build(), 0);
 			Bukkit.getServer().getPluginManager().callEvent(event);
 			if (event.isCancelled()) { seconds += 1; }
 

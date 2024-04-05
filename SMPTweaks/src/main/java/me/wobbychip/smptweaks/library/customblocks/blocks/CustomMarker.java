@@ -1,130 +1,129 @@
 package me.wobbychip.smptweaks.library.customblocks.blocks;
 
+import me.wobbychip.smptweaks.library.customblocks.CustomBlocks;
 import me.wobbychip.smptweaks.utils.PersistentUtils;
 import me.wobbychip.smptweaks.utils.ServerUtils;
 import me.wobbychip.smptweaks.utils.TaskUtils;
 import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.data.BlockData;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Directional;
-import org.bukkit.entity.BlockDisplay;
+import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.ItemDisplay;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Transformation;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-import java.util.HashMap;
+import java.util.*;
 
 public class CustomMarker implements Runnable {
-    public static String TAG_MARKER = "SMPTWEAKS_CUSTOM_MARKER";
-    public static final HashMap<String, CustomMarker> markers = new HashMap<>();
-    public final int task;
-    public final BlockDisplay display;
-    public final CustomBlock cblock;
+    public static final String TAG_MARKER = "SMPTWEAKS_CUSTOM_MARKER";
+    private static final HashMap<String, CustomMarker> markers = new HashMap<>();
+    private final ItemDisplay display;
+    private final CustomBlock customBlock;
+    private final int task;
 
-    private CustomMarker(BlockDisplay display, CustomBlock cblock) {
+    private CustomMarker(ItemDisplay display, CustomBlock customBlock) {
         this.display = display;
-        this.cblock = cblock;
+        this.customBlock = customBlock;
         this.task = TaskUtils.scheduleSyncRepeatingTask(this, 1L, 1L);
+    }
+
+    public String getId() {
+        return customBlock.getId();
     }
 
     public static CustomMarker createMarker(CustomBlock cblock, Block block) {
         String location = Utils.locationToString(block.getLocation());
         if (markers.containsKey(location)) { return markers.get(location); }
 
-        BlockDisplay display = (BlockDisplay) block.getWorld().spawnEntity(block.getLocation().add(0.5, 0.5, 0.5), EntityType.BLOCK_DISPLAY);
-        PersistentUtils.setPersistentDataString(display, CustomBlock.TAG_BLOCK, cblock.getName());
+        Map.Entry<BlockFace, Transformation> orientation = getOrientation(block);
+        ItemStack itemStack = cblock.getDropItem(Arrays.asList(BlockFace.UP, BlockFace.DOWN).contains(orientation.getKey()));
+
+        ItemDisplay display = (ItemDisplay) block.getWorld().spawnEntity(block.getLocation().add(0.5, 0.5, 0.5), EntityType.ITEM_DISPLAY);
+        PersistentUtils.setPersistentDataString(display, CustomBlock.TAG_BLOCK, cblock.getId());
         PersistentUtils.setPersistentDataBoolean(display, TAG_MARKER, true);
+        display.setBrightness(new Display.Brightness(15, 15));
         display.setCustomName(TAG_MARKER);
         display.setCustomNameVisible(false);
         display.setInvulnerable(true);
-        display.setBlock(getBlockData(block, cblock.getCustomMaterial()));
-
-        Transformation tranf = display.getTransformation();
-        display.setTransformation(new Transformation(new Vector3f(-0.5001f), tranf.getLeftRotation(), new Vector3f(1.0002f), tranf.getRightRotation()));
+        display.setTransformation(orientation.getValue());
+        display.setItemStack(itemStack);
+        Utils.setGlowColor(display, cblock.getGlowing());
 
         CustomMarker marker = new CustomMarker(display, cblock);
         markers.put(location, marker);
-
         return marker;
     }
 
-    public static BlockData getBlockData(Block block, Material material) {
-        BlockData blockData = material.createBlockData();
-        if (!(blockData instanceof Directional)) { return blockData; }
-        if (!(block.getBlockData() instanceof Directional dblock)) { return blockData; }
-        ((Directional) blockData).setFacing(dblock.getFacing());
-        return blockData;
+    public static Map.Entry<BlockFace, Transformation> getOrientation(Block block) {
+        boolean arg0 = (block.getBlockData() instanceof Directional);
+        Quaternionf left_rotation = new Quaternionf(0f, 0f, 0f, 1f);
+        Quaternionf right_rotation = new Quaternionf(0f, 0f, 0f, 1f);
+
+        BlockFace facing = ((Directional) block.getBlockData()).getFacing();
+        if (arg0 && facing.equals(BlockFace.NORTH)) { right_rotation = new Quaternionf(0f, 1f, 0f, 0f); }
+        if (arg0 && facing.equals(BlockFace.EAST)) { left_rotation = new Quaternionf(0f, 0.70710677f, 0f, 0.70710677f); }
+        if (arg0 && facing.equals(BlockFace.WEST)) { left_rotation = new Quaternionf(0f, -0.70710677f, 0f, 0.70710677f); }
+        if (arg0 && facing.equals(BlockFace.UP)) { left_rotation = new Quaternionf(0.70710677f, 0f, 0f, -0.70710677f); }
+        if (arg0 && facing.equals(BlockFace.DOWN)) { left_rotation = new Quaternionf(0.70710677f, 0f, 0f, 0.70710677f); }
+
+        return Map.entry(facing, new Transformation(new Vector3f(0f), left_rotation, new Vector3f(1.002f), right_rotation));
     }
 
     public static boolean isMarkerEntity(Entity entity) {
-        if (!(entity instanceof BlockDisplay)) { return false; }
+        if (!(entity instanceof ItemDisplay)) { return false; }
         return PersistentUtils.hasPersistentDataBoolean(entity, TAG_MARKER);
     }
 
     public static boolean containsMarkerEntity(Entity entity) {
-        String location = Utils.locationToString(entity.getLocation().getBlock().getLocation());
-        return markers.containsKey(location);
+        return markers.containsKey(Utils.locationToString(entity.getLocation().getBlock().getLocation()));
     }
 
     public static CustomMarker getMarker(Block block) {
-        for (Entity entity : block.getWorld().getNearbyEntities(block.getLocation().add(0.5, 0.5, 0.5), 0.4, 0.4, 0.4)) {
-            if (!isMarkerEntity(entity)) { continue; }
-            String lcoation = Utils.locationToString(entity.getLocation().getBlock().getLocation());
-            if (markers.containsKey(lcoation)) { return markers.get(lcoation); }
-        }
-
-        return null;
+        return markers.get(Utils.locationToString(block.getLocation()));
     }
 
-    //This is used to collect blocks and mark them again after server reload
-    //This is very inefficient because it runs every tick, to check if new markers did load
-    public static HashMap<Block, BlockDisplay> collectUnmarkedBlocks() {
-        HashMap<Block, BlockDisplay> blocks = new HashMap<>();
+    @SuppressWarnings({"unchecked"})
+    public static void collectUnmarkedBlocks(Object... data) {
+        ArrayList<Entity> entities = new ArrayList<>();
 
-        for (World world : Bukkit.getWorlds()) {
-            for (Entity entity : world.getEntities()) {
-                if (!isMarkerEntity(entity)) { continue; }
-                if (containsMarkerEntity(entity)) { continue; }
-                blocks.put(entity.getLocation().getBlock(), (BlockDisplay) entity);
-            }
-        }
+        if (data.length == 0) { Bukkit.getWorlds().forEach(e -> entities.addAll(e.getEntities())); }
+        if ((data.length > 0) && (data[0] instanceof Chunk chunk)) { entities.addAll(List.of(chunk.getEntities())); }
+        if ((data.length > 0) && (data[0] instanceof List<?> list)) { entities.addAll((List<Entity>) list); }
 
-        return blocks;
-    }
-
-    public CustomBlock getCustomBlock() {
-        return cblock;
-    }
-
-    public String getName() {
-        return cblock.getName();
+        entities.stream().filter(e -> isMarkerEntity(e) && !containsMarkerEntity(e)).forEach(entity -> {
+            CustomBlock customBlock = CustomBlocks.getCustomBlock((ItemDisplay) entity);
+            if (customBlock != null) { customBlock.createBlock((ItemDisplay) entity); }
+        });
     }
 
     private void recreate() {
         remove(true);
         Block block = display.getLocation().getBlock();
-        if (block.getType() != cblock.getBlockBase()) { return; }
-        CustomMarker.createMarker(cblock, block);
-    }
-
-    public void run() {
-        if (ServerUtils.isPaused()) { return; }
-        Block block = display.getLocation().getBlock();
-        Location location = display.getLocation();
-        if (!location.getWorld().isChunkLoaded(location.getBlockX() >> 4, location.getBlockZ() >> 4)) { return; }
-        if (!display.isValid()) { recreate(); return; }
-        if (block.getType() != cblock.getBlockBase()) { remove(true); return; }
-        if (cblock.isTickable()) { cblock.tick(block, ServerUtils.getTick()); }
+        if (block.getType() != customBlock.getBlockBase()) { return; }
+        CustomMarker.createMarker(customBlock, block);
     }
 
     public void remove(boolean rmarker) {
         markers.remove(Utils.locationToString(display.getLocation().getBlock().getLocation()));
         TaskUtils.cancelTask(task);
         if (rmarker) { display.remove(); }
+    }
+
+    public void run() {
+        if (ServerUtils.isPaused()) { return; }
+        Block block = display.getLocation().getBlock();
+        Location location = display.getLocation();
+        if (!location.getWorld().isChunkLoaded(location.getBlockX() >> 4, location.getBlockZ() >> 4)) { remove(false); return; }
+        if (!display.isValid()) { recreate(); return; }
+        if (block.getType() != customBlock.getBlockBase()) { remove(true); return; }
+        if (customBlock.isTickable()) { customBlock.tick(block, ServerUtils.getTick()); }
     }
 }

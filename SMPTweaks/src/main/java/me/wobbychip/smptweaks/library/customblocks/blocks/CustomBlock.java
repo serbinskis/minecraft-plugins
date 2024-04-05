@@ -3,15 +3,17 @@ package me.wobbychip.smptweaks.library.customblocks.blocks;
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.utils.PersistentUtils;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
 import org.bukkit.block.TileState;
 import org.bukkit.block.data.AnaloguePowerable;
+import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.Powerable;
+import org.bukkit.entity.ItemDisplay;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.inventory.Inventory;
@@ -29,30 +31,44 @@ import java.util.Map;
 public class CustomBlock implements Listener {
     public static String TAG_BLOCK = "SMPTWEAKS_CUSTOM_BLOCK";
     public static String TAG_MARKED_ITEM = "SMPTWEAKS_CBLOCK_MARKED";
-    public final String name;
-    public final Material block_base;
-    public String title;
-    public boolean tickable = false;
-    public Dispensable dispensable = Dispensable.IGNORE;
-    public Material custom_material = Material.AIR;
+    private Dispensable dispensable = Dispensable.IGNORE;
+    private Comparable comparable = Comparable.IGNORE;
+    private ChatColor glow_color = ChatColor.RESET;
+    private boolean tickable = false;
+    private final Material block_base;
+    private final String id;
+    private String name;
+    private String title;
+    private int model = -1;
+    private int model_extra = -1;
 
-
-    public CustomBlock(String name, Material block_base) {
-        this.name = name;
+    public CustomBlock(String id, Material block_base) {
+        this.id = id;
         this.block_base = block_base;
     }
 
-    public String getName() {
-        return name;
+    public void setCustomName(String name) {
+        this.name = name;
     }
 
-    public Material getBlockBase() {
-        return block_base;
+    public void setCustomTitle(String title) {
+        this.title = title;
     }
+
+    public void setCustomModel(int model, int model_extra) {
+        this.model = model;
+        this.model_extra = model_extra;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public Material getBlockBase() { return block_base; }
 
     @Nonnull
-    public ItemStack getDropItem() {
-        return PersistentUtils.setPersistentDataString(prepareDropItem(), TAG_BLOCK, name);
+    public ItemStack getDropItem(boolean extra) {
+        return PersistentUtils.setPersistentDataString(prepareDropItem(extra), TAG_BLOCK, id);
     }
 
     public void setTickable(boolean tickable) {
@@ -71,29 +87,29 @@ public class CustomBlock implements Listener {
         return dispensable;
     }
 
-    public boolean isDispensable() {
-        return (dispensable != Dispensable.DISABLE) && (block_base == Material.DISPENSER || block_base == Material.DROPPER);
+    public void setComparable(Comparable comparable) {
+        this.comparable = comparable;
     }
 
-    protected void setCustomTitle(String title) {
-        this.title = title;
+    public Comparable getComparable() {
+        return comparable;
+    }
+
+    public void setGlowing(ChatColor glow_color) {
+        this.glow_color = glow_color;
+    }
+
+    public ChatColor getGlowing() {
+        return glow_color;
     }
 
     public String getCustomTitle() {
         return title;
     }
 
-    protected void setCustomMaterial(Material custom_material) {
-        this.custom_material = custom_material;
-    }
-
-    protected Material getCustomMaterial() {
-        return custom_material;
-    }
-
     @Nullable
     public Recipe getRecipe() {
-        return prepareRecipe(new NamespacedKey((Plugin) Main.plugin, name));
+        return prepareRecipe(new NamespacedKey((Plugin) Main.plugin, id));
     }
 
     public boolean hasInventory() {
@@ -112,9 +128,18 @@ public class CustomBlock implements Listener {
         return (block_base.createBlockData() instanceof AnaloguePowerable);
     }
 
+    public boolean isDirectional() {
+        return (block_base.createBlockData() instanceof Directional);
+    }
+
+    public void createBlock(ItemDisplay display) {
+        display.remove();
+        createBlock(display.getLocation().getBlock());
+    }
+
     public void createBlock(Block block) {
         if (block.getType() != block_base) { return; }
-        if (isPersistent(block)) { PersistentUtils.setPersistentDataString(block, TAG_BLOCK, name); }
+        if (isPersistent(block)) { PersistentUtils.setPersistentDataString(block, TAG_BLOCK, id); }
         CustomMarker.createMarker(this, block);
 
         if (hasInventory() && (title != null)) {
@@ -148,7 +173,7 @@ public class CustomBlock implements Listener {
     }
 
     public ItemStack setMarkedItem(ItemStack item) {
-        return PersistentUtils.setPersistentDataString(item, TAG_MARKED_ITEM, name);
+        return PersistentUtils.setPersistentDataString(item, TAG_MARKED_ITEM, id);
     }
 
     public ItemStack removeMarkedItem(ItemStack item) {
@@ -158,37 +183,37 @@ public class CustomBlock implements Listener {
     public boolean isCustomBlock(ItemStack item) {
         if ((item == null) || (item.getType() != block_base)) { return false; }
         if (!PersistentUtils.hasPersistentDataString(item, TAG_BLOCK)) { return isCustomBlock(item.getItemMeta()); }
-        return PersistentUtils.getPersistentDataString(item, TAG_BLOCK).equalsIgnoreCase(name);
+        return PersistentUtils.getPersistentDataString(item, TAG_BLOCK).equalsIgnoreCase(id);
     }
 
     public boolean isCustomBlock(ItemMeta itemMeta) {
         if (!(itemMeta instanceof BlockStateMeta blockMeta)) { return false; }
         if (!(blockMeta.getBlockState() instanceof TileState blockState)) { return false; }
         if (!PersistentUtils.hasPersistentDataString(blockState, TAG_BLOCK)) { return false; }
-        return PersistentUtils.getPersistentDataString(blockState, TAG_BLOCK).equalsIgnoreCase(name);
+        return PersistentUtils.getPersistentDataString(blockState, TAG_BLOCK).equalsIgnoreCase(id);
     }
 
     public boolean isCustomBlock(Block block) {
         CustomMarker marker = CustomMarker.getMarker(block);
-        return ((marker != null) && marker.getName().equalsIgnoreCase(name));
+        return ((marker != null) && marker.getId().equalsIgnoreCase(id));
     }
 
-    public boolean isCustomBlock(BlockState state) {
-        if ((state.getType() != block_base) || !(state instanceof TileState) ){ return false; }
-        if (!PersistentUtils.hasPersistentDataString(state, TAG_BLOCK)) { return false; }
-        return PersistentUtils.getPersistentDataString(state, TAG_BLOCK).equalsIgnoreCase(name);
-    }
-
-    public boolean dispense(Block block) {
-        return false;
+    public ItemStack prepareDropItem(boolean extra) {
+        ItemStack item = new ItemStack(block_base);
+        ItemMeta meta = item.getItemMeta();
+        meta.setDisplayName(name);
+        if (model > 0) { meta.setCustomModelData(model); }
+        if (extra && (model_extra > 0)) { meta.setCustomModelData(model_extra); }
+        item.setItemMeta(meta);
+        return item;
     }
 
     public boolean prepareCraft(PrepareItemCraftEvent event, World world, ItemStack result) { return true; }
-    public ItemStack prepareDropItem() { return new ItemStack(Material.AIR); }
     public Recipe prepareRecipe(NamespacedKey key) { return null; }
     public int preparePower(Block block) { return -1; }
     public boolean prepareDispense(Block block, HashMap<ItemStack, Map.Entry<ItemStack, Integer>> dispense) { return false; }
     public void tick(Block block, long tick) {}
 
     public enum Dispensable { DISABLE, IGNORE, CUSTOM }
+    public enum Comparable { DISABLE, IGNORE, CUSTOM }
 }

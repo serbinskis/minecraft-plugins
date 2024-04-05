@@ -19,12 +19,12 @@ public class EffectsCommand {
 		if (!args[0].equalsIgnoreCase("true") && !args[0].equalsIgnoreCase("false")) { Utils.sendMessage(sender, tweak.getCommand().getUsage() + " " + USAGE_MESSAGE); return true; }
 
 		CustomBiome cbiome = BiomeManager.getCustomBiome(((Player) sender).getWorld().getName());
-		if (cbiome == null) { Utils.sendMessage(sender, Main.color + "First you must create custom biome."); return true; }
+		if (cbiome == null) { Utils.sendMessage(sender, Main.MESSAGE_COLOR + "First you must create custom biome."); return true; }
 		cbiome = cbiome.setEffectsEnabled(Boolean.parseBoolean(args[0])).clone();
 
 		BiomeManager.saveBiome(((Player) sender).getWorld(), cbiome);
 		BiomeManager.registerBiomeAll(cbiome);
-		Utils.sendMessage(sender, Main.color + "Set custom biome effects " + (cbiome.isEffectsEnabled() ? "enabled" : "disabled")+ ". (REQUIRES REJOIN).");
+		Utils.sendMessage(sender, Main.MESSAGE_COLOR + "Set custom biome effects " + (cbiome.isEffectsEnabled() ? "enabled" : "disabled")+ ". (REQUIRES REJOIN).");
 		return true;
 	}
 

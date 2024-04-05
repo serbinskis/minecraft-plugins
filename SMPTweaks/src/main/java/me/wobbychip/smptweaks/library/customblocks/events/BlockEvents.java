@@ -24,82 +24,80 @@ import java.util.Map;
 
 public class BlockEvents implements Listener {
 	public static int DEFAULT_COMPARATOR_DELAY = 2;
-	public final CustomBlock cblock;
+	public final CustomBlock customBlock;
 	public final HashMap<String, CustomBlock> explodelist = new HashMap<>();
 	public final HashMap<String, Block> ticklist = new HashMap<>();
 	public final HashMap<String, ItemStack[]> dispenselist = new HashMap<>();
 	public boolean busy = false;
 	public int busy_task = -1;
 
-	public BlockEvents(CustomBlock cblock) {
-		this.cblock = cblock;
-	}
+	public BlockEvents(CustomBlock customBlock) { this.customBlock = customBlock; }
 
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onItemSpawnEvent(ItemSpawnEvent event) {
 		String location = Utils.locationToString(event.getLocation().getBlock().getLocation());
 		if (!explodelist.containsKey(location)) { return; }
-		if (!explodelist.get(location).getName().equalsIgnoreCase(cblock.getName())) { return; }
+		if (!explodelist.get(location).getId().equalsIgnoreCase(customBlock.getId())) { return; }
 
 		ItemStack itemStack = event.getEntity().getItemStack();
-		if (itemStack.getType() != cblock.getBlockBase()) { return; }
-		if (cblock.isCustomBlock(itemStack)) { return; } //Case, where custom block was inside inventory
-		if (cblock.isMarkedItem(itemStack)) { event.getEntity().setItemStack(cblock.removeMarkedItem(itemStack)); return; } //Case, where normal block of cblock was inside inventory
-		event.getEntity().setItemStack(cblock.getDropItem()); //Case, where dropped block is normal and not marked, this is item of cblock
+		if (itemStack.getType() != customBlock.getBlockBase()) { return; }
+		if (customBlock.isCustomBlock(itemStack)) { return; } //Case, where custom block was inside inventory
+		if (customBlock.isMarkedItem(itemStack)) { event.getEntity().setItemStack(customBlock.removeMarkedItem(itemStack)); return; } //Case, where normal block of cblock was inside inventory
+		event.getEntity().setItemStack(customBlock.getDropItem(false)); //Case, where dropped block is normal and not marked, this is item of cblock
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockExplodeEvent(BlockExplodeEvent event) {
 		for (Block block : event.blockList()) {
-			if (!cblock.isCustomBlock(block)) { continue; }
+			if (!customBlock.isCustomBlock(block)) { continue; }
 
 			//Add block location to list to process items inside ItemSpawnEvent
 			String location = Utils.locationToString(block.getLocation());
-			explodelist.put(location, cblock);
+			explodelist.put(location, customBlock);
 			TaskUtils.scheduleSyncDelayedTask(() -> explodelist.remove(location), 1L);
 
-			cblock.setMarkedInventory(block);
-			cblock.removeBlock(block);
+			customBlock.setMarkedInventory(block);
+			customBlock.removeBlock(block);
 		}
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockBreakEvent(BlockBreakEvent event) {
-		if (!cblock.isCustomBlock(event.getBlock())) { return; }
+		if (!customBlock.isCustomBlock(event.getBlock())) { return; }
 
 		//This is needed because #isCustomBlock is based on entity
 		//And if we remove it here then it will not work inside BlockDropItemEvent
-		int task = TaskUtils.scheduleSyncDelayedTask(() -> cblock.removeBlock(event.getBlock()), 1L);
+		TaskUtils.scheduleSyncDelayedTask(() -> customBlock.removeBlock(event.getBlock()), 1L);
 
-		if (!cblock.hasInventory()) { return; }
-		cblock.setMarkedInventory(event.getBlock());
+		if (!customBlock.hasInventory()) { return; }
+		customBlock.setMarkedInventory(event.getBlock());
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onBlockDropItemEvent(BlockDropItemEvent event) {
-		if (!cblock.isCustomBlock(event.getBlock())) { return; }
+		if (!customBlock.isCustomBlock(event.getBlock())) { return; }
 
 		for (Item item : event.getItems()) {
 			ItemStack itemStack = item.getItemStack();
-			if (itemStack.getType() != cblock.getBlockBase()) { continue; }
-			if (cblock.isCustomBlock(itemStack)) { continue; } //Case, where custom block was inside inventory
-			if (cblock.isMarkedItem(itemStack)) { item.setItemStack(cblock.removeMarkedItem(itemStack)); continue; } //Case, where normal block of cblock was inside inventory
-			item.setItemStack(cblock.getDropItem()); //Case, where dropped block is normal and not marked, this is item of cblock
+			if (itemStack.getType() != customBlock.getBlockBase()) { continue; }
+			if (customBlock.isCustomBlock(itemStack)) { continue; } //Case, where custom block was inside inventory
+			if (customBlock.isMarkedItem(itemStack)) { item.setItemStack(customBlock.removeMarkedItem(itemStack)); continue; } //Case, where normal block of cblock was inside inventory
+			item.setItemStack(customBlock.getDropItem(false)); //Case, where dropped block is normal and not marked, this is item of cblock
 		}
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockPlaceEvent(BlockPlaceEvent event) {
-		if (!cblock.isCustomBlock(event.getItemInHand())) { return; }
-		cblock.createBlock(event.getBlockPlaced());
+		if (!customBlock.isCustomBlock(event.getItemInHand())) { return; }
+		customBlock.createBlock(event.getBlockPlaced());
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onBlockDispenseEvent(BlockDispenseEvent event) {
-		if (busy || !cblock.isCustomBlock(event.getBlock())) { return; }
-		if (cblock.getDispensable() == CustomBlock.Dispensable.IGNORE) { return; }
-		if (cblock.getDispensable() != CustomBlock.Dispensable.IGNORE) { event.setCancelled(true); }
-		if (cblock.getDispensable() == CustomBlock.Dispensable.DISABLE) { return; }
+		if (busy || !customBlock.isCustomBlock(event.getBlock())) { return; }
+		if (customBlock.getDispensable() == CustomBlock.Dispensable.IGNORE) { return; }
+		if (customBlock.getDispensable() != CustomBlock.Dispensable.IGNORE) { event.setCancelled(true); }
+		if (customBlock.getDispensable() == CustomBlock.Dispensable.DISABLE) { return; }
 
 		Block block = event.getBlock();
 		String location = Utils.locationToString(block.getLocation());
@@ -112,7 +110,7 @@ public class BlockEvents implements Listener {
 		inventory.setContents(pitems); //Set items from physics event for custom dispense
 
 		HashMap<ItemStack, Map.Entry<ItemStack, Integer>> dispense = new HashMap<>();
-		if (!cblock.prepareDispense(event.getBlock(), dispense)) { inventory.setContents(sitems); return; }
+		if (!customBlock.prepareDispense(event.getBlock(), dispense)) { inventory.setContents(sitems); return; }
 
 		busy = true;
 
@@ -134,14 +132,14 @@ public class BlockEvents implements Listener {
 		Block destination = event.getDestination().getLocation().getBlock();
 
 		//Fix for 1 tick gap inside BlockDispenseEvent
-		if ((destination.getType() == Material.DISPENSER || destination.getType() == Material.DROPPER) && cblock.isCustomBlock(destination)) {
+		if ((destination.getType() == Material.DISPENSER || destination.getType() == Material.DROPPER) && customBlock.isCustomBlock(destination)) {
 			TaskUtils.finishTask(busy_task);
 		}
 
-		if (busy || !cblock.isCustomBlock(source)) { return; }
-		if (cblock.getDispensable() == CustomBlock.Dispensable.IGNORE) { return; }
-		if (cblock.getDispensable() != CustomBlock.Dispensable.IGNORE) { event.setCancelled(true); }
-		if (cblock.getDispensable() == CustomBlock.Dispensable.DISABLE) { return; }
+		if (busy || !customBlock.isCustomBlock(source)) { return; }
+		if (customBlock.getDispensable() == CustomBlock.Dispensable.IGNORE) { return; }
+		if (customBlock.getDispensable() != CustomBlock.Dispensable.IGNORE) { event.setCancelled(true); }
+		if (customBlock.getDispensable() == CustomBlock.Dispensable.DISABLE) { return; }
 
 		String location = Utils.locationToString(source.getLocation());
 		ItemStack[] pitems = dispenselist.remove(location); //Get items before the event inside BlockPhysicsEvent
@@ -152,7 +150,7 @@ public class BlockEvents implements Listener {
 		inventory.setContents(pitems); //Set items from physics event for custom dispense
 
 		HashMap<ItemStack, Map.Entry<ItemStack, Integer>> dispense = new HashMap<>();
-		if (!cblock.prepareDispense(source, dispense)) { inventory.setContents(sitems); return; }
+		if (!customBlock.prepareDispense(source, dispense)) { inventory.setContents(sitems); return; }
 
 		busy = true;
 
@@ -169,12 +167,13 @@ public class BlockEvents implements Listener {
 	}
 
 	//TODO: Not finished, there are still bugs, not also sure about infinite loop in here
-	//TODO: Fix issue with comaprators not substracting correctly when two custom emited are working together
+	//TODO: Fix issue with comparators not subtracting correctly when two custom emitted are working together
 	//TODO: https://i.imgur.com/QZ80X4z.png , https://i.imgur.com/308qB8o.png (KINDA FIXED)
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockPhysicsEvent(BlockPhysicsEvent event) {
+		//This is used to save items inside droppers and dispenser before BlockDispenseEvent
 		if (event.getChangedType() == Material.DISPENSER || event.getChangedType() == Material.DROPPER) {
-			if (!cblock.isCustomBlock(event.getBlock())) { return; }
+			if (!customBlock.isCustomBlock(event.getBlock())) { return; }
 			String location = Utils.locationToString(event.getBlock().getLocation());
 			ItemStack[] items = ((org.bukkit.block.Container) event.getBlock().getState()).getInventory().getContents();
 			for (int i = 0; i < items.length; i++) { items[i] = (items[i] == null) ? null : items[i].clone(); } //Inventory#getContents() returns mirror not clone
@@ -182,16 +181,16 @@ public class BlockEvents implements Listener {
 			dispenselist.put(location, items);
 		}
 
-		if (event.getChangedType() == Material.COMPARATOR) {
+		if ((event.getChangedType() == Material.COMPARATOR) && (customBlock.getComparable() != CustomBlock.Comparable.IGNORE)) {
 			BlockFace blockFace = ((Directional) event.getBlock().getBlockData()).getFacing();
 			Block customBlock = null;
 			Block b1 = event.getBlock().getRelative(blockFace, 1);
 			Block b2 = event.getBlock().getRelative(blockFace, 2);
-			if (cblock.isCustomBlock(b2) && ReflectionUtils.isRedstoneConductor(b1)) { customBlock = b2; } //Remember comparators can read signal trough block, so we need to check if that block is conductor
-			if (cblock.isCustomBlock(b1)) { customBlock = b1; } //Here get custom block behind comparator or block behind comparator
+			if (this.customBlock.isCustomBlock(b2) && ReflectionUtils.isRedstoneConductor(b1)) { customBlock = b2; } //Remember comparators can read signal trough block, so we need to check if that block is conductor
+			if (this.customBlock.isCustomBlock(b1)) { customBlock = b1; } //Here get custom block behind comparator or block behind comparator
 			if (customBlock == null) { return; }
 
-			int power = cblock.preparePower(customBlock);
+			int power = (this.customBlock.getComparable() != CustomBlock.Comparable.DISABLE) ? this.customBlock.preparePower(customBlock) : 0;
 			if (power < 0) { return; } else { event.setCancelled(true); }
 
 			//Cancelling event only cancels further block update around, it doesn't prevent block state changing

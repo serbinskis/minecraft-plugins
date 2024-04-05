@@ -15,7 +15,6 @@ import me.wobbychip.smptweaks.custom.disableinvulnerability.DisableInvulnerabili
 import me.wobbychip.smptweaks.custom.dropcursedpumpkin.DropCursedPumpkin;
 import me.wobbychip.smptweaks.custom.entitylimit.EntityLimit;
 import me.wobbychip.smptweaks.custom.essentials.Essentials;
-import me.wobbychip.smptweaks.custom.expbottles.ExpBottles;
 import me.wobbychip.smptweaks.custom.fastcuring.FastCuring;
 import me.wobbychip.smptweaks.custom.funnymessages.FunnyMessages;
 import me.wobbychip.smptweaks.custom.globaltrading.GlobalTrading;
@@ -49,14 +48,16 @@ import org.bukkit.event.server.ServerLoadEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin implements Listener {
-	public static Main plugin;
+	public static boolean DEBUG_MODE = System.getenv("computername").equalsIgnoreCase("WOBBYCHIP-PC");
+	public static Sound DENY_SOUND_EFFECT = Sound.BLOCK_NOTE_BLOCK_HARP;
+	public static char SYM_COLOR = '§';
+	public static String MESSAGE_COLOR = SYM_COLOR + "9";
+	public static String PREFIX = "SMPTweaks-";
 	public static GameRules gameRules;
 	public static TweakManager manager;
-	public static String prefix = "SMPTweaks-";
-	public static char sym_color = '§';
-	public static String color = sym_color + "9";
-	public static Sound DENY_SOUND_EFFECT = Sound.BLOCK_NOTE_BLOCK_HARP;
-	public static boolean DEBUG_MODE = System.getenv("computername").equalsIgnoreCase("WOBBYCHIP-PC");
+	public static Main plugin;
+
+
 
 	@Override
 	public void onEnable() {
@@ -82,7 +83,6 @@ public class Main extends JavaPlugin implements Listener {
 		Main.manager.addTweak(new DropCursedPumpkin());
 		Main.manager.addTweak(new EntityLimit());
 		Main.manager.addTweak(new Essentials());
-		Main.manager.addTweak(new ExpBottles());
 		Main.manager.addTweak(new FastCuring());
 		Main.manager.addTweak(new FunnyMessages());
 		Main.manager.addTweak(new GlobalTrading());

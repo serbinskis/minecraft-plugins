@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.serialization.Lifecycle;
 import io.netty.channel.Channel;
 import io.netty.channel.embedded.EmbeddedChannel;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.core.Registry;
 import net.minecraft.core.*;
 import net.minecraft.core.dispenser.BlockSource;
@@ -34,6 +35,8 @@ import net.minecraft.world.Container;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity.RemovalReason;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.gossip.GossipContainer;
+import net.minecraft.world.entity.ai.gossip.GossipType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Abilities;
 import net.minecraft.world.entity.player.ChatVisiblity;
@@ -86,6 +89,7 @@ public class ReflectionUtils {
 	public static EntityDataAccessor<Byte> DATA_LIVING_ENTITY_FLAGS;
 	public static int LIVING_ENTITY_FLAG_IS_USING = 1;
 	public static DefaultedRegistry<Potion> POTION = BuiltInRegistries.POTION;
+	public static HashMap<String, GossipType> reputations = new HashMap<>();
 	public static String version;
 	public static Class<?> CraftServer;
 	public static Class<?> CraftEntity;
@@ -116,6 +120,8 @@ public class ReflectionUtils {
 	public static Field Holder_tags;
 	public static Field Holder_key;
 	public static Field Holder_value;
+	public static Field GossipContainer_gossips;
+	public static Field EntityGossips_entries;
 	public static Method EntityVillager_startTrading_Or_updateSpecialPrices;
 	public static Method IRegistry_keySet;
 	public static Method Potions_register;
@@ -138,6 +144,7 @@ public class ReflectionUtils {
 		//Fuck it I am not interested in updating nms every time
 		//So I will just search fields and methods by their types and arguments
 
+		for (GossipType type : GossipType.values()) { reputations.put(type.getSerializedName().toUpperCase(), type); }
 		DATA_LIVING_ENTITY_FLAGS = (EntityDataAccessor<Byte>) Objects.requireNonNull(getValue(getField(LivingEntity.class, EntityDataAccessor.class, Byte.class, true), null));
 		setRegistryMap(POTION, new HashMap<>());
 
@@ -154,6 +161,8 @@ public class ReflectionUtils {
 		EntityPlayer_chatVisibility = Objects.requireNonNull(getField(ServerPlayer.class, ChatVisiblity.class, null, true));
 		RegistryMaterials_frozen = Objects.requireNonNull(getField(MappedRegistry.class, boolean.class, null, true));
 		RegistryMaterials_nextId = Objects.requireNonNull(getField(MappedRegistry.class, int.class, null, true));
+		GossipContainer_gossips = Objects.requireNonNull(getField(GossipContainer.class, Map.class, null, true));
+		EntityGossips_entries = Objects.requireNonNull(getField(GossipContainer.EntityGossips.class, Object2IntMap.class, null, true));
 		//MappedRegistry_unregisteredIntrusiveHolders = Objects.requireNonNull(getField(MappedRegistry.class, Map.class, new Class<?>[] { Object.class, Holder.Reference.class }, null, null, true, Modifier.PRIVATE, Modifier.FINAL));
 		EntityVillager_startTrading_Or_updateSpecialPrices = Objects.requireNonNull(findMethod(false, Modifier.PRIVATE, net.minecraft.world.entity.npc.Villager.class, Void.TYPE, null, net.minecraft.world.entity.player.Player.class));
 		IRegistry_keySet = Objects.requireNonNull(findMethod(true, null, Registry.class, Set.class, ResourceLocation.class));
@@ -615,6 +624,33 @@ public class ReflectionUtils {
 	//Gets player's reputation from villager (all types)
 	public static int getPlayerReputation(Villager villager, Player player) {
 		return getEntityVillager(villager).getPlayerReputation(getEntityPlayer(player));
+	}
+
+	public static int getPlayerReputation(Villager villager, UUID uuid, String type) {
+		try {
+			GossipType gossipType = reputations.get(type);
+			GossipContainer container = getEntityVillager(villager).getGossips();
+			Map<UUID, GossipContainer.EntityGossips> gossips = (Map<UUID, GossipContainer.EntityGossips>) GossipContainer_gossips.get(container);
+			if (!gossips.containsKey(uuid)) { return -1; }
+			Object2IntMap<GossipType> entries = (Object2IntMap<GossipType>) EntityGossips_entries.get(gossips.get(uuid));
+			return entries.getOrDefault(gossipType, -1);
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+			return -1;
+		}
+	}
+
+	public static void setPlayerReputation(Villager villager, UUID uuid, String type, int amount) {
+		try {
+			GossipType gossipType = reputations.get(type);
+			GossipContainer container = getEntityVillager(villager).getGossips();
+			Map<UUID, GossipContainer.EntityGossips> gossips = (Map<UUID, GossipContainer.EntityGossips>) GossipContainer_gossips.get(container);
+			if (!gossips.containsKey(uuid)) { gossips.put(uuid, new GossipContainer.EntityGossips()); }
+			Object2IntMap<GossipType> entries = (Object2IntMap<GossipType>) EntityGossips_entries.get(gossips.get(uuid));
+			entries.put(gossipType, amount);
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static boolean registerBrewRecipe(Object base, Material ingredient, Object result) {
@@ -1232,11 +1268,11 @@ public class ReflectionUtils {
 		if (grassColorOverride != -1) { biomeSpecialEffects.grassColorOverride(grassColorOverride); }
 
 		if (effectsEnabled) {
-			minecraftBiome.getAmbientAdditions().ifPresent(e -> biomeSpecialEffects.ambientAdditionsSound(e));
-			minecraftBiome.getAmbientLoop().ifPresent(e -> biomeSpecialEffects.ambientLoopSound(e));
-			minecraftBiome.getAmbientMood().ifPresent(e -> biomeSpecialEffects.ambientMoodSound(e));
-			minecraftBiome.getAmbientParticle().ifPresent(e -> biomeSpecialEffects.ambientParticle(e));
-			minecraftBiome.getBackgroundMusic().ifPresent(e -> biomeSpecialEffects.backgroundMusic(e));
+			minecraftBiome.getAmbientAdditions().ifPresent(biomeSpecialEffects::ambientAdditionsSound);
+			minecraftBiome.getAmbientLoop().ifPresent(biomeSpecialEffects::ambientLoopSound);
+			minecraftBiome.getAmbientMood().ifPresent(biomeSpecialEffects::ambientMoodSound);
+			minecraftBiome.getAmbientParticle().ifPresent(biomeSpecialEffects::ambientParticle);
+			minecraftBiome.getBackgroundMusic().ifPresent(biomeSpecialEffects::backgroundMusic);
 		}
 
 		Biome.BiomeBuilder biomeBuilder = new Biome.BiomeBuilder();

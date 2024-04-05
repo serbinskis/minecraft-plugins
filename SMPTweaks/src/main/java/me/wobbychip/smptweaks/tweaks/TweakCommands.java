@@ -7,7 +7,7 @@ import org.bukkit.command.CommandSender;
 import java.util.List;
 
 public class TweakCommands {
-	public static String NO_CONSOLE = Main.color + "This command can only be executed by a player!";
+	public static String NO_CONSOLE = Main.MESSAGE_COLOR + "This command can only be executed by a player!";
 	public static String NO_PERMISSIONS = "&cYou do not have permissions!";
 	private CustomTweak tweak;
 	private String command;
@@ -18,7 +18,7 @@ public class TweakCommands {
 		this.tweak = tweak;
 		this.command = command;
 		this.arguments = arguments;
-		this.usage = Main.color + "Usage /smptweaks execute " + command;
+		this.usage = Main.MESSAGE_COLOR + "Usage /smptweaks execute " + command;
 	}
 
 	public CustomTweak getTweak() {

@@ -19,7 +19,7 @@ import java.util.List;
 public class GetCommand {
 	public static List<String> arguments = Arrays.asList("potion", "splash", "lingering", "arrow");
 	public static String USAGE_MESSAGE = "get <potion_name> [potion | splash | lingering | arrow]";
-	public static String ARROW_DISABLED = Main.color + "Arrows for this potion is disabled!";
+	public static String ARROW_DISABLED = Main.MESSAGE_COLOR + "Arrows for this potion is disabled!";
 
 	public static boolean onTweakCommand(CustomTweak tweak, final CommandSender sender, final Command command, final String label, final String[] args) {
 		boolean isCreative = ((sender instanceof Player) && (((Player) sender).getGameMode() == GameMode.CREATIVE));

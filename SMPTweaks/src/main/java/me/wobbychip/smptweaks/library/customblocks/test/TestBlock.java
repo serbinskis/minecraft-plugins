@@ -2,6 +2,7 @@ package me.wobbychip.smptweaks.library.customblocks.test;
 
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.library.customblocks.blocks.CustomBlock;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
@@ -9,7 +10,6 @@ import org.bukkit.block.Container;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -17,28 +17,22 @@ import java.util.Map;
 
 public class TestBlock extends CustomBlock {
     public TestBlock() {
-        super("custom_block", Material.DROPPER);
-        this.setCustomMaterial(Material.PISTON);
+        super("custom_block", Material.DISPENSER);
+        this.setCustomModel(1000110000, 1000120000);
+        this.setCustomName(Main.SYM_COLOR + "rCustom Block");
         this.setCustomTitle("Custom Block");
         this.setDispensable(Dispensable.CUSTOM);
+        this.setComparable(Comparable.DISABLE);
+        this.setGlowing(ChatColor.WHITE);
     }
 
     @Override
     public Recipe prepareRecipe(NamespacedKey key) {
-        ShapedRecipe recipe = new ShapedRecipe(key, getDropItem());
+        ShapedRecipe recipe = new ShapedRecipe(key, getDropItem(false));
         recipe.shape("AAA", "ABA", "AAA");
         recipe.setIngredient('A', Material.AIR);
         recipe.setIngredient('B', Material.BEDROCK);
         return recipe;
-    }
-
-    @Override
-    public ItemStack prepareDropItem() {
-        ItemStack item = new ItemStack(getBlockBase());
-        ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(Main.sym_color + "dCustom Block");
-        item.setItemMeta(meta);
-        return item;
     }
 
     @Override

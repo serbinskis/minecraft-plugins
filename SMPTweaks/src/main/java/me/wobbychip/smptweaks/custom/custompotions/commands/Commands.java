@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Commands extends TweakCommands {
-	public static String NO_POTION = Main.color + "Couldn't find the potion!";
+	public static String NO_POTION = Main.MESSAGE_COLOR + "Couldn't find the potion!";
 
 	public Commands(CustomTweak tweak, String command) {
 		super(tweak, command, Arrays.asList("list", "info", "get"));

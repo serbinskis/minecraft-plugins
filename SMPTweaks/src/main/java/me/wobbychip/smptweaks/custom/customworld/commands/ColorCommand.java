@@ -30,7 +30,7 @@ public class ColorCommand {
 
 		BiomeManager.saveBiome(((Player) sender).getWorld(), cbiome);
 		BiomeManager.registerBiomeAll(cbiome.clone());
-		Utils.sendMessage(sender, Main.color + "Set custom world biome to " + cbiome.getName() + ". (REQUIRES REJOIN).");
+		Utils.sendMessage(sender, Main.MESSAGE_COLOR + "Set custom world biome to " + cbiome.getName() + ". (REQUIRES REJOIN).");
 		return true;
 	}
 

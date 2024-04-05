@@ -24,8 +24,11 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -280,10 +283,10 @@ public class Utils {
 		Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
 		Team team;
 
-		if (!scoreboard.getTeams().stream().map(Team::getName).toList().contains(Main.prefix + color.name())) {
-			team = scoreboard.registerNewTeam(Main.prefix + color.name());
+		if (!scoreboard.getTeams().stream().map(Team::getName).toList().contains(Main.PREFIX + color.name())) {
+			team = scoreboard.registerNewTeam(Main.PREFIX + color.name());
 		} else {
-			team = scoreboard.getTeam(Main.prefix + color.name());
+			team = scoreboard.getTeam(Main.PREFIX + color.name());
 		}
 
 		team.setColor(color);
@@ -403,6 +406,23 @@ public class Utils {
 			case WEST: return BlockFace.SOUTH;
 			case EAST: return BlockFace.NORTH;
 			default: throw new IllegalStateException("Unable to get CCW facing of " + facing);
+		}
+	}
+
+	public static byte[] getFileHash(String fileUrl) {
+		try {
+			URL url = new URL(fileUrl);
+			MessageDigest digest = MessageDigest.getInstance("SHA-1");
+
+			try (InputStream inputStream = url.openStream()) {
+				byte[] buffer = new byte[8192];
+				int read = 0;
+				while ((read = inputStream.read(buffer)) > 0) { digest.update(buffer, 0, read); }
+			}
+
+			return digest.digest();
+		} catch (IOException | NoSuchAlgorithmException e) {
+			return new byte[0];
 		}
 	}
 }

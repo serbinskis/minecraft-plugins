@@ -28,7 +28,7 @@ public class TypeCommand {
 			PersistentUtils.setPersistentDataString(((Player) sender).getWorld(), CustomWorlds.TAG_CUSTOM_WORLD, args[0].toLowerCase());
 		}
 
-		Utils.sendMessage(sender, Main.color + "Set custom world type to " + args[0].toLowerCase() + ". (REQUIRES RESTART).");
+		Utils.sendMessage(sender, Main.MESSAGE_COLOR + "Set custom world type to " + args[0].toLowerCase() + ". (REQUIRES RESTART).");
 		return true;
 	}
 

@@ -1,5 +1,6 @@
 package me.wobbychip.smptweaks.custom.globaltrading;
 
+import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -25,14 +26,14 @@ public class Events implements Listener {
 
 	public void copyReputation(Player player, Villager villager, String type) {
 		int amount = getReputation(villager, type);
-		if (amount > 0) { PaperUtils.setReputation(villager, player.getUniqueId(), type, amount); }
+		if (amount > 0) { ReflectionUtils.setPlayerReputation(villager, player.getUniqueId(), type, amount); }
 	}
 
 	public int getReputation(Villager villager, String type) {
 		int result = 0;
 
 		for (OfflinePlayer player : Bukkit.getOfflinePlayers()) {
-			int amount = PaperUtils.getReputation(villager, player.getUniqueId(), type);
+			int amount = ReflectionUtils.getPlayerReputation(villager, player.getUniqueId(), type);
 			if (amount > result) { result = amount; }
 		}
 

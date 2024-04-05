@@ -11,9 +11,9 @@ import me.wobbychip.smptweaks.tweaks.CustomTweak;
 import me.wobbychip.smptweaks.utils.Utils;
 
 public class ReloadCommand {
-	public static String USAGE_MESSAGE = Main.color + "Usage /smptweaks reload <tweak_name>";
-	public static String NOT_RELOADABLE = Main.color + "This tweak is not reloadable!";
-	public static String RELOAD_MESSAGE = Main.color + "Reloaded %s.";
+	public static String USAGE_MESSAGE = Main.MESSAGE_COLOR + "Usage /smptweaks reload <tweak_name>";
+	public static String NOT_RELOADABLE = Main.MESSAGE_COLOR + "This tweak is not reloadable!";
+	public static String RELOAD_MESSAGE = Main.MESSAGE_COLOR + "Reloaded %s.";
 
 	public static boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if (!Utils.hasPermissions(sender, "smptweaks.reload")) {

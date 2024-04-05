@@ -14,8 +14,8 @@ import me.wobbychip.smptweaks.utils.Utils;
 public class Commands implements CommandExecutor, TabCompleter {
 	public static List<String> arguments = Arrays.asList("list", "info", "reload", "execute");
 	public static String NO_PERMISSIONS = "&cYou do not have permissions!";
-	public static String USAGE_MESSAGE = Main.color + "Usage /smptweaks [list | info | execute | reload]";
-	public static String NO_TWEAK = Main.color + "Couldn\'t find the tweak!";
+	public static String USAGE_MESSAGE = Main.MESSAGE_COLOR + "Usage /smptweaks [list | info | execute | reload]";
+	public static String NO_TWEAK = Main.MESSAGE_COLOR + "Couldn\'t find the tweak!";
 
 	public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
 		if (args.length == 0) {

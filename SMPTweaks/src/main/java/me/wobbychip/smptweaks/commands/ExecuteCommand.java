@@ -12,8 +12,8 @@ import me.wobbychip.smptweaks.tweaks.CustomTweak;
 import me.wobbychip.smptweaks.utils.Utils;
 
 public class ExecuteCommand {
-	public static String USAGE_MESSAGE = Main.color + "Usage /smptweaks execute <tweak_name>";
-	public static String NO_COMMANDS = Main.color + "This tweak has no commands!";
+	public static String USAGE_MESSAGE = Main.MESSAGE_COLOR + "Usage /smptweaks execute <tweak_name>";
+	public static String NO_COMMANDS = Main.MESSAGE_COLOR + "This tweak has no commands!";
 
 	public static boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if (args.length == 0) {

@@ -13,7 +13,7 @@ import me.wobbychip.smptweaks.tweaks.CustomTweak;
 import me.wobbychip.smptweaks.utils.Utils;
 
 public class InfoCommand {
-	public static String USAGE_MESSAGE = Main.color + "Usage /smptweaks info <tweak_name>";
+	public static String USAGE_MESSAGE = Main.MESSAGE_COLOR + "Usage /smptweaks info <tweak_name>";
 
 	public static boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if (args.length == 0) {
