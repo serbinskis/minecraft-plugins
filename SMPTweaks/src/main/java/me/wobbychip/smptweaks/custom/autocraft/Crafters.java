@@ -1,56 +1,41 @@
 package me.wobbychip.smptweaks.custom.autocraft;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Dispenser;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.ItemFrame;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
+import org.bukkit.inventory.meta.FireworkMeta;
+
+import java.util.*;
 
 public class Crafters {
-	public List<Block> crafters = new ArrayList<>();
-
-	public void handleCrafters() {
-		crafters = collectCrafters();
-
-		for (Block crafter : crafters) {
-			if (!AutoCraft.tweak.getGameRuleBoolean((crafter.getWorld()))) { continue; }
-			if (!isDisabled(crafter)) { handleCrafter(crafter); };
-		}
-	}
-
-	public void handleCrafter(Block crafter) {
+	public static List<ItemStack> handleCrafter(Block crafter) {
 		Inventory source = getSource(crafter);
-		if (source == null) { return; }
-
-		Inventory destination = getDestination(crafter);
-		if (destination == null) { return; }
+		if (source == null) { return List.of(); }
 
 		List<ItemStack> crafterItems = getCrafterItems(crafter);
-		if (crafterItems == null) { return; }
+		if (crafterItems == null) { return List.of(); }
 
 		List<ItemStack> consumeItems = new ArrayList<>();
 		List<ItemStack> outputItems = new ArrayList<>();
 		getResultItems(crafterItems, consumeItems, outputItems);
+		if (outputItems.isEmpty() || consumeItems.isEmpty()) { return List.of(); }
 
-		if ((outputItems.size() == 0) || (consumeItems.size() == 0)) { return; }
+		Inventory destination = getDestination(crafter);
+		if (destination == null) { removeConsumedItems(source, consumeItems); return outputItems; }
+
 		setResultItems(source, destination, consumeItems, outputItems);
-	}
+		return List.of();
+    }
 
-	public Inventory getSource(Block crafter) {
+	public static Inventory getSource(Block crafter) {
 		BlockFace targetFace = ((org.bukkit.block.data.type.Dispenser) crafter.getBlockData()).getFacing();
 
 		BlockState source = new Location(crafter.getWorld(),
@@ -62,7 +47,7 @@ public class Crafters {
 		return ((InventoryHolder) source).getInventory();
 	}
 
-	public Inventory getDestination(Block crafter) {
+	public static Inventory getDestination(Block crafter) {
 		BlockFace targetFace = ((org.bukkit.block.data.type.Dispenser) crafter.getBlockData()).getFacing();
 
 		BlockState destination = new Location(crafter.getWorld(),
@@ -74,16 +59,16 @@ public class Crafters {
 		return ((InventoryHolder) destination).getInventory();
 	}
 
-	public List<ItemStack> getCrafterItems(Block crafter) {
+	public static List<ItemStack> getCrafterItems(Block crafter) {
 		Dispenser dispenser = (Dispenser) crafter.getState();
 		List<ItemStack> items = new ArrayList<>(Arrays.asList(dispenser.getInventory().getContents()));
 		if (items.stream().noneMatch(Objects::nonNull)) { return null; }
 		return items;
 	}
 
-	public void getResultItems(List<ItemStack> crafterItems, List<ItemStack> consumeItems, List<ItemStack> outputItems) {
+	public static void getResultItems(List<ItemStack> crafterItems, List<ItemStack> consumeItems, List<ItemStack> outputItems) {
 		//Get crafting result from list of items and add to output
-		ItemStack result = Recipes.getCraftResult(crafterItems);
+		ItemStack result = getCraftResult(crafterItems);
 		if (result == null) { return; }
 		outputItems.add(result);
 
@@ -105,7 +90,7 @@ public class Crafters {
 		}
 	}
 
-	public void setResultItems(Inventory source, Inventory destination, List<ItemStack> consumeItems, List<ItemStack> outputItems) {
+	public static void setResultItems(Inventory source, Inventory destination, List<ItemStack> consumeItems, List<ItemStack> outputItems) {
 		//Check if needed items exists
 		for (ItemStack item : consumeItems) {
 			if (!source.containsAtLeast(item, item.getAmount())) { return; }
@@ -125,6 +110,10 @@ public class Crafters {
 			if (!left.isEmpty()) { return; }
 		}
 
+		removeConsumedItems(source, consumeItems);
+	}
+
+	public static void removeConsumedItems(Inventory source, List<ItemStack> consumeItems) {
 		//Remove items from source inventory
 		for (ItemStack item : consumeItems) {
 			for (int i = 0; i < item.getAmount(); i++) {
@@ -138,34 +127,29 @@ public class Crafters {
 		}
 	}
 
-	public List<Block> collectCrafters() {
-		List<Block> crafters = new ArrayList<>();
+	public static ItemStack getCraftResult(List<ItemStack> items) {
+		if (items.size() != 9) { return null; }
+		ItemStack[] craftingItems = new ItemStack[9];
 
-		for (World world : Bukkit.getWorlds()) {
-			for (Entity entity : world.getEntities()) {
-				Block crafter = getCrafter(entity);
-				if ((crafter != null) && !crafters.contains(crafter)) { crafters.add(crafter); }
-			}
+		for (int i = 0; i < items.size(); i++) {
+			craftingItems[i] = (items.get(i) == null) ? new ItemStack(Material.AIR) : items.get(i);
 		}
 
-		return crafters;
+		Recipe recipe = Bukkit.getCraftingRecipe(craftingItems, Bukkit.getWorlds().get(0));
+		if ((recipe == null) || recipe.getResult().getType().isAir()) { return null; }
+
+		ItemStack result = recipe.getResult();
+		if (result.getType() == Material.FIREWORK_ROCKET) { getFireworkResult(Arrays.asList(craftingItems), result); }
+		return result;
 	}
 
-	public Block getCrafter(Entity entity) {
-		if (!(entity instanceof ItemFrame)) { return null; }
-		if (((ItemFrame) entity).getItem().getType() != Material.CRAFTING_TABLE) { return null; }
+	public static void getFireworkResult(List<ItemStack> items, ItemStack result) {
+		ItemStack gunpowder = new ItemStack(Material.GUNPOWDER);
+		int count = (int) items.stream().filter(i -> i.isSimilar(gunpowder)).count();
 
-		Block crafter = entity.getLocation().getBlock().getRelative(((ItemFrame) entity).getAttachedFace());
-		if (crafter.getType() != Material.DISPENSER) { return null; }
-		return crafter;
-	}
-
-	public boolean isDisabled(Block block) {
-		if (AutoCraft.redstoneMode.equalsIgnoreCase("disabled")) { return false; }
-		return ((AutoCraft.redstoneMode.equalsIgnoreCase("indirect") && block.isBlockIndirectlyPowered()) || block.isBlockPowered());
-	}
-
-	public boolean isCrafter(Block block) {
-		return ((block.getType() == Material.DISPENSER) && crafters.contains(block));
+		FireworkMeta fireworkMeta = (FireworkMeta) result.getItemMeta();
+		fireworkMeta.setPower((count <= 3 && count >= 1) ? count : 1);
+		if ((count <= 3 && count >= 1)) { result.setAmount(3); }
+		result.setItemMeta(fireworkMeta);
 	}
 }

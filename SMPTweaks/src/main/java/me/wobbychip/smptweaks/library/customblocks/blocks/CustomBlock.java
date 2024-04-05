@@ -21,7 +21,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.Plugin;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -109,7 +108,7 @@ public class CustomBlock implements Listener {
 
     @Nullable
     public Recipe getRecipe() {
-        return prepareRecipe(new NamespacedKey((Plugin) Main.plugin, id));
+        return prepareRecipe(new NamespacedKey(Main.plugin, id), getDropItem(false));
     }
 
     public boolean hasInventory() {
@@ -209,7 +208,7 @@ public class CustomBlock implements Listener {
     }
 
     public boolean prepareCraft(PrepareItemCraftEvent event, World world, ItemStack result) { return true; }
-    public Recipe prepareRecipe(NamespacedKey key) { return null; }
+    public Recipe prepareRecipe(NamespacedKey key, ItemStack itemStack) { return null; }
     public int preparePower(Block block) { return -1; }
     public boolean prepareDispense(Block block, HashMap<ItemStack, Map.Entry<ItemStack, Integer>> dispense) { return false; }
     public void tick(Block block, long tick) {}
