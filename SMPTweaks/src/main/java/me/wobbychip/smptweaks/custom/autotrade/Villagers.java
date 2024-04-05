@@ -65,17 +65,17 @@ public class Villagers {
 	public static void storeXp(Block block, int xp) {
 		int amountXP = 0;
 
-		if (PersistentUtils.hasPersistentDataInteger(block, AutoTrade.TAG_IS_AUTO_TRADE)) {
-			amountXP = PersistentUtils.getPersistentDataInteger(block, AutoTrade.TAG_IS_AUTO_TRADE);
+		if (PersistentUtils.hasPersistentDataInteger(block, AutoTrade.TAG_AUTO_TRADE_XP)) {
+			amountXP = PersistentUtils.getPersistentDataInteger(block, AutoTrade.TAG_AUTO_TRADE_XP);
 		}
 
-		PersistentUtils.setPersistentDataInteger(block, AutoTrade.TAG_IS_AUTO_TRADE, amountXP+xp);
+		PersistentUtils.setPersistentDataInteger(block, AutoTrade.TAG_AUTO_TRADE_XP, amountXP+xp);
 	}
 
 	public static void releaseXp(Block block, Location location) {
-		if (!PersistentUtils.hasPersistentDataInteger(block, AutoTrade.TAG_IS_AUTO_TRADE)) { return; }
-		int amountXP = PersistentUtils.getPersistentDataInteger(block, AutoTrade.TAG_IS_AUTO_TRADE);
-		PersistentUtils.setPersistentDataInteger(block, AutoTrade.TAG_IS_AUTO_TRADE, 0);
+		if (!PersistentUtils.hasPersistentDataInteger(block, AutoTrade.TAG_AUTO_TRADE_XP)) { return; }
+		int amountXP = PersistentUtils.getPersistentDataInteger(block, AutoTrade.TAG_AUTO_TRADE_XP);
+		PersistentUtils.setPersistentDataInteger(block, AutoTrade.TAG_AUTO_TRADE_XP, 0);
 		if (amountXP <= 0) { return; }
 
 		ExperienceOrb orb = location.getWorld().spawn(location, ExperienceOrb.class);

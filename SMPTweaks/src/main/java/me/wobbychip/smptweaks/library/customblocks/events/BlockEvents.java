@@ -58,6 +58,7 @@ public class BlockEvents implements Listener {
 
 			customBlock.setMarkedInventory(block);
 			customBlock.removeBlock(block);
+			customBlock.remove(block);
 		}
 	}
 
@@ -68,6 +69,7 @@ public class BlockEvents implements Listener {
 		//This is needed because #isCustomBlock is based on entity
 		//And if we remove it here then it will not work inside BlockDropItemEvent
 		TaskUtils.scheduleSyncDelayedTask(() -> customBlock.removeBlock(event.getBlock()), 1L);
+		customBlock.remove(event.getBlock());
 
 		if (!customBlock.hasInventory()) { return; }
 		customBlock.setMarkedInventory(event.getBlock());

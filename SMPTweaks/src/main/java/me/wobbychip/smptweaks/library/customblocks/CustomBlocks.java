@@ -10,6 +10,7 @@ import me.wobbychip.smptweaks.library.customblocks.test.TestBlock;
 import me.wobbychip.smptweaks.utils.PersistentUtils;
 import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Bukkit;
+import org.bukkit.block.Block;
 import org.bukkit.entity.ItemDisplay;
 
 import java.util.HashMap;
@@ -43,6 +44,11 @@ public class CustomBlocks {
 	public static CustomBlock getCustomBlock(ItemDisplay display) {
 		String name = PersistentUtils.getPersistentDataString(display, CustomBlock.TAG_BLOCK);
 		return getCustomBlock(name);
+	}
+
+	public static CustomBlock getCustomBlock(Block block) {
+		CustomMarker marker = CustomMarker.getMarker(block);
+		return (marker != null) ? marker.getCustomBlock() : null;
 	}
 
 	public static CustomBlock getCustomBlock(String name) {

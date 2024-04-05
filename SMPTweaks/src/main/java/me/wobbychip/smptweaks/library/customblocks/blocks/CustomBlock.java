@@ -212,6 +212,7 @@ public class CustomBlock implements Listener {
     public int preparePower(Block block) { return -1; }
     public boolean prepareDispense(Block block, HashMap<ItemStack, Map.Entry<ItemStack, Integer>> dispense) { return false; }
     public void tick(Block block, long tick) {}
+    public void remove(Block block) {}
 
     public enum Dispensable { DISABLE, IGNORE, CUSTOM }
     public enum Comparable { DISABLE, IGNORE, CUSTOM }

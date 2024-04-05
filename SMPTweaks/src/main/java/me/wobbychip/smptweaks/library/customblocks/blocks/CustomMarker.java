@@ -39,6 +39,10 @@ public class CustomMarker implements Runnable {
         return customBlock.getId();
     }
 
+    public CustomBlock getCustomBlock() {
+        return customBlock;
+    }
+
     public static CustomMarker createMarker(CustomBlock cblock, Block block) {
         String location = Utils.locationToString(block.getLocation());
         if (markers.containsKey(location)) { return markers.get(location); }

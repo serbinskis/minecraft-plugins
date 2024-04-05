@@ -3,15 +3,12 @@ package me.wobbychip.smptweaks.custom.autotrade;
 import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Dispenser;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Villager;
 import org.bukkit.entity.Villager.Profession;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
@@ -26,61 +23,58 @@ import java.util.List;
 import java.util.Map;
 
 public class Traders {
-	public List<Block> traders = new ArrayList<>();
-
-	public void handleTraders() {
-		traders = collectTraders();
-
-		for (Block trader : traders) {
-			if (!AutoTrade.tweak.getGameRuleBoolean((trader.getWorld()))) { continue; }
-			if (!isDisabled(trader)) { handleTrader(trader); };
-		}
-	}
-
-	public void handleTrader(Block trader) {
+	public static List<ItemStack> handleTrader(Block trader) {
 		Inventory source = getSource(trader);
-		if (source == null) { return; }
-
-		Inventory destination = getDestination(trader);
-		if (destination == null) { return; }
+		if (source == null) { return List.of(); }
 
 		Inventory traderInventory = getTraderInventory(trader);
-		if (traderInventory == null) { return; }
+		if (traderInventory == null) { return List.of(); }
 
 		Location location = trader.getLocation().clone().add(0.5, 0.5, 0.5);
-		Collection<Entity> villagers = Utils.getNearbyEntities(location, EntityType.VILLAGER, AutoTrade.tradeDistance+0.5, false);
+		Collection<Entity> villagers = Utils.getNearbyEntities(location, EntityType.VILLAGER, AutoTrade.TRADE_DISTANCE+0.5, false);
+		Inventory destination = getDestination(trader);
 
 		for (Entity villager : villagers) {
-			if (handleVillager(trader, (Villager) villager, source, destination, traderInventory)) { return; }
+			Map.Entry<Boolean, List<ItemStack>> result = handleVillager(trader, (Villager) villager, source, destination, traderInventory);
+			if (result.getKey()) { return result.getValue(); }
 		}
+
+		return List.of();
 	}
 
-	public boolean handleVillager(Block block, Villager villager, Inventory source, Inventory destination, Inventory trader) {
-		if (villager.getProfession() == Profession.NONE) { return false; }
-		if (villager.isTrading() || villager.isSleeping()) { return false; }
+	public static Map.Entry<Boolean, List<ItemStack>> handleVillager(Block block, Villager villager, Inventory source, Inventory destination, Inventory trader) {
+		if (villager.getProfession() == Profession.NONE) { return Map.entry(false, List.of()); }
+		if (villager.isTrading() || villager.isSleeping()) { return Map.entry(false, List.of()); }
 
-		Bukkit.getPluginManager().callEvent(new PlayerInteractEntityEvent(AutoTrade.fakePlayer, villager)); //Support GlobalTrading
+		Bukkit.getPluginManager().callEvent(new PlayerInteractEntityEvent(AutoTrade.fakePlayer, villager)); //Support global trading tweak
 
-		int counter = 0;
 		for (MerchantRecipe recipe : villager.getRecipes()) {
-			counter = 0;
-			while (handleTrade(block, villager, recipe, source, destination, trader)) { counter++; }
-			if (counter > 0) { break; }
+			Map.Entry<Boolean, List<ItemStack>> result = handleTrade(block, villager, recipe, source, destination, trader);
+			if (result.getKey()) { return result; }
 		}
 
-		return (counter > 0);
+		return Map.entry(false, List.of());
 	}
 
-	public boolean handleTrade(Block block, Villager villager, MerchantRecipe recipe, Inventory source, Inventory destination, Inventory trader) {
+	public static Map.Entry<Boolean, List<ItemStack>> handleTrade(Block block, Villager villager, MerchantRecipe recipe, Inventory source, Inventory destination, Inventory trader) {
 		List<ItemStack> consumeItems = new ArrayList<>();
 		List<ItemStack> outputItems = new ArrayList<>();
 		getResultItems(villager, recipe, trader, consumeItems, outputItems);
+		if (outputItems.isEmpty() || consumeItems.isEmpty()) { return Map.entry(false, List.of()); }
 
-		if ((outputItems.isEmpty()) || (consumeItems.isEmpty())) { return false; }
-        return setResultItems(block, villager, recipe, source, destination, consumeItems, outputItems);
+		//If no destination block then just dispense items
+		if ((destination == null) && neededExists(source, consumeItems)) {
+			if (!Villagers.tradeVillager(block, villager, villager.getRecipes().indexOf(recipe))) { return Map.entry(false, List.of()); }
+			removeConsumedItems(source, consumeItems);
+			return Map.entry(true, outputItems);
+		}
+
+		//Otherwise try to move items to destination
+		boolean result = setResultItems(block, villager, recipe, source, destination, consumeItems, outputItems);
+		return Map.entry(result, List.of());
     }
 
-	public Inventory getSource(Block traders) {
+	public static Inventory getSource(Block traders) {
 		BlockFace targetFace = ((org.bukkit.block.data.type.Dispenser) traders.getBlockData()).getFacing();
 
 		BlockState source = new Location(traders.getWorld(),
@@ -92,7 +86,7 @@ public class Traders {
 		return ((InventoryHolder) source).getInventory();
 	}
 
-	public Inventory getDestination(Block trader) {
+	public static Inventory getDestination(Block trader) {
 		BlockFace targetFace = ((org.bukkit.block.data.type.Dispenser) trader.getBlockData()).getFacing();
 
 		BlockState destination = new Location(trader.getWorld(),
@@ -104,12 +98,12 @@ public class Traders {
 		return ((InventoryHolder) destination).getInventory();
 	}
 
-	public Inventory getTraderInventory(Block trader) {
+	public static Inventory getTraderInventory(Block trader) {
 		Dispenser dispenser = (Dispenser) trader.getState();
 		return dispenser.getInventory();
 	}
 
-	public void getResultItems(Villager villager, MerchantRecipe recipe, Inventory trader, List<ItemStack> consumeItems, List<ItemStack> outputItems) {
+	public static void getResultItems(Villager villager, MerchantRecipe recipe, Inventory trader, List<ItemStack> consumeItems, List<ItemStack> outputItems) {
 		if (recipe.getUses() >= recipe.getMaxUses()) { return; }
 
 		ItemStack result = recipe.getResult();
@@ -126,11 +120,17 @@ public class Traders {
 		outputItems.add(result);
 	}
 
-	public boolean setResultItems(Block trader, Villager villager, MerchantRecipe recipe, Inventory source, Inventory destination, List<ItemStack> consumeItems, List<ItemStack> outputItems) {
-		//Check if needed items exists
+	public static boolean neededExists(Inventory source, List<ItemStack> consumeItems) {
 		for (ItemStack item : consumeItems) {
 			if (!source.containsAtLeast(item, item.getAmount())) { return false; }
 		}
+
+		return true;
+	}
+
+	public static boolean setResultItems(Block trader, Villager villager, MerchantRecipe recipe, Inventory source, Inventory destination, List<ItemStack> consumeItems, List<ItemStack> outputItems) {
+		//Check if needed items exists
+		if (!neededExists(source, consumeItems)) { return false; }
 
 		//Trade with villager
 		if (!Villagers.tradeVillager(trader, villager, villager.getRecipes().indexOf(recipe))) { return false; }
@@ -150,6 +150,12 @@ public class Traders {
 		}
 
 		//Remove items from source inventory
+		removeConsumedItems(source, consumeItems);
+		return true;
+	}
+
+	public static void removeConsumedItems(Inventory source, List<ItemStack> consumeItems) {
+		//Remove items from source inventory
 		for (ItemStack item : consumeItems) {
 			for (int i = 0; i < item.getAmount(); i++) {
 				for (ItemStack sourceItem : source.getContents()) {
@@ -160,50 +166,5 @@ public class Traders {
 				}
 			}
 		}
-
-		return true;
-	}
-
-	public List<Block> collectTraders() {
-		List<Block> traders = new ArrayList<>();
-
-		for (World world : Bukkit.getWorlds()) {
-			for (Entity entity : world.getEntities()) {
-				Block trader = getTrader(entity);
-				if ((trader != null) && !traders.contains(trader)) { traders.add(trader); }
-			}
-		}
-
-		return traders;
-	}
-
-	public Block getTrader(Entity entity) {
-		if (!(entity instanceof ItemFrame)) { return null; }
-		if (((ItemFrame) entity).getItem().getType() != Material.NETHER_STAR) { return null; }
-
-		Block trader = entity.getLocation().getBlock().getRelative(((ItemFrame) entity).getAttachedFace());
-		if (trader.getType() != Material.DISPENSER) { return null; }
-		return trader;
-	}
-
-	//THIS IS USED ONLY TO CHECK IF TRADER IS STILL THERE
-	public Block getTrader(Block block) {
-		Collection<Entity> entities = Utils.getNearbyEntities(block.getLocation().add(0.5, 0.5, 0.5), null, 1.5, false);
-
-		for (Entity entity : entities) {
-			Block trader = getTrader(entity);
-			if ((trader != null) && (trader.equals(block))) { return trader; }
-		}
-
-		return null;
-	}
-
-	public boolean isDisabled(Block block) {
-		if (AutoTrade.redstoneMode.equalsIgnoreCase("disabled")) { return false; }
-		return ((AutoTrade.redstoneMode.equalsIgnoreCase("indirect") && block.isBlockIndirectlyPowered()) || block.isBlockPowered());
-	}
-
-	public boolean isTrader(Block block) {
-		return ((block.getType() == Material.DISPENSER) && traders.contains(block));
 	}
 }
