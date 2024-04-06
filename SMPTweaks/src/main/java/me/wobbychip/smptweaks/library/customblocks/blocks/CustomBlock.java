@@ -50,8 +50,16 @@ public class CustomBlock implements Listener {
         this.name = name;
     }
 
+    public String getCustomName() {
+        return name;
+    }
+
     public void setCustomTitle(String title) {
         this.title = title;
+    }
+
+    public String getCustomTitle() {
+        return title;
     }
 
     public void setCustomModel(int model) {
@@ -109,10 +117,6 @@ public class CustomBlock implements Listener {
 
     public ChatColor getGlowing() {
         return glow_color;
-    }
-
-    public String getCustomTitle() {
-        return title;
     }
 
     @Nullable

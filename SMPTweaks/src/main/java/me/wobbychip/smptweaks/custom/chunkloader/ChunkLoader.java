@@ -18,7 +18,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import java.util.List;
 
 public class ChunkLoader extends CustomTweak {
-	public static String isChunkLoader = "isChunkLoader";
 	public static String isAggravator = "isAggravator";
 	public static int viewDistance = Bukkit.getViewDistance();
 	public static boolean enableAggravator = false;

@@ -3,10 +3,12 @@ package me.wobbychip.smptweaks.library.customblocks;
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.library.customblocks.blocks.CustomBlock;
 import me.wobbychip.smptweaks.library.customblocks.blocks.CustomMarker;
+import me.wobbychip.smptweaks.library.customblocks.commands.Commands;
 import me.wobbychip.smptweaks.library.customblocks.events.BlockEvents;
 import me.wobbychip.smptweaks.library.customblocks.events.InventoryEvents;
 import me.wobbychip.smptweaks.library.customblocks.events.WorldEvents;
 import me.wobbychip.smptweaks.library.customblocks.test.TestBlock;
+import me.wobbychip.smptweaks.tweaks.CustomTweak;
 import me.wobbychip.smptweaks.utils.PersistentUtils;
 import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Bukkit;
@@ -20,13 +22,19 @@ import org.bukkit.inventory.ShapedRecipe;
 import java.util.HashMap;
 import java.util.UUID;
 
-public class CustomBlocks {
+public class CustomBlocks extends CustomTweak {
 	public static final String RESOURCE_PACK_PROMPT = "This resource pack is required for custom blocks.";
 	public static final String RESOURCE_PACK_URL = "https://github.com/WobbyChip/Minecraft-Plugins/raw/master/SMPTweaks/src/main/resources/resourcepack.zip";
 	public static final byte[] RESOURCE_PACK_HASH = Utils.getFileHash(RESOURCE_PACK_URL);
 	public static final UUID RESOURCE_PACK_UUID = UUID.nameUUIDFromBytes(RESOURCE_PACK_HASH);
 	public static HashMap<String, CustomBlock> REGISTRY_CUSTOM_BLOCKS = new HashMap<>();
 	public static ShapedRecipe EMPTY_RECIPE = new ShapedRecipe(new NamespacedKey(Main.plugin, RESOURCE_PACK_UUID.toString()), new ItemStack(Material.POISONOUS_POTATO));
+
+	public CustomBlocks() {
+		super(CustomBlocks.class, false, false);
+		this.setCommand(new Commands(this, "cblocks"));
+		this.setDescription("Library for custom blocks");
+	}
 
 	public static void start() {
 		EMPTY_RECIPE.shape("AAA", "AAA", "AAA");

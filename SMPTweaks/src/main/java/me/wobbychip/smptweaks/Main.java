@@ -77,6 +77,7 @@ public class Main extends JavaPlugin implements Listener {
 		Main.manager.addTweak(new ChunkLoader());
 		Main.manager.addTweak(new CustomPotions());
 		Main.manager.addTweak(new CustomWorlds());
+		Main.manager.addTweak(new CustomBlocks());
 		Main.manager.addTweak(new DisableInvulnerability());
 		Main.manager.addTweak(new DropCursedPumpkin());
 		Main.manager.addTweak(new EntityLimit());

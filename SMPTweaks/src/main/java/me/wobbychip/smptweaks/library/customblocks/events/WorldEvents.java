@@ -42,6 +42,7 @@ public class WorldEvents implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockPistonExtendEvent(BlockPistonExtendEvent event) {
 		Map<Block, CustomBlock> blockList = event.getBlocks().stream().filter(CustomBlocks::isCustomBlock).collect(Collectors.toMap(e -> e, CustomBlocks::getCustomBlock));
+		if (blockList.isEmpty()) { return; }
 		blockList.forEach((block, customBlock) -> customBlock.removeBlock(block));
 
 		//For some reason this event is applied later, because runnable execute before blocks are updated
