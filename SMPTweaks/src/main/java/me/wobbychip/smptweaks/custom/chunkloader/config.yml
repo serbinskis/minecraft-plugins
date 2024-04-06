@@ -1,12 +1,8 @@
 # Use server view distance for chunk loading
 useServerViewDistance: true
 
-# Distance in chunks that chunkloader will load
+# Distance in chunks that chunk loader will load
 viewDistance: 8
 
-# Mode that can be toggled by left-clicking chunkloader in survival mode.
-# This mode kinda is buggy and not working always, but it's supposed to anger nearby mobs.
-enableAggravator: false
-
-# Disable chunkloader highlighting
+# Disable chunk loader highlighting
 highlighting: true

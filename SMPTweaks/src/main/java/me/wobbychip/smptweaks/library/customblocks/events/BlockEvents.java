@@ -91,7 +91,7 @@ public class BlockEvents implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockPlaceEvent(BlockPlaceEvent event) {
 		if (!customBlock.isCustomBlock(event.getItemInHand())) { return; }
-		customBlock.createBlock(event.getBlockPlaced());
+		customBlock.createBlock(event.getBlockPlaced(), true);
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)

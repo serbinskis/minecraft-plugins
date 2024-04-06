@@ -1,78 +1,73 @@
 package me.wobbychip.smptweaks.custom.chunkloader.loaders;
 
+import me.wobbychip.smptweaks.custom.chunkloader.ChunkLoader;
 import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.WorldBorder;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Border {
-	public int viewDistance;
-	public Location center;
-	WorldBorder border;
-	List<Player> players = new ArrayList<>();
+	private static final HashMap<Player, Map.Entry<Block, WorldBorder>> players = new HashMap<>();
 
-	public Border(int viewDistance, Location center) {
-		this.viewDistance = viewDistance;
-		this.center = center;
+	public static boolean containsPlayer(Player player) {
+		return players.keySet().stream().anyMatch(e -> e.getUniqueId().equals(player.getUniqueId()));
+	}
 
-		border = Bukkit.getServer().createWorldBorder();
-		int x = (int) ((center.getChunk().getX()*16+8) * center.getWorld().getCoordinateScale());
-		int z = (int) ((center.getChunk().getZ()*16+8) * center.getWorld().getCoordinateScale());
+	public static void addPlayer(Player player, Block block) {
+		if (containsPlayer(player)) { removePlayer(player); }
 
-		border.setCenter(new Location(center.getWorld(), x, center.getY(), z));
-		border.setSize(viewDistance*16*2+16);
+		WorldBorder border = Bukkit.getServer().createWorldBorder();
+		int x = (int) ((block.getChunk().getX()*16+8) * block.getWorld().getCoordinateScale());
+		int z = (int) ((block.getChunk().getZ()*16+8) * block.getWorld().getCoordinateScale());
+
+		border.setCenter(new Location(block.getWorld(), x, block.getY(), z));
+		border.setSize(ChunkLoader.viewDistance*16*2+16);
 		border.setDamageAmount(0);
 		border.setWarningDistance(-1);
 		border.setWarningTime(-1);
-	}
 
-	public boolean containsPlayer(Player player) {
-		return players.stream().anyMatch(e -> e.getUniqueId().equals(player.getUniqueId()));
-	}
-
-	public void addPlayer(Player player) {
-		if (containsPlayer(player)) { return; }
-		players.add(player);
+		players.put(player, Map.entry(block, border));
 		Utils.sendActionMessage(player, "Virtual border is now visible.");
 		player.playSound(player.getLocation(), Sound.BLOCK_END_PORTAL_FRAME_FILL, 1, 1);
 	}
 
-	public void removePlayer(Player player) {
-		players.remove(player);
-		if (!center.getWorld().equals(player.getWorld())) { return; }
-		player.setWorldBorder(center.getWorld().getWorldBorder());
+	public static void removePlayer(Player player) {
+		players.keySet().removeIf(e -> e.getUniqueId().equals(player.getUniqueId()));
+		player.setWorldBorder(player.getWorld().getWorldBorder());
 		Utils.sendActionMessage(player, "Virtual border is now hidden.");
 		player.playSound(player.getLocation(), Sound.BLOCK_END_PORTAL_FRAME_FILL, 1, 1);
 	}
 
-	public void togglePlayer(Player player) {
+	public static void togglePlayer(Player player, Block block) {
 		if (containsPlayer(player)) {
 			removePlayer(player);
 		} else {
-			addPlayer(player);
+			addPlayer(player, block);
 		}
 	}
 
-	public void update() {
+	public static void update() {
 		List<Player> remove = new ArrayList<>();
 
-		for (Player player : players) {
-			if (!player.isOnline()) { remove.add(player); continue; }
-			if (!center.getWorld().equals(player.getWorld())) { remove.add(player); continue; }
+		for (Map.Entry<Player, Map.Entry<Block, WorldBorder>> data : players.entrySet()) {
+			if (!data.getKey().isOnline()) { remove.add(data.getKey()); continue; }
+			if (!data.getValue().getKey().getWorld().equals(data.getKey().getWorld())) { remove.add(data.getKey()); continue; }
 
-			player.setWorldBorder(border);
-			Utils.sendActionMessage(player, "Virtual border is now visible.");
+			data.getKey().setWorldBorder(data.getValue().getValue());
+			Utils.sendActionMessage(data.getKey(), "Virtual border is now visible.");
 		}
 
-		remove.forEach(e -> removePlayer(e));
+		remove.forEach(Border::removePlayer);
 	}
 
-	public void remove() {
-		players.forEach(e -> removePlayer(e));
+	public static void remove(Block block) {
+		players.forEach((key, value) -> {
+            if (value.getKey().getLocation().equals(block.getLocation())) { removePlayer(key); }
+        });
 	}
 }

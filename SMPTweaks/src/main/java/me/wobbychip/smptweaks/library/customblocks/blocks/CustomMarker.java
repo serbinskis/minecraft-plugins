@@ -6,6 +6,7 @@ import me.wobbychip.smptweaks.utils.ServerUtils;
 import me.wobbychip.smptweaks.utils.TaskUtils;
 import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -27,6 +28,7 @@ public class CustomMarker implements Runnable {
     private static final HashMap<String, CustomMarker> markers = new HashMap<>();
     private final ItemDisplay display;
     private final CustomBlock customBlock;
+    private ChatColor glowing_color;
     private final int task;
 
     private CustomMarker(ItemDisplay display, CustomBlock customBlock) {
@@ -39,13 +41,17 @@ public class CustomMarker implements Runnable {
         return customBlock.getId();
     }
 
+    public ItemDisplay getDisplay() {
+        return display;
+    }
+
     public CustomBlock getCustomBlock() {
         return customBlock;
     }
 
     public static CustomMarker createMarker(CustomBlock cblock, Block block) {
         String location = Utils.locationToString(block.getLocation());
-        if (markers.containsKey(location)) { return markers.get(location); }
+        if (markers.containsKey(location)) { markers.get(location).remove(true); }
 
         Map.Entry<BlockFace, Transformation> orientation = getOrientation(block);
         ItemStack itemStack = cblock.getDropItem(Arrays.asList(BlockFace.UP, BlockFace.DOWN).contains(orientation.getKey()));
@@ -71,7 +77,7 @@ public class CustomMarker implements Runnable {
         Quaternionf left_rotation = new Quaternionf(0f, 0f, 0f, 1f);
         Quaternionf right_rotation = new Quaternionf(0f, 0f, 0f, 1f);
 
-        BlockFace facing = ((Directional) block.getBlockData()).getFacing();
+        BlockFace facing = arg0 ? ((Directional) block.getBlockData()).getFacing() : BlockFace.SOUTH;
         if (arg0 && facing.equals(BlockFace.NORTH)) { right_rotation = new Quaternionf(0f, 1f, 0f, 0f); }
         if (arg0 && facing.equals(BlockFace.EAST)) { left_rotation = new Quaternionf(0f, 0.70710677f, 0f, 0.70710677f); }
         if (arg0 && facing.equals(BlockFace.WEST)) { left_rotation = new Quaternionf(0f, -0.70710677f, 0f, 0.70710677f); }
@@ -79,6 +85,12 @@ public class CustomMarker implements Runnable {
         if (arg0 && facing.equals(BlockFace.DOWN)) { left_rotation = new Quaternionf(0.70710677f, 0f, 0f, 0.70710677f); }
 
         return Map.entry(facing, new Transformation(new Vector3f(0f), left_rotation, new Vector3f(1.002f), right_rotation));
+    }
+
+    public void setGlowing(ChatColor color) {
+        if (glowing_color == color) { return; }
+        Utils.setGlowColor(display, color);
+        glowing_color = color;
     }
 
     public static boolean isMarkerEntity(Entity entity) {
@@ -108,7 +120,7 @@ public class CustomMarker implements Runnable {
         });
     }
 
-    private void recreate() {
+    public void recreate() {
         remove(true);
         Block block = display.getLocation().getBlock();
         if (block.getType() != customBlock.getBlockBase()) { return; }

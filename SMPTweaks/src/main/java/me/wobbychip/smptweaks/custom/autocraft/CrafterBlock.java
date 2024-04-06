@@ -4,7 +4,9 @@ import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.library.customblocks.blocks.CustomBlock;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
@@ -34,8 +36,14 @@ public class CrafterBlock extends CustomBlock {
     }
 
     @Override
+    public ItemStack prepareCraft(PrepareItemCraftEvent event, World world, ItemStack result) {
+        if (!AutoCraft.tweak.getGameRuleBoolean(world)) { return null; }
+        return super.prepareCraft(event, world, result);
+    }
+
+    @Override
     public boolean prepareDispense(Block block, HashMap<ItemStack, Map.Entry<ItemStack, Integer>> dispense) {
-        if (!AutoCraft.tweak.getGameRuleBoolean((block.getWorld()))) { return false; }
+        if (!AutoCraft.tweak.getGameRuleBoolean(block.getWorld())) { return false; }
         Crafters.handleCrafter(block).forEach(e -> dispense.put(e, Map.entry(new ItemStack(Material.AIR), -1)));
         return !dispense.isEmpty();
     }

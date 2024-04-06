@@ -54,6 +54,10 @@ public class CustomBlock implements Listener {
         this.title = title;
     }
 
+    public void setCustomModel(int model) {
+        setCustomModel(model ,model);
+    }
+
     public void setCustomModel(int model, int model_extra) {
         this.model = model;
         this.model_extra = model_extra;
@@ -98,6 +102,11 @@ public class CustomBlock implements Listener {
         this.glow_color = glow_color;
     }
 
+    public void setGlowing(Block block, ChatColor glow_color) {
+        CustomMarker marker = getMarker(block);
+        if (marker != null) { marker.setGlowing(glow_color); }
+    }
+
     public ChatColor getGlowing() {
         return glow_color;
     }
@@ -131,14 +140,16 @@ public class CustomBlock implements Listener {
         return (block_base.createBlockData() instanceof Directional);
     }
 
+    public boolean isPowered(Block block) { return (block.isBlockIndirectlyPowered() || block.isBlockPowered()); }
+
     public void createBlock(ItemDisplay display) {
         display.remove();
-        createBlock(display.getLocation().getBlock());
+        Block block = display.getLocation().getBlock();
+        if (block.getType() != block_base) { return; }
+        createBlock(block, false);
     }
 
-    public void createBlock(Block block) {
-        if (block.getType() != block_base) { return; }
-        if (isPersistent(block)) { PersistentUtils.setPersistentDataString(block, TAG_BLOCK, id); }
+    public void createBlock(Block block, boolean new_block) {
         CustomMarker.createMarker(this, block);
 
         if (hasInventory() && (title != null)) {
@@ -146,6 +157,8 @@ public class CustomBlock implements Listener {
             container.setCustomName(title);
             container.update();
         }
+
+        this.create(block, new_block);
     }
 
     public void removeBlock(Block block) {
@@ -165,6 +178,10 @@ public class CustomBlock implements Listener {
             if (itemStack.getType() != block_base) { continue; } //We only need to difference item type of cblock
             inv.setItem(i, setMarkedItem(itemStack)); //Add tag to difference normal item from custom block inside BlockDropItemEvent
         }
+    }
+
+    public static CustomMarker getMarker(Block block) {
+        return CustomMarker.getMarker(block);
     }
 
     public boolean isMarkedItem(ItemStack item) {
@@ -207,11 +224,13 @@ public class CustomBlock implements Listener {
         return item;
     }
 
-    public boolean prepareCraft(PrepareItemCraftEvent event, World world, ItemStack result) { return true; }
+    @Nullable
+    public ItemStack prepareCraft(@Nullable PrepareItemCraftEvent event, World world, ItemStack result) { return result; }
     public Recipe prepareRecipe(NamespacedKey key, ItemStack itemStack) { return null; }
     public int preparePower(Block block) { return -1; }
     public boolean prepareDispense(Block block, HashMap<ItemStack, Map.Entry<ItemStack, Integer>> dispense) { return false; }
     public void tick(Block block, long tick) {}
+    public void create(Block block, boolean new_block) {}
     public void remove(Block block) {}
 
     public enum Dispensable { DISABLE, IGNORE, CUSTOM }

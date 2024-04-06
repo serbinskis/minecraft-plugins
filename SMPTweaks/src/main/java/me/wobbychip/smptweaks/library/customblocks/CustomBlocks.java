@@ -10,8 +10,12 @@ import me.wobbychip.smptweaks.library.customblocks.test.TestBlock;
 import me.wobbychip.smptweaks.utils.PersistentUtils;
 import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.entity.ItemDisplay;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ShapedRecipe;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -22,8 +26,12 @@ public class CustomBlocks {
 	public static final byte[] RESOURCE_PACK_HASH = Utils.getFileHash(RESOURCE_PACK_URL);
 	public static final UUID RESOURCE_PACK_UUID = UUID.nameUUIDFromBytes(RESOURCE_PACK_HASH);
 	public static HashMap<String, CustomBlock> REGISTRY_CUSTOM_BLOCKS = new HashMap<>();
+	public static ShapedRecipe EMPTY_RECIPE = new ShapedRecipe(new NamespacedKey(Main.plugin, RESOURCE_PACK_UUID.toString()), new ItemStack(Material.POISONOUS_POTATO));
 
 	public static void start() {
+		EMPTY_RECIPE.shape("AAA", "AAA", "AAA");
+		EMPTY_RECIPE.setIngredient('A', Material.AIR);
+
 		Bukkit.getPluginManager().registerEvents(new WorldEvents(), Main.plugin);
 		if (Main.DEBUG_MODE) { CustomBlocks.registerBlock(new TestBlock()); }
 		CustomMarker.collectUnmarkedBlocks();
@@ -53,5 +61,10 @@ public class CustomBlocks {
 
 	public static CustomBlock getCustomBlock(String name) {
 		return REGISTRY_CUSTOM_BLOCKS.getOrDefault(name.toLowerCase(), null);
+	}
+
+	public static boolean isCustomBlock(Block block) {
+		CustomMarker marker = CustomMarker.getMarker(block);
+		return (marker != null);
 	}
 }

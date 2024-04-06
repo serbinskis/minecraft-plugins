@@ -1,49 +1,58 @@
 package me.wobbychip.smptweaks.custom.chunkloader.loaders;
 
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
-
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
+import org.bukkit.Location;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
+
+import java.util.HashMap;
+import java.util.UUID;
 
 public class FakePlayer {
-	public Location location;
-	public Player player;
+	private static final HashMap<Location, Player> fakes = new HashMap<>();
 
-	public FakePlayer(Location location) {
-		this.location = location;
-	}
+	public static void setEnabled(boolean isEnabled, Block block) {
+		Location location = block.getLocation().add(0.5, 0.5, 0.5);
+		Player player = fakes.get(location);
 
-	public void setEnabled(boolean isEnabled) {
 		if (isEnabled) {
 			if (player != null) { ReflectionUtils.removeFakePlayer(player); }
 			player = ReflectionUtils.addFakePlayer(location, null, true, true, false);
+			fakes.put(location, player);
 		} else {
 			if (player != null) { ReflectionUtils.removeFakePlayer(player); }
-			player = null;
-		}
-	}
-
-	public Player getPlayer() {
-		return player;
-	}
-
-	public void update() {
-		if (player == null) { return; }
-		boolean isValid = player.isValid();
-
-		//Hide player for everyone, who is not OP
-		for (Player player : player.getWorld().getPlayers()) {
-			if (isValid && !player.isOp()) { player.hidePlayer(Main.plugin, this.player); }
+			fakes.remove(location);
 		}
 
-		//Put fake player back to his location
-		if (isValid) { player.teleport(location); }
-		if (isValid) { player.setCollidable(false); }
-		if (isValid) { ReflectionUtils.updateFakePlayer(player); }
+		update();
 	}
 
-	public void remove() {
-		setEnabled(false);
+	public static void add(Block block) {
+		setEnabled(true, block);
+	}
+
+	public static void remove(Block block) {
+		setEnabled(false, block);
+	}
+
+	public static void update() {
+		fakes.forEach((location, fplayer) -> {
+			boolean isValid = fplayer.isValid();
+
+			//Hide player for everyone, who is not OP
+			for (Player player : fplayer.getWorld().getPlayers()) {
+				if (isValid && !player.isOp()) { player.hidePlayer(Main.plugin, fplayer); }
+			}
+
+			//Put fake player back to his location
+			if (isValid) { fplayer.teleport(location); }
+			if (isValid) { fplayer.setCollidable(false); }
+			if (isValid) { ReflectionUtils.updateFakePlayer(fplayer); }
+		});
+	}
+
+	public static boolean isFakePlayer(UUID uuid) {
+		return fakes.values().stream().anyMatch(e -> e.getUniqueId().equals(uuid));
 	}
 }

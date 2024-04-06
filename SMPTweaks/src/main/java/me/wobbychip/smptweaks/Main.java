@@ -57,8 +57,6 @@ public class Main extends JavaPlugin implements Listener {
 	public static TweakManager manager;
 	public static Main plugin;
 
-
-
 	@Override
 	public void onEnable() {
 		Main.plugin = this;
@@ -113,7 +111,7 @@ public class Main extends JavaPlugin implements Listener {
 		Main.manager.loadTweaks(false);
 		Main.plugin.getCommand("smptweaks").setExecutor(new Commands());
 		Main.plugin.getCommand("smptweaks").setTabCompleter(new Commands());
-		if (Main.DEBUG_MODE) { CustomBlocks.start(); }
+		CustomBlocks.start();
 	}
 
 	public ClassLoader getPluginClassLoader() {
