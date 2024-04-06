@@ -22,7 +22,7 @@ public class TestBlock extends CustomBlock {
         this.setCustomName(Main.SYM_COLOR + "rCustom Block");
         this.setCustomTitle("Custom Block");
         this.setDispensable(Dispensable.CUSTOM);
-        this.setComparable(Comparable.DISABLE);
+        this.setComparable(Comparable.CUSTOM);
         this.setGlowing(ChatColor.WHITE);
     }
 
