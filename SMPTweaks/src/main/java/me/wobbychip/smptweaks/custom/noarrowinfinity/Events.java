@@ -79,7 +79,7 @@ public class Events implements Listener {
 
 	//When player starts using bow on client side we get interaction event
 	//So we can also set instant build on server side for moment when player shoots
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings("removal")
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerInteractEvent(PlayerInteractEvent event) {
 		Player player = event.getPlayer();
