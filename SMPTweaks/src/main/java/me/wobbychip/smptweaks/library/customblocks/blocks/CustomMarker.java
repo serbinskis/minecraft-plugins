@@ -65,7 +65,7 @@ public class CustomMarker implements Runnable {
         display.setInvulnerable(true);
         display.setTransformation(orientation.getValue());
         display.setItemStack(itemStack);
-        Utils.setGlowColor(display, cblock.getGlowing());
+        Utils.setGlowColor(display, cblock.prepareGlowingColor(block));
 
         CustomMarker marker = new CustomMarker(display, cblock);
         markers.put(location, marker);

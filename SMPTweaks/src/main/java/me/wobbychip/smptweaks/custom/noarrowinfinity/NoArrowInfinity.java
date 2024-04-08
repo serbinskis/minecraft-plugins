@@ -37,6 +37,7 @@ public class NoArrowInfinity extends CustomTweak {
 	//Such as shooting with no arrows, infinite consumables and infinite durability
 	//To prevent everything from above and get only shooting with no arrows
 	//Give instant build only to client and not server
+	@SuppressWarnings("deprecation")
 	public void checkPlayer(Player player) {
 		if (!this.getGameRuleBoolean(player.getWorld())) { return; }
 		if (player.getGameMode() == GameMode.CREATIVE) { return; }

@@ -43,6 +43,7 @@ public class CustomBlock implements Listener {
 
     public CustomBlock(String id, Material block_base) {
         this.id = id;
+        this.name = id;
         this.block_base = block_base;
     }
 
@@ -62,13 +63,9 @@ public class CustomBlock implements Listener {
         return title;
     }
 
-    public void setCustomModel(int model) {
-        setCustomModel(model ,model);
-    }
-
-    public void setCustomModel(int model, int model_extra) {
-        this.model = model;
-        this.model_extra = model_extra;
+    public void setCustomModel(int ...models) {
+        this.model = (models.length > 0) ? models[0] : model;
+        this.model_extra = (models.length > 1) ? models[1] : model_extra;
     }
 
     public String getId() {
@@ -233,6 +230,7 @@ public class CustomBlock implements Listener {
     public Recipe prepareRecipe(NamespacedKey key, ItemStack itemStack) { return null; }
     public int preparePower(Block block) { return -1; }
     public boolean prepareDispense(Block block, HashMap<ItemStack, Map.Entry<ItemStack, Integer>> dispense) { return false; }
+    public ChatColor prepareGlowingColor(Block block) { return this.glow_color; }
     public void tick(Block block, long tick) {}
     public void create(Block block, boolean new_block) {}
     public void remove(Block block) {}

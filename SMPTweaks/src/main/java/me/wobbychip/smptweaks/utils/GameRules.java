@@ -102,14 +102,14 @@ public class GameRules implements Listener {
 
 		if (object.getClass().equals(Boolean.class)) {
 			if (!value.equals("true") && !value.equals("false")) { return false; }
-			setGameRule(player.getWorld(), name, (boolean) Boolean.valueOf(value));
+			setGameRule(player.getWorld(), name, Boolean.valueOf(value));
 			Utils.sendMessage(player, String.format("Gamerule %s is now set to: %s", name, value));
 			return true;
 		}
 
 		if (object.getClass().equals(Integer.class)) {
 			if ((value.length()) > 9 || !value.matches("-?\\d+")) { return false; }
-			setGameRule(player.getWorld(), name, (int) Integer.valueOf(value));
+			setGameRule(player.getWorld(), name, Integer.valueOf(value));
 			Utils.sendMessage(player, String.format("Gamerule %s is now set to: %d", name, Integer.valueOf(value)));
 			return true;
 		}

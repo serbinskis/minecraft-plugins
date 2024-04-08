@@ -24,7 +24,6 @@ public class LoaderBlock extends CustomBlock {
         super("loader_block", Material.LODESTONE);
         this.setCustomModel(1000310000);
         this.setCustomName(Main.SYM_COLOR + "rChunk Loader");
-        this.setGlowing(ChatColor.RED);
         this.setTickable(true);
         LoaderBlock.LOADER_BLOCK = this;
     }
@@ -44,6 +43,12 @@ public class LoaderBlock extends CustomBlock {
     public ItemStack prepareCraft(PrepareItemCraftEvent event, World world, ItemStack result) {
         if (!ChunkLoader.tweak.getGameRuleBoolean(world)) { return null; }
         return super.prepareCraft(event, world, result);
+    }
+
+    @Override
+    public ChatColor prepareGlowingColor(Block block) {
+        boolean isPowered = isPowered(block) && ChunkLoader.tweak.getGameRuleBoolean(block.getWorld());
+        return ChunkLoader.highlighting ? (isPowered ? ChatColor.GREEN : ChatColor.RED) : ChatColor.RESET;
     }
 
     @Override
