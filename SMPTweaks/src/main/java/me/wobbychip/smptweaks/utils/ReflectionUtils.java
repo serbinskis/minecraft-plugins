@@ -587,6 +587,7 @@ public class ReflectionUtils {
 		player.setSleepingIgnored(true);
 		player.setInvulnerable(true);
 		player.setGravity(false);
+		player.setAllowFlight(true);
 		player.setFlying(true);
 		return player;
 	}
