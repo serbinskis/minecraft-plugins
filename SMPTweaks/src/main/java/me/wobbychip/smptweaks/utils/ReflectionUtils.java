@@ -583,7 +583,11 @@ public class ReflectionUtils {
 			world.players().removeIf(e -> getBukkitEntity(e).getUniqueId().equals(player.getUniqueId()));
 		}
 
+		player.setGameMode(GameMode.CREATIVE);
 		player.setSleepingIgnored(true);
+		player.setInvulnerable(true);
+		player.setGravity(false);
+		player.setFlying(true);
 		return player;
 	}
 
@@ -1337,6 +1341,20 @@ public class ReflectionUtils {
 			ClientboundLevelChunkWithLightPacket npacket = new ClientboundLevelChunkWithLightPacket(levelChunk, levelChunk.getLevel().getLightEngine(), null, null, true);
 			Collection<Entity> players = Utils.getNearbyEntities(chunk.getBlock(8, 0, 8).getLocation(), EntityType.PLAYER, Bukkit.getViewDistance()*16, true);
 			players.stream().map(Player.class::cast).forEach(e -> sendPacket(e, npacket));
-        }
+		}
+	}
+
+	public static float getLocalDifficulty(Player player, boolean real) {
+		Difficulty difficulty = player.getWorld().getDifficulty();
+		float timeOfDay = getWorld(player.getWorld()).getLevelData().getDayTime();
+		float moonSize = getWorld(player.getWorld()).getMoonBrightness();
+		long inhabitedTime = real ? player.getChunk().getInhabitedTime() : 0L;
+		if (difficulty == Difficulty.PEACEFUL) { return 0.0F; }
+
+		float daytimeFactor = Utils.clamp((timeOfDay - 72000.0F) / 1440000.0F, 0.0F, 1.0F) * 0.25F;
+		float chunkFactor = Utils.clamp((float) inhabitedTime / 3600000.0F, 0.0F, 1.0F) * ((difficulty == Difficulty.HARD) ? 1.0F : 0.75F);
+		chunkFactor += Utils.clamp(moonSize * 0.25F, 0.0F, daytimeFactor);
+		if (difficulty == Difficulty.EASY) { chunkFactor *= 0.5F; }
+		return (float) difficulty.getValue() * (0.75F + daytimeFactor + chunkFactor);
 	}
 }

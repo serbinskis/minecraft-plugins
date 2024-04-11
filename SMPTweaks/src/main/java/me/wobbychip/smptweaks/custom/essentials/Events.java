@@ -51,12 +51,14 @@ public class Events implements Listener {
 		Player player = event.getPlayer();
 		GameMode gameMode = player.getGameMode();
 		boolean isFlying = player.isFlying();
+		boolean allowFlight = player.getAllowFlight();
 		player.setGameMode(GameMode.SPECTATOR);
 		if (!isFlying) { player.setFlying(false); }
 
 		int task = TaskUtils.scheduleSyncDelayedTask(() -> {
 			reverser.remove(player.getUniqueId());
 			player.setGameMode(gameMode);
+			player.setAllowFlight(allowFlight);
 			player.setFlying(isFlying);
 		}, 1L);
 

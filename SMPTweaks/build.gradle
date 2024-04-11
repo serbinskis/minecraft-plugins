@@ -16,6 +16,7 @@ compileJava {
 repositories {
     mavenCentral()
     mavenLocal()
+    maven { url "https://repo.extendedclip.com/content/repositories/placeholderapi/" }
     maven { url "https://hub.spigotmc.org/nexus/content/repositories/snapshots/" }
     maven { url "https://repo.papermc.io/repository/maven-public/" }
     maven { url "https://repo.codemc.io/repository/nms/" }
@@ -30,6 +31,7 @@ dependencies {
     compileOnly "com.sk89q.worldedit:worldedit-bukkit:7.2.0"
     compileOnly "com.comphenix.protocol:ProtocolLib:5.1.0"
     compileOnly "net.essentialsx:EssentialsX:2.20.0"
+    compileOnly "me.clip:placeholderapi:2.11.5"
     compileOnly "io.papermc.paper:paper-api:${project.minecraft_version}-R0.1-SNAPSHOT"
     paperweight.paperDevBundle("${project.minecraft_version}-R0.1-SNAPSHOT")
 }

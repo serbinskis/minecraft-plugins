@@ -120,6 +120,6 @@ public class ScreamerPotion extends CustomPotion {
 			if ((task[1]/time) >= 1) { TaskUtils.cancelTask(task[0]); }
 		}, 0L, 1L);
 
-		TaskUtils.scheduleSyncDelayedTask(() -> entity.remove(), time+5L);
+		TaskUtils.scheduleSyncDelayedTask(entity::remove, time+5L);
 	}
 }

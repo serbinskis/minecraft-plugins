@@ -425,4 +425,8 @@ public class Utils {
 			return new byte[0];
 		}
 	}
+
+	public static float clamp(float value, float min, float max) {
+		return value < min ? min : Math.min(value, max);
+	}
 }
