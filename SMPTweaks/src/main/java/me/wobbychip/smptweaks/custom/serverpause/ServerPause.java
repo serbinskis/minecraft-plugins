@@ -39,7 +39,7 @@ public class ServerPause extends CustomTweak {
 		this.onReload();
 
 		//Delay event registration so that other plugins can do their thing
-		//Tbh, I don't know if this actaully is required, but just in case
+		//Tbh, I don't know if this actually is required, but just in case
 		TaskUtils.scheduleSyncDelayedTask(() -> {
 			Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 			if (!ServerPause.canPause(false)) { return; }
