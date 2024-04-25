@@ -15,7 +15,7 @@ public class CustomWorlds extends CustomTweak {
 	public CustomWorlds() {
 		super(CustomWorlds.class, false, true);
 		this.setCommand(new Commands(this, "cworld"));
-		this.setDescription("Custom world and biome settings. (VERY BROKEN)");
+		this.setDescription("Custom world and biome settings. (VERY UNSTABLE)");
 		this.setStartup(true);
 		CustomWorlds.tweak = this;
 	}

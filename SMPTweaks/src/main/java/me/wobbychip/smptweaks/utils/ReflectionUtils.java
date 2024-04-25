@@ -109,7 +109,6 @@ public class ReflectionUtils {
 	public static Field CustomFunctionData_postReload;
 	public static Field RegistryMaterials_frozen;
 	public static Field RegistryMaterials_nextId;
-	public static Field MappedRegistry_unregisteredIntrusiveHolders;
 	public static Field BlockPhysicsEvent_changed;
 	public static Field PotionSplashEvent_affectedEntities;
 	public static Field AreaEffectCloudApplyEvent_affectedEntities;
@@ -538,6 +537,10 @@ public class ReflectionUtils {
 
 	public static String getChatVisibility(Player player) {
 		return getEntityPlayer(player).getChatVisibility().getKey();
+	}
+
+	public static int getTickCount() {
+		return MinecraftServer.getServer().getTickCount();
 	}
 
 	//The most useless shit I ever made
