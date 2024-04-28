@@ -855,6 +855,7 @@ public class ReflectionUtils {
 	}
 
 
+	//!!! MUST BE CHECKED !!!
 	public static <T> T getItemNbt(ItemStack itemStack, List<String> location) {
 		//["components", "custom_data", "stellaity"]
 		//["components", "potion_data", "potion"]
@@ -884,6 +885,7 @@ public class ReflectionUtils {
 		return null;
 	}
 
+	//!!! MUST BE CHECKED !!!
 	public static void setBlockNbt(org.bukkit.block.Block block, String name, Object value, boolean applyPhysics) {
 		BlockPos blockPos = new BlockPos(block.getX(), block.getY(), block.getZ());
 		ServerLevel serverLevel = getWorld(block.getLocation().getWorld());
@@ -891,18 +893,19 @@ public class ReflectionUtils {
 		if (serverLevel == null) { return; }
 		BlockEntity blockEntity = serverLevel.getBlockEntity(blockPos);
 		if (blockEntity == null) { return; }
-		CompoundTag tag = blockEntity.saveWithoutMetadata();
+		CompoundTag tag = blockEntity.saveWithoutMetadata(MinecraftServer.getServer().registryAccess());
 
 		tag.remove(name);
 		if (value.getClass().equals(Boolean.class)) { tag.putBoolean(name, (Boolean) value); }
 		if (value.getClass().equals(Integer.class)) { tag.putInt(name, (Integer) value); }
 		if (value.getClass().equals(String.class)) { tag.putString(name, (String) value); }
 
-		blockEntity.load(tag); //Loading NBT doesn't trigger physics update of block itself
+		blockEntity.loadWithComponents(tag, MinecraftServer.getServer().registryAccess()); //Loading NBT doesn't trigger physics update of block itself
 		if (applyPhysics) { blockEntity.setChanged(); } //This only updates block around (AND IT DOESN'T WORK, FUCK YOU MOJANG)
 		if (applyPhysics) { NeighborUpdater.executeUpdate(serverLevel, blockEntity.getBlockState(), blockPos, blockEntity.getBlockState().getBlock(), blockPos, true); }
 	}
 
+	//!!! MUST BE CHECKED !!!
 	public static <T> T getBlockNbt(org.bukkit.block.Block block, String name) {
 		BlockPos blockPos = new BlockPos(block.getX(), block.getY(), block.getZ());
 		ServerLevel serverLevel = getWorld(block.getLocation().getWorld());
@@ -910,7 +913,7 @@ public class ReflectionUtils {
 		if (serverLevel == null) { return null; }
 		BlockEntity blockEntity = serverLevel.getBlockEntity(blockPos);
 		if (blockEntity == null) { return null; }
-		CompoundTag tag = blockEntity.saveWithoutMetadata();
+		CompoundTag tag = blockEntity.saveWithoutMetadata(MinecraftServer.getServer().registryAccess());
 
 		if (tag.getTagType(name) == Tag.TAG_BYTE) { return (T) Boolean.valueOf(tag.getBoolean(name)); }
 		if (tag.getTagType(name) == Tag.TAG_INT) { return (T) Integer.valueOf(tag.getInt(name)); }
