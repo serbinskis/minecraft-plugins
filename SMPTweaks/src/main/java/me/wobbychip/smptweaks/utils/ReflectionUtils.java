@@ -860,42 +860,27 @@ public class ReflectionUtils {
 		//["components", "potion_data", "potion"]
 
 		if (location.isEmpty()) { return null; }
-		if (location.get(0).equalsIgnoreCase("components")) { location.remove(0); }
-		if (location.get(0).equalsIgnoreCase("count")) { return (T) Integer.valueOf(itemStack.getAmount()); }
-
-		if (location.get(0).equalsIgnoreCase("id")) {
-			return (T) BuiltInRegistries.ITEM.getKey(asNMSCopy(itemStack).getItem()).toString();
-		}
-
 		net.minecraft.world.item.ItemStack item = Objects.requireNonNull(asNMSCopy(itemStack));
-		DataComponentMap components = item.getComponents();
-		if (components == DataComponentMap.EMPTY) { return null; }
-
-		while (!location.isEmpty()) {
-			
-		}
-
-		components.keySet().forEach(e -> {
-			e.
-		});
-
-		DataComponents.
-
-		if (!item.hasTag()) { return null; }
-		CompoundTag tag = item.getTag();
+		CompoundTag tag = (CompoundTag) item.saveOptional(MinecraftServer.getServer().registryAccess());
+		//net.minecraft.world.item.ItemStack.parseOptional(MinecraftServer.getServer().registryAccess(), tag1);
+		if (tag.isEmpty()) { return null; }
 
 		while ((!location.isEmpty()) && (tag.getTagType(location.get(0)) == Tag.TAG_COMPOUND)) {
 			tag.getCompound(location.get(0));
 			location.remove(0);
 		}
 
-		item.set
-
 		if (location.isEmpty()) { return (T) tag; }
 		if (tag.getTagType(location.get(0)) == Tag.TAG_BYTE) { return (T) Boolean.valueOf(tag.getBoolean(location.get(0))); }
 		if (tag.getTagType(location.get(0)) == Tag.TAG_INT) { return (T) Integer.valueOf(tag.getInt(location.get(0))); }
 		if (tag.getTagType(location.get(0)) == Tag.TAG_STRING) { return (T) tag.getString(location.get(0)); }
-
+		if (tag.getTagType(location.get(0)) == Tag.TAG_SHORT) { return (T) (Short) tag.getShort(location.get(0)); }
+		if (tag.getTagType(location.get(0)) == Tag.TAG_FLOAT) { return (T) (Float) tag.getFloat(location.get(0)); }
+		if (tag.getTagType(location.get(0)) == Tag.TAG_DOUBLE) { return (T) (Double) tag.getDouble(location.get(0)); }
+		if (tag.getTagType(location.get(0)) == Tag.TAG_LONG) { return (T) (Long) tag.getLong(location.get(0)); }
+		if (tag.getTagType(location.get(0)) == Tag.TAG_BYTE_ARRAY) { return (T) tag.getByteArray(location.get(0)); }
+		if (tag.getTagType(location.get(0)) == Tag.TAG_INT_ARRAY) { return (T) tag.getIntArray(location.get(0)); }
+		if (tag.getTagType(location.get(0)) == Tag.TAG_LONG_ARRAY) { return (T) tag.getLongArray(location.get(0)); }
 		return null;
 	}
 
