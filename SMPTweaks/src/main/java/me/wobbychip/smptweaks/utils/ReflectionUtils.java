@@ -856,8 +856,31 @@ public class ReflectionUtils {
 
 
 	public static <T> T getItemNbt(ItemStack itemStack, List<String> location) {
+		//["components", "custom_data", "stellaity"]
+		//["components", "potion_data", "potion"]
+
 		if (location.isEmpty()) { return null; }
-		net.minecraft.world.item.ItemStack item = asNMSCopy(itemStack);
+		if (location.get(0).equalsIgnoreCase("components")) { location.remove(0); }
+		if (location.get(0).equalsIgnoreCase("count")) { return (T) Integer.valueOf(itemStack.getAmount()); }
+
+		if (location.get(0).equalsIgnoreCase("id")) {
+			return (T) BuiltInRegistries.ITEM.getKey(asNMSCopy(itemStack).getItem()).toString();
+		}
+
+		net.minecraft.world.item.ItemStack item = Objects.requireNonNull(asNMSCopy(itemStack));
+		DataComponentMap components = item.getComponents();
+		if (components == DataComponentMap.EMPTY) { return null; }
+
+		while (!location.isEmpty()) {
+			
+		}
+
+		components.keySet().forEach(e -> {
+			e.
+		});
+
+		DataComponents.
+
 		if (!item.hasTag()) { return null; }
 		CompoundTag tag = item.getTag();
 
@@ -865,6 +888,8 @@ public class ReflectionUtils {
 			tag.getCompound(location.get(0));
 			location.remove(0);
 		}
+
+		item.set
 
 		if (location.isEmpty()) { return (T) tag; }
 		if (tag.getTagType(location.get(0)) == Tag.TAG_BYTE) { return (T) Boolean.valueOf(tag.getBoolean(location.get(0))); }
