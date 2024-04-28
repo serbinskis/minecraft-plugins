@@ -54,7 +54,7 @@ public class VoidPotion extends CustomPotion {
 		if (block.getType() == Material.BEDROCK) {
 			Location loc = block.getLocation().clone().add(.5, .5, .5);
 			block.getWorld().playSound(loc, Sound.ENTITY_GENERIC_EXPLODE, 1.5f, 1.5f);
-			block.getWorld().spawnParticle(Particle.EXPLOSION_NORMAL, loc, 5);
+			block.getWorld().spawnParticle(Particle.EXPLOSION, loc, 5);
 			block.setType(Material.AIR);
 			return true;
 		}

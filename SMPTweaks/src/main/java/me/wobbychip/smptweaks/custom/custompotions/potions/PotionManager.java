@@ -68,7 +68,7 @@ public class PotionManager {
 		}
 
 		CustomPotions.tweak.printMessage("Registering '" + potion.getName() + "' with the base '" + potion.getBaseName() + "'", true);
-		Object result = (Object) ReflectionUtils.registerInstantPotion(potion.getName());
+		Object result = ReflectionUtils.registerInstantPotion(potion.getName());
 		potions.put(potion.getName(), potion);
 		registry.put(potion.getName(), result);
 
@@ -108,21 +108,25 @@ public class PotionManager {
 	}
 
 	public Object getPotionRegistry(CustomPotion potion) {
-		return registry.containsKey(potion.getName()) ? registry.get(potion.getName()) : null;
+		return registry.getOrDefault(potion.getName(), null);
 	}
 
 	public Object getPotionRegistry(String name) {
-		return registry.containsKey(name) ? registry.get(name) : null;
+		return registry.getOrDefault(name, null);
+	}
+
+	public boolean isCustomPotion(String name) {
+		return getCustomPotion(name) != null;
 	}
 
 	public CustomPotion getCustomPotion(String name) {
-		return potions.containsKey(name) ? potions.get(name) : null;
+		return potions.getOrDefault(name, null);
 	}
 
 	public CustomPotion getCustomPotion(Entity entity) {
 		if (!PersistentUtils.hasPersistentDataString(entity, CustomPotions.TAG_CUSTOM_POTION)) { return null; }
 		String name = PersistentUtils.getPersistentDataString(entity, CustomPotions.TAG_CUSTOM_POTION);
-		return potions.containsKey(name) ? potions.get(name) : null;
+		return potions.getOrDefault(name, null);
 	}
 
 	public CustomPotion getCustomPotion(ItemStack item) {
@@ -137,10 +141,10 @@ public class PotionManager {
 			name = PersistentUtils.getPersistentDataString(item, CustomPotions.TAG_CUSTOM_POTION);
 		}
 
-		return potions.containsKey(name) ? potions.get(name) : null;
+		return potions.getOrDefault(name, null);
 	}
 
-	public static Object getPotion(PotionType potionType, boolean extended, boolean upgraded) {
-		return (Object) ReflectionUtils.getPotion(potionType, extended, upgraded);
+	public static Object getPotion(PotionType potionType) {
+		return ReflectionUtils.getNMSPotion(potionType);
 	}
 }

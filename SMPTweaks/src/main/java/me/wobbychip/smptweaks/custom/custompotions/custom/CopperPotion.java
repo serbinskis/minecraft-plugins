@@ -29,7 +29,7 @@ public class CopperPotion extends CustomPotion {
 	}
 
 	public void onAreaEffectCloudApply(AreaEffectCloudApplyEvent event) {
-		if (event.getAffectedEntities().size() <= 0) { return; }
+		if (event.getAffectedEntities().isEmpty()) { return; }
 		int i = new Random().nextInt(event.getAffectedEntities().size());
 		summonLighting(((LivingEntity) event.getAffectedEntities().toArray()[i]).getLocation());
 	}

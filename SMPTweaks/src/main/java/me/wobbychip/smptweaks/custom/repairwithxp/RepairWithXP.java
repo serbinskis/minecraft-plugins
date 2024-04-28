@@ -32,7 +32,7 @@ public class RepairWithXP extends CustomTweak {
 		this.onReload();
 
 		task = TaskUtils.scheduleSyncRepeatingTask(() -> {
-            for (Player player : Bukkit.getOnlinePlayers()) { checkPlayer(player); }
+			Bukkit.getOnlinePlayers().forEach(this::checkPlayer);
         }, 1L, intervalTicks);
 	}
 

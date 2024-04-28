@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-;
-
 public class WorldEditUtils {
 	public static boolean isWorldEdit = isWorldEdit();
 

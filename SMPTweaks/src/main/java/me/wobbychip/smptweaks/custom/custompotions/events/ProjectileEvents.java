@@ -52,7 +52,8 @@ public class ProjectileEvents implements Listener {
 			if (fuckBukkit.containsKey(block.getLocation())) {
 				ItemStack item = fuckBukkit.remove(block.getLocation());
 				CustomPotion customPotion = CustomPotions.manager.getCustomPotion(item);
-				if (customPotion != null) { PersistentUtils.setPersistentDataString(event.getEntity(), CustomPotions.TAG_CUSTOM_POTION, customPotion.getName()); }
+				if (customPotion == null) { return; }
+				PersistentUtils.setPersistentDataString(event.getEntity(), CustomPotions.TAG_CUSTOM_POTION, customPotion.getName());
 				if (event.isCancelled() || !customPotion.isEnabled()) { return; }
 				customPotion.onProjectileLaunch(event);
 			}

@@ -17,7 +17,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
-import java.util.Arrays;
+import java.util.List;
 
 public class Stellarity {
     public static void onLootGenerateEvent(LootGenerateEvent event) {
@@ -72,6 +72,6 @@ public class Stellarity {
 
     public static boolean isStellarityItem(ItemStack itemStack) {
         if (itemStack == null) { return false; }
-        return (ReflectionUtils.getItemNbt(itemStack, Arrays.asList("stellarity.special_item")) != null);
+        return (ReflectionUtils.getItemNbt(itemStack, List.of("stellarity.special_item")) != null);
     }
 }

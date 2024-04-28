@@ -45,7 +45,7 @@ public class BedrockBreaker {
 
 	public void incrementDestroyProgress(boolean bProgress) {
 		if (bProgress) { progress += BedrockBreaker.getDestroyProgress(player); }
-		if (bProgress && BreakableBedrock.enableTimer && (ticks%5 == 0)) { sendProgressTime(); }
+		if (bProgress && BreakableBedrock.enableTimer && (ticks % 5 == 0)) { sendProgressTime(); }
 		int k = ((int) (progress * 10.0F));
 
 		ReflectionUtils.destroyBlockProgress(block, k, MIX_ID);

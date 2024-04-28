@@ -3,6 +3,7 @@ package me.wobbychip.smptweaks.custom.custompotions.potions;
 import java.util.Arrays;
 import java.util.List;
 
+import net.minecraft.world.item.alchemy.Potion;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -22,6 +23,7 @@ import org.bukkit.inventory.meta.PotionMeta;
 import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
 import me.wobbychip.smptweaks.utils.PersistentUtils;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
+import org.bukkit.potion.PotionType;
 
 public class CustomPotion implements Listener {
 	private boolean enabled = true;
@@ -41,6 +43,10 @@ public class CustomPotion implements Listener {
 	public CustomPotion(String base, Material ingredient, String name, Color color) {
 		this((Object) null, ingredient, name, color);
 		this.cbase = base;
+	}
+
+	public CustomPotion(PotionType potionType, Material ingredient, String name, Color color) {
+		this(PotionManager.getPotion(potionType), ingredient, name, color);
 	}
 
 	public CustomPotion(Object base, Material ingredient, String name, Color color) {

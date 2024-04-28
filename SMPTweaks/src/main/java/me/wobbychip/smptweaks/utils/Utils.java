@@ -97,7 +97,7 @@ public class Utils {
 				return getPlayerExp(player);
 			} else {
 				int i = player.getLevel() * 7;
-				return i > 100 ? 100 : i;
+				return Math.min(i, 100);
 			}
 		}
 
@@ -120,7 +120,7 @@ public class Utils {
 	//Check for permissions
 	public static boolean hasPermissions(CommandSender sender, String permission) {
 		if (sender instanceof Player) {
-			return ((Player) sender).hasPermission(permission);
+			return sender.hasPermission(permission);
 		}
 
 		return true;
@@ -298,7 +298,7 @@ public class Utils {
 		if (removeEntity) {
 			for (Entity entity : chunk.getEntities()) {
 				if (entity.getType() != EntityType.PLAYER) {
-					try { entity.remove(); } catch (Exception e) {}
+					try { entity.remove(); } catch (Exception ignored) {}
 				}
 			}
 		}
@@ -368,9 +368,8 @@ public class Utils {
 		if (entity instanceof EnderDragon) { return false; }
 		if (entity instanceof Wither) { return false; }
 		if (entity instanceof Bat) { return false; }
-		if (entity.isLeashed()) { return false; }
-		return true;
-	}
+        return !entity.isLeashed();
+    }
 
 	public static boolean isMovable(Entity entity) {
 		if (!(entity instanceof Sittable)) { return true; }
@@ -390,23 +389,23 @@ public class Utils {
 	}
 
 	public static BlockFace getClockWise(BlockFace facing) {
-		switch (facing) {
-			case NORTH: return BlockFace.EAST;
-			case SOUTH: return BlockFace.WEST;
-			case WEST: return BlockFace.NORTH;
-			case EAST: return BlockFace.SOUTH;
-			default: throw new IllegalStateException("Unable to get Y-rotated facing of " + facing);
-		}
+        return switch (facing) {
+            case NORTH -> BlockFace.EAST;
+            case SOUTH -> BlockFace.WEST;
+            case WEST -> BlockFace.NORTH;
+            case EAST -> BlockFace.SOUTH;
+            default -> throw new IllegalStateException("Unable to get Y-rotated facing of " + facing);
+        };
 	}
 
 	public static BlockFace getCounterClockWise(BlockFace facing) {
-		switch (facing) {
-			case NORTH: return BlockFace.WEST;
-			case SOUTH: return BlockFace.EAST;
-			case WEST: return BlockFace.SOUTH;
-			case EAST: return BlockFace.NORTH;
-			default: throw new IllegalStateException("Unable to get CCW facing of " + facing);
-		}
+        return switch (facing) {
+            case NORTH -> BlockFace.WEST;
+            case SOUTH -> BlockFace.EAST;
+            case WEST -> BlockFace.SOUTH;
+            case EAST -> BlockFace.NORTH;
+            default -> throw new IllegalStateException("Unable to get CCW facing of " + facing);
+        };
 	}
 
 	public static byte[] getFileHash(String fileUrl) {

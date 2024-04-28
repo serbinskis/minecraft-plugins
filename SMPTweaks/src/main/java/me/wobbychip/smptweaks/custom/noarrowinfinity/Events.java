@@ -41,9 +41,8 @@ public class Events implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onEntityShootBowEvent(EntityShootBowEvent event) {
-		if (!(event.getEntity() instanceof Player)) { return; }
+		if (!(event.getEntity() instanceof Player player)) { return; }
 		if (!(event.getProjectile() instanceof Arrow) || (event.getConsumable() == null)) { return; }
-		Player player = (Player) event.getEntity();
 
 		//Fix infinite bow durability & tipped arrow bug
 		if (player.getGameMode() != GameMode.CREATIVE) {

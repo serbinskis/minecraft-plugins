@@ -1,7 +1,6 @@
 package me.wobbychip.smptweaks.custom.custompotions.custom;
 
 import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
-import me.wobbychip.smptweaks.custom.custompotions.potions.PotionManager;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -19,7 +18,7 @@ import java.util.List;
 
 public class UnbindingPotion extends CustomPotion {
 	public UnbindingPotion() {
-		super(PotionManager.getPotion(PotionType.AWKWARD, false, false), Material.HONEY_BLOCK, "unbinding", Color.fromRGB(255, 128, 0));
+		super(PotionType.AWKWARD, Material.HONEY_BLOCK, "unbinding", Color.fromRGB(255, 128, 0));
 		this.setDisplayName("§r§fPotion of Unbinding");
 		this.setLore(List.of("§9Drops armour with curse of binding"));
 		this.setTippedArrow(true, "§r§fArrow of Unbinding");

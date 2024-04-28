@@ -2,13 +2,16 @@ package me.wobbychip.smptweaks.custom.allcraftingrecipes;
 
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
+import me.wobbychip.smptweaks.utils.TaskUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
-import org.bukkit.inventory.ShapedRecipe;
-import org.bukkit.inventory.ShapelessRecipe;
+import org.bukkit.inventory.CraftingRecipe;
+import org.bukkit.inventory.Recipe;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class AllCraftingRecipes extends CustomTweak {
 	public static List<NamespacedKey> recipeKeys = new ArrayList<>();
@@ -19,15 +22,11 @@ public class AllCraftingRecipes extends CustomTweak {
 	}
 
 	public void onEnable() {
-		Bukkit.getServer().recipeIterator().forEachRemaining(recipe -> {
-			if (recipe instanceof ShapelessRecipe) {
-				recipeKeys.add(((ShapelessRecipe) recipe).getKey());
-			}
-
-			if (recipe instanceof ShapedRecipe) {
-				recipeKeys.add(((ShapedRecipe) recipe).getKey());
-			}
-		});
+		TaskUtils.scheduleSyncDelayedTask(() -> {
+			Iterator<Recipe> recipeIterator = Bukkit.getServer().recipeIterator();
+			Stream<Recipe> recipeStream = Stream.generate(() -> null).takeWhile(e -> recipeIterator.hasNext()).map(n -> recipeIterator.next());
+			recipeStream.filter(CraftingRecipe.class::isInstance).map(CraftingRecipe.class::cast).forEach(e -> recipeKeys.add(e.getKey()));
+		}, 0);
 
 		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 	}

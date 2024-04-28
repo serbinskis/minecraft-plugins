@@ -22,29 +22,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
 
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
 public class VillagerEvents implements Listener {
 	List<Material> potionTypes = Arrays.asList(Material.POTION, Material.SPLASH_POTION, Material.LINGERING_POTION);
-	public List<String> vanilla = Arrays.asList(
-			"night_vision",
-			"invisibility",
-			"leaping",
-			"fire_resistance",
-			"swiftness",
-			"slowness",
-			"water_breathing",
-			"healing",
-			"harming",
-			"poison",
-			"regeneration",
-			"strength",
-			"weakness",
-			"turtle_master",
-			"slow_falling"
-		);
+	public List<String> vanilla = ReflectionUtils.getVanillaPotions(true, false);
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onVillagerAcquireTradeEvent(VillagerAcquireTradeEvent event) {
@@ -56,12 +39,11 @@ public class VillagerEvents implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onPlayerInteractEntityEvent(PlayerInteractEntityEvent event) {
 		if (event.getHand() != EquipmentSlot.HAND) { return; }
-		if (!(event.getRightClicked() instanceof Villager)) { return; }
-		Villager villager = (Villager) event.getRightClicked();
+		if (!(event.getRightClicked() instanceof Villager villager)) { return; }
 		if ((villager.getProfession() != Profession.FLETCHER) || (villager.getProfession() == Profession.CLERIC)) { return; }
 		ItemStack item = event.getPlayer().getInventory().getItem(event.getHand());
-		if ((item == null) || (item.getType() != Material.DEBUG_STICK)) { return; }
-		if (!Utils.hasPermissions(event.getPlayer(), "cpotions.get") && !(event.getPlayer().getGameMode() != GameMode.CREATIVE)) { return; }
+		if (item.getType() != Material.DEBUG_STICK) { return; }
+		if (!Utils.hasPermissions(event.getPlayer(), "cpotions.get") || event.getPlayer().getGameMode() != GameMode.CREATIVE) { return; }
 
 		int level = Math.min(villager.getVillagerLevel() + 1, 5);
 		villager.setVillagerLevel(level);
@@ -93,15 +75,10 @@ public class VillagerEvents implements Listener {
 		boolean isChance = !(new Random().nextInt(100)+1 >= CustomPotions.tradingArrowChance);
 
 		List<CustomPotion> potions = CustomPotions.manager.getPotions(false);
-		Iterator<CustomPotion> iterator = potions.iterator();
-		ItemStack arrow = new ItemStack(Material.ARROW, 5);
+		potions.removeIf(potion -> !potion.getAllowTippedArrow() || !potion.getAllowVillagerTrades());
+		ItemStack arrow;
 
-		while (iterator.hasNext()) {
-			CustomPotion potion = iterator.next();
-			if (!potion.getAllowTippedArrow() || !potion.getAllowVillagerTrades()) { iterator.remove(); };
-		}
-
-		if ((potions.size() > 0) && isChance) {
+		if (!potions.isEmpty() && isChance) {
 			CustomPotion customPotion = potions.get(new Random().nextInt(potions.size()));
 			arrow = customPotion.getTippedArrow(true, event.getRecipe().getResult().getAmount());
 		} else if (isCustom) {
@@ -127,13 +104,9 @@ public class VillagerEvents implements Listener {
 		if (new Random().nextInt(100)+1 >= CustomPotions.tradingPotionChance) { return; }
 
 		List<CustomPotion> potions = CustomPotions.manager.getPotions(false);
-		Iterator<CustomPotion> iterator = potions.iterator();
+		potions.removeIf(potion -> !potion.getAllowVillagerTrades());
 
-		while (iterator.hasNext()) {
-			if (!iterator.next().getAllowVillagerTrades()) { iterator.remove(); };
-		}
-
-		if (potions.size() == 0) { return; }
+		if (potions.isEmpty()) { return; }
 		CustomPotion customPotion = potions.get(new Random().nextInt(potions.size()));
 		ItemStack potion = customPotion.setProperties(new ItemStack(potionTypes.get(new Random().nextInt(potionTypes.size()))));
 

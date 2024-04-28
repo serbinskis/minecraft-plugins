@@ -1,12 +1,15 @@
 package me.wobbychip.smptweaks.utils;
 
 import com.mojang.authlib.GameProfile;
-import com.mojang.serialization.Lifecycle;
+import com.mojang.datafixers.util.Either;
 import io.netty.channel.Channel;
 import io.netty.channel.embedded.EmbeddedChannel;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
 import net.minecraft.core.Registry;
 import net.minecraft.core.*;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
@@ -44,7 +47,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.alchemy.PotionBrewing;
-import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
@@ -59,6 +62,8 @@ import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
+import net.minecraft.world.level.levelgen.presets.WorldPreset;
+import net.minecraft.world.level.levelgen.presets.WorldPresets;
 import net.minecraft.world.level.redstone.NeighborUpdater;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
@@ -66,6 +71,7 @@ import org.bukkit.block.DoubleChest;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.type.Comparator;
+import org.bukkit.craftbukkit.potion.CraftPotionType;
 import org.bukkit.entity.*;
 import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.block.BlockPhysicsEvent;
@@ -73,6 +79,7 @@ import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionData;
@@ -83,12 +90,13 @@ import javax.annotation.Nullable;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @SuppressWarnings("unchecked")
 public class ReflectionUtils {
 	public static EntityDataAccessor<Byte> DATA_LIVING_ENTITY_FLAGS;
 	public static int LIVING_ENTITY_FLAG_IS_USING = 1;
-	public static DefaultedRegistry<Potion> POTION = BuiltInRegistries.POTION;
+	public static Registry<Potion> POTION = BuiltInRegistries.POTION;
 	public static HashMap<String, GossipType> reputations = new HashMap<>();
 	public static String version;
 	public static Class<?> CraftServer;
@@ -566,9 +574,9 @@ public class ReflectionUtils {
 
 		Connection networkManager = new Connection(PacketFlow.SERVERBOUND);
 		EmbeddedChannel embeddedChannel = new EmbeddedChannel(networkManager);
-		embeddedChannel.attr(Connection.ATTRIBUTE_SERVERBOUND_PROTOCOL).set(ConnectionProtocol.PLAY.codec(PacketFlow.SERVERBOUND));
+		//embeddedChannel.attr(Connection.ATTRIBUTE_SERVERBOUND_PROTOCOL).set(ConnectionProtocol.PLAY.codec(PacketFlow.SERVERBOUND));
 
-		CommonListenerCookie commonListenerCookie = CommonListenerCookie.createInitial(new GameProfile(uuid, " ".repeat(5)));
+		CommonListenerCookie commonListenerCookie = CommonListenerCookie.createInitial(new GameProfile(uuid, " ".repeat(5)), false);
 		ServerGamePacketListenerImpl connection = new ServerGamePacketListenerImpl(server, networkManager, entityPlayer, commonListenerCookie) {};
 		Player player = (Player) getBukkitEntity(entityPlayer);
 
@@ -676,17 +684,8 @@ public class ReflectionUtils {
 		}
 	}
 
-	public static Potion getPotion(PotionType potionType, boolean extended, boolean upgraded) {
-		if (potionType == PotionType.UNCRAFTABLE) { return null; }
-
-		ItemStack item = new ItemStack(Material.POTION);
-		PotionMeta potionMeta = (PotionMeta) item.getItemMeta();
-		potionMeta.setBasePotionData(new PotionData(potionType, extended, upgraded));
-		item.setItemMeta(potionMeta);
-
-		net.minecraft.world.item.ItemStack nmsItem = asNMSCopy(item);
-		if (nmsItem == null) { return null; }
-		return PotionUtils.getPotion(nmsItem);
+	public static Potion getNMSPotion(PotionType potionType) {
+		return CraftPotionType.bukkitToMinecraftHolder(potionType).value();
 	}
 
 	public static String getPotionRegistryName(Object potion) {
@@ -694,16 +693,27 @@ public class ReflectionUtils {
 	}
 
 	public static String getPotionRegistryName(Potion potion) {
-		return potion.getName("");
+		return Potion.getName(Optional.of(Holder.direct(potion)), "");
 	}
 
 	public static String getPotionTag(ItemStack item) {
-		CompoundTag tag = asNMSCopy(item).getTag();
-		return (tag != null) ? tag.getString("Potion").replace("minecraft:", "") : "";
+		PotionContents potionContents = asNMSCopy(item).get(DataComponents.POTION_CONTENTS);
+		if (potionContents == null) { return ""; }
+		Holder<Potion> potionHolder = potionContents.potion().orElse(null);
+		if (potionHolder == null) { return ""; }
+		return getPotionRegistryName(potionHolder.unwrap().orThrow()).replace("minecraft:", "");
 	}
 
 	public static ItemStack setPotionTag(ItemStack item, String name) {
 		net.minecraft.world.item.ItemStack nmsItem = asNMSCopy(item);
+		PotionContents potionContents = nmsItem.get(DataComponents.POTION_CONTENTS);
+
+		Optional<Holder<Potion>> potion = (potionContents == null) ?
+
+		if (potionContents == null) {
+			nmsItem.set(DataComponents.POTION_CONTENTS, new PotionContents());
+		}
+
 		CompoundTag tag = nmsItem.getOrCreateTag();
 		tag.putString("Potion", name);
 		nmsItem.setTag(tag);
@@ -726,16 +736,6 @@ public class ReflectionUtils {
 			if (getValue(field, registry) != null) { continue; }
 			setValue(field, registry, hashMap); break;
 		}
-	}
-
-	public static int getRegistrySize(Registry<?> registry) {
-		try {
-			return ((Set<ResourceLocation>) IRegistry_keySet.invoke(registry)).size();
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			e.printStackTrace();
-		}
-
-		return 0;
 	}
 
 	public static Potion registerInstantPotion(String name) {
@@ -856,17 +856,17 @@ public class ReflectionUtils {
 
 
 	public static <T> T getItemNbt(ItemStack itemStack, List<String> location) {
-		if (location.size() == 0) { return null; }
+		if (location.isEmpty()) { return null; }
 		net.minecraft.world.item.ItemStack item = asNMSCopy(itemStack);
 		if (!item.hasTag()) { return null; }
 		CompoundTag tag = item.getTag();
 
-		while ((location.size() > 0) && (tag.getTagType(location.get(0)) == Tag.TAG_COMPOUND)) {
+		while ((!location.isEmpty()) && (tag.getTagType(location.get(0)) == Tag.TAG_COMPOUND)) {
 			tag.getCompound(location.get(0));
 			location.remove(0);
 		}
 
-		if (location.size() == 0) { return (T) tag; }
+		if (location.isEmpty()) { return (T) tag; }
 		if (tag.getTagType(location.get(0)) == Tag.TAG_BYTE) { return (T) Boolean.valueOf(tag.getBoolean(location.get(0))); }
 		if (tag.getTagType(location.get(0)) == Tag.TAG_INT) { return (T) Integer.valueOf(tag.getInt(location.get(0))); }
 		if (tag.getTagType(location.get(0)) == Tag.TAG_STRING) { return (T) tag.getString(location.get(0)); }
@@ -1104,9 +1104,10 @@ public class ReflectionUtils {
 			boolean reducedDebugInfo = lPacket.reducedDebugInfo();
 			boolean showDeathScreen = lPacket.showDeathScreen();
 			boolean doLimitedCrafting = lPacket.doLimitedCrafting();
+			boolean enforcesSecureChat = lPacket.enforcesSecureChat();
 
 			CommonPlayerSpawnInfo commonPlayerSpawnInfo = editCommonPlayerSpawnInfo(lPacket.commonPlayerSpawnInfo(), isFlat, env);
-			return new ClientboundLoginPacket(playerId, hardcore, levels, maxPlayers, chunkRadius, simulationDistance, reducedDebugInfo, showDeathScreen, doLimitedCrafting, commonPlayerSpawnInfo);
+			return new ClientboundLoginPacket(playerId, hardcore, levels, maxPlayers, chunkRadius, simulationDistance, reducedDebugInfo, showDeathScreen, doLimitedCrafting, commonPlayerSpawnInfo, enforcesSecureChat);
 		}
 
 		if (packet instanceof ClientboundRespawnPacket rPacket) {
@@ -1160,11 +1161,12 @@ public class ReflectionUtils {
 	}
 
 	public static CommonPlayerSpawnInfo editCommonPlayerSpawnInfo(CommonPlayerSpawnInfo commonPlayerSpawnInfo, @Nullable Boolean isFlat, @Nullable World.Environment env) {
-		ResourceKey<DimensionType> dimensionType = commonPlayerSpawnInfo.dimensionType();
+		Registry<LevelStem> levelStems = MinecraftServer.getServer().registries().compositeAccess().registryOrThrow(Registries.LEVEL_STEM);
+		Holder<DimensionType> dimensionType = commonPlayerSpawnInfo.dimensionType();
 
-		if (env == World.Environment.NORMAL) { dimensionType = BuiltinDimensionTypes.OVERWORLD; }
-		if (env == World.Environment.NETHER) { dimensionType = BuiltinDimensionTypes.NETHER; }
-		if (env == World.Environment.THE_END) { dimensionType = BuiltinDimensionTypes.END; }
+		if (env == World.Environment.NORMAL) { dimensionType = levelStems.get(LevelStem.OVERWORLD).type(); }
+		if (env == World.Environment.NETHER) { dimensionType = levelStems.get(LevelStem.NETHER).type(); }
+		if (env == World.Environment.THE_END) { dimensionType = levelStems.get(LevelStem.END).type(); }
 
 		ResourceKey<Level> dimension = commonPlayerSpawnInfo.dimension();
 		long seed = commonPlayerSpawnInfo.seed();
@@ -1235,7 +1237,7 @@ public class ReflectionUtils {
 			Object entityLookup = newInstance(PaperUtils.EntityLookup, parameters, new Object[]{ level, callback }, true, true);
 			setValue(ServerLevel_entityLookup, level, entityLookup);
 
-			//FUCK YOU PAPER, it took me like 5 days to find this, idk why I can modify final, but *this is fine*
+			//FUCK YOU PAPER, it took me like 5 days to find this, IDK why I can modify final, but *this is fine*
 			Field Level_minSection = Objects.requireNonNull(getField(Level.class, int.class, null, level, level.minSection, false));
 			Field Level_maxSection = Objects.requireNonNull(getField(Level.class, int.class, null, level, level.maxSection, false));
 			setValue(Level_minSection, level, (type.minY() >> 4));
@@ -1294,7 +1296,7 @@ public class ReflectionUtils {
 		Biome customBiome = biomeBuilder.build();
 
 		setRegistryFrozen(biomeRegirsty, false);
-		biomeRegirsty.register(customKey, customBiome, Lifecycle.stable());
+		biomeRegirsty.register(customKey, customBiome, RegistrationInfo.BUILT_IN);
 		setRegistryFrozen(biomeRegirsty, true);
 		fixHolder(biomeRegirsty, customBiome);
 
@@ -1360,5 +1362,15 @@ public class ReflectionUtils {
 		chunkFactor += Utils.clamp(moonSize * 0.25F, 0.0F, daytimeFactor);
 		if (difficulty == Difficulty.EASY) { chunkFactor *= 0.5F; }
 		return (float) difficulty.getValue() * (0.75F + daytimeFactor + chunkFactor);
+	}
+
+	public static List<String> getVanillaPotions(boolean brewable, boolean custom) {
+		Stream<Potion> potionStream = POTION.stream().filter(potion -> !potion.getEffects().isEmpty());
+		if (brewable) { potionStream = potionStream.filter(e -> MinecraftServer.getServer().potionBrewing().isBrewablePotion(Holder.direct(e))); }
+
+		//Goofy way to get rid of "minecraft:" or "anything:", or ":"
+		List<String> potions = potionStream.map(e -> Arrays.stream(Potion.getName(Optional.of(Holder.direct(e)), "").split(":")).reduce((a, b) -> b).stream().toList().get(0)).toList();
+		if (!custom) { potions = potions.stream().filter(CustomPotions.manager::isCustomPotion).toList(); }
+		return potions;
 	}
 }
