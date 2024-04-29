@@ -29,7 +29,7 @@ public class ProtocolEvents extends PacketAdapter {
 			CustomBiome cbiome = BiomeManager.getCustomBiome(world.getName());
 			if ((cbiome == null) || (cbiome.isEmpty())) { return; }
 
-			Object packet = ReflectionUtils.setPacketChunkBiome(world, event.getPacket().getHandle(), cbiome.getNmsBiome(), cbiome.getName(), BiomeManager.getNmsMap());
+			Object packet = ReflectionUtils.setPacketChunkBiome(world, event.getPacket().getHandle(), cbiome.getNmsBiome(), cbiome.getName(), BiomeManager.getNMSMap());
 			event.setPacket(PacketContainer.fromPacket(packet));
 			return;
 		}

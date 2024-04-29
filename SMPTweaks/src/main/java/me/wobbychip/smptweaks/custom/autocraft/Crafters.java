@@ -3,10 +3,7 @@ package me.wobbychip.smptweaks.custom.autocraft;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.Dispenser;
+import org.bukkit.block.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -36,7 +33,7 @@ public class Crafters {
     }
 
 	public static Inventory getSource(Block crafter) {
-		BlockFace targetFace = ((org.bukkit.block.data.type.Dispenser) crafter.getBlockData()).getFacing();
+		BlockFace targetFace = ((org.bukkit.block.data.Directional) crafter.getBlockData()).getFacing();
 
 		BlockState source = new Location(crafter.getWorld(),
 				crafter.getX() + targetFace.getOppositeFace().getModX(),
@@ -48,7 +45,7 @@ public class Crafters {
 	}
 
 	public static Inventory getDestination(Block crafter) {
-		BlockFace targetFace = ((org.bukkit.block.data.type.Dispenser) crafter.getBlockData()).getFacing();
+		BlockFace targetFace = ((org.bukkit.block.data.Directional) crafter.getBlockData()).getFacing();
 
 		BlockState destination = new Location(crafter.getWorld(),
 				crafter.getX() + targetFace.getModX(),
@@ -60,8 +57,8 @@ public class Crafters {
 	}
 
 	public static List<ItemStack> getCrafterItems(Block crafter) {
-		Dispenser dispenser = (Dispenser) crafter.getState();
-		List<ItemStack> items = new ArrayList<>(Arrays.asList(dispenser.getInventory().getContents()));
+		Container container = (Container) crafter.getState();
+		List<ItemStack> items = new ArrayList<>(Arrays.asList(container.getInventory().getContents()));
 		if (items.stream().noneMatch(Objects::nonNull)) { return null; }
 		return items;
 	}
@@ -141,6 +138,13 @@ public class Crafters {
 		ItemStack result = recipe.getResult();
 		if (result.getType() == Material.FIREWORK_ROCKET) { getFireworkResult(Arrays.asList(craftingItems), result); }
 		return result;
+	}
+
+	public static ItemStack getCraftResult(Block crafter) {
+		List<ItemStack> crafterItems = getCrafterItems(crafter);
+		if (crafterItems == null) { return new ItemStack(Material.AIR); }
+		ItemStack result = getCraftResult(crafterItems);
+		return (result != null) ? result : new ItemStack(Material.AIR);
 	}
 
 	public static void getFireworkResult(List<ItemStack> items, ItemStack result) {

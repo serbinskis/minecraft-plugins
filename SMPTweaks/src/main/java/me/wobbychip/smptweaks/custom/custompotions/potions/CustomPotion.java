@@ -1,29 +1,22 @@
 package me.wobbychip.smptweaks.custom.custompotions.potions;
 
-import java.util.Arrays;
-import java.util.List;
-
-import net.minecraft.world.item.alchemy.Potion;
+import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
+import me.wobbychip.smptweaks.utils.PersistentUtils;
+import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
-import org.bukkit.event.entity.EntityShootBowEvent;
-import org.bukkit.event.entity.LingeringPotionSplashEvent;
-import org.bukkit.event.entity.PotionSplashEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerPickupArrowEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
-
-import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
-import me.wobbychip.smptweaks.utils.PersistentUtils;
-import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import org.bukkit.potion.PotionType;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class CustomPotion implements Listener {
 	private boolean enabled = true;
@@ -153,7 +146,7 @@ public class CustomPotion implements Listener {
 			potionMeta.setColor(color);
 			if (tippedArrowName != null) { potionMeta.setDisplayName(tippedArrowName); }
 			if (lore != null) { potionMeta.setLore(lore); }
-			potionMeta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
+			potionMeta.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
 			item.setItemMeta(potionMeta);
 			PersistentUtils.setPersistentDataString(item, CustomPotions.TAG_CUSTOM_POTION, name);
 			return item;
@@ -171,19 +164,17 @@ public class CustomPotion implements Listener {
 		potionMeta.setColor(color);
 		potionMeta.setDisplayName(getPrefix(item.getType()) + displayName);
 		if (lore != null) { potionMeta.setLore(lore); }
-		potionMeta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
+		potionMeta.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
 		item.setItemMeta(potionMeta);
 		PersistentUtils.setPersistentDataString(item, CustomPotions.TAG_CUSTOM_POTION, name);
-
 		return setPotionTag(item);
 	}
 
 	public ItemStack getDisabledPotion(ItemStack item) {		
 		PotionMeta potionMeta = (PotionMeta) item.getItemMeta();
 		potionMeta.setDisplayName("§r§fPotions are disabled");
-		potionMeta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
+		potionMeta.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
 		item.setItemMeta(potionMeta);
-
 		return ReflectionUtils.setPotionTag(item, "minecraft:empty");
 	}
 

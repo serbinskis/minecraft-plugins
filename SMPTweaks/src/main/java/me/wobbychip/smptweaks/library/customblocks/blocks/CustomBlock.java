@@ -33,7 +33,7 @@ public class CustomBlock implements Listener {
     private Dispensable dispensable = Dispensable.IGNORE;
     private Comparable comparable = Comparable.IGNORE;
     private ChatColor glow_color = ChatColor.RESET;
-    private boolean tickable = false;
+    private boolean tickable = true;
     private final Material block_base;
     private final String id;
     private String name;

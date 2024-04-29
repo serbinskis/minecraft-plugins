@@ -29,8 +29,7 @@ public class TestBlock extends CustomBlock {
     @Override
     public Recipe prepareRecipe(NamespacedKey key, ItemStack itemStack) {
         ShapedRecipe recipe = new ShapedRecipe(key, itemStack);
-        recipe.shape("AAA", "ABA", "AAA");
-        recipe.setIngredient('A', Material.AIR);
+        recipe.shape("   ", " B ", "   ");
         recipe.setIngredient('B', Material.BEDROCK);
         return recipe;
     }

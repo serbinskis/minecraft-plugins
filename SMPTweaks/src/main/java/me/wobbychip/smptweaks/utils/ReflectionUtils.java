@@ -1,14 +1,12 @@
 package me.wobbychip.smptweaks.utils;
 
 import com.mojang.authlib.GameProfile;
-import com.mojang.datafixers.util.Either;
 import io.netty.channel.Channel;
 import io.netty.channel.embedded.EmbeddedChannel;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
 import net.minecraft.core.Registry;
 import net.minecraft.core.*;
-import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
@@ -18,7 +16,6 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.Connection;
-import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.*;
@@ -35,7 +32,6 @@ import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity.RemovalReason;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.gossip.GossipContainer;
@@ -43,6 +39,7 @@ import net.minecraft.world.entity.ai.gossip.GossipType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Abilities;
 import net.minecraft.world.entity.player.ChatVisiblity;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.alchemy.Potion;
@@ -59,11 +56,8 @@ import net.minecraft.world.level.block.entity.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
-import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
-import net.minecraft.world.level.levelgen.presets.WorldPreset;
-import net.minecraft.world.level.levelgen.presets.WorldPresets;
 import net.minecraft.world.level.redstone.NeighborUpdater;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
@@ -79,10 +73,7 @@ import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionType;
 import org.bukkit.util.Vector;
 
@@ -98,7 +89,6 @@ public class ReflectionUtils {
 	public static int LIVING_ENTITY_FLAG_IS_USING = 1;
 	public static Registry<Potion> POTION = BuiltInRegistries.POTION;
 	public static HashMap<String, GossipType> reputations = new HashMap<>();
-	public static String version;
 	public static Class<?> CraftServer;
 	public static Class<?> CraftEntity;
 	public static Class<?> CraftHumanEntity;
@@ -116,37 +106,35 @@ public class ReflectionUtils {
 	public static Field CustomFunctionData_ticking;
 	public static Field CustomFunctionData_postReload;
 	public static Field RegistryMaterials_frozen;
-	public static Field RegistryMaterials_nextId;
+	public static Field MappedRegistry_unregisteredIntrusiveHolders;
 	public static Field BlockPhysicsEvent_changed;
 	public static Field PotionSplashEvent_affectedEntities;
 	public static Field AreaEffectCloudApplyEvent_affectedEntities;
 	public static Field MinecraftServer_registries;
 	public static Field Level_dimensionTypeRegistration;
-	public static Field Level_dimensionTypeId;
+	//public static Field Level_dimensionTypeId;
 	public static Field Holder_owner;
 	public static Field Holder_tags;
 	public static Field Holder_key;
 	public static Field Holder_value;
 	public static Field GossipContainer_gossips;
 	public static Field EntityGossips_entries;
+	public static Field PotionBrewing_potionMixes;
 	public static Method EntityVillager_startTrading_Or_updateSpecialPrices;
 	public static Method IRegistry_keySet;
 	public static Method Potions_register;
 	public static Method RegistryMaterials_getHolder;
-	public static Method PotionBrewer_register;
 
 	static {
-		version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
-
-		CraftServer = Objects.requireNonNull(loadClass("org.bukkit.craftbukkit." + version + ".CraftServer", true));
-		CraftEntity = Objects.requireNonNull(loadClass("org.bukkit.craftbukkit." + version + ".entity.CraftEntity", true));
-		CraftHumanEntity = Objects.requireNonNull(loadClass("org.bukkit.craftbukkit." + version + ".entity.CraftHumanEntity", true));
-		CraftPlayer = Objects.requireNonNull(loadClass("org.bukkit.craftbukkit." + version + ".entity.CraftPlayer", true));
-		CraftVillager = Objects.requireNonNull(loadClass("org.bukkit.craftbukkit." + version + ".entity.CraftVillager", true));
-		CraftInventory = Objects.requireNonNull(loadClass("org.bukkit.craftbukkit." + version + ".inventory.CraftInventory", true));
-		CraftItemStack = Objects.requireNonNull(loadClass("org.bukkit.craftbukkit." + version + ".inventory.CraftItemStack", true));
-		CraftWorld = Objects.requireNonNull(loadClass("org.bukkit.craftbukkit." + version + ".CraftWorld", true));
-		CraftMagicNumbers = Objects.requireNonNull(loadClass("org.bukkit.craftbukkit." + version + ".util.CraftMagicNumbers", true));
+		CraftServer = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.CraftServer"));
+		CraftEntity = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.entity.CraftEntity"));
+		CraftHumanEntity = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.entity.CraftHumanEntity"));
+		CraftPlayer = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.entity.CraftPlayer"));
+		CraftVillager = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.entity.CraftVillager"));
+		CraftInventory = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.inventory.CraftInventory"));
+		CraftItemStack = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.inventory.CraftItemStack"));
+		CraftWorld = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.CraftWorld"));
+		CraftMagicNumbers = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.util.CraftMagicNumbers"));
 
 		//Fuck it I am not interested in updating nms every time
 		//So I will just search fields and methods by their types and arguments
@@ -167,18 +155,16 @@ public class ReflectionUtils {
 		EntityPlayer_playerConnection = Objects.requireNonNull(getField(ServerPlayer.class, ServerGamePacketListenerImpl.class, null, true));
 		EntityPlayer_chatVisibility = Objects.requireNonNull(getField(ServerPlayer.class, ChatVisiblity.class, null, true));
 		RegistryMaterials_frozen = Objects.requireNonNull(getField(MappedRegistry.class, boolean.class, null, true));
-		RegistryMaterials_nextId = Objects.requireNonNull(getField(MappedRegistry.class, int.class, null, true));
+		//MappedRegistry_unregisteredIntrusiveHolders = Objects.requireNonNull(getField(MappedRegistry.class, Map.class, new Class<?>[] { Object.class, Holder.Reference.class }, null, null, true, Modifier.PRIVATE, Modifier.FINAL));
 		GossipContainer_gossips = Objects.requireNonNull(getField(GossipContainer.class, Map.class, null, true));
 		EntityGossips_entries = Objects.requireNonNull(getField(GossipContainer.EntityGossips.class, Object2IntMap.class, null, true));
-		//MappedRegistry_unregisteredIntrusiveHolders = Objects.requireNonNull(getField(MappedRegistry.class, Map.class, new Class<?>[] { Object.class, Holder.Reference.class }, null, null, true, Modifier.PRIVATE, Modifier.FINAL));
 		EntityVillager_startTrading_Or_updateSpecialPrices = Objects.requireNonNull(findMethod(false, Modifier.PRIVATE, net.minecraft.world.entity.npc.Villager.class, Void.TYPE, null, net.minecraft.world.entity.player.Player.class));
 		IRegistry_keySet = Objects.requireNonNull(findMethod(true, null, Registry.class, Set.class, ResourceLocation.class));
-		Potions_register = Objects.requireNonNull(findMethod(false, Modifier.PRIVATE, Potions.class, Potion.class, null, String.class, Potion.class));
+		Potions_register = Objects.requireNonNull(findMethod(false, Modifier.PRIVATE, Potions.class, Holder.class, null, String.class, Potion.class));
 		RegistryMaterials_getHolder = Objects.requireNonNull(findMethod(true, null, Registry.class, Optional.class, null, int.class));
-		PotionBrewer_register = Objects.requireNonNull(findMethod(false, null, PotionBrewing.class, Void.TYPE, null, Potion.class, Item.class, Potion.class));
 		MinecraftServer_registries = Objects.requireNonNull(getField(MinecraftServer.class, LayeredRegistryAccess.class, RegistryLayer.class, true));
 		Level_dimensionTypeRegistration = Objects.requireNonNull(getField(Level.class, Holder.class, DimensionType.class, true));
-		Level_dimensionTypeId = Objects.requireNonNull(getField(Level.class, ResourceKey.class, DimensionType.class, true));
+		//Level_dimensionTypeId = Objects.requireNonNull(getField(Level.class, ResourceKey.class, DimensionType.class, true));
 		Holder_owner = Objects.requireNonNull(getField(Holder.Reference.class, HolderOwner.class, null, true));
 		Holder_tags = Objects.requireNonNull(getField(Holder.Reference.class, Set.class, null, true));
 		Holder_key = Objects.requireNonNull(getField(Holder.Reference.class, ResourceKey.class, null, true));
@@ -203,6 +189,11 @@ public class ReflectionUtils {
 			e.printStackTrace();
 			return null;
 		}
+	}
+
+	public static Class<?> getCraftBukkitClass(String path) {
+		String version = PaperUtils.isPaper() ? "craftbukkit" : "craftbukkit." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
+		return loadClass(path.replace("craftbukkit", version), true);
 	}
 
 	/**
@@ -334,6 +325,7 @@ public class ReflectionUtils {
 	public static Object newInstance(Class<?> clazz, Class<?>[] parameters, Object[] args, boolean isPrivate, boolean verbose) {
 		try {
 			Constructor<?> constructor = isPrivate ? clazz.getDeclaredConstructor(parameters) : clazz.getConstructor(parameters);
+			constructor.setAccessible(true);
 			return constructor.newInstance(args);
 		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			if (verbose) { e.printStackTrace(); }
@@ -669,31 +661,20 @@ public class ReflectionUtils {
 		}
 	}
 
-	public static boolean registerBrewRecipe(Object base, Material ingredient, Object result) {
-		return registerBrewRecipe((Potion) base, ingredient, (Potion) result);
+	public static boolean registerBrewingRecipe(Object base, Material ingredient, Object result) {
+		return registerBrewingRecipe((Holder<Potion>) base, ingredient, (Holder<Potion>) result);
 	}
 
-	public static boolean registerBrewRecipe(Potion base, Material ingredient, Potion result) {
-		try {
-			Item potionIngredient = getItem(new ItemStack(ingredient));
-			PotionBrewer_register.invoke(PotionBrewer_register, base, potionIngredient, result);
-			return true;
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
-
-	public static Potion getNMSPotion(PotionType potionType) {
-		return CraftPotionType.bukkitToMinecraftHolder(potionType).value();
+	public static Holder<Potion> getNMSPotion(PotionType potionType) {
+		return CraftPotionType.bukkitToMinecraftHolder(potionType);
 	}
 
 	public static String getPotionRegistryName(Object potion) {
-		return getPotionRegistryName((Potion) potion);
+		return getPotionRegistryName((Holder<Potion>) potion);
 	}
 
-	public static String getPotionRegistryName(Potion potion) {
-		return Potion.getName(Optional.of(Holder.direct(potion)), "");
+	public static String getPotionRegistryName(Holder<Potion> potion) {
+		return Potion.getName(Optional.of(potion), "");
 	}
 
 	public static String getPotionTag(ItemStack item) {
@@ -701,23 +682,11 @@ public class ReflectionUtils {
 		if (potionContents == null) { return ""; }
 		Holder<Potion> potionHolder = potionContents.potion().orElse(null);
 		if (potionHolder == null) { return ""; }
-		return getPotionRegistryName(potionHolder.unwrap().orThrow()).replace("minecraft:", "");
+		return getPotionRegistryName(potionHolder).replace("minecraft:", "");
 	}
-
+	//!!! This will soft lock the game, becayse FUCKING MOJANG cannot decode custom potion tag client side
 	public static ItemStack setPotionTag(ItemStack item, String name) {
-		net.minecraft.world.item.ItemStack nmsItem = asNMSCopy(item);
-		PotionContents potionContents = nmsItem.get(DataComponents.POTION_CONTENTS);
-
-		Optional<Holder<Potion>> potion = (potionContents == null) ?
-
-		if (potionContents == null) {
-			nmsItem.set(DataComponents.POTION_CONTENTS, new PotionContents());
-		}
-
-		CompoundTag tag = nmsItem.getOrCreateTag();
-		tag.putString("Potion", name);
-		nmsItem.setTag(tag);
-		return asBukkitMirror(nmsItem);
+		return setItemNbt(item, List.of("components", "minecraft:potion_contents", "potion"), name);
 	}
 
 	public static void setRegistryFrozen(Object registry, boolean frozen) {
@@ -738,14 +707,21 @@ public class ReflectionUtils {
 		}
 	}
 
-	public static Potion registerInstantPotion(String name) {
+	public static Holder<Potion> registerInstantPotion(String name) {
 		try {
 			setRegistryFrozen(POTION, false);
-			Potion potionRegistry = new Potion(new MobEffectInstance[0]);
-			potionRegistry = (Potion) Potions_register.invoke(Potions_register, name, potionRegistry);
+			Potion placeHolder = new Potion();
+			POTION.createIntrusiveHolder(placeHolder);
+			Holder<Potion> potionHolder = (Holder<Potion>) Potions_register.invoke(Potions_register, name, placeHolder);
 			setRegistryFrozen(POTION, true);
-			fixHolder(POTION, potionRegistry);
-			return potionRegistry;
+			//fixHolder(POTION, potionRegistry);
+
+			Field SimpleRegistry_map = Objects.requireNonNull(getField(org.bukkit.Registry.SimpleRegistry.class, Map.class, null, true));
+			Map<NamespacedKey, Object> immutableMap = (Map<NamespacedKey, Object>) getValue(SimpleRegistry_map, org.bukkit.Registry.POTION);
+			HashMap<NamespacedKey, Object> map = new HashMap<>(immutableMap);
+			map.put(NamespacedKey.minecraft(name), PotionType.WATER);
+			setValue(SimpleRegistry_map, org.bukkit.Registry.POTION, map);
+			return potionHolder;
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | SecurityException e) {
 			e.printStackTrace();
 		}
@@ -753,12 +729,51 @@ public class ReflectionUtils {
 		return null;
 	}
 
+	public static boolean registerBrewingRecipe(Holder<Potion> base, Material ingredient, Holder<Potion> result) {
+		try {
+			Item potionIngredient = getItem(new ItemStack(ingredient));
+			PotionBrewing.Builder builder = new PotionBrewing.Builder(FeatureFlags.VANILLA_SET);
+			builder.addMix(base, potionIngredient, result);
+			PotionBrewing brewing = builder.build();
+
+			if (PotionBrewing_potionMixes == null) {
+				for (Field field : PotionBrewing.class.getDeclaredFields()) {
+					field.setAccessible(true);
+					if (!field.getType().equals(List.class)) { continue; }
+					List<?> potions = (List<?>) field.get(brewing);
+					if (potions.isEmpty()) { continue; }
+					PotionBrewing_potionMixes = field;
+				}
+			}
+
+			PotionBrewing potionBrewing = MinecraftServer.getServer().potionBrewing();
+			ArrayList<Object> potionMixes = new ArrayList<>((List<?>) PotionBrewing_potionMixes.get(potionBrewing));
+			potionMixes.add(((List<Object>) PotionBrewing_potionMixes.get(brewing)).get(0));
+			PotionBrewing_potionMixes.set(potionBrewing, potionMixes);
+			return true;
+		} catch (IllegalAccessException | IllegalArgumentException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	public static List<String> getVanillaPotions(boolean brewable, boolean custom) {
+		Stream<Potion> potionStream = POTION.stream().filter(potion -> !potion.getEffects().isEmpty());
+		if (brewable) { potionStream = potionStream.filter(e -> MinecraftServer.getServer().potionBrewing().isBrewablePotion(Holder.direct(e))); }
+
+		//Goofy way to get rid of "minecraft:" or "anything:", or ":"
+		List<String> potions = potionStream.map(e -> Arrays.stream(Potion.getName(Optional.of(Holder.direct(e)), "").split(":")).reduce((a, b) -> b).stream().toList().get(0)).toList();
+		if (!custom) { potions = potions.stream().filter(CustomPotions.manager::isCustomPotion).toList(); }
+		return potions;
+	}
+
 	//FUCK MOJANG DEVELOPERS, how the fuck do you forget to set value of a holder
 	//when registering a new mapping, how brain-damaged you must be.
-	public static void fixHolder(Object registry, Object value) {
+	public static void fixHolder(Registry<?> registry, Object value, int ...currentId)
+	{
 		try {
-			int currentId = RegistryMaterials_nextId.getInt(registry)-1;
-			Optional<Holder<?>> holder = (Optional<Holder<?>>) RegistryMaterials_getHolder.invoke(registry, currentId);
+			if ((currentId.length == 0) || (currentId[0] < 0)) { currentId = new int[] { (int) registry.holders().count()-1 }; }
+			Optional<Holder<?>> holder = (Optional<Holder<?>>) RegistryMaterials_getHolder.invoke(registry, currentId[0]);
 			Holder.Reference<?> holder_c = (Holder.Reference<?>) holder.get();
 
 			for (Field field : Holder.Reference.class.getDeclaredFields()) {
@@ -854,20 +869,15 @@ public class ReflectionUtils {
 		return itemFrames;
 	}
 
-
-	//!!! MUST BE CHECKED !!!
 	public static <T> T getItemNbt(ItemStack itemStack, List<String> location) {
-		//["components", "custom_data", "stellaity"]
-		//["components", "potion_data", "potion"]
-
 		if (location.isEmpty()) { return null; }
+		location = new ArrayList<>(location); //Convert list to mutable list
 		net.minecraft.world.item.ItemStack item = Objects.requireNonNull(asNMSCopy(itemStack));
 		CompoundTag tag = (CompoundTag) item.saveOptional(MinecraftServer.getServer().registryAccess());
-		//net.minecraft.world.item.ItemStack.parseOptional(MinecraftServer.getServer().registryAccess(), tag1);
 		if (tag.isEmpty()) { return null; }
 
 		while ((!location.isEmpty()) && (tag.getTagType(location.get(0)) == Tag.TAG_COMPOUND)) {
-			tag.getCompound(location.get(0));
+			tag = tag.getCompound(location.get(0));
 			location.remove(0);
 		}
 
@@ -885,7 +895,37 @@ public class ReflectionUtils {
 		return null;
 	}
 
-	//!!! MUST BE CHECKED !!!
+	public static ItemStack setItemNbt(ItemStack itemStack, List<String> location, Object value) {
+		if (location.isEmpty()) { return null; }
+		location = new ArrayList<>(location); //Convert list to mutable list
+		net.minecraft.world.item.ItemStack item = Objects.requireNonNull(asNMSCopy(itemStack));
+		CompoundTag original = (CompoundTag) item.saveOptional(MinecraftServer.getServer().registryAccess());
+		if (original.isEmpty()) { original = new CompoundTag(); }
+		CompoundTag tag = original;
+
+		while ((!location.isEmpty()) && (tag.getTagType(location.get(0)) == Tag.TAG_COMPOUND)) {
+			if (!tag.contains(location.get(0))) { tag.put(location.get(0), new CompoundTag()); }
+			tag = tag.getCompound(location.get(0));
+			location.remove(0);
+		}
+
+		if (location.isEmpty()) { return null; }
+		Utils.sendMessage(tag.toString());
+		if (value.getClass().equals(Byte.class)) { tag.putByte(location.get(0), (Byte) value); }
+		if (value.getClass().equals(Integer.class)) { tag.putInt(location.get(0), (Integer) value); }
+		if (value.getClass().equals(String.class)) { tag.putString(location.get(0), (String) value); }
+		if (value.getClass().equals(Short.class)) { tag.putShort(location.get(0), (Short) value); }
+		if (value.getClass().equals(Float.class)) { tag.putFloat(location.get(0), (Float) value); }
+		if (value.getClass().equals(Double.class)) { tag.putDouble(location.get(0), (Double) value); }
+		if (value.getClass().equals(Long.class)) { tag.putLong(location.get(0), (Long) value); }
+		if (value.getClass().equals(byte[].class)) { tag.putByteArray(location.get(0), (byte[]) value); }
+		if (value.getClass().equals(int[].class)) { tag.putIntArray(location.get(0), (int[]) value); }
+		if (value.getClass().equals(long[].class)) { tag.putLongArray(location.get(0), (long[]) value); }
+
+		net.minecraft.world.item.ItemStack itemStack1 = net.minecraft.world.item.ItemStack.parseOptional(MinecraftServer.getServer().registryAccess(), original);
+		return asBukkitMirror(itemStack1);
+	}
+
 	public static void setBlockNbt(org.bukkit.block.Block block, String name, Object value, boolean applyPhysics) {
 		BlockPos blockPos = new BlockPos(block.getX(), block.getY(), block.getZ());
 		ServerLevel serverLevel = getWorld(block.getLocation().getWorld());
@@ -903,23 +943,6 @@ public class ReflectionUtils {
 		blockEntity.loadWithComponents(tag, MinecraftServer.getServer().registryAccess()); //Loading NBT doesn't trigger physics update of block itself
 		if (applyPhysics) { blockEntity.setChanged(); } //This only updates block around (AND IT DOESN'T WORK, FUCK YOU MOJANG)
 		if (applyPhysics) { NeighborUpdater.executeUpdate(serverLevel, blockEntity.getBlockState(), blockPos, blockEntity.getBlockState().getBlock(), blockPos, true); }
-	}
-
-	//!!! MUST BE CHECKED !!!
-	public static <T> T getBlockNbt(org.bukkit.block.Block block, String name) {
-		BlockPos blockPos = new BlockPos(block.getX(), block.getY(), block.getZ());
-		ServerLevel serverLevel = getWorld(block.getLocation().getWorld());
-
-		if (serverLevel == null) { return null; }
-		BlockEntity blockEntity = serverLevel.getBlockEntity(blockPos);
-		if (blockEntity == null) { return null; }
-		CompoundTag tag = blockEntity.saveWithoutMetadata(MinecraftServer.getServer().registryAccess());
-
-		if (tag.getTagType(name) == Tag.TAG_BYTE) { return (T) Boolean.valueOf(tag.getBoolean(name)); }
-		if (tag.getTagType(name) == Tag.TAG_INT) { return (T) Integer.valueOf(tag.getInt(name)); }
-		if (tag.getTagType(name) == Tag.TAG_STRING) { return (T) tag.getString(name); }
-
-		return null;
 	}
 
 	public static void forceUpdateBlock(org.bukkit.block.Block block) {
@@ -990,7 +1013,6 @@ public class ReflectionUtils {
 
 	public static void unpackLoot(org.bukkit.block.Block block) {
 		if (!(block.getState() instanceof org.bukkit.block.Container)) { return; }
-		if (getBlockNbt(block, "LootTable") == null) { return; }
 
 		ServerLevel serverLevel = getWorld(block.getLocation().getWorld());
 		if (serverLevel == null) { return; }
@@ -1019,7 +1041,10 @@ public class ReflectionUtils {
 	public static boolean dispenseItem(org.bukkit.block.Block source, ItemStack drop, @Nullable ItemStack remove, int slot) {
 		if (source.getType() == Material.DISPENSER) { return dispenseDispenser(source, drop, remove, slot); }
 		if (source.getType() == Material.DROPPER) { return dispenseDropper(source, drop, remove, slot); }
+		if (source.getType() == Material.CRAFTER) { return dispenseDropper(source, drop, remove, slot); }
 		return false;
+
+		CrafterBlock
 	}
 
 	//TODO: Should we remove item, if result of dispense is modified item? (Currently: NO)
@@ -1211,9 +1236,9 @@ public class ReflectionUtils {
 		if (b1 && (env == World.Environment.THE_END)) { copy = dimensions.get(LevelStem.END.location()).type().value(); }
 
 		//Replace dimension type if environment parameter is used
-		if (env == World.Environment.NORMAL) { setValue(Level_dimensionTypeId, level, BuiltinDimensionTypes.OVERWORLD); }
-		if (env == World.Environment.NETHER) { setValue(Level_dimensionTypeId, level, BuiltinDimensionTypes.NETHER); }
-		if (env == World.Environment.THE_END) { setValue(Level_dimensionTypeId, level, BuiltinDimensionTypes.END); }
+		//if (env == World.Environment.NORMAL) { setValue(Level_dimensionTypeId, level, BuiltinDimensionTypes.OVERWORLD); }
+		//if (env == World.Environment.NETHER) { setValue(Level_dimensionTypeId, level, BuiltinDimensionTypes.NETHER); }
+		//if (env == World.Environment.THE_END) { setValue(Level_dimensionTypeId, level, BuiltinDimensionTypes.END); }
 
 		//Create new dimension data from given parameters
 		DimensionType type = new DimensionType(
@@ -1375,15 +1400,5 @@ public class ReflectionUtils {
 		chunkFactor += Utils.clamp(moonSize * 0.25F, 0.0F, daytimeFactor);
 		if (difficulty == Difficulty.EASY) { chunkFactor *= 0.5F; }
 		return (float) difficulty.getValue() * (0.75F + daytimeFactor + chunkFactor);
-	}
-
-	public static List<String> getVanillaPotions(boolean brewable, boolean custom) {
-		Stream<Potion> potionStream = POTION.stream().filter(potion -> !potion.getEffects().isEmpty());
-		if (brewable) { potionStream = potionStream.filter(e -> MinecraftServer.getServer().potionBrewing().isBrewablePotion(Holder.direct(e))); }
-
-		//Goofy way to get rid of "minecraft:" or "anything:", or ":"
-		List<String> potions = potionStream.map(e -> Arrays.stream(Potion.getName(Optional.of(Holder.direct(e)), "").split(":")).reduce((a, b) -> b).stream().toList().get(0)).toList();
-		if (!custom) { potions = potions.stream().filter(CustomPotions.manager::isCustomPotion).toList(); }
-		return potions;
 	}
 }

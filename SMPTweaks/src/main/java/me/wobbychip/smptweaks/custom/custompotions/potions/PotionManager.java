@@ -94,7 +94,7 @@ public class PotionManager {
 
 		//Don't add brew recipe if material is null, used for custom events
 		if (potion.getMaterial() == null) { return; }
-		ReflectionUtils.registerBrewRecipe(potion.getBase(), potion.getMaterial(), result);
+		ReflectionUtils.registerBrewingRecipe(potion.getBase(), potion.getMaterial(), result);
 	}
 
 	public static void convertPotion(String from, String to, BrewingStand where) {

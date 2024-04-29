@@ -32,13 +32,11 @@ import me.wobbychip.smptweaks.custom.removedatapackitems.RemoveDatapackItems;
 import me.wobbychip.smptweaks.custom.repairwithxp.RepairWithXP;
 import me.wobbychip.smptweaks.custom.respawnabledragonegg.RespawnableDragonEgg;
 import me.wobbychip.smptweaks.custom.serverpause.ServerPause;
-import me.wobbychip.smptweaks.custom.shriekercansummon.ShriekerCanSummon;
 import me.wobbychip.smptweaks.custom.silktouchspawners.SilkTouchSpawners;
 import me.wobbychip.smptweaks.library.customblocks.CustomBlocks;
 import me.wobbychip.smptweaks.library.placeholderapi.PlaceholderAPI;
 import me.wobbychip.smptweaks.tweaks.TweakManager;
 import me.wobbychip.smptweaks.utils.GameRules;
-import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -64,7 +62,7 @@ public class Main extends JavaPlugin implements Listener {
 		Main.plugin.saveDefaultConfig();
 		Main.gameRules = new GameRules(Main.plugin).register();
 
-		Utils.sendMessage("[SMPTweaks] Server Version: " + ReflectionUtils.version + " (STARTUP)");
+		Utils.sendMessage("[SMPTweaks] Server Version: " + Bukkit.getBukkitVersion() + " (STARTUP)");
 		Bukkit.getPluginManager().registerEvents(Main.plugin, Main.plugin);
 
 		Main.manager = new TweakManager();
@@ -100,16 +98,15 @@ public class Main extends JavaPlugin implements Listener {
 		Main.manager.addTweak(new RepairWithXP());
 		Main.manager.addTweak(new RespawnableDragonEgg());
 		Main.manager.addTweak(new ServerPause());
-		Main.manager.addTweak(new ShriekerCanSummon());
 		Main.manager.addTweak(new SilkTouchSpawners());
 		Main.manager.loadTweaks(true);
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
-	public void onServerLoadEvent(ServerLoadEvent event) {                                                   //Actually it is POSTWORLD -> MinecraftServer.java
-		if (event.getType() != ServerLoadEvent.LoadType.STARTUP) { return; }                                 //this.server.enablePlugins(org.bukkit.plugin.PluginLoadOrder.POSTWORLD);
-		Utils.sendMessage("[SMPTweaks] Server Version: " + ReflectionUtils.version + " (POSTWORLD)");   //this.server.getPluginManager().callEvent(new ServerLoadEvent(ServerLoadEvent.LoadType.STARTUP));
-                                                                                                             //this.connection.acceptConnections();
+	public void onServerLoadEvent(ServerLoadEvent event) {                                                    //Actually it is POSTWORLD -> MinecraftServer.java
+		if (event.getType() != ServerLoadEvent.LoadType.STARTUP) { return; }                                  //this.server.enablePlugins(org.bukkit.plugin.PluginLoadOrder.POSTWORLD);
+		Utils.sendMessage("[SMPTweaks] Server Version: " + Bukkit.getBukkitVersion() + " (POSTWORLD)");  //this.server.getPluginManager().callEvent(new ServerLoadEvent(ServerLoadEvent.LoadType.STARTUP));
+                                                                                                              //this.connection.acceptConnections();
 		Main.manager.loadTweaks(false);
 		Main.plugin.getCommand("smptweaks").setExecutor(new Commands());
 		Main.plugin.getCommand("smptweaks").setTabCompleter(new Commands());
