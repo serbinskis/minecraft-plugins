@@ -18,7 +18,6 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.*;
-import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -34,7 +33,6 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity.RemovalReason;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.gossip.GossipContainer;
 import net.minecraft.world.entity.ai.gossip.GossipType;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -89,8 +87,6 @@ import java.util.stream.Stream;
 
 @SuppressWarnings("unchecked")
 public class ReflectionUtils {
-	public static EntityDataAccessor<Byte> DATA_LIVING_ENTITY_FLAGS;
-	public static int LIVING_ENTITY_FLAG_IS_USING = 1;
 	public static Registry<Potion> POTION = BuiltInRegistries.POTION;
 	public static HashMap<String, GossipType> reputations = new HashMap<>();
 	public static Class<?> CraftServer;
@@ -144,7 +140,6 @@ public class ReflectionUtils {
 		//So I will just search fields and methods by their types and arguments
 
 		for (GossipType type : GossipType.values()) { reputations.put(type.getSerializedName().toUpperCase(), type); }
-		DATA_LIVING_ENTITY_FLAGS = (EntityDataAccessor<Byte>) Objects.requireNonNull(getValue(getField(LivingEntity.class, EntityDataAccessor.class, Byte.class, true), null));
 		setRegistryMap(POTION, new HashMap<>());
 
 		MinecraftServer_levels = Objects.requireNonNull(getField(MinecraftServer.class, Map.class, null, true));
@@ -570,18 +565,8 @@ public class ReflectionUtils {
 		return MinecraftServer.getServer().getTickCount();
 	}
 
-	//The most useless shit I ever made
-	public static boolean isUsingItem(Player player) {
-		Byte entityFlags = getEntityPlayer(player).getEntityData().get(DATA_LIVING_ENTITY_FLAGS);
-		return (entityFlags & LIVING_ENTITY_FLAG_IS_USING) > 0;
-	}
-
 	public static void setDisabledSlots(ArmorStand stand, int slots) {
 		((net.minecraft.world.entity.decoration.ArmorStand) getEntity(stand)).disabledSlots = slots;
-	}
-
-	public static void shootBow(Player player, ItemStack bow, int ticks) {
-		asNMSCopy(bow).releaseUsing(getWorld(player.getWorld()), getEntityPlayer(player), (72000 - ticks));
 	}
 
 	public static Channel getChannel(Player player) {
