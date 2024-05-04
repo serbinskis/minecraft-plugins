@@ -108,7 +108,7 @@ public class Main extends JavaPlugin implements Listener {
 		Main.plugin.getCommand("smptweaks").setExecutor(new Commands());
 		Main.plugin.getCommand("smptweaks").setTabCompleter(new Commands());
 		PlaceholderAPI.register();
-		//CustomBlocks.start();
+		CustomBlocks.start();
 		TinyProtocol.start();
 	}
 

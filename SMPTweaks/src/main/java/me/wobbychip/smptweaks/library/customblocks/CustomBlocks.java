@@ -42,15 +42,19 @@ public class CustomBlocks extends CustomTweak {
 
 		Bukkit.getPluginManager().registerEvents(new WorldEvents(), Main.plugin);
 		if (Main.DEBUG_MODE) { CustomBlocks.registerBlock(new TestBlock()); }
+
+		for (CustomBlock customBlock : REGISTRY_CUSTOM_BLOCKS.values()) {
+			Bukkit.getPluginManager().registerEvents(customBlock, Main.plugin);
+			Bukkit.getPluginManager().registerEvents(new BlockEvents(customBlock), Main.plugin);
+			Bukkit.getPluginManager().registerEvents(new InventoryEvents(customBlock), Main.plugin);
+			if (customBlock.getRecipe() != null) { Bukkit.addRecipe(customBlock.getRecipe()); }
+		}
+
 		CustomMarker.collectUnmarkedBlocks();
 	}
 
-	public static void registerBlock(CustomBlock block) {
-		REGISTRY_CUSTOM_BLOCKS.put(block.getId().toLowerCase(), block);
-		Bukkit.getPluginManager().registerEvents(block, Main.plugin);
-		Bukkit.getPluginManager().registerEvents(new BlockEvents(block), Main.plugin);
-		Bukkit.getPluginManager().registerEvents(new InventoryEvents(block), Main.plugin);
-		if (block.getRecipe() != null) { Bukkit.addRecipe(block.getRecipe()); }
+	public static void registerBlock(CustomBlock customBlock) {
+		REGISTRY_CUSTOM_BLOCKS.put(customBlock.getId().toLowerCase(), customBlock);
 	}
 
 	public static int getSize() {

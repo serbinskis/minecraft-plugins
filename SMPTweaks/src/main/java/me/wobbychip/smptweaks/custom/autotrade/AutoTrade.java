@@ -6,6 +6,7 @@ import me.wobbychip.smptweaks.tweaks.CustomTweak;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Bukkit;
+import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -31,7 +32,11 @@ public class AutoTrade extends CustomTweak {
 	public void onEnable() {
 		Location location = new Location(Bukkit.getWorlds().get(0), 0, 0, 0);
 		AutoTrade.fakePlayer = ReflectionUtils.addFakePlayer(location, new UUID(0, 0), false, false, false);
+		Boolean gameRuleValue = Bukkit.getWorlds().get(0).getGameRuleValue(GameRule.ANNOUNCE_ADVANCEMENTS);
+		Bukkit.getWorlds().get(0).setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
 		Bukkit.getServer().advancementIterator().forEachRemaining(advancement -> Utils.grantAdvancemnt(fakePlayer, advancement));
+		Bukkit.getWorlds().get(0).setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, gameRuleValue);
+
 		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 		CustomBlocks.registerBlock(new TraderBlock());
 	}

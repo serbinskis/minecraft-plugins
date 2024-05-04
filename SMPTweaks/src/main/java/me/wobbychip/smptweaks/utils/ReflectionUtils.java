@@ -22,6 +22,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.ServerFunctionManager;
 import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerLevel;
@@ -105,6 +106,7 @@ public class ReflectionUtils {
 	public static Field Entity_bukkitEntity;
 	public static Field EntityPlayer_playerConnection;
 	public static Field EntityPlayer_chatVisibility;
+	public static Field EntityPlayer_advancements;
 	public static Field MinecraftServer_levels;
 	public static Field CustomFunctionData_ticking;
 	public static Field CustomFunctionData_postReload;
@@ -154,6 +156,7 @@ public class ReflectionUtils {
 		Entity_bukkitEntity = Objects.requireNonNull(getField(net.minecraft.world.entity.Entity.class, CraftEntity, null, true));
 		EntityPlayer_playerConnection = Objects.requireNonNull(getField(ServerPlayer.class, ServerGamePacketListenerImpl.class, null, true));
 		EntityPlayer_chatVisibility = Objects.requireNonNull(getField(ServerPlayer.class, ChatVisiblity.class, null, true));
+		EntityPlayer_advancements = Objects.requireNonNull(getField(ServerPlayer.class, PlayerAdvancements.class, null, true));
 		RegistryMaterials_frozen = Objects.requireNonNull(getField(MappedRegistry.class, boolean.class, null, true));
 		GossipContainer_gossips = Objects.requireNonNull(getField(GossipContainer.class, Map.class, null, true));
 		EntityGossips_entries = Objects.requireNonNull(getField(GossipContainer.EntityGossips.class, Object2IntMap.class, null, true));
@@ -547,6 +550,8 @@ public class ReflectionUtils {
 	}
 
 	public static void setChatVisibility(Player player, String visibility) {
+		if (player == null) { return; }
+
 		try {
 			for (ChatVisiblity chat : ChatVisiblity.values()) {
 				if (!chat.getKey().equalsIgnoreCase(visibility)) { continue; }
@@ -619,6 +624,12 @@ public class ReflectionUtils {
 		player.setAllowFlight(true);
 		player.setFlying(true);
 		return player;
+	}
+
+	public static void setPlayerAdvancements(Player player1, Player player2) {
+		ServerPlayer entityPlayer1 = getEntityPlayer(player1);
+		ServerPlayer entityPlayer2 = getEntityPlayer(player2);
+		setValue(EntityPlayer_advancements, entityPlayer2, entityPlayer1.getAdvancements());
 	}
 
 	public static void removeFakePlayer(Player player) {

@@ -1,7 +1,8 @@
 package me.wobbychip.smptweaks.custom.noadvancements;
 
+import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
-import me.wobbychip.smptweaks.utils.Utils;
+import org.bukkit.Bukkit;
 
 public class NoAdvancements extends CustomTweak {
 	public static CustomTweak tweak;
@@ -14,7 +15,6 @@ public class NoAdvancements extends CustomTweak {
 	}
 
 	public void onEnable() {
-		Utils.sendMessage("[NoAdvancements]: Not implemented");
-		//Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
+		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 	}
 }
