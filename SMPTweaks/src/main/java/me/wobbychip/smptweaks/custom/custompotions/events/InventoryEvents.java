@@ -22,7 +22,7 @@ public class InventoryEvents implements Listener {
 			ItemStack item = event.getResults().get(i);
 			CustomPotion customPotion = CustomPotions.manager.getCustomPotion(item);
 			if ((customPotion != null) && !gameRule) { event.getResults().set(i, customPotion.getDisabledPotion(item)); }
-			if ((customPotion != null) && gameRule) { event.getResults().set(i, customPotion.setProperties(item)); }
+			if ((customPotion != null) && gameRule) { event.getResults().set(i, customPotion.setProperties(item, true)); }
 		}
 
 		//Because potion tag is lost after the event, we need to update it in the next tick
@@ -31,7 +31,7 @@ public class InventoryEvents implements Listener {
 				ItemStack item = event.getContents().getItem(i);
 				CustomPotion customPotion = CustomPotions.manager.getCustomPotion(item);
 				if ((customPotion != null) && !gameRule) { event.getResults().set(i, customPotion.getDisabledPotion(item)); }
-				if ((customPotion != null) && gameRule) { event.getContents().setItem(i, customPotion.setProperties(item)); }
+				if ((customPotion != null) && gameRule) { event.getContents().setItem(i, customPotion.setProperties(item, true)); }
 			}
 		}, 1L);
 	}
@@ -43,14 +43,6 @@ public class InventoryEvents implements Listener {
 		if (event.getView().getTopInventory() instanceof BrewerInventory) {
 			CustomPotion customPotion = CustomPotions.manager.getCustomPotion(event.getCurrentItem());
 			if (customPotion != null) { event.setCurrentItem(customPotion.setPotionTag(event.getCurrentItem())); }
-		}
-
-		if (event.getView().getTopInventory() instanceof GrindstoneInventory) {
-			TaskUtils.scheduleSyncDelayedTask(() -> {
-				Inventory inv = event.getView().getTopInventory();
-				CustomPotion customPotion = CustomPotions.manager.getCustomPotion(inv.getItem(2));
-				if (customPotion != null) { inv.setItem(2, new ItemStack(Material.AIR)); }
-			}, 1L);
 		}
 	}
 

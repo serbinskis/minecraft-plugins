@@ -108,7 +108,7 @@ public class VillagerEvents implements Listener {
 
 		if (potions.isEmpty()) { return; }
 		CustomPotion customPotion = potions.get(new Random().nextInt(potions.size()));
-		ItemStack potion = customPotion.setProperties(new ItemStack(potionTypes.get(new Random().nextInt(potionTypes.size()))));
+		ItemStack potion = customPotion.setProperties(new ItemStack(potionTypes.get(new Random().nextInt(potionTypes.size()))), false);
 
 		int uses = event.getRecipe().getUses();
 		int maxUses = event.getRecipe().getMaxUses();

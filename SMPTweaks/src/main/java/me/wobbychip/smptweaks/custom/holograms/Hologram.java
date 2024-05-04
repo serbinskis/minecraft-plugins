@@ -135,7 +135,7 @@ public class Hologram {
 	}
 
 	public void teleport(Location location) {
-		//By default 4 lines can fit in 1 block
+		//By default, 4 lines can fit in 1 block
 		location = location.getBlock().getLocation();
 		float height = (getText().split("\r\n|\r|\n").length * 0.25f);
 		interaction.setInteractionHeight(Math.max(height, 1f));

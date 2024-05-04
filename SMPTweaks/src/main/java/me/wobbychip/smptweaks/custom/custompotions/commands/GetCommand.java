@@ -50,15 +50,15 @@ public class GetCommand {
 		switch (args[1].toLowerCase()) {
 			case "potion":
 				item.setType(Material.POTION);
-				item = potion.setProperties(item);
+				item = potion.setProperties(item, false);
 				break;
 			case "splash":
 				item.setType(Material.SPLASH_POTION);
-				item = potion.setProperties(item);
+				item = potion.setProperties(item, false);
 				break;
 			case "lingering":
 				item.setType(Material.LINGERING_POTION);
-				item = potion.setProperties(item);
+				item = potion.setProperties(item, false);
 				break;
 			case "arrow":
 				item = potion.getTippedArrow(false, 64);

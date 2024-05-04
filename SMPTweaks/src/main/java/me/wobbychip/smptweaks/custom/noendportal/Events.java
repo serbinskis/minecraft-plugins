@@ -33,7 +33,7 @@ public class Events implements Listener {
 		if (event.getAction() != Action.RIGHT_CLICK_BLOCK) { return; }
 		if ((event.getClickedBlock() == null) || (event.getClickedBlock().getType() != Material.END_PORTAL_FRAME)) { return; }
 		ItemStack itemStack = event.getPlayer().getInventory().getItem(event.getHand());
-		if ((itemStack == null) || (itemStack.getType() != Material.ENDER_EYE)) { return; }
+		if (itemStack.getType() != Material.ENDER_EYE) { return; }
 		if (NoEndPortal.tweak.getGameRuleBoolean(event.getPlayer().getWorld())) { return; }
 		event.getPlayer().playSound(event.getPlayer().getLocation(), Main.DENY_SOUND_EFFECT, 1.0f, 1.0f);
 		Utils.sendActionMessage(event.getPlayer(), "End portal is currently disabled.");

@@ -103,7 +103,7 @@ public class PotionManager {
 			CustomPotion customPotion = CustomPotions.manager.getCustomPotion(item);
 			if ((customPotion == null) || (!customPotion.getName().equalsIgnoreCase(from))) { continue; }
 			customPotion = CustomPotions.manager.getCustomPotion(to);
-			if (customPotion != null) { where.getInventory().setItem(i, customPotion.setProperties(item)); }
+			if (customPotion != null) { where.getInventory().setItem(i, customPotion.setProperties(item, true)); }
 		}
 	}
 

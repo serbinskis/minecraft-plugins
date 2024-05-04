@@ -491,6 +491,10 @@ public class ReflectionUtils {
 		}
 	}
 
+	public static String getPacketType(Object packet) {
+		return ((Packet<?>) packet).type().id().getPath();
+	}
+
 	public static Collection<Channel> getConnections() {
 		List<Connection> serverConnection = MinecraftServer.getServer().getConnection().getConnections();
 		return serverConnection.stream().collect(Collectors.toMap(e -> e, e -> e.channel)).values();
@@ -557,6 +561,10 @@ public class ReflectionUtils {
 		asNMSCopy(bow).releaseUsing(getWorld(player.getWorld()), getEntityPlayer(player), (72000 - ticks));
 	}
 
+	public static Channel getChannel(Player player) {
+		return getEntityPlayer(player).connection.connection.channel;
+	}
+
 	public static Player addFakePlayer(Location location, UUID uuid, boolean addPlayer, boolean hideOnline, boolean hideWorld) {
 		if (uuid == null) { uuid = UUID.randomUUID(); }
 
@@ -565,9 +573,7 @@ public class ReflectionUtils {
 		ServerPlayer entityPlayer = new ServerPlayer(server, world, new GameProfile(uuid, " ".repeat(5)), ClientInformation.createDefault());
 
 		Connection networkManager = new Connection(PacketFlow.SERVERBOUND);
-		EmbeddedChannel embeddedChannel = new EmbeddedChannel(networkManager);
-		//embeddedChannel.attr(Connection.ATTRIBUTE_SERVERBOUND_PROTOCOL).set(ConnectionProtocol.PLAY.codec(PacketFlow.SERVERBOUND));
-
+		EmbeddedChannel embeddedChannel = new EmbeddedChannel(networkManager); //For some reason this is needed: GameTestHelper#makeMockServerPlayerInLevel()
 		CommonListenerCookie commonListenerCookie = CommonListenerCookie.createInitial(new GameProfile(uuid, " ".repeat(5)), false);
 		ServerGamePacketListenerImpl connection = new ServerGamePacketListenerImpl(server, networkManager, entityPlayer, commonListenerCookie) {};
 		Player player = (Player) getBukkitEntity(entityPlayer);
@@ -684,7 +690,7 @@ public class ReflectionUtils {
 		if (potionHolder == null) { return ""; }
 		return getPotionRegistryName(potionHolder).replace("minecraft:", "");
 	}
-	//!!! This will soft lock the game, becayse FUCKING MOJANG cannot decode custom potion tag client side
+	//!!! This will soft lock the game, because FUCKING MOJANG cannot decode custom potion tag client side
 	public static ItemStack setPotionTag(ItemStack item, String name) {
 		return setItemNbt(item, List.of("components", "minecraft:potion_contents", "potion"), name);
 	}
@@ -910,7 +916,6 @@ public class ReflectionUtils {
 		}
 
 		if (location.isEmpty()) { return null; }
-		Utils.sendMessage(tag.toString());
 		if (value.getClass().equals(Byte.class)) { tag.putByte(location.get(0), (Byte) value); }
 		if (value.getClass().equals(Integer.class)) { tag.putInt(location.get(0), (Integer) value); }
 		if (value.getClass().equals(String.class)) { tag.putString(location.get(0), (String) value); }
@@ -1043,8 +1048,6 @@ public class ReflectionUtils {
 		if (source.getType() == Material.DROPPER) { return dispenseDropper(source, drop, remove, slot); }
 		if (source.getType() == Material.CRAFTER) { return dispenseDropper(source, drop, remove, slot); }
 		return false;
-
-		CrafterBlock
 	}
 
 	//TODO: Should we remove item, if result of dispense is modified item? (Currently: NO)

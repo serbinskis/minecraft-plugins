@@ -44,7 +44,7 @@ public class PlayerTimer {
 			this.config.getConfig().set(key.toString(), seconds);
 		}
 
-		this.config.Save();
+		this.config.save();
 	}
 
 	public void addPlayer(Player player, int seconds) {

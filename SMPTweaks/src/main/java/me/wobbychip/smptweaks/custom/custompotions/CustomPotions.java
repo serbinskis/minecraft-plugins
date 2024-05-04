@@ -39,9 +39,9 @@ public class CustomPotions extends CustomTweak {
 			manager.registerPotion(potion);
 		}
 
-		//new ProtocolEvents(Main.plugin);
 		Bukkit.getPluginManager().registerEvents(new PotionEvents(), Main.plugin);
 		Bukkit.getPluginManager().registerEvents(new InventoryEvents(), Main.plugin);
+		Bukkit.getPluginManager().registerEvents(new PacketEvents(), Main.plugin);
 		Bukkit.getPluginManager().registerEvents(new BowEvents(), Main.plugin);
 		Bukkit.getPluginManager().registerEvents(new ProjectileEvents(), Main.plugin);
 		Bukkit.getPluginManager().registerEvents(new VillagerEvents(), Main.plugin);

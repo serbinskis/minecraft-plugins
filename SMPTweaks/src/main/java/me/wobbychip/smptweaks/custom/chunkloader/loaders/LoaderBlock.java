@@ -88,6 +88,6 @@ public class LoaderBlock extends CustomBlock {
     public static void saveAll() {
         ArrayList<String> loaders = new ArrayList<>(BLOCKS.keySet());
         ChunkLoader.tweak.getConfig(1).getConfig().set("chunkloaders", loaders);
-        ChunkLoader.tweak.getConfig(1).Save();
+        ChunkLoader.tweak.getConfig(1).save();
     }
 }

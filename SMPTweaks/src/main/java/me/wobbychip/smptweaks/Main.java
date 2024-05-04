@@ -7,8 +7,8 @@ import me.wobbychip.smptweaks.custom.antiendermangrief.AntiEndermanGrief;
 import me.wobbychip.smptweaks.custom.autocraft.AutoCraft;
 import me.wobbychip.smptweaks.custom.autotrade.AutoTrade;
 import me.wobbychip.smptweaks.custom.betterlead.BetterLead;
-import me.wobbychip.smptweaks.custom.breakablebedrock.BreakableBedrock;
 import me.wobbychip.smptweaks.custom.chunkloader.ChunkLoader;
+import me.wobbychip.smptweaks.custom.custombreaking.CustomBreaking;
 import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
 import me.wobbychip.smptweaks.custom.customworld.CustomWorlds;
 import me.wobbychip.smptweaks.custom.disableinvulnerability.DisableInvulnerability;
@@ -21,7 +21,6 @@ import me.wobbychip.smptweaks.custom.globaltrading.GlobalTrading;
 import me.wobbychip.smptweaks.custom.gravitycontrol.GravityControl;
 import me.wobbychip.smptweaks.custom.headdrops.HeadDrops;
 import me.wobbychip.smptweaks.custom.holograms.Holograms;
-import me.wobbychip.smptweaks.custom.ipprotect.IpProtect;
 import me.wobbychip.smptweaks.custom.noadvancements.NoAdvancements;
 import me.wobbychip.smptweaks.custom.noarrowinfinity.NoArrowInfinity;
 import me.wobbychip.smptweaks.custom.noendportal.NoEndPortal;
@@ -32,9 +31,9 @@ import me.wobbychip.smptweaks.custom.removedatapackitems.RemoveDatapackItems;
 import me.wobbychip.smptweaks.custom.repairwithxp.RepairWithXP;
 import me.wobbychip.smptweaks.custom.respawnabledragonegg.RespawnableDragonEgg;
 import me.wobbychip.smptweaks.custom.serverpause.ServerPause;
-import me.wobbychip.smptweaks.custom.silktouchspawners.SilkTouchSpawners;
 import me.wobbychip.smptweaks.library.customblocks.CustomBlocks;
 import me.wobbychip.smptweaks.library.placeholderapi.PlaceholderAPI;
+import me.wobbychip.smptweaks.library.tinyprotocol.TinyProtocol;
 import me.wobbychip.smptweaks.tweaks.TweakManager;
 import me.wobbychip.smptweaks.utils.GameRules;
 import me.wobbychip.smptweaks.utils.Utils;
@@ -72,7 +71,7 @@ public class Main extends JavaPlugin implements Listener {
 		Main.manager.addTweak(new AutoCraft());
 		Main.manager.addTweak(new AutoTrade());
 		Main.manager.addTweak(new BetterLead());
-		Main.manager.addTweak(new BreakableBedrock());
+		Main.manager.addTweak(new CustomBreaking());
 		Main.manager.addTweak(new ChunkLoader());
 		Main.manager.addTweak(new CustomPotions());
 		Main.manager.addTweak(new CustomWorlds());
@@ -87,7 +86,6 @@ public class Main extends JavaPlugin implements Listener {
 		Main.manager.addTweak(new GravityControl());
 		Main.manager.addTweak(new HeadDrops());
 		Main.manager.addTweak(new Holograms());
-		Main.manager.addTweak(new IpProtect());
 		Main.manager.addTweak(new NoAdvancements());
 		Main.manager.addTweak(new NoArrowInfinity());
 		Main.manager.addTweak(new NoEndPortal());
@@ -98,7 +96,6 @@ public class Main extends JavaPlugin implements Listener {
 		Main.manager.addTweak(new RepairWithXP());
 		Main.manager.addTweak(new RespawnableDragonEgg());
 		Main.manager.addTweak(new ServerPause());
-		Main.manager.addTweak(new SilkTouchSpawners());
 		Main.manager.loadTweaks(true);
 	}
 
@@ -111,7 +108,8 @@ public class Main extends JavaPlugin implements Listener {
 		Main.plugin.getCommand("smptweaks").setExecutor(new Commands());
 		Main.plugin.getCommand("smptweaks").setTabCompleter(new Commands());
 		PlaceholderAPI.register();
-		CustomBlocks.start();
+		//CustomBlocks.start();
+		TinyProtocol.start();
 	}
 
 	public ClassLoader getPluginClassLoader() {

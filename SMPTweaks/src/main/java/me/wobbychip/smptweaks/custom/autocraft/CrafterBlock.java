@@ -6,9 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.Container;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
-import org.bukkit.inventory.CrafterInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
@@ -48,11 +46,5 @@ public class CrafterBlock extends CustomBlock {
         if (!AutoCraft.tweak.getGameRuleBoolean(block.getWorld())) { return false; }
         Crafters.handleCrafter(block).forEach(e -> dispense.put(e, Map.entry(new ItemStack(Material.AIR), -1)));
         return !dispense.isEmpty();
-    }
-
-    @Override
-    public void tick(Block block, long tick) {
-        ((CrafterInventory) ((Container) block.getState()).getInventory()).get
-        //((Container) block.getState()).getInventory().setItem(0, new ItemStack(Material.DIAMOND));
     }
 }

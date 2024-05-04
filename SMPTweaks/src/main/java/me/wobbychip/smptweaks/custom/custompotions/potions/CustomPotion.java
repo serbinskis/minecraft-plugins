@@ -53,7 +53,7 @@ public class CustomPotion implements Listener {
 
 		if (!section.contains(name.toUpperCase())) {
 			section.set(name.toUpperCase(), enabled);
-			CustomPotions.config.Save();
+			CustomPotions.config.save();
 		} else {
 			this.enabled = section.getBoolean(name.toUpperCase());
 		}
@@ -159,7 +159,7 @@ public class CustomPotion implements Listener {
 		return ReflectionUtils.setPotionTag(item, "minecraft:" + name);
 	}
 
-	public ItemStack setProperties(ItemStack item) {		
+	public ItemStack setProperties(ItemStack item, boolean tag) {
 		PotionMeta potionMeta = (PotionMeta) item.getItemMeta();
 		potionMeta.setColor(color);
 		potionMeta.setDisplayName(getPrefix(item.getType()) + displayName);
@@ -167,7 +167,7 @@ public class CustomPotion implements Listener {
 		potionMeta.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
 		item.setItemMeta(potionMeta);
 		PersistentUtils.setPersistentDataString(item, CustomPotions.TAG_CUSTOM_POTION, name);
-		return setPotionTag(item);
+		return tag ? setPotionTag(item) : item;
 	}
 
 	public ItemStack getDisabledPotion(ItemStack item) {		
@@ -175,7 +175,7 @@ public class CustomPotion implements Listener {
 		potionMeta.setDisplayName("§r§fPotions are disabled");
 		potionMeta.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
 		item.setItemMeta(potionMeta);
-		return ReflectionUtils.setPotionTag(item, "minecraft:empty");
+		return ReflectionUtils.setPotionTag(item, "minecraft:water");
 	}
 
 	public void onPotionConsume(PlayerItemConsumeEvent event) {}
