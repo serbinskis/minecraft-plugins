@@ -13,7 +13,7 @@ public class CustomWorlds extends CustomTweak {
 	public Commands commands;
 
 	public CustomWorlds() {
-		super(CustomWorlds.class, false, true);
+		super(CustomWorlds.class, false, false);
 		this.setCommand(new Commands(this, "cworld"));
 		this.setDescription("Custom world and biome settings. (VERY UNSTABLE)");
 		this.setStartup(true);
@@ -21,7 +21,6 @@ public class CustomWorlds extends CustomTweak {
 	}
 
 	public void onEnable() {
-		new ProtocolEvents(Main.plugin);
 		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 	}
 }

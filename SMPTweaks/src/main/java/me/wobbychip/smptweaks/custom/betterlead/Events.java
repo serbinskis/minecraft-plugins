@@ -97,7 +97,7 @@ public class Events implements Listener {
 
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onPacketEvent(PacketEvent event) {
-		if (event.getType() != PacketType.SET_ENTITY_LINK) { return; }
+		if (event.getPacketType() != PacketType.SET_ENTITY_LINK) { return; }
 		int[] entityIds = ReflectionUtils.getEntityLinkPacketIds(event.getPacket());
 		if ((entityIds[1] > 0) || !preventPacket.containsKey(entityIds[0])) { return; }
 		event.setCancelled(true);

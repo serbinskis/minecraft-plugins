@@ -1,7 +1,7 @@
 package me.wobbychip.smptweaks.library.tinyprotocol;
 
 public enum PacketType {
-    UNKNOW,
+    UNKNOWN,
     ACCEPT_TELEPORTATION,
     ANIMATE,
     BLOCK_CHANGED_ACK,
@@ -13,6 +13,7 @@ public enum PacketType {
     CHANGE_DIFFICULTY,
     CHAT_COMMAND,
     CLIENT_COMMAND,
+    CLIENT_INFORMATION,
     COMMANDS,
     COMMAND_SUGGESTION,
     COMMAND_SUGGESTIONS,
@@ -23,18 +24,26 @@ public enum PacketType {
     CONTAINER_SET_DATA,
     CONTAINER_SET_SLOT,
     COOLDOWN,
+    CUSTOM_PAYLOAD,
     DAMAGE_EVENT,
     ENTITY_EVENT,
     EXPLODE,
+    FINISH_CONFIGURATION,
     FORGET_LEVEL_CHUNK,
     GAME_EVENT,
+    GAME_PROFILE,
+    HELLO,
     INITIALIZE_BORDER,
+    INTENTION,
     INTERACT,
     KEEP_ALIVE,
     LEVEL_CHUNK_WITH_LIGHT,
     LEVEL_EVENT,
     LEVEL_PARTICLES,
     LIGHT_UPDATE,
+    LOGIN,
+    LOGIN_ACKNOWLEDGED,
+    LOGIN_COMPRESSION,
     MERCHANT_OFFERS,
     MOVE_ENTITY_POS,
     MOVE_ENTITY_POS_ROT,
@@ -47,6 +56,7 @@ public enum PacketType {
     OPEN_SCREEN,
     OPEN_SIGN_EDITOR,
     PADDLE_BOAT,
+    PING_REQUEST,
     PLACE_GHOST_RECIPE,
     PLACE_RECIPE,
     PLAYER_ABILITIES,
@@ -56,8 +66,11 @@ public enum PacketType {
     PLAYER_INFO_UPDATE,
     PLAYER_INPUT,
     PLAYER_POSITION,
+    PONG_RESPONSE,
+    RECIPE,
     RECIPE_BOOK_CHANGE_SETTINGS,
     RECIPE_BOOK_SEEN_RECIPE,
+    REGISTRY_DATA,
     REMOVE_ENTITIES,
     REMOVE_MOB_EFFECT,
     RENAME_ITEM,
@@ -67,6 +80,7 @@ public enum PacketType {
     SECTION_BLOCKS_UPDATE,
     SEEN_ADVANCEMENTS,
     SELECT_ADVANCEMENTS_TAB,
+    SELECT_KNOWN_PACKS,
     SELECT_TRADE,
     SET_CARRIED_ITEM,
     SET_CHUNK_CACHE_CENTER,
@@ -80,11 +94,15 @@ public enum PacketType {
     SET_EXPERIENCE,
     SET_HEALTH,
     SET_PASSENGERS,
+    SET_PLAYER_TEAM,
     SET_SIMULATION_DISTANCE,
     SET_TIME,
+    SERVER_DATA,
     SIGN_UPDATE,
     SOUND,
     SOUND_ENTITY,
+    STATUS_REQUEST,
+    STATUS_RESPONSE,
     SWING,
     SYSTEM_CHAT,
     TAKE_ITEM_ENTITY,
@@ -93,7 +111,10 @@ public enum PacketType {
     TICKING_STEP,
     UPDATE_ADVANCEMENTS,
     UPDATE_ATTRIBUTES,
+    UPDATE_ENABLED_FEATURES,
     UPDATE_MOB_EFFECT,
+    UPDATE_RECIPES,
+    UPDATE_TAGS,
     USE_ITEM,
     USE_ITEM_ON;
 
@@ -103,7 +124,7 @@ public enum PacketType {
         try {
             return PacketType.valueOf(id.replace("minecraft:", "").toUpperCase());
         } catch (Exception ex) {
-            return UNKNOW;
+            return UNKNOWN;
         }
     }
 }

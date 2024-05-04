@@ -1,22 +1,20 @@
 package me.wobbychip.smptweaks.custom.noadvancements;
 
-import org.bukkit.Bukkit;
-
-import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
+import me.wobbychip.smptweaks.utils.Utils;
 
 public class NoAdvancements extends CustomTweak {
 	public static CustomTweak tweak;
 
 	public NoAdvancements() {
-		super(NoAdvancements.class, false, true);
+		super(NoAdvancements.class, false, false);
 		this.setGameRule("doAdvancements", true, false);
 		this.setDescription("Disable advancements with custom gamerule.");
 		NoAdvancements.tweak = this;
 	}
 
 	public void onEnable() {
-		new ProtocolEvents(Main.plugin);
-		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
+		Utils.sendMessage("[NoAdvancements]: Not implemented");
+		//Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 	}
 }

@@ -1,5 +1,6 @@
 package me.wobbychip.smptweaks.custom.custompotions.events;
 
+import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
 import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
 import me.wobbychip.smptweaks.library.tinyprotocol.PacketEvent;
 import me.wobbychip.smptweaks.library.tinyprotocol.PacketType;
@@ -7,6 +8,8 @@ import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+
+import java.util.Objects;
 
 public class PacketEvents implements Listener {
     //FUCK THE FUCKING MOJANG, IF YOU SEND CUSTOM POTION TO CLIENT, HE WILL SHIT HIMSELF,
@@ -16,12 +19,16 @@ public class PacketEvents implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onPacketEvent(PacketEvent event) {
-        if (event.getType() == PacketType.CONTAINER_SET_SLOT) {
-            event.setPacket(ReflectionUtils.fakePotionTags(event.getPacket(), CustomPotion.PLACEHOLDER_POTION));
+        if (event.getPacketType() == PacketType.CONTAINER_SET_SLOT) {
+            event.setPacket(ReflectionUtils.fakePotionTags(event.getPacket(), CustomPotion.PLACEHOLDER_POTION, itemStack -> {
+                return Objects.nonNull(CustomPotions.manager.getCustomPotion(itemStack));
+            }));
         }
 
-        if (event.getType() == PacketType.CONTAINER_SET_CONTENT) {
-            event.setPacket(ReflectionUtils.fakePotionTags(event.getPacket(), CustomPotion.PLACEHOLDER_POTION));
+        if (event.getPacketType() == PacketType.CONTAINER_SET_CONTENT) {
+            event.setPacket(ReflectionUtils.fakePotionTags(event.getPacket(), CustomPotion.PLACEHOLDER_POTION, itemStack -> {
+                return Objects.nonNull(CustomPotions.manager.getCustomPotion(itemStack));
+            }));
         }
     }
 }

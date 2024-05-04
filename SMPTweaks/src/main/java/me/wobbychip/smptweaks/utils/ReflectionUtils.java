@@ -1,10 +1,9 @@
 package me.wobbychip.smptweaks.utils;
 
 import com.mojang.authlib.GameProfile;
-import io.netty.channel.Channel;
+import io.netty.channel.*;
 import io.netty.channel.embedded.EmbeddedChannel;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
 import net.minecraft.core.Registry;
 import net.minecraft.core.*;
 import net.minecraft.core.component.DataComponents;
@@ -23,13 +22,14 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.RegistryLayer;
 import net.minecraft.server.ServerFunctionManager;
 import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
+import net.minecraft.server.network.ServerConnectionListener;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity.RemovalReason;
@@ -76,10 +76,13 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionType;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -97,8 +100,8 @@ public class ReflectionUtils {
 	public static Class<?> CraftInventory;
 	public static Class<?> CraftItemStack;
 	public static Class<?> CraftWorld;
+	public static Class<?> CraftSound;
 	public static Class<?> CraftMagicNumbers;
-
 	public static Field Entity_bukkitEntity;
 	public static Field EntityPlayer_playerConnection;
 	public static Field EntityPlayer_chatVisibility;
@@ -106,17 +109,15 @@ public class ReflectionUtils {
 	public static Field CustomFunctionData_ticking;
 	public static Field CustomFunctionData_postReload;
 	public static Field RegistryMaterials_frozen;
-	public static Field MappedRegistry_unregisteredIntrusiveHolders;
 	public static Field BlockPhysicsEvent_changed;
 	public static Field PotionSplashEvent_affectedEntities;
 	public static Field AreaEffectCloudApplyEvent_affectedEntities;
-	public static Field MinecraftServer_registries;
 	public static Field Level_dimensionTypeRegistration;
-	//public static Field Level_dimensionTypeId;
 	public static Field Holder_owner;
 	public static Field Holder_tags;
 	public static Field Holder_key;
 	public static Field Holder_value;
+	public static Field ServerConnectionListener_channels;
 	public static Field GossipContainer_gossips;
 	public static Field EntityGossips_entries;
 	public static Field PotionBrewing_potionMixes;
@@ -134,6 +135,7 @@ public class ReflectionUtils {
 		CraftInventory = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.inventory.CraftInventory"));
 		CraftItemStack = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.inventory.CraftItemStack"));
 		CraftWorld = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.CraftWorld"));
+		CraftSound = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.CraftSound"));
 		CraftMagicNumbers = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.util.CraftMagicNumbers"));
 
 		//Fuck it I am not interested in updating nms every time
@@ -146,29 +148,25 @@ public class ReflectionUtils {
 		MinecraftServer_levels = Objects.requireNonNull(getField(MinecraftServer.class, Map.class, null, true));
 		CustomFunctionData_ticking = Objects.requireNonNull(getField(ServerFunctionManager.class, List.class, null, true));
 		CustomFunctionData_postReload = Objects.requireNonNull(getField(ServerFunctionManager.class, boolean.class, null, true));
-
 		BlockPhysicsEvent_changed = Objects.requireNonNull(getField(BlockPhysicsEvent.class, BlockData.class, null, true));
 		PotionSplashEvent_affectedEntities = Objects.requireNonNull(getField(PotionSplashEvent.class, Map.class, null, true));
 		AreaEffectCloudApplyEvent_affectedEntities = Objects.requireNonNull(getField(AreaEffectCloudApplyEvent.class, List.class, null, true));
-
 		Entity_bukkitEntity = Objects.requireNonNull(getField(net.minecraft.world.entity.Entity.class, CraftEntity, null, true));
 		EntityPlayer_playerConnection = Objects.requireNonNull(getField(ServerPlayer.class, ServerGamePacketListenerImpl.class, null, true));
 		EntityPlayer_chatVisibility = Objects.requireNonNull(getField(ServerPlayer.class, ChatVisiblity.class, null, true));
 		RegistryMaterials_frozen = Objects.requireNonNull(getField(MappedRegistry.class, boolean.class, null, true));
-		//MappedRegistry_unregisteredIntrusiveHolders = Objects.requireNonNull(getField(MappedRegistry.class, Map.class, new Class<?>[] { Object.class, Holder.Reference.class }, null, null, true, Modifier.PRIVATE, Modifier.FINAL));
 		GossipContainer_gossips = Objects.requireNonNull(getField(GossipContainer.class, Map.class, null, true));
 		EntityGossips_entries = Objects.requireNonNull(getField(GossipContainer.EntityGossips.class, Object2IntMap.class, null, true));
 		EntityVillager_startTrading_Or_updateSpecialPrices = Objects.requireNonNull(findMethod(false, Modifier.PRIVATE, net.minecraft.world.entity.npc.Villager.class, Void.TYPE, null, net.minecraft.world.entity.player.Player.class));
 		IRegistry_keySet = Objects.requireNonNull(findMethod(true, null, Registry.class, Set.class, ResourceLocation.class));
 		Potions_register = Objects.requireNonNull(findMethod(false, Modifier.PRIVATE, Potions.class, Holder.class, null, String.class, Potion.class));
 		RegistryMaterials_getHolder = Objects.requireNonNull(findMethod(true, null, Registry.class, Optional.class, null, int.class));
-		MinecraftServer_registries = Objects.requireNonNull(getField(MinecraftServer.class, LayeredRegistryAccess.class, RegistryLayer.class, true));
 		Level_dimensionTypeRegistration = Objects.requireNonNull(getField(Level.class, Holder.class, DimensionType.class, true));
-		//Level_dimensionTypeId = Objects.requireNonNull(getField(Level.class, ResourceKey.class, DimensionType.class, true));
 		Holder_owner = Objects.requireNonNull(getField(Holder.Reference.class, HolderOwner.class, null, true));
 		Holder_tags = Objects.requireNonNull(getField(Holder.Reference.class, Set.class, null, true));
 		Holder_key = Objects.requireNonNull(getField(Holder.Reference.class, ResourceKey.class, null, true));
 		Holder_value = Objects.requireNonNull(getField(Holder.Reference.class, Object.class, null, true));
+		ServerConnectionListener_channels = Objects.requireNonNull(getField(ServerConnectionListener.class, List.class, ChannelFuture.class, true));
 	}
 
 	public static Class<?> loadClass(String arg0, boolean verbose) {
@@ -400,6 +398,18 @@ public class ReflectionUtils {
 		}
 	}
 
+	public static Sound getBukkitSound(Object obj) {
+		try {
+			if (obj instanceof ClientboundSoundPacket packet) { return getBukkitSound(packet.getSound().value()); }
+			if (!(obj instanceof SoundEvent)) { return null; }
+			Method method = CraftSound.getDeclaredMethod("minecraftToBukkit", SoundEvent.class);
+			return (Sound) method.invoke(method, obj);
+		} catch (IllegalAccessException | IllegalArgumentException | SecurityException | NoSuchMethodException | InvocationTargetException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
 	public static net.minecraft.world.item.ItemStack asNMSCopy(ItemStack itemStack) {
 		try {
 			Method method = CraftItemStack.getDeclaredMethod("asNMSCopy", ItemStack.class);
@@ -496,7 +506,11 @@ public class ReflectionUtils {
 	}
 
 	public static String getPacketType(Object packet) {
-		return ((Packet<?>) packet).type().id().getPath();
+		try {
+			return ((Packet<?>) packet).type().id().getPath();
+		} catch (Exception ex) {
+			return "";
+		}
 	}
 
 	public static Collection<Channel> getConnections() {
@@ -566,7 +580,9 @@ public class ReflectionUtils {
 	}
 
 	public static Channel getChannel(Player player) {
-		return getEntityPlayer(player).connection.connection.channel;
+		try {
+			return getEntityPlayer(player).connection.connection.channel;
+		} catch (Exception ignored) { return null; }
 	}
 
 	public static Player addFakePlayer(Location location, UUID uuid, boolean addPlayer, boolean hideOnline, boolean hideWorld) {
@@ -700,10 +716,10 @@ public class ReflectionUtils {
 		return setItemNbt(item, List.of("components", "minecraft:potion_contents", "potion"), name);
 	}
 
-	public static Object fakePotionTags(Object pck, String potionTag) {
+	public static Object fakePotionTags(Object pck, String potionTag, Predicate<ItemStack> predicate) {
 		if (pck instanceof ClientboundContainerSetSlotPacket packet) {
 			ItemStack itemStack = asBukkitMirror(packet.getItem());
-			if (CustomPotions.manager.getCustomPotion(itemStack) == null) { return packet; }
+			if (!predicate.test(itemStack)) { return packet; }
 			net.minecraft.world.item.ItemStack nmsStack = asNMSCopy(setPotionTag(itemStack, potionTag));
 			return new ClientboundContainerSetSlotPacket(packet.getContainerId(), packet.getStateId(), packet.getSlot(), Objects.requireNonNull(nmsStack));
 		}
@@ -713,20 +729,21 @@ public class ReflectionUtils {
 
 			net.minecraft.world.item.ItemStack[] collect = packet.getItems().stream().map(e -> {
 				ItemStack itemStack = asBukkitMirror(e);
-				if (CustomPotions.manager.getCustomPotion(itemStack) == null) { return e; }
+				if (!predicate.test(itemStack)) { return e; }
 				return asNMSCopy(setPotionTag(itemStack, potionTag));
 			}).toArray(net.minecraft.world.item.ItemStack[]::new);
 
-			if (CustomPotions.manager.getCustomPotion(carriedItem) != null) {
-				carriedItem = setPotionTag(carriedItem, potionTag);
-			}
-
+			if (predicate.test(carriedItem)) { carriedItem = setPotionTag(carriedItem, potionTag); }
 			net.minecraft.world.item.ItemStack nmsStack = Objects.requireNonNull(asNMSCopy(carriedItem));
 			NonNullList<net.minecraft.world.item.ItemStack> contents = NonNullList.of(net.minecraft.world.item.ItemStack.EMPTY, collect);
 			return new ClientboundContainerSetContentPacket(packet.getContainerId(), packet.getStateId(), contents, nmsStack);
 		}
 
 		return pck;
+	}
+
+	public static <E> Registry<E> getRegistry(ResourceKey<? extends Registry<? extends E>> key) {
+		return MinecraftServer.getServer().registries().compositeAccess().registryOrThrow(key);
 	}
 
 	public static void setRegistryFrozen(Object registry, boolean frozen) {
@@ -754,7 +771,6 @@ public class ReflectionUtils {
 			POTION.createIntrusiveHolder(placeHolder);
 			Holder<Potion> potionHolder = (Holder<Potion>) Potions_register.invoke(Potions_register, name, placeHolder);
 			setRegistryFrozen(POTION, true);
-			//fixHolder(POTION, potionRegistry);
 
 			Field SimpleRegistry_map = Objects.requireNonNull(getField(org.bukkit.Registry.SimpleRegistry.class, Map.class, null, true));
 			Map<NamespacedKey, Object> immutableMap = (Map<NamespacedKey, Object>) getValue(SimpleRegistry_map, org.bukkit.Registry.POTION);
@@ -797,13 +813,13 @@ public class ReflectionUtils {
 		}
 	}
 
-	public static List<String> getVanillaPotions(boolean brewable, boolean custom) {
+	public static List<String> getVanillaPotions(boolean brewable, boolean custom, Predicate<String> predicate) {
 		Stream<Potion> potionStream = POTION.stream().filter(potion -> !potion.getEffects().isEmpty());
 		if (brewable) { potionStream = potionStream.filter(e -> MinecraftServer.getServer().potionBrewing().isBrewablePotion(Holder.direct(e))); }
 
 		//Goofy way to get rid of "minecraft:" or "anything:", or ":"
 		List<String> potions = potionStream.map(e -> Arrays.stream(Potion.getName(Optional.of(Holder.direct(e)), "").split(":")).reduce((a, b) -> b).stream().toList().get(0)).toList();
-		if (!custom) { potions = potions.stream().filter(CustomPotions.manager::isCustomPotion).toList(); }
+		if (!custom) { potions = potions.stream().filter(predicate).toList(); }
 		return potions;
 	}
 
@@ -1193,6 +1209,20 @@ public class ReflectionUtils {
 		return null;
 	}
 
+	public static World getSpawnPacketWorld(Object packet) {
+		if (packet instanceof ClientboundLoginPacket lPacket) {
+			ResourceKey<Level> dimension = lPacket.commonPlayerSpawnInfo().dimension();
+			return MinecraftServer.getServer().getLevel(dimension).getWorld();
+		}
+
+		if (packet instanceof ClientboundRespawnPacket rPacket) {
+			ResourceKey<Level> dimension = rPacket.commonPlayerSpawnInfo().dimension();
+			return MinecraftServer.getServer().getLevel(dimension).getWorld();
+		}
+
+		return null;
+	}
+
 	public static ClientboundLevelChunkWithLightPacket setPacketChunkBiome(World world, Object packet, Object customNmsBiome, @Nullable String customBiomeName, @Nullable HashMap<String, Object> customBiomeMap) {
 		ServerLevel level = getWorld(world);
 		int chunkX = ((ClientboundLevelChunkWithLightPacket) packet).getX();
@@ -1236,12 +1266,10 @@ public class ReflectionUtils {
 	}
 
 	public static CommonPlayerSpawnInfo editCommonPlayerSpawnInfo(CommonPlayerSpawnInfo commonPlayerSpawnInfo, @Nullable Boolean isFlat, @Nullable World.Environment env) {
-		Registry<LevelStem> levelStems = MinecraftServer.getServer().registries().compositeAccess().registryOrThrow(Registries.LEVEL_STEM);
 		Holder<DimensionType> dimensionType = commonPlayerSpawnInfo.dimensionType();
-
-		if (env == World.Environment.NORMAL) { dimensionType = levelStems.get(LevelStem.OVERWORLD).type(); }
-		if (env == World.Environment.NETHER) { dimensionType = levelStems.get(LevelStem.NETHER).type(); }
-		if (env == World.Environment.THE_END) { dimensionType = levelStems.get(LevelStem.END).type(); }
+		if (env == World.Environment.NORMAL) { dimensionType = getRegistry(Registries.LEVEL_STEM).get(LevelStem.OVERWORLD).type(); }
+		if (env == World.Environment.NETHER) { dimensionType = getRegistry(Registries.LEVEL_STEM).get(LevelStem.NETHER).type(); }
+		if (env == World.Environment.THE_END) { dimensionType = getRegistry(Registries.LEVEL_STEM).get(LevelStem.END).type(); }
 
 		ResourceKey<Level> dimension = commonPlayerSpawnInfo.dimension();
 		long seed = commonPlayerSpawnInfo.seed();
@@ -1262,20 +1290,11 @@ public class ReflectionUtils {
 		Field CraftWorld_environment = getField(CraftWorld, World.Environment.class, null, true);
 		if (env != null) { setValue(CraftWorld_environment, level.getWorld(), env); }
 
-		//Get registry for default dimensions
-		LayeredRegistryAccess<RegistryLayer> registries = (LayeredRegistryAccess<RegistryLayer>) Objects.requireNonNull(getValue(MinecraftServer_registries, MinecraftServer.getServer()));
-		Registry<LevelStem> dimensions = registries.compositeAccess().registryOrThrow(Registries.LEVEL_STEM);
-
 		//Select dimension data if environment parameter is used and others are not
 		boolean b1 = (fixedTime == null) && (hasSkyLight == null) && (hasCeiling == null) && (ultraWarm == null) && (natural == null) && (coordinateScale == null) && (bedWorks == null) && (respawnAnchorWorks == null) && (minY == null) && (height == null) && (logicalHeight == null) && (infiniburn == null) && (effectsLocation == null) && (ambientLight == null) && (monsterSettings == null);
-		if (b1 && (env == World.Environment.NORMAL)) { copy = dimensions.get(LevelStem.OVERWORLD.location()).type().value(); }
-		if (b1 && (env == World.Environment.NETHER)) { copy = dimensions.get(LevelStem.NETHER.location()).type().value(); }
-		if (b1 && (env == World.Environment.THE_END)) { copy = dimensions.get(LevelStem.END.location()).type().value(); }
-
-		//Replace dimension type if environment parameter is used
-		//if (env == World.Environment.NORMAL) { setValue(Level_dimensionTypeId, level, BuiltinDimensionTypes.OVERWORLD); }
-		//if (env == World.Environment.NETHER) { setValue(Level_dimensionTypeId, level, BuiltinDimensionTypes.NETHER); }
-		//if (env == World.Environment.THE_END) { setValue(Level_dimensionTypeId, level, BuiltinDimensionTypes.END); }
+		if (b1 && (env == World.Environment.NORMAL)) { copy = getRegistry(Registries.LEVEL_STEM).get(LevelStem.OVERWORLD.location()).type().value(); }
+		if (b1 && (env == World.Environment.NETHER)) { copy = getRegistry(Registries.LEVEL_STEM).get(LevelStem.NETHER.location()).type().value(); }
+		if (b1 && (env == World.Environment.THE_END)) { copy = getRegistry(Registries.LEVEL_STEM).get(LevelStem.END.location()).type().value(); }
 
 		//Create new dimension data from given parameters
 		DimensionType type = new DimensionType(
@@ -1321,7 +1340,7 @@ public class ReflectionUtils {
 	}
 
 	public static List<String> getBiomes(String exnamespace) {
-		ArrayList<ResourceLocation> resourceLocations = new ArrayList<>(MinecraftServer.getServer().registryAccess().registryOrThrow(Registries.BIOME).keySet());
+		ArrayList<ResourceLocation> resourceLocations = new ArrayList<>(getRegistry(Registries.BIOME).keySet());
 		if (!exnamespace.isEmpty()) { resourceLocations.removeIf(e -> e.getNamespace().equalsIgnoreCase(exnamespace)); }
 		return resourceLocations.stream().map(ResourceLocation::toString).toList();
 	}
@@ -1331,7 +1350,7 @@ public class ReflectionUtils {
 	public static Biome registerBiome(String basename, String namespace, String name, int skyColor, int fogColor, int waterColor, int waterFogColor, int foliageColor, int grassColor, boolean effectsEnabled) {
 		ResourceKey<Biome> minecraftKey = ResourceKey.create(Registries.BIOME, new ResourceLocation(basename.split(":")[0], basename.split(":")[1]));
 		ResourceKey<Biome> customKey = ResourceKey.create(Registries.BIOME, new ResourceLocation(namespace, name));
-		WritableRegistry<Biome> biomeRegirsty = (WritableRegistry<Biome>) MinecraftServer.getServer().registryAccess().registryOrThrow(Registries.BIOME);
+		WritableRegistry<Biome> biomeRegirsty = (WritableRegistry<Biome>) getRegistry(Registries.BIOME);
 		Biome minecraftBiome = biomeRegirsty.get(minecraftKey);
 
 		BiomeSpecialEffects.Builder biomeSpecialEffects = new BiomeSpecialEffects.Builder();
@@ -1444,5 +1463,37 @@ public class ReflectionUtils {
 		int sourceId = ((ClientboundSetEntityLinkPacket) packet).getSourceId();
 		int destId = ((ClientboundSetEntityLinkPacket) packet).getDestId();
 		return new int[] { sourceId, destId };
+	}
+
+	public static void createServerChannelHandler(Consumer<Channel> consumer) {
+		ServerConnectionListener connection = MinecraftServer.getServer().getConnection();
+
+		ChannelInitializer<Channel> endInitProtocol = new ChannelInitializer<>() {
+			@Override
+			protected void initChannel(Channel channel) {
+				synchronized (connection.getConnections()) {
+					channel.eventLoop().submit(() -> consumer.accept(channel));
+				}
+			}
+		};
+
+		ChannelInitializer<Channel> beginInitProtocol = new ChannelInitializer<>() {
+			@Override
+			protected void initChannel(Channel channel) {
+				channel.pipeline().addLast(endInitProtocol);
+			}
+		};
+
+		ChannelInboundHandlerAdapter serverChannelHandler = new ChannelInboundHandlerAdapter() {
+			@Override
+			public void channelRead(ChannelHandlerContext ctx, @NotNull Object msg) {
+				Channel channel = (Channel) msg;
+				channel.pipeline().addFirst(beginInitProtocol);
+				ctx.fireChannelRead(msg);
+			}
+		};
+
+		List<ChannelFuture> channels = (List<ChannelFuture>) ReflectionUtils.getValue(ServerConnectionListener_channels, connection);
+		channels.get(0).channel().pipeline().addFirst(serverChannelHandler);
 	}
 }
