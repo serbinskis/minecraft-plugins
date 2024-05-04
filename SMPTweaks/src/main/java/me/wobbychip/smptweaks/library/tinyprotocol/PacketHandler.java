@@ -20,6 +20,9 @@ public class PacketHandler extends ChannelDuplexHandler {
         PacketEvent packetEvent = new PacketEvent(player, PacketType.Flow.CLIENTBOUND, PacketType.getType(ReflectionUtils.getPacketType(packet)), packet);
         Bukkit.getPluginManager().callEvent(packetEvent);
         if (!packetEvent.isCancelled()) { super.write(ctx, packetEvent.getPacket(), promise); }
+
+        //String type = ReflectionUtils.getPacketType(packet).toUpperCase();
+        //if (PacketType.getType(type) == PacketType.UNKNOW) { Utils.sendMessage(type); }
     }
 
     @Override
@@ -27,5 +30,8 @@ public class PacketHandler extends ChannelDuplexHandler {
         PacketEvent packetEvent = new PacketEvent(player, PacketType.Flow.SERVERBOUND, PacketType.getType(ReflectionUtils.getPacketType(packet)), packet);
         Bukkit.getPluginManager().callEvent(packetEvent);
         if (!packetEvent.isCancelled()) { super.channelRead(ctx, packetEvent.getPacket()); }
+
+        //String type = ReflectionUtils.getPacketType(packet).toUpperCase();
+        //if (PacketType.getType(type) == PacketType.UNKNOW) { Utils.sendMessage(type); }
     }
 }
