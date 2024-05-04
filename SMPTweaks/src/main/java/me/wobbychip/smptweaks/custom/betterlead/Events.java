@@ -1,6 +1,9 @@
 package me.wobbychip.smptweaks.custom.betterlead;
 
+import me.wobbychip.smptweaks.library.tinyprotocol.PacketEvent;
+import me.wobbychip.smptweaks.library.tinyprotocol.PacketType;
 import me.wobbychip.smptweaks.utils.PersistentUtils;
+import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import me.wobbychip.smptweaks.utils.TaskUtils;
 import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.GameMode;
@@ -23,6 +26,7 @@ import java.util.HashMap;
 import java.util.UUID;
 
 public class Events implements Listener {
+	public HashMap<Integer, Entity> preventPacket = new HashMap<>();
 	public HashMap<UUID, Player> holders = new HashMap<>();
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -80,13 +84,22 @@ public class Events implements Listener {
 				Player player = holders.get(entity.getUniqueId());
 				if (Utils.isMovable(entity)) { BetterLead.setDeltaMovement(player, entity); }
 				((LivingEntity) entity).setLeashHolder(player);
-				BetterLead.preventPacket.add(entity.getUniqueId());
+				int entityId = ReflectionUtils.getEntityId(entity);
+				preventPacket.put(entityId, entity);
 				holders.remove(entity.getUniqueId());
-				TaskUtils.scheduleSyncDelayedTask(() -> BetterLead.preventPacket.remove(entity.getUniqueId()), 1);
+				TaskUtils.scheduleSyncDelayedTask(() -> preventPacket.remove(entityId), 2);
 			}
 
 			event.setCancelled(true);
 			break;
 		}
+	}
+
+	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+	public void onPacketEvent(PacketEvent event) {
+		if (event.getType() != PacketType.SET_ENTITY_LINK) { return; }
+		int[] entityIds = ReflectionUtils.getEntityLinkPacketIds(event.getPacket());
+		if ((entityIds[1] > 0) || !preventPacket.containsKey(entityIds[0])) { return; }
+		event.setCancelled(true);
 	}
 }

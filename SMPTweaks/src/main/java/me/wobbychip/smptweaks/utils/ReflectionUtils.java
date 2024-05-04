@@ -477,6 +477,10 @@ public class ReflectionUtils {
 		return getEntityPlayer(player).getAbilities();
 	}
 
+	public static int getEntityId(Entity entity) {
+		return Objects.requireNonNull(getEntity(entity)).getId();
+	}
+
 	public static void sendPacket(Player player, Packet<?> packet) {
 		getEntityPlayer(player).connection.send(packet);
 	}
@@ -1433,5 +1437,12 @@ public class ReflectionUtils {
 		chunkFactor += Utils.clamp(moonSize * 0.25F, 0.0F, daytimeFactor);
 		if (difficulty == Difficulty.EASY) { chunkFactor *= 0.5F; }
 		return (float) difficulty.getValue() * (0.75F + daytimeFactor + chunkFactor);
+	}
+
+	public static int[] getEntityLinkPacketIds(Object packet) {
+		if (!(packet instanceof ClientboundSetEntityLinkPacket)) { return new int[] { -1, -1 }; }
+		int sourceId = ((ClientboundSetEntityLinkPacket) packet).getSourceId();
+		int destId = ((ClientboundSetEntityLinkPacket) packet).getDestId();
+		return new int[] { sourceId, destId };
 	}
 }
