@@ -1,21 +1,19 @@
 package me.wobbychip.smptweaks.custom.custompotions.events;
 
+import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
+import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
+import me.wobbychip.smptweaks.utils.PersistentUtils;
+import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import org.bukkit.entity.AreaEffectCloud;
 import org.bukkit.entity.ThrownPotion;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
-import org.bukkit.event.entity.LingeringPotionSplashEvent;
-import org.bukkit.event.entity.PotionSplashEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-
-import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
-import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
-import me.wobbychip.smptweaks.utils.PersistentUtils;
 
 public class PotionEvents implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -64,5 +62,13 @@ public class PotionEvents implements Listener {
 		CustomPotion customPotion = CustomPotions.manager.getCustomPotion(event.getEntity());
 		if ((customPotion == null) || !customPotion.isEnabled()) { return; }
 		customPotion.onProjectileHit(event);
+	}
+
+	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+	public void onItemSpawn(ItemSpawnEvent event) {
+		ItemStack itemStack = event.getEntity().getItemStack();
+		CustomPotion customPotion = CustomPotions.manager.getCustomPotion(itemStack);
+		if (customPotion == null) { return; }
+		event.getEntity().setItemStack(ReflectionUtils.setPotionTag(itemStack, CustomPotion.PLACEHOLDER_POTION));
 	}
 }

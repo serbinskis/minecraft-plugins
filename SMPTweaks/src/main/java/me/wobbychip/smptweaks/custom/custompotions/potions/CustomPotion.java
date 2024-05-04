@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class CustomPotion implements Listener {
+	public static String PLACEHOLDER_POTION = "minecraft:awkward";
 	private boolean enabled = true;
 	private Object base;
 	private String cbase;
@@ -175,7 +176,7 @@ public class CustomPotion implements Listener {
 		potionMeta.setDisplayName("§r§fPotions are disabled");
 		potionMeta.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
 		item.setItemMeta(potionMeta);
-		return ReflectionUtils.setPotionTag(item, "minecraft:water");
+		return ReflectionUtils.setPotionTag(item, PLACEHOLDER_POTION);
 	}
 
 	public void onPotionConsume(PlayerItemConsumeEvent event) {}

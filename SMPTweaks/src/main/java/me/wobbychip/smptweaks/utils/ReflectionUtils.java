@@ -690,9 +690,39 @@ public class ReflectionUtils {
 		if (potionHolder == null) { return ""; }
 		return getPotionRegistryName(potionHolder).replace("minecraft:", "");
 	}
+
 	//!!! This will soft lock the game, because FUCKING MOJANG cannot decode custom potion tag client side
 	public static ItemStack setPotionTag(ItemStack item, String name) {
 		return setItemNbt(item, List.of("components", "minecraft:potion_contents", "potion"), name);
+	}
+
+	public static Object fakePotionTags(Object pck, String potionTag) {
+		if (pck instanceof ClientboundContainerSetSlotPacket packet) {
+			ItemStack itemStack = asBukkitMirror(packet.getItem());
+			if (CustomPotions.manager.getCustomPotion(itemStack) == null) { return packet; }
+			net.minecraft.world.item.ItemStack nmsStack = asNMSCopy(setPotionTag(itemStack, potionTag));
+			return new ClientboundContainerSetSlotPacket(packet.getContainerId(), packet.getStateId(), packet.getSlot(), Objects.requireNonNull(nmsStack));
+		}
+
+		if (pck instanceof ClientboundContainerSetContentPacket packet) {
+			ItemStack carriedItem = asBukkitMirror(packet.getCarriedItem());
+
+			net.minecraft.world.item.ItemStack[] collect = packet.getItems().stream().map(e -> {
+				ItemStack itemStack = asBukkitMirror(e);
+				if (CustomPotions.manager.getCustomPotion(itemStack) == null) { return e; }
+				return asNMSCopy(setPotionTag(itemStack, potionTag));
+			}).toArray(net.minecraft.world.item.ItemStack[]::new);
+
+			if (CustomPotions.manager.getCustomPotion(carriedItem) != null) {
+				carriedItem = setPotionTag(carriedItem, potionTag);
+			}
+
+			net.minecraft.world.item.ItemStack nmsStack = Objects.requireNonNull(asNMSCopy(carriedItem));
+			NonNullList<net.minecraft.world.item.ItemStack> contents = NonNullList.of(net.minecraft.world.item.ItemStack.EMPTY, collect);
+			return new ClientboundContainerSetContentPacket(packet.getContainerId(), packet.getStateId(), contents, nmsStack);
+		}
+
+		return pck;
 	}
 
 	public static void setRegistryFrozen(Object registry, boolean frozen) {
@@ -909,7 +939,7 @@ public class ReflectionUtils {
 		if (original.isEmpty()) { original = new CompoundTag(); }
 		CompoundTag tag = original;
 
-		while ((!location.isEmpty()) && (tag.getTagType(location.get(0)) == Tag.TAG_COMPOUND)) {
+		while ((location.size() > 1) && ((tag.getTagType(location.get(0)) == Tag.TAG_COMPOUND) || !tag.contains(location.get(0)))) {
 			if (!tag.contains(location.get(0))) { tag.put(location.get(0), new CompoundTag()); }
 			tag = tag.getCompound(location.get(0));
 			location.remove(0);

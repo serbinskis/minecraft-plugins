@@ -24,6 +24,7 @@ public class CustomPotions extends CustomTweak {
 		this.setCommand(new Commands(this, "cpotions"));
 		this.setConfigs(List.of("config.yml"));
 		this.setGameRule("doCustomPotions", true, false);
+		this.setStartup(true);
 		this.setDescription("Adds to the server different new potions and new brewing recipes. " +
 							"To get more info about potions use command /smptweaks execute info.");
 		CustomPotions.tweak = this;
@@ -42,10 +43,8 @@ public class CustomPotions extends CustomTweak {
 		Bukkit.getPluginManager().registerEvents(new PotionEvents(), Main.plugin);
 		Bukkit.getPluginManager().registerEvents(new InventoryEvents(), Main.plugin);
 		Bukkit.getPluginManager().registerEvents(new PacketEvents(), Main.plugin);
-		Bukkit.getPluginManager().registerEvents(new BowEvents(), Main.plugin);
 		Bukkit.getPluginManager().registerEvents(new ProjectileEvents(), Main.plugin);
 		Bukkit.getPluginManager().registerEvents(new VillagerEvents(), Main.plugin);
-
 		CustomPotions.tweak.printMessage("Potions: " + manager.getPotionsString(), true);
 	}
 
