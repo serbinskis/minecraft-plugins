@@ -1,0 +1,5 @@
+# Distance from which items will be pulled towards block
+distance: 30.0
+
+# Speed of items being pulled
+speed: 0.1

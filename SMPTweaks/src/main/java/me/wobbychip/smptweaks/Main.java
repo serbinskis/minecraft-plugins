@@ -21,6 +21,7 @@ import me.wobbychip.smptweaks.custom.globaltrading.GlobalTrading;
 import me.wobbychip.smptweaks.custom.gravitycontrol.GravityControl;
 import me.wobbychip.smptweaks.custom.headdrops.HeadDrops;
 import me.wobbychip.smptweaks.custom.holograms.Holograms;
+import me.wobbychip.smptweaks.custom.magnetblock.MagnetBlock;
 import me.wobbychip.smptweaks.custom.noadvancements.NoAdvancements;
 import me.wobbychip.smptweaks.custom.noarrowinfinity.NoArrowInfinity;
 import me.wobbychip.smptweaks.custom.noendportal.NoEndPortal;
@@ -86,6 +87,7 @@ public class Main extends JavaPlugin implements Listener {
 		Main.manager.addTweak(new GravityControl());
 		Main.manager.addTweak(new HeadDrops());
 		Main.manager.addTweak(new Holograms());
+		Main.manager.addTweak(new MagnetBlock());
 		Main.manager.addTweak(new NoAdvancements());
 		Main.manager.addTweak(new NoArrowInfinity());
 		Main.manager.addTweak(new NoEndPortal());
