@@ -1,7 +1,10 @@
-package me.wobbychip.smptweaks.custom.chunkloader.loaders;
+package me.wobbychip.smptweaks.custom.chunkloader.block;
 
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.custom.chunkloader.ChunkLoader;
+import me.wobbychip.smptweaks.custom.chunkloader.loaders.Border;
+import me.wobbychip.smptweaks.custom.chunkloader.loaders.Chunks;
+import me.wobbychip.smptweaks.custom.chunkloader.loaders.FakePlayer;
 import me.wobbychip.smptweaks.library.customblocks.blocks.CustomBlock;
 import me.wobbychip.smptweaks.utils.ServerUtils;
 import me.wobbychip.smptweaks.utils.Utils;

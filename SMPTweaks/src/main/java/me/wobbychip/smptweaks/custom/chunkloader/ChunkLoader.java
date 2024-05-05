@@ -5,7 +5,7 @@ import me.wobbychip.smptweaks.custom.chunkloader.events.PlayerEvents;
 import me.wobbychip.smptweaks.custom.chunkloader.events.PotionEvents;
 import me.wobbychip.smptweaks.custom.chunkloader.loaders.Border;
 import me.wobbychip.smptweaks.custom.chunkloader.loaders.FakePlayer;
-import me.wobbychip.smptweaks.custom.chunkloader.loaders.LoaderBlock;
+import me.wobbychip.smptweaks.custom.chunkloader.block.LoaderBlock;
 import me.wobbychip.smptweaks.library.customblocks.CustomBlocks;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
 import me.wobbychip.smptweaks.utils.*;

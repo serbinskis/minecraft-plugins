@@ -1,7 +1,7 @@
 package me.wobbychip.smptweaks.custom.chunkloader.events;
 
 import me.wobbychip.smptweaks.custom.chunkloader.loaders.Border;
-import me.wobbychip.smptweaks.custom.chunkloader.loaders.LoaderBlock;
+import me.wobbychip.smptweaks.custom.chunkloader.block.LoaderBlock;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
