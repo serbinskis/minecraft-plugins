@@ -50,15 +50,15 @@ public class CustomMarker implements Runnable {
         return customBlock;
     }
 
-    public static CustomMarker createMarker(CustomBlock cblock, Block block) {
+    public static CustomMarker createMarker(CustomBlock customBlock, Block block) {
         String location = Utils.locationToString(block.getLocation());
         if (markers.containsKey(location)) { markers.get(location).remove(true); }
 
-        Map.Entry<BlockFace, Transformation> orientation = getOrientation(block);
-        ItemStack itemStack = cblock.getDropItem(Arrays.asList(BlockFace.UP, BlockFace.DOWN).contains(orientation.getKey()));
+        Map.Entry<BlockFace, Transformation> orientation = getOrientation(customBlock, block);
+        ItemStack itemStack = customBlock.getDropItem(Arrays.asList(BlockFace.UP, BlockFace.DOWN).contains(orientation.getKey()));
 
         ItemDisplay display = (ItemDisplay) block.getWorld().spawnEntity(block.getLocation().add(0.5, 0.5, 0.5), EntityType.ITEM_DISPLAY);
-        PersistentUtils.setPersistentDataString(display, CustomBlock.TAG_BLOCK, cblock.getId());
+        PersistentUtils.setPersistentDataString(display, CustomBlock.TAG_BLOCK, customBlock.getId());
         PersistentUtils.setPersistentDataBoolean(display, TAG_MARKER, true);
         display.setBrightness(new Display.Brightness(15, 15));
         display.setCustomName(TAG_MARKER);
@@ -66,15 +66,15 @@ public class CustomMarker implements Runnable {
         display.setInvulnerable(true);
         display.setTransformation(orientation.getValue());
         display.setItemStack(itemStack);
-        Utils.setGlowColor(display, cblock.prepareGlowingColor(block));
+        Utils.setGlowColor(display, customBlock.prepareGlowingColor(block));
 
-        CustomMarker marker = new CustomMarker(display, cblock);
+        CustomMarker marker = new CustomMarker(display, customBlock);
         markers.put(location, marker);
         return marker;
     }
 
-    public static Map.Entry<BlockFace, Transformation> getOrientation(Block block) {
-        BlockFace facing = getFacing(block);
+    public static Map.Entry<BlockFace, Transformation> getOrientation(CustomBlock customBlock, Block block) {
+        BlockFace facing = customBlock.isDirectional() ? getFacing(block) : BlockFace.SOUTH;
         Quaternionf left_rotation = new Quaternionf(0f, 0f, 0f, 1f);
         Quaternionf right_rotation = new Quaternionf(0f, 0f, 0f, 1f);
 

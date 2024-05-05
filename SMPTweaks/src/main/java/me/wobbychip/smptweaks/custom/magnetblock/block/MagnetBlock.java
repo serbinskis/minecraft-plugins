@@ -43,6 +43,11 @@ public class MagnetBlock extends CustomBlock {
     }
 
     @Override
+    public boolean isDirectional() {
+        return false;
+    }
+
+    @Override
     public void tick(Block block, long tick) {
         if (!me.wobbychip.smptweaks.custom.magnetblock.MagnetBlock.tweak.getGameRuleBoolean(block.getWorld())) { return; }
         List<Item> items = Utils.getNearbyEntities(block.getLocation(), EntityType.ITEM, DISTANCE, false).stream().map(Item.class::cast).toList();

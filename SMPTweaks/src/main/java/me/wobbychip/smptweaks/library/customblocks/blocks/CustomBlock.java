@@ -11,8 +11,10 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Container;
 import org.bukkit.block.TileState;
 import org.bukkit.block.data.AnaloguePowerable;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.Powerable;
+import org.bukkit.block.data.type.Crafter;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
@@ -138,7 +140,8 @@ public class CustomBlock implements Listener {
     }
 
     public boolean isDirectional() {
-        return (block_base.createBlockData() instanceof Directional);
+        BlockData blockData = block_base.createBlockData();
+        return ((blockData instanceof Directional) || (blockData instanceof Crafter));
     }
 
     public boolean isPowered(Block block) { return (block.isBlockIndirectlyPowered() || block.isBlockPowered()); }
