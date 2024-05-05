@@ -33,12 +33,12 @@ public class MagnetBlock extends CustomBlock {
     @Override
     public Recipe prepareRecipe(NamespacedKey key, ItemStack itemStack) {
         ShapedRecipe recipe = new ShapedRecipe(key, itemStack);
-        recipe.shape("IDI", "RBL", "IDI");
+        recipe.shape("ILI", "DBD", "IRI");
         recipe.setIngredient('I', Material.IRON_INGOT);
-        recipe.setIngredient('D', Material.DIAMOND);
-        recipe.setIngredient('R', Material.REDSTONE_BLOCK);
-        recipe.setIngredient('B', Material.BARREL);
         recipe.setIngredient('L', Material.LAPIS_BLOCK);
+        recipe.setIngredient('D', Material.DIAMOND);
+        recipe.setIngredient('B', Material.BARREL);
+        recipe.setIngredient('R', Material.REDSTONE_BLOCK);
         return recipe;
     }
 
