@@ -31,11 +31,13 @@ public class Events implements Listener {
 		Utils.revokeAdvancemnt(event.getPlayer(), event.getAdvancement());
 
 		//Prevent player experience and sound
+		UUID uniqueId = event.getPlayer().getUniqueId();
 		int totalExperience = event.getPlayer().getTotalExperience();
 		float exp = event.getPlayer().getExp();
 		int level = event.getPlayer().getLevel();
-		preventExperience.putIfAbsent(event.getPlayer().getUniqueId(), new Object[] { totalExperience, exp, level });
-		preventSound.putIfAbsent(event.getPlayer().getUniqueId(), "");
+		preventExperience.putIfAbsent(uniqueId, new Object[] { totalExperience, exp, level });
+		preventSound.putIfAbsent(uniqueId, "");
+		TaskUtils.scheduleSyncDelayedTask(() -> preventSound.remove(uniqueId), 0L);
 
 		//Prevent chat messages in console
 		Boolean gameRuleValue = event.getPlayer().getWorld().getGameRuleValue(GameRule.ANNOUNCE_ADVANCEMENTS);
@@ -64,7 +66,7 @@ public class Events implements Listener {
 			event.setCancelled(true);
 		}
 
-		if ((event.getPacketType() == PacketType.SOUND) && (preventSound.remove(event.getPlayer().getUniqueId()) != null)) {
+		if ((event.getPacketType() == PacketType.SOUND) && (preventSound.containsKey(event.getPlayer().getUniqueId()))) {
 			Sound sound = ReflectionUtils.getBukkitSound(event.getPacket());
 			if (sound.equals(Sound.ENTITY_PLAYER_LEVELUP)) { event.setCancelled(true); }
 		}
