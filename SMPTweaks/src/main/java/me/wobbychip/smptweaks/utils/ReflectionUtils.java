@@ -100,6 +100,7 @@ public class ReflectionUtils {
 	public static Class<?> CraftWorld;
 	public static Class<?> CraftSound;
 	public static Class<?> CraftMagicNumbers;
+	public static Class<?> GossipContainer_EntityGossips;
 	public static Field Entity_bukkitEntity;
 	public static Field EntityPlayer_playerConnection;
 	public static Field EntityPlayer_chatVisibility;
@@ -156,7 +157,8 @@ public class ReflectionUtils {
 		EntityPlayer_advancements = Objects.requireNonNull(getField(ServerPlayer.class, PlayerAdvancements.class, null, true));
 		RegistryMaterials_frozen = Objects.requireNonNull(getField(MappedRegistry.class, boolean.class, null, true));
 		GossipContainer_gossips = Objects.requireNonNull(getField(GossipContainer.class, Map.class, null, true));
-		if (PaperUtils.isPaper) { EntityGossips_entries = Objects.requireNonNull(getField(GossipContainer.EntityGossips.class, Object2IntMap.class, null, true)); }
+		GossipContainer_EntityGossips = Objects.requireNonNull((Class<?>) ((ParameterizedType) GossipContainer_gossips.getGenericType()).getActualTypeArguments()[1]);
+		EntityGossips_entries = Objects.requireNonNull(getField(GossipContainer_EntityGossips, Object2IntMap.class, null, true));
 		EntityVillager_startTrading_Or_updateSpecialPrices = Objects.requireNonNull(findMethod(false, Modifier.PRIVATE, net.minecraft.world.entity.npc.Villager.class, Void.TYPE, null, net.minecraft.world.entity.player.Player.class));
 		IRegistry_keySet = Objects.requireNonNull(findMethod(true, null, Registry.class, Set.class, ResourceLocation.class));
 		Potions_register = Objects.requireNonNull(findMethod(false, Modifier.PRIVATE, Potions.class, Holder.class, null, String.class, Potion.class));
@@ -323,9 +325,10 @@ public class ReflectionUtils {
 
 	public static Object newInstance(Class<?> clazz, Class<?>[] parameters, Object[] args, boolean isPrivate, boolean verbose) {
 		try {
+			if (parameters == null) { parameters = new Class<?>[] {}; }
 			Constructor<?> constructor = isPrivate ? clazz.getDeclaredConstructor(parameters) : clazz.getConstructor(parameters);
 			constructor.setAccessible(true);
-			return constructor.newInstance(args);
+			return constructor.newInstance((args != null) ? args : new Object[] {});
 		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			if (verbose) { e.printStackTrace(); }
 			return null;
@@ -665,12 +668,12 @@ public class ReflectionUtils {
 		try {
 			GossipType gossipType = reputations.get(type);
 			GossipContainer container = getEntityVillager(villager).getGossips();
-			Map<UUID, GossipContainer.EntityGossips> gossips = (Map<UUID, GossipContainer.EntityGossips>) GossipContainer_gossips.get(container);
+			Map<UUID, Object> gossips = (Map<UUID, Object>) GossipContainer_gossips.get(container);
 			if (!gossips.containsKey(uuid)) { return -1; }
 			Object2IntMap<GossipType> entries = (Object2IntMap<GossipType>) EntityGossips_entries.get(gossips.get(uuid));
 			return entries.getOrDefault(gossipType, -1);
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+		} catch (IllegalAccessException ex) {
+			ex.printStackTrace();
 			return -1;
 		}
 	}
@@ -679,12 +682,12 @@ public class ReflectionUtils {
 		try {
 			GossipType gossipType = reputations.get(type);
 			GossipContainer container = getEntityVillager(villager).getGossips();
-			Map<UUID, GossipContainer.EntityGossips> gossips = (Map<UUID, GossipContainer.EntityGossips>) GossipContainer_gossips.get(container);
-			if (!gossips.containsKey(uuid)) { gossips.put(uuid, new GossipContainer.EntityGossips()); }
+			Map<UUID, Object> gossips = (Map<UUID, Object>) GossipContainer_gossips.get(container);
+			if (!gossips.containsKey(uuid)) { gossips.put(uuid, newInstance(GossipContainer_EntityGossips, null, null, true, false)); }
 			Object2IntMap<GossipType> entries = (Object2IntMap<GossipType>) EntityGossips_entries.get(gossips.get(uuid));
 			entries.put(gossipType, amount);
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+		} catch (IllegalAccessException ex) {
+			ex.printStackTrace();
 		}
 	}
 
