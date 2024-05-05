@@ -27,6 +27,7 @@ import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
+import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 import net.minecraft.server.network.ServerConnectionListener;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.sounds.SoundEvent;
@@ -115,6 +116,7 @@ public class ReflectionUtils {
 	public static Field Holder_tags;
 	public static Field Holder_key;
 	public static Field Holder_value;
+	public static Field ServerCommonPacketListenerImpl_connection;
 	public static Field ServerConnectionListener_channels;
 	public static Field GossipContainer_gossips;
 	public static Field EntityGossips_entries;
@@ -154,7 +156,7 @@ public class ReflectionUtils {
 		EntityPlayer_advancements = Objects.requireNonNull(getField(ServerPlayer.class, PlayerAdvancements.class, null, true));
 		RegistryMaterials_frozen = Objects.requireNonNull(getField(MappedRegistry.class, boolean.class, null, true));
 		GossipContainer_gossips = Objects.requireNonNull(getField(GossipContainer.class, Map.class, null, true));
-		EntityGossips_entries = Objects.requireNonNull(getField(GossipContainer.EntityGossips.class, Object2IntMap.class, null, true));
+		if (PaperUtils.isPaper) { EntityGossips_entries = Objects.requireNonNull(getField(GossipContainer.EntityGossips.class, Object2IntMap.class, null, true)); }
 		EntityVillager_startTrading_Or_updateSpecialPrices = Objects.requireNonNull(findMethod(false, Modifier.PRIVATE, net.minecraft.world.entity.npc.Villager.class, Void.TYPE, null, net.minecraft.world.entity.player.Player.class));
 		IRegistry_keySet = Objects.requireNonNull(findMethod(true, null, Registry.class, Set.class, ResourceLocation.class));
 		Potions_register = Objects.requireNonNull(findMethod(false, Modifier.PRIVATE, Potions.class, Holder.class, null, String.class, Potion.class));
@@ -164,6 +166,7 @@ public class ReflectionUtils {
 		Holder_tags = Objects.requireNonNull(getField(Holder.Reference.class, Set.class, null, true));
 		Holder_key = Objects.requireNonNull(getField(Holder.Reference.class, ResourceKey.class, null, true));
 		Holder_value = Objects.requireNonNull(getField(Holder.Reference.class, Object.class, null, true));
+		ServerCommonPacketListenerImpl_connection = Objects.requireNonNull(getField(ServerCommonPacketListenerImpl.class, Connection.class, null, true));
 		ServerConnectionListener_channels = Objects.requireNonNull(getField(ServerConnectionListener.class, List.class, ChannelFuture.class, true));
 	}
 
@@ -571,8 +574,10 @@ public class ReflectionUtils {
 
 	public static Channel getChannel(Player player) {
 		try {
-			return getEntityPlayer(player).connection.connection.channel;
-		} catch (Exception ignored) { return null; }
+			ServerGamePacketListenerImpl packetListener = getEntityPlayer(player).connection;
+			Connection connection = (Connection) getValue(ServerCommonPacketListenerImpl_connection, packetListener);
+			return connection.channel;
+		} catch (Exception ex) { return null; }
 	}
 
 	public static Player addFakePlayer(Location location, UUID uuid, boolean addPlayer, boolean hideOnline, boolean hideWorld) {
@@ -1245,7 +1250,7 @@ public class ReflectionUtils {
 		}
 
 		//Create packet with custom biomes
-		ClientboundLevelChunkWithLightPacket npacket = new ClientboundLevelChunkWithLightPacket(levelChunk, levelChunk.getLevel().getLightEngine(), null, null, true);
+		ClientboundLevelChunkWithLightPacket npacket = new ClientboundLevelChunkWithLightPacket(levelChunk, levelChunk.getLevel().getLightEngine(), null, null);
 
 		//Restore old biomes, so that we don't lose them
 		for (LevelChunkSection section : levelChunk.getSections()) {
@@ -1391,22 +1396,6 @@ public class ReflectionUtils {
 		fixHolder(biomeRegirsty, customBiome);
 
 		return customBiome;
-
-		//This kinda works, but client needs to request in order to process sent data, so this is useless
-		//lost connection: Internal Exception: java.lang.IllegalStateException: Client acknowledged config, but none was requested
-		//connection.switchToConfig();
-
-		/*
-		Player player = Bukkit.getServer().getOnlinePlayers().stream().findFirst().get();
-		ServerGamePacketListenerImpl connection = getEntityPlayer(player).connection;
-		connection.send(new ClientboundStartConfigurationPacket());
-		ConnectionProtocol.CodecData<?> codecData = connection.connection.channel.attr(Connection.ATTRIBUTE_CLIENTBOUND_PROTOCOL).get();
-		connection.connection.channel.attr(Connection.ATTRIBUTE_CLIENTBOUND_PROTOCOL).set(ConnectionProtocol.CONFIGURATION.codec(PacketFlow.CLIENTBOUND));
-		LayeredRegistryAccess<RegistryLayer> layeredregistryaccess = MinecraftServer.getServer().registries();
-		connection.send(new ClientboundRegistryDataPacket((new RegistryAccess.ImmutableRegistryAccess(RegistrySynchronization.networkedRegistries(layeredregistryaccess))).freeze()));
-		connection.send(new ClientboundUpdateTagsPacket(TagNetworkSerialization.serializeTagsToNetwork(layeredregistryaccess)));
-		connection.connection.channel.attr(Connection.ATTRIBUTE_CLIENTBOUND_PROTOCOL).set(codecData);
-		*/
 	}
 
 	public static void fillChunk(Chunk chunk, Material material, boolean removeEntity, boolean refresh) {

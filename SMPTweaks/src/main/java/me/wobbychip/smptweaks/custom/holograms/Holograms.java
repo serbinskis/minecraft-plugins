@@ -7,7 +7,7 @@ import me.wobbychip.smptweaks.tweaks.CustomTweak;
 
 public class Holograms extends CustomTweak {
 	public Holograms() {
-		super(Holograms.class, false, true);
+		super(Holograms.class, false, false);
 		this.setDescription("Admin tool to make holograms with display text entity. " +
 							"Crouch and right click a block with a book to create and hit to remove. " +
 							"Stick - Right click: toggle following | Left click:  toggle see through. " +

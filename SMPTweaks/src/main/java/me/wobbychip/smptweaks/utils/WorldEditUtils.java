@@ -14,9 +14,7 @@ public class WorldEditUtils {
 	public static boolean isWorldEdit = isWorldEdit();
 
 	public static boolean isWorldEdit() {
-		try {
-			return (com.sk89q.worldedit.WorldEdit.class != null);
-		} catch (Exception e) { return false; }
+		return (ReflectionUtils.loadClass("com.sk89q.worldedit.WorldEdit", false) != null);
 	}
 
 	public static List<Block> getSelectedBlocks(Player player) {

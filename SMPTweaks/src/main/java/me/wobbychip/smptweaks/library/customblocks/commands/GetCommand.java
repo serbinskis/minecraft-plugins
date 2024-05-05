@@ -41,7 +41,8 @@ public class GetCommand {
 		}
 
 		ItemStack item = customBlock.getDropItem(false);
-		((Player) sender).getInventory().addItem(item.add(item.getMaxStackSize()));
+		item = Utils.cloneItem(item, item.getMaxStackSize());
+		((Player) sender).getInventory().addItem(item);
 		return true;
 	}
 
