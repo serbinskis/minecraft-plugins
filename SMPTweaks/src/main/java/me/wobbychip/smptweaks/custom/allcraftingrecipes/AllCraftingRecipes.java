@@ -18,7 +18,7 @@ public class AllCraftingRecipes extends CustomTweak {
 
 	public AllCraftingRecipes() {
 		super(AllCraftingRecipes.class, false, false);
-		this.setDescription("Give all crafting recipes when a player joins.");
+		this.setDescription("Give all crafting recipes when player joins.");
 	}
 
 	public void onEnable() {
