@@ -18,17 +18,17 @@ import java.util.*;
 import java.util.Map.Entry;
 
 public class PotionManager {
-	protected Map<CustomPotion, String> waiting = new HashMap<CustomPotion, String>();
-	protected Map<String, CustomPotion> potions = new HashMap<String, CustomPotion>();
-	protected Map<String, Object> registry = new HashMap<String, Object>();
+	protected Map<CustomPotion, String> waiting = new HashMap<>();
+	protected Map<String, CustomPotion> potions = new HashMap<>();
+	protected Map<String, Object> registry = new HashMap<>();
 
-	public List<CustomPotion> getPotions(ClassLoader loader, String pacakgeName) {
+	public List<CustomPotion> getPotions(ClassLoader loader, String packageName) {
 		List<CustomPotion> potions = new ArrayList<>();
 
 		try {
 			ClassPath classPath = ClassPath.from(loader);
 
-			for (ClassPath.ClassInfo classInfo : classPath.getTopLevelClasses(pacakgeName)) {
+			for (ClassPath.ClassInfo classInfo : classPath.getTopLevelClasses(packageName)) {
 				Class<?> clazz = Class.forName(classInfo.getName(), true, loader);
 				potions.add((CustomPotion) clazz.getConstructor().newInstance());
 			}
@@ -67,12 +67,10 @@ public class PotionManager {
 			potion.setBase(registry.get(potion.getBaseName()));
 		}
 
-		Object result = (Object) ReflectionUtils.registerInstantPotion(potion.getName());
+		CustomPotions.tweak.printMessage("Registering '" + potion.getName() + "' with the base '" + potion.getBaseName() + "'", true);
+		Object result = ReflectionUtils.registerInstantPotion(potion.getName());
 		potions.put(potion.getName(), potion);
 		registry.put(potion.getName(), result);
-
-		//Register potions that are based on current potion
-		Iterator<Entry<CustomPotion, String>> iterator = waiting.entrySet().iterator();
 
 		while (true) {
 			CustomPotion toRemove = null;
@@ -80,7 +78,6 @@ public class PotionManager {
 			for (Entry<CustomPotion, String> entry : waiting.entrySet()) {
 				if (entry.getValue().equals(potion.getName())) {
 					entry.getKey().setBase(result);
-					CustomPotions.tweak.printMessage("Registering '" + entry.getKey().getName() + "' with the base '" + potion.getName() + "'", true);
 					toRemove = entry.getKey();
 					registerPotion(toRemove);
 					break;
@@ -97,7 +94,7 @@ public class PotionManager {
 
 		//Don't add brew recipe if material is null, used for custom events
 		if (potion.getMaterial() == null) { return; }
-		ReflectionUtils.registerBrewRecipe(potion.getBase(), potion.getMaterial(), result);
+		ReflectionUtils.registerBrewingRecipe(potion.getBase(), potion.getMaterial(), result);
 	}
 
 	public static void convertPotion(String from, String to, BrewingStand where) {
@@ -106,26 +103,30 @@ public class PotionManager {
 			CustomPotion customPotion = CustomPotions.manager.getCustomPotion(item);
 			if ((customPotion == null) || (!customPotion.getName().equalsIgnoreCase(from))) { continue; }
 			customPotion = CustomPotions.manager.getCustomPotion(to);
-			if (customPotion != null) { where.getInventory().setItem(i, customPotion.setProperties(item)); }
+			if (customPotion != null) { where.getInventory().setItem(i, customPotion.setProperties(item, true)); }
 		}
 	}
 
 	public Object getPotionRegistry(CustomPotion potion) {
-		return registry.containsKey(potion.getName()) ? registry.get(potion.getName()) : null;
+		return registry.getOrDefault(potion.getName(), null);
 	}
 
 	public Object getPotionRegistry(String name) {
-		return registry.containsKey(name) ? registry.get(name) : null;
+		return registry.getOrDefault(name, null);
+	}
+
+	public boolean isCustomPotion(String name) {
+		return getCustomPotion(name) != null;
 	}
 
 	public CustomPotion getCustomPotion(String name) {
-		return potions.containsKey(name) ? potions.get(name) : null;
+		return potions.getOrDefault(name, null);
 	}
 
 	public CustomPotion getCustomPotion(Entity entity) {
 		if (!PersistentUtils.hasPersistentDataString(entity, CustomPotions.TAG_CUSTOM_POTION)) { return null; }
 		String name = PersistentUtils.getPersistentDataString(entity, CustomPotions.TAG_CUSTOM_POTION);
-		return potions.containsKey(name) ? potions.get(name) : null;
+		return potions.getOrDefault(name, null);
 	}
 
 	public CustomPotion getCustomPotion(ItemStack item) {
@@ -140,10 +141,10 @@ public class PotionManager {
 			name = PersistentUtils.getPersistentDataString(item, CustomPotions.TAG_CUSTOM_POTION);
 		}
 
-		return potions.containsKey(name) ? potions.get(name) : null;
+		return potions.getOrDefault(name, null);
 	}
 
-	public static Object getPotion(PotionType potionType, boolean extended, boolean upgraded) {
-		return (Object) ReflectionUtils.getPotion(potionType, extended, upgraded);
+	public static Object getPotion(PotionType potionType) {
+		return ReflectionUtils.getNMSPotion(potionType);
 	}
 }

@@ -1,6 +1,7 @@
 package me.wobbychip.smptweaks.custom.chunkloader.loaders;
 
 import me.wobbychip.smptweaks.Main;
+import me.wobbychip.smptweaks.custom.chunkloader.ChunkLoader;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -19,6 +20,7 @@ public class FakePlayer {
 		if (isEnabled) {
 			if (player != null) { ReflectionUtils.removeFakePlayer(player); }
 			player = ReflectionUtils.addFakePlayer(location, null, true, true, false);
+			ReflectionUtils.setPlayerAdvancements(ChunkLoader.fakePlayer, player);
 			fakes.put(location, player);
 		} else {
 			if (player != null) { ReflectionUtils.removeFakePlayer(player); }

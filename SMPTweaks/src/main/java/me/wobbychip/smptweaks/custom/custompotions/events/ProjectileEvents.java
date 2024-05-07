@@ -14,7 +14,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDispenseEvent;
+import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.player.PlayerPickupArrowEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
@@ -52,7 +54,8 @@ public class ProjectileEvents implements Listener {
 			if (fuckBukkit.containsKey(block.getLocation())) {
 				ItemStack item = fuckBukkit.remove(block.getLocation());
 				CustomPotion customPotion = CustomPotions.manager.getCustomPotion(item);
-				if (customPotion != null) { PersistentUtils.setPersistentDataString(event.getEntity(), CustomPotions.TAG_CUSTOM_POTION, customPotion.getName()); }
+				if (customPotion == null) { return; }
+				PersistentUtils.setPersistentDataString(event.getEntity(), CustomPotions.TAG_CUSTOM_POTION, customPotion.getName());
 				if (event.isCancelled() || !customPotion.isEnabled()) { return; }
 				customPotion.onProjectileLaunch(event);
 			}
@@ -63,12 +66,35 @@ public class ProjectileEvents implements Listener {
 			//Since potion name is also saved in LocName, we can set potion tag back to empty
 			//Technically these tags are only needed in brewing stand
 
-			if ((potion.getItem() == null) || (potion.getItem().getType() != Material.SPLASH_POTION)) { return; }
+			if (potion.getItem().getType() != Material.SPLASH_POTION) { return; }
 			CustomPotion customPotion = CustomPotions.manager.getCustomPotion(potion.getItem());
 			if (customPotion == null) { return; }
 
-			potion.setItem(ReflectionUtils.setPotionTag(potion.getItem(), "minecraft:empty"));
+			//Otherwise the cloud will be instant, 0 ticks
+			potion.setItem(ReflectionUtils.setPotionTag(potion.getItem(), CustomPotion.PLACEHOLDER_POTION));
 			customPotion.onProjectileLaunch(event);
 		}
+	}
+
+	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+	public void onEntityShootBowEvent(EntityShootBowEvent event) {
+		if (!(event.getProjectile() instanceof Arrow)) { return; }
+		CustomPotion customPotion = CustomPotions.manager.getCustomPotion(event.getConsumable());
+		if (customPotion == null) { return; }
+		if (customPotion.isEnabled()) { customPotion.onEntityShootBowEvent(event); }
+
+		if (!event.isCancelled()) {
+			Arrow projectile = (Arrow) event.getProjectile();
+			PersistentUtils.setPersistentDataString(projectile, CustomPotions.TAG_CUSTOM_POTION, customPotion.getName());
+			projectile.setColor(customPotion.getColor());
+		}
+	}
+
+	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+	public void onPlayerPickupArrow(PlayerPickupArrowEvent event) {
+		CustomPotion customPotion = CustomPotions.manager.getCustomPotion(event.getArrow());
+		if (customPotion == null) { return; }
+		if (customPotion.isEnabled()) { customPotion.onPlayerPickupArrow(event); }
+		event.getItem().setItemStack(customPotion.getTippedArrow(true, 1));
 	}
 }

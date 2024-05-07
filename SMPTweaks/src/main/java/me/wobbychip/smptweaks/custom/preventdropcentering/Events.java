@@ -23,18 +23,18 @@ public class Events implements Listener {
 
 		TaskUtils.scheduleSyncDelayedTask(() -> {
 			for (Entity entity : location.getWorld().getNearbyEntities(location, DISTANCE, DISTANCE, DISTANCE)) {
-				if (entity instanceof Item) {
-					double posX = Utils.afterDecimal(entity.getLocation().getX());
-					double posY = Utils.afterDecimal(entity.getLocation().getY());
-					double posZ = Utils.afterDecimal(entity.getLocation().getZ());
+				if (!(entity instanceof Item)) { continue; }
 
-					double velX = entity.getVelocity().getX();
-					double velY = entity.getVelocity().getY();
-					double velZ = entity.getVelocity().getZ();
+				double posX = Utils.afterDecimal(entity.getLocation().getX());
+				double posY = Utils.afterDecimal(entity.getLocation().getY());
+				double posZ = Utils.afterDecimal(entity.getLocation().getZ());
 
-					if ((velX == 0.0F) && (velY == 0.0F) && (velZ == 0.0F) && (posX == 0.5F) && (posY == 0.5F) && (posZ == 0.5F)) {
-						popResource(entity, location);
-					}
+				double velX = entity.getVelocity().getX();
+				double velY = entity.getVelocity().getY();
+				double velZ = entity.getVelocity().getZ();
+
+				if ((velX == 0.0F) && (velY == 0.0F) && (velZ == 0.0F) && (posX == 0.5F) && (posY == 0.5F) && (posZ == 0.5F)) {
+					popResource(entity, location);
 				}
 			}
 		}, 1L);

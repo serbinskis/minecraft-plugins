@@ -12,6 +12,7 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Directional;
+import org.bukkit.block.data.type.Crafter;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -49,15 +50,15 @@ public class CustomMarker implements Runnable {
         return customBlock;
     }
 
-    public static CustomMarker createMarker(CustomBlock cblock, Block block) {
+    public static CustomMarker createMarker(CustomBlock customBlock, Block block) {
         String location = Utils.locationToString(block.getLocation());
         if (markers.containsKey(location)) { markers.get(location).remove(true); }
 
-        Map.Entry<BlockFace, Transformation> orientation = getOrientation(block);
-        ItemStack itemStack = cblock.getDropItem(Arrays.asList(BlockFace.UP, BlockFace.DOWN).contains(orientation.getKey()));
+        Map.Entry<BlockFace, Transformation> orientation = getOrientation(customBlock, block);
+        ItemStack itemStack = customBlock.getDropItem(Arrays.asList(BlockFace.UP, BlockFace.DOWN).contains(orientation.getKey()));
 
         ItemDisplay display = (ItemDisplay) block.getWorld().spawnEntity(block.getLocation().add(0.5, 0.5, 0.5), EntityType.ITEM_DISPLAY);
-        PersistentUtils.setPersistentDataString(display, CustomBlock.TAG_BLOCK, cblock.getId());
+        PersistentUtils.setPersistentDataString(display, CustomBlock.TAG_BLOCK, customBlock.getId());
         PersistentUtils.setPersistentDataBoolean(display, TAG_MARKER, true);
         display.setBrightness(new Display.Brightness(15, 15));
         display.setCustomName(TAG_MARKER);
@@ -65,26 +66,39 @@ public class CustomMarker implements Runnable {
         display.setInvulnerable(true);
         display.setTransformation(orientation.getValue());
         display.setItemStack(itemStack);
-        Utils.setGlowColor(display, cblock.prepareGlowingColor(block));
+        Utils.setGlowColor(display, customBlock.prepareGlowingColor(block));
 
-        CustomMarker marker = new CustomMarker(display, cblock);
+        CustomMarker marker = new CustomMarker(display, customBlock);
         markers.put(location, marker);
         return marker;
     }
 
-    public static Map.Entry<BlockFace, Transformation> getOrientation(Block block) {
-        boolean arg0 = (block.getBlockData() instanceof Directional);
+    public static Map.Entry<BlockFace, Transformation> getOrientation(CustomBlock customBlock, Block block) {
+        BlockFace facing = customBlock.isDirectional() ? getFacing(block) : BlockFace.SOUTH;
         Quaternionf left_rotation = new Quaternionf(0f, 0f, 0f, 1f);
         Quaternionf right_rotation = new Quaternionf(0f, 0f, 0f, 1f);
 
-        BlockFace facing = arg0 ? ((Directional) block.getBlockData()).getFacing() : BlockFace.SOUTH;
-        if (arg0 && facing.equals(BlockFace.NORTH)) { right_rotation = new Quaternionf(0f, 1f, 0f, 0f); }
-        if (arg0 && facing.equals(BlockFace.EAST)) { left_rotation = new Quaternionf(0f, 0.70710677f, 0f, 0.70710677f); }
-        if (arg0 && facing.equals(BlockFace.WEST)) { left_rotation = new Quaternionf(0f, -0.70710677f, 0f, 0.70710677f); }
-        if (arg0 && facing.equals(BlockFace.UP)) { left_rotation = new Quaternionf(0.70710677f, 0f, 0f, -0.70710677f); }
-        if (arg0 && facing.equals(BlockFace.DOWN)) { left_rotation = new Quaternionf(0.70710677f, 0f, 0f, 0.70710677f); }
+        if (facing.equals(BlockFace.NORTH)) { right_rotation = new Quaternionf(0f, 1f, 0f, 0f); }
+        if (facing.equals(BlockFace.EAST)) { left_rotation = new Quaternionf(0f, 0.70710677f, 0f, 0.70710677f); }
+        if (facing.equals(BlockFace.WEST)) { left_rotation = new Quaternionf(0f, -0.70710677f, 0f, 0.70710677f); }
+        if (facing.equals(BlockFace.UP)) { left_rotation = new Quaternionf(0.70710677f, 0f, 0f, -0.70710677f); }
+        if (facing.equals(BlockFace.DOWN)) { left_rotation = new Quaternionf(0.70710677f, 0f, 0f, 0.70710677f); }
 
         return Map.entry(facing, new Transformation(new Vector3f(0f), left_rotation, new Vector3f(1.002f), right_rotation));
+    }
+
+    public static BlockFace getFacing(Block block) {
+        if (block.getBlockData() instanceof Directional directional) { return directional.getFacing(); }
+
+        if (block.getBlockData() instanceof Crafter crafter) {
+            if (List.of(Crafter.Orientation.NORTH_UP).contains(crafter.getOrientation())) { return BlockFace.NORTH;  }
+            if (List.of(Crafter.Orientation.EAST_UP).contains(crafter.getOrientation())) { return BlockFace.EAST; }
+            if (List.of(Crafter.Orientation.WEST_UP).contains(crafter.getOrientation())) { return BlockFace.WEST; }
+            if (List.of(Crafter.Orientation.UP_EAST, Crafter.Orientation.UP_NORTH, Crafter.Orientation.UP_SOUTH, Crafter.Orientation.UP_WEST).contains(crafter.getOrientation())) { return BlockFace.UP; }
+            if (List.of(Crafter.Orientation.DOWN_EAST, Crafter.Orientation.DOWN_NORTH, Crafter.Orientation.DOWN_SOUTH, Crafter.Orientation.DOWN_WEST).contains(crafter.getOrientation())) { return BlockFace.DOWN; }
+        }
+
+        return BlockFace.SOUTH;
     }
 
     public void setGlowing(ChatColor color) {

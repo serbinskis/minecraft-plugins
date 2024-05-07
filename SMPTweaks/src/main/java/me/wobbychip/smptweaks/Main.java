@@ -7,8 +7,8 @@ import me.wobbychip.smptweaks.custom.antiendermangrief.AntiEndermanGrief;
 import me.wobbychip.smptweaks.custom.autocraft.AutoCraft;
 import me.wobbychip.smptweaks.custom.autotrade.AutoTrade;
 import me.wobbychip.smptweaks.custom.betterlead.BetterLead;
-import me.wobbychip.smptweaks.custom.breakablebedrock.BreakableBedrock;
 import me.wobbychip.smptweaks.custom.chunkloader.ChunkLoader;
+import me.wobbychip.smptweaks.custom.custombreaking.CustomBreaking;
 import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
 import me.wobbychip.smptweaks.custom.customworld.CustomWorlds;
 import me.wobbychip.smptweaks.custom.disableinvulnerability.DisableInvulnerability;
@@ -21,7 +21,7 @@ import me.wobbychip.smptweaks.custom.globaltrading.GlobalTrading;
 import me.wobbychip.smptweaks.custom.gravitycontrol.GravityControl;
 import me.wobbychip.smptweaks.custom.headdrops.HeadDrops;
 import me.wobbychip.smptweaks.custom.holograms.Holograms;
-import me.wobbychip.smptweaks.custom.ipprotect.IpProtect;
+import me.wobbychip.smptweaks.custom.magnetblock.MagnetBlock;
 import me.wobbychip.smptweaks.custom.noadvancements.NoAdvancements;
 import me.wobbychip.smptweaks.custom.noarrowinfinity.NoArrowInfinity;
 import me.wobbychip.smptweaks.custom.noendportal.NoEndPortal;
@@ -32,13 +32,11 @@ import me.wobbychip.smptweaks.custom.removedatapackitems.RemoveDatapackItems;
 import me.wobbychip.smptweaks.custom.repairwithxp.RepairWithXP;
 import me.wobbychip.smptweaks.custom.respawnabledragonegg.RespawnableDragonEgg;
 import me.wobbychip.smptweaks.custom.serverpause.ServerPause;
-import me.wobbychip.smptweaks.custom.shriekercansummon.ShriekerCanSummon;
-import me.wobbychip.smptweaks.custom.silktouchspawners.SilkTouchSpawners;
 import me.wobbychip.smptweaks.library.customblocks.CustomBlocks;
 import me.wobbychip.smptweaks.library.placeholderapi.PlaceholderAPI;
+import me.wobbychip.smptweaks.library.tinyprotocol.TinyProtocol;
 import me.wobbychip.smptweaks.tweaks.TweakManager;
 import me.wobbychip.smptweaks.utils.GameRules;
-import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -64,7 +62,7 @@ public class Main extends JavaPlugin implements Listener {
 		Main.plugin.saveDefaultConfig();
 		Main.gameRules = new GameRules(Main.plugin).register();
 
-		Utils.sendMessage("[SMPTweaks] Server Version: " + ReflectionUtils.version + " (STARTUP)");
+		Utils.sendMessage("[SMPTweaks] Server Version: " + Bukkit.getBukkitVersion() + " (STARTUP)");
 		Bukkit.getPluginManager().registerEvents(Main.plugin, Main.plugin);
 
 		Main.manager = new TweakManager();
@@ -74,7 +72,7 @@ public class Main extends JavaPlugin implements Listener {
 		Main.manager.addTweak(new AutoCraft());
 		Main.manager.addTweak(new AutoTrade());
 		Main.manager.addTweak(new BetterLead());
-		Main.manager.addTweak(new BreakableBedrock());
+		Main.manager.addTweak(new CustomBreaking());
 		Main.manager.addTweak(new ChunkLoader());
 		Main.manager.addTweak(new CustomPotions());
 		Main.manager.addTweak(new CustomWorlds());
@@ -89,7 +87,7 @@ public class Main extends JavaPlugin implements Listener {
 		Main.manager.addTweak(new GravityControl());
 		Main.manager.addTweak(new HeadDrops());
 		Main.manager.addTweak(new Holograms());
-		Main.manager.addTweak(new IpProtect());
+		Main.manager.addTweak(new MagnetBlock());
 		Main.manager.addTweak(new NoAdvancements());
 		Main.manager.addTweak(new NoArrowInfinity());
 		Main.manager.addTweak(new NoEndPortal());
@@ -100,21 +98,20 @@ public class Main extends JavaPlugin implements Listener {
 		Main.manager.addTweak(new RepairWithXP());
 		Main.manager.addTweak(new RespawnableDragonEgg());
 		Main.manager.addTweak(new ServerPause());
-		Main.manager.addTweak(new ShriekerCanSummon());
-		Main.manager.addTweak(new SilkTouchSpawners());
 		Main.manager.loadTweaks(true);
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
-	public void onServerLoadEvent(ServerLoadEvent event) {                                                   //Actually it is POSTWORLD -> MinecraftServer.java
-		if (event.getType() != ServerLoadEvent.LoadType.STARTUP) { return; }                                 //this.server.enablePlugins(org.bukkit.plugin.PluginLoadOrder.POSTWORLD);
-		Utils.sendMessage("[SMPTweaks] Server Version: " + ReflectionUtils.version + " (POSTWORLD)");   //this.server.getPluginManager().callEvent(new ServerLoadEvent(ServerLoadEvent.LoadType.STARTUP));
-                                                                                                             //this.connection.acceptConnections();
+	public void onServerLoadEvent(ServerLoadEvent event) {                                                    //Actually it is POSTWORLD -> MinecraftServer.java
+		if (event.getType() != ServerLoadEvent.LoadType.STARTUP) { return; }                                  //this.server.enablePlugins(org.bukkit.plugin.PluginLoadOrder.POSTWORLD);
+		Utils.sendMessage("[SMPTweaks] Server Version: " + Bukkit.getBukkitVersion() + " (POSTWORLD)");  //this.server.getPluginManager().callEvent(new ServerLoadEvent(ServerLoadEvent.LoadType.STARTUP));
+                                                                                                              //this.connection.acceptConnections();
 		Main.manager.loadTweaks(false);
 		Main.plugin.getCommand("smptweaks").setExecutor(new Commands());
 		Main.plugin.getCommand("smptweaks").setTabCompleter(new Commands());
 		PlaceholderAPI.register();
 		CustomBlocks.start();
+		TinyProtocol.start();
 	}
 
 	public ClassLoader getPluginClassLoader() {

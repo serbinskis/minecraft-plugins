@@ -1,29 +1,25 @@
 package me.wobbychip.smptweaks.custom.custompotions.potions;
 
-import java.util.Arrays;
-import java.util.List;
-
+import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
+import me.wobbychip.smptweaks.utils.PersistentUtils;
+import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
-import org.bukkit.event.entity.EntityShootBowEvent;
-import org.bukkit.event.entity.LingeringPotionSplashEvent;
-import org.bukkit.event.entity.PotionSplashEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerPickupArrowEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.PotionType;
 
-import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
-import me.wobbychip.smptweaks.utils.PersistentUtils;
-import me.wobbychip.smptweaks.utils.ReflectionUtils;
+import java.util.Arrays;
+import java.util.List;
 
 public class CustomPotion implements Listener {
+	public static String PLACEHOLDER_POTION = "minecraft:awkward";
 	private boolean enabled = true;
 	private Object base;
 	private String cbase;
@@ -43,6 +39,10 @@ public class CustomPotion implements Listener {
 		this.cbase = base;
 	}
 
+	public CustomPotion(PotionType potionType, Material ingredient, String name, Color color) {
+		this(PotionManager.getPotion(potionType), ingredient, name, color);
+	}
+
 	public CustomPotion(Object base, Material ingredient, String name, Color color) {
 		this.base = base;
 		this.ingredient = ingredient;
@@ -54,7 +54,7 @@ public class CustomPotion implements Listener {
 
 		if (!section.contains(name.toUpperCase())) {
 			section.set(name.toUpperCase(), enabled);
-			CustomPotions.config.Save();
+			CustomPotions.config.save();
 		} else {
 			this.enabled = section.getBoolean(name.toUpperCase());
 		}
@@ -147,7 +147,7 @@ public class CustomPotion implements Listener {
 			potionMeta.setColor(color);
 			if (tippedArrowName != null) { potionMeta.setDisplayName(tippedArrowName); }
 			if (lore != null) { potionMeta.setLore(lore); }
-			potionMeta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
+			potionMeta.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
 			item.setItemMeta(potionMeta);
 			PersistentUtils.setPersistentDataString(item, CustomPotions.TAG_CUSTOM_POTION, name);
 			return item;
@@ -160,25 +160,23 @@ public class CustomPotion implements Listener {
 		return ReflectionUtils.setPotionTag(item, "minecraft:" + name);
 	}
 
-	public ItemStack setProperties(ItemStack item) {		
+	public ItemStack setProperties(ItemStack item, boolean tag) {
 		PotionMeta potionMeta = (PotionMeta) item.getItemMeta();
 		potionMeta.setColor(color);
 		potionMeta.setDisplayName(getPrefix(item.getType()) + displayName);
 		if (lore != null) { potionMeta.setLore(lore); }
-		potionMeta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
+		potionMeta.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
 		item.setItemMeta(potionMeta);
 		PersistentUtils.setPersistentDataString(item, CustomPotions.TAG_CUSTOM_POTION, name);
-
-		return setPotionTag(item);
+		return tag ? setPotionTag(item) : item;
 	}
 
 	public ItemStack getDisabledPotion(ItemStack item) {		
 		PotionMeta potionMeta = (PotionMeta) item.getItemMeta();
 		potionMeta.setDisplayName("§r§fPotions are disabled");
-		potionMeta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
+		potionMeta.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
 		item.setItemMeta(potionMeta);
-
-		return ReflectionUtils.setPotionTag(item, "minecraft:empty");
+		return ReflectionUtils.setPotionTag(item, PLACEHOLDER_POTION);
 	}
 
 	public void onPotionConsume(PlayerItemConsumeEvent event) {}

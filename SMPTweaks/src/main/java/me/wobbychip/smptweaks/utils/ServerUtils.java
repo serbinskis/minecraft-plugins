@@ -12,9 +12,6 @@ public class ServerUtils {
 	public static Object postReload = null;
 	public static Object ImageFrame_itemFrames = null; //Support for ImageFrame - https://www.spigotmc.org/resources/106031/
 	private static boolean shutting = false;
-	private static long tick = 0;
-
-	static { TaskUtils.scheduleSyncRepeatingTask(() -> tick++, 0L, 1L); }
 
 	//This actually doesn't pause your server,
 	//it just removes worlds and functions from ticking
@@ -66,6 +63,6 @@ public class ServerUtils {
 	}
 
 	public static long getTick() {
-		return tick;
+		return ReflectionUtils.getTickCount();
 	}
 }

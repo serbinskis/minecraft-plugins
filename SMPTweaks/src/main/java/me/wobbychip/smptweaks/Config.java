@@ -1,15 +1,15 @@
 package me.wobbychip.smptweaks;
 
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-
-import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 
 public class Config {
 	private FileConfiguration customConfig;
@@ -59,7 +59,7 @@ public class Config {
 		}
 	}
 
-	public void Save() {
+	public void save() {
 		try {
 			customConfig.save(file);
 		} catch (IOException e) {

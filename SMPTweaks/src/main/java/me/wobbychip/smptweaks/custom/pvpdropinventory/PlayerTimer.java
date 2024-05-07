@@ -29,7 +29,7 @@ public class PlayerTimer {
 			timers.put(UUID.fromString(key), seconds);
 		}
 
-		taskId = TaskUtils.scheduleSyncRepeatingTask(() -> checkPlayers(), 1L, 20L);
+		taskId = TaskUtils.scheduleSyncRepeatingTask(this::checkPlayers, 1L, 20L);
 	}
 
 	public void save(boolean bStop) {
@@ -44,7 +44,7 @@ public class PlayerTimer {
 			this.config.getConfig().set(key.toString(), seconds);
 		}
 
-		this.config.Save();
+		this.config.save();
 	}
 
 	public void addPlayer(Player player, int seconds) {

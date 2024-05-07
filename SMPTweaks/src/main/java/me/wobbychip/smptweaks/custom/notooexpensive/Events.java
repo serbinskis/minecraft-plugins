@@ -9,10 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.inventory.PrepareAnvilEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.inventory.AnvilInventory;
 
 public class Events implements Listener {
@@ -20,10 +17,11 @@ public class Events implements Listener {
 	public void onPrepareAnvilEvent(PrepareAnvilEvent event) {
 		World world = event.getInventory().getLocation().getWorld();
 		if (!NoTooExpensive.tweak.getGameRuleBoolean(world)) { return; }
+		int cost = event.getInventory().getRepairCost();
 
 		for (HumanEntity player : event.getViewers()) {
 			if (player.getGameMode() == GameMode.CREATIVE) { continue; }
-			boolean flag = event.getInventory().getRepairCost() > NoTooExpensive.MAXIMUM_REPAIR_COST;
+			boolean flag = (cost > NoTooExpensive.MAXIMUM_REPAIR_COST);
 			ReflectionUtils.setInstantBuild((Player) player, flag, true, false);
 		}
 
@@ -39,8 +37,15 @@ public class Events implements Listener {
 		if (inventory.getRepairCost() <= NoTooExpensive.MAXIMUM_REPAIR_COST) { return; }
 		if (((Player) event.getWhoClicked()).getLevel() >= inventory.getRepairCost()) { return; }
 
-		((Player) event.getWhoClicked()).playSound(event.getWhoClicked().getLocation(), Main.DENY_SOUND_EFFECT, 1.0f, 1.0f);
+		event.setCancelled(true);
+		((Player) event.getWhoClicked()).playSound(event.getWhoClicked().getLocation(), Main.DENY_SOUND_EFFECT, 1f, 1f);
 		ReflectionUtils.setInstantBuild((Player) event.getWhoClicked(), false, true, false);
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onInventoryOpenEvent(InventoryOpenEvent event) {
+		if (event.getInventory().getType() != InventoryType.ANVIL) { return; }
+		((AnvilInventory) event.getInventory()).setMaximumRepairCost(Integer.MAX_VALUE);
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)

@@ -4,11 +4,9 @@ import me.wobbychip.smptweaks.utils.PersistentUtils;
 import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Display.Billboard;
 import org.bukkit.entity.*;
 import org.bukkit.entity.TextDisplay.TextAlignment;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
@@ -88,8 +86,7 @@ public class Hologram {
 		bookMeta.setDisplayName("§bHologram (" + location + ")");
 		bookMeta.setAuthor(getUniqueId().toString());
 		bookMeta.setPages(this.getText());
-		bookMeta.addEnchant(Enchantment.DURABILITY, 1, true);
-		bookMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+		bookMeta.setEnchantmentGlintOverride(true);
 		book.setItemMeta(bookMeta);
 		return book;
 	}
@@ -138,7 +135,7 @@ public class Hologram {
 	}
 
 	public void teleport(Location location) {
-		//By default 4 lines can fit in 1 block
+		//By default, 4 lines can fit in 1 block
 		location = location.getBlock().getLocation();
 		float height = (getText().split("\r\n|\r|\n").length * 0.25f);
 		interaction.setInteractionHeight(Math.max(height, 1f));

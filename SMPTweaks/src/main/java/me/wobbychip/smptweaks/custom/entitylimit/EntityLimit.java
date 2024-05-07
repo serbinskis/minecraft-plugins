@@ -1,12 +1,11 @@
 package me.wobbychip.smptweaks.custom.entitylimit;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.bukkit.Bukkit;
-
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
+import org.bukkit.Bukkit;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class EntityLimit extends CustomTweak {
 	public static List<String> excludeReason = new ArrayList<>();

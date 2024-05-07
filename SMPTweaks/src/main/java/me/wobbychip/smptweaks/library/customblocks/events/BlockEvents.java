@@ -134,7 +134,7 @@ public class BlockEvents implements Listener {
 		Block destination = event.getDestination().getLocation().getBlock();
 
 		//Fix for 1 tick gap inside BlockDispenseEvent
-		if ((destination.getType() == Material.DISPENSER || destination.getType() == Material.DROPPER) && customBlock.isCustomBlock(destination)) {
+		if ((destination.getType() == Material.DISPENSER || destination.getType() == Material.DROPPER || destination.getType() == Material.CRAFTER) && customBlock.isCustomBlock(destination)) {
 			TaskUtils.finishTask(busy_task);
 		}
 
@@ -174,7 +174,7 @@ public class BlockEvents implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockPhysicsEvent(BlockPhysicsEvent event) {
 		//This is used to save items inside droppers and dispenser before BlockDispenseEvent
-		if (event.getChangedType() == Material.DISPENSER || event.getChangedType() == Material.DROPPER) {
+		if (event.getChangedType() == Material.DISPENSER || event.getChangedType() == Material.DROPPER || event.getChangedType() == Material.CRAFTER) {
 			if (!customBlock.isCustomBlock(event.getBlock())) { return; }
 			String location = Utils.locationToString(event.getBlock().getLocation());
 			ItemStack[] items = ((org.bukkit.block.Container) event.getBlock().getState()).getInventory().getContents();

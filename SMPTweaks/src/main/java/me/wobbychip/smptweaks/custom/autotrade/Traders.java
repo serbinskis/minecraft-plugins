@@ -3,6 +3,7 @@ package me.wobbychip.smptweaks.custom.autotrade;
 import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
@@ -105,6 +106,7 @@ public class Traders {
 
 	public static void getResultItems(Villager villager, MerchantRecipe recipe, Inventory trader, List<ItemStack> consumeItems, List<ItemStack> outputItems) {
 		if (recipe.getUses() >= recipe.getMaxUses()) { return; }
+		if (recipe.getIngredients().isEmpty()) { return; }
 
 		ItemStack result = recipe.getResult();
 		if (!trader.containsAtLeast(result, result.getAmount())) { return; }
@@ -112,7 +114,8 @@ public class Traders {
 		ItemStack adjusted = Villagers.adjustItem(villager, recipe, recipe.getIngredients().get(0));
 		if (!trader.containsAtLeast(adjusted, adjusted.getAmount())) { return; }
 
-		ItemStack ingredient = recipe.getIngredients().get(1); //Second item should not be adjusted
+		//Second item should not be adjusted
+		ItemStack ingredient = (recipe.getIngredients().size() > 1) ? recipe.getIngredients().get(1) : new ItemStack(Material.AIR);
 		if (!ingredient.getType().isAir() && !trader.containsAtLeast(ingredient, ingredient.getAmount())) { return; }
 
 		consumeItems.add(adjusted);

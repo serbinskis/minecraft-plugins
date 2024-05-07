@@ -10,17 +10,15 @@ import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class BetterLead extends CustomTweak {
 	public static CustomTweak tweak;
 	public static String TAG_IS_UNBREAKABLE_LEASH = "isUnbreakableLeash";
 	public static int maxDistance = 100;
 	public static List<String> custom = new ArrayList<>();
-	public static List<UUID> preventPacket = new ArrayList<>();
 
 	public BetterLead() {
-		super(BetterLead.class, false, true);
+		super(BetterLead.class, false, false);
 		this.setConfigs(List.of("config.yml"));
 		this.setGameRule("doBetterLead", true, false);
 		this.setReloadable(true);
@@ -30,7 +28,6 @@ public class BetterLead extends CustomTweak {
 
 	public void onEnable() {
 		this.onReload();
-		new ProtocolEvents(Main.plugin);
 		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 	}
 

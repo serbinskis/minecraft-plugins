@@ -11,8 +11,6 @@ public class PaperUtils {
 	}
 
 	public static boolean isPaper() {
-		try {
-			return (com.destroystokyo.paper.ParticleBuilder.class != null);
-		} catch (Exception e) { return false; }
+		return (ReflectionUtils.loadClass("com.destroystokyo.paper.ParticleBuilder", false) != null);
 	}
 }

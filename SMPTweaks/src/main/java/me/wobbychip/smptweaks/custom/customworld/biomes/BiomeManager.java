@@ -72,7 +72,7 @@ public class BiomeManager {
         return cbiomes.get(name);
     }
 
-    public static HashMap<String, Object> getNmsMap() {
+    public static HashMap<String, Object> getNMSMap() {
         return nmsBiomes;
     }
 }

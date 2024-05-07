@@ -12,7 +12,6 @@ public class CustomBiome {
     public static String TAG_SKYCOLOR = CustomWorlds.TAG_BIOME_NAME + "_SKYCOLOR";
     public static String TAG_WATERCOLOR = CustomWorlds.TAG_BIOME_NAME + "_WATERCOLOR";
     public static String TAG_WATERFOGCOLOR = CustomWorlds.TAG_BIOME_NAME + "_WATERFOGCOLOR";
-
     private final String biome_base;
     private final String namespace;
     private final String name;
