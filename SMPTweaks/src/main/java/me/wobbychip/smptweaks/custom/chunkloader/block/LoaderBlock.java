@@ -14,6 +14,7 @@ import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.inventory.recipe.CraftingBookCategory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,6 +35,7 @@ public class LoaderBlock extends CustomBlock {
     @Override
     public Recipe prepareRecipe(NamespacedKey key, ItemStack itemStack) {
         ShapedRecipe recipe = new ShapedRecipe(key, itemStack);
+        recipe.setCategory(CraftingBookCategory.REDSTONE);
         recipe.shape("GGG", "GLG", "RNR");
         recipe.setIngredient('G', Material.GOLD_INGOT);
         recipe.setIngredient('L', Material.LODESTONE);

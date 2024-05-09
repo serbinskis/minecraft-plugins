@@ -2,6 +2,7 @@ package me.wobbychip.smptweaks.custom.magnetblock.block;
 
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.library.customblocks.blocks.CustomBlock;
+import me.wobbychip.smptweaks.utils.PersistentUtils;
 import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -16,10 +17,11 @@ import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.util.Vector;
 
-import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MagnetBlock extends CustomBlock {
+    public static String TAG_TICK = "tag_magnet_block_tick";
     public static double DISTANCE = 30;
     public static double SPEED = 0.1D;
 
@@ -28,6 +30,7 @@ public class MagnetBlock extends CustomBlock {
         this.setCustomModel(1000410000);
         this.setCustomName(Main.SYM_COLOR + "rMagnet Block");
         this.setCustomTitle("Magnet Block");
+        this.setTickable(true);
     }
 
     @Override
@@ -50,18 +53,19 @@ public class MagnetBlock extends CustomBlock {
     @Override
     public void tick(Block block, long tick) {
         if (!me.wobbychip.smptweaks.custom.magnetblock.MagnetBlock.tweak.getGameRuleBoolean(block.getWorld())) { return; }
-        List<Item> items = Utils.getNearbyEntities(block.getLocation(), EntityType.ITEM, DISTANCE, false).stream().map(Item.class::cast).toList();
-        boolean pulled = false;
+        AtomicBoolean pulled = new AtomicBoolean(false);
 
-        for (Item item: items) {
-            if (Utils.distance(item.getLocation(), block.getLocation().add(0.5, 0.5, 0.5)) > 1.1) { pullItem(item, block, SPEED); continue; }
-            if (pulled) { continue; }
+        Utils.getNearbyEntities(block.getLocation(), EntityType.ITEM, DISTANCE, false).stream().map(Item.class::cast).forEach(item -> {
+            if (pulled.get()) { return; }
+            ItemStack cloneItem = Utils.cloneItem(item.getItemStack(), 1);
             Inventory inventory = ((Container) block.getState()).getInventory();
-            if (!addItem(inventory, Utils.cloneItem(item.getItemStack(), 1), true)) { continue; }
+            if (addItem(inventory,cloneItem, false)) { pullItem(item, block, SPEED, (int) (tick % 20)); }
+            if (Utils.distance(item.getLocation(), block.getLocation().add(0.5, 0.5, 0.5)) > 1.1) { return; }
+            if (!inventory.addItem(cloneItem).isEmpty()) { return; }
             item.setItemStack(Utils.cloneItem(item.getItemStack(), item.getItemStack().getAmount()-1));
-            if (item.getItemStack().getAmount() == 0) { item.remove(); }
-            pulled = true;
-        }
+            if (item.getItemStack().getAmount() == 0) { item.remove(); } else { pullItem(item, block, SPEED, (int) (tick % 20)); }
+            pulled.set(true);
+        });
     }
 
     public static boolean addItem(Inventory inventory, ItemStack itemStack, boolean commit) {
@@ -78,7 +82,11 @@ public class MagnetBlock extends CustomBlock {
         return left.isEmpty();
     }
 
-    public static void pullItem(Item item, Block block, double speed) {
+    public static void pullItem(Item item, Block block, double speed, int tick) {
+        boolean arg0 = PersistentUtils.hasPersistentDataInteger(item, TAG_TICK);
+        arg0 = arg0 && (PersistentUtils.getPersistentDataInteger(item, TAG_TICK) == tick);
+        if (arg0) { return; } else { PersistentUtils.setPersistentDataInteger(item, TAG_TICK, tick); }
+
         Location hLocation = block.getLocation();
         Location tLocation = item.getLocation();
 

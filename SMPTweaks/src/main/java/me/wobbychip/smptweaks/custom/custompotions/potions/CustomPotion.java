@@ -179,6 +179,12 @@ public class CustomPotion implements Listener {
 		return ReflectionUtils.setPotionTag(item, PLACEHOLDER_POTION);
 	}
 
+	public boolean isCustomPotion(ItemStack itemStack) {
+		CustomPotion customPotion = CustomPotions.manager.getCustomPotion(itemStack);
+		if (customPotion == null) { return false; }
+		return customPotion.getName().equals(this.getName());
+	}
+
 	public void onPotionConsume(PlayerItemConsumeEvent event) {}
 	public void onPotionSplash(PotionSplashEvent event) {}
 	public void onLingeringPotionSplash(LingeringPotionSplashEvent event) {}
