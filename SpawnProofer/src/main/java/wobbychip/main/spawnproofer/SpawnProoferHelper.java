@@ -6,6 +6,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
+import net.minecraft.item.BoneMealItem;
 import net.minecraft.item.Item;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -23,13 +24,15 @@ import net.minecraft.world.World;
 
 import java.util.*;
 
+import static net.minecraft.item.Item.BLOCK_ITEMS;
+
 public class SpawnProoferHelper {
     private final static MinecraftClient minecraft = MinecraftClient.getInstance();
     private static boolean enabled = false;
     private static String previousMessage = null;
     private static final LinkedHashMap<Long, Long> nanotimeMap = new LinkedHashMap<>();
     private static final List<TagKey<Item>> spawnProofItems = List.of(ItemTags.WOOL_CARPETS, ItemTags.SLABS, ItemTags.WOODEN_PRESSURE_PLATES, ItemTags.BUTTONS);
-	private static final List<Item> extraItemList = List.of(Items.LIGHT_WEIGHTED_PRESSURE_PLATE, Items.HEAVY_WEIGHTED_PRESSURE_PLATE);
+	private static final List<Item> extraItemList = List.of(Items.LIGHT_WEIGHTED_PRESSURE_PLATE, Items.HEAVY_WEIGHTED_PRESSURE_PLATE, Items.TORCH, Items.PINK_PETALS, Items.BONE_MEAL);
 
     public static void tick() {
         if (enabled) { doSpawnProofing(); }
@@ -57,12 +60,16 @@ public class SpawnProoferHelper {
         MinecraftClient.getInstance().player.sendMessage(Text.of(message), true);
     }
 
-    public static boolean isSpawnableBlock(long longPos, boolean light, int minLighting) {
+    public static void sendChatMessage(String message) {
+        MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.of(message));
+    }
+
+    public static boolean isSpawnableBlock(BlockPos blockPos, Item item, boolean light, int minLighting) {
         World world = MinecraftClient.getInstance().world;
         if (world == null) { return false; }
 
-        BlockPos blockPos = BlockPos.fromLong(longPos);
         Block block = world.getBlockState(blockPos).getBlock();
+        if (Items.BONE_MEAL.equals(item) && (block instanceof Fertilizable)) { return true; }
         if (block instanceof FluidBlock) { return false; }
 
         if (!world.getBlockState(blockPos.down()).allowsSpawning(world, blockPos.down(), EntityType.ZOMBIFIED_PIGLIN)) { return false; }
@@ -71,35 +78,53 @@ public class SpawnProoferHelper {
         return arg0;
     }
 
+    public static boolean isItemBlock(BlockPos blockPos, Item item) {
+        if (item == null) { return false; } //Let it pass, so we will se the message in placeBlock()
+        World world = MinecraftClient.getInstance().world;
+        if (world == null) { return false; }
+
+        Block block = world.getBlockState(blockPos).getBlock();
+        if (Items.BONE_MEAL.equals(item) && (block instanceof Fertilizable)) { return false; } //This is inverted in filter
+        Item blockItem = BLOCK_ITEMS.getOrDefault(block, Items.AIR);
+        return blockItem.equals(item);
+    }
+
+    public static boolean isInstantBreakable(BlockPos blockPos, Item item) {
+        ModConfig config = AutoConfig.getConfigHolder(ModConfig.class).getConfig();
+        World world = MinecraftClient.getInstance().world;
+        if (world == null) { return false; }
+
+        Block block = world.getBlockState(blockPos).getBlock();
+        if (Items.BONE_MEAL.equals(item) && (block instanceof Fertilizable)) { return true; }
+        if (BLOCK_ITEMS.getOrDefault(block, Items.AIR).equals(Items.AIR)) { return true; }
+        if (Items.TORCH.equals(item) && block.equals(Blocks.TORCH)) { return false; }
+        if ((world.getBlockState(blockPos).getHardness(world, blockPos) <= 0.0f) && !world.getBlockState(blockPos).isReplaceable()) { return config.replace; }
+        return true;
+    }
+
     public static void doSpawnProofing() {
+        Object[] result = getItem();
         BlockPos playerPos = MinecraftClient.getInstance().player.getBlockPos();
         ModConfig config = AutoConfig.getConfigHolder(ModConfig.class).getConfig();
         int reachDistance = config.reachDistance;
+        int maxInteractionPerTick = Items.TORCH.equals(result[1]) ? 1 : config.maxInteractionPerTick;
+        int minLighting = Items.TORCH.equals(result[1]) ? config.minLighting : Integer.MAX_VALUE;
+        boolean light = Items.TORCH.equals(result[1]);
 
-        for (int  i = 0; i < config.maxInteractionPerTick; i++) {
+        for (int  i = 0; i < maxInteractionPerTick; i++) {
             BlockPos.streamOutwards(playerPos, reachDistance, reachDistance, reachDistance).
-                    filter(e -> isSpawnableBlock(e.asLong(), true, config.minLighting)).
-                    filter(e -> playerPos.getSquaredDistance(e)<reachDistance * reachDistance).
+                    filter(e -> isSpawnableBlock(e, (Item) result[1], light, minLighting)).
+                    filter(e -> isInstantBreakable(e, (Item) result[1])).
+                    filter(e -> !isItemBlock(e, (Item) result[1])).
+                    filter(e -> playerPos.getSquaredDistance(e) < reachDistance * reachDistance).
                     filter(e -> !nanotimeMap.containsValue(e.asLong()) || (nanotimeMap.get(e.asLong()) > System.nanoTime()+1e9)).
-                    limit(1).forEach((e) -> { placeBlock(e, true); });
-        }
-
-        Item item = (Item) getItem(true)[1];
-        if ((item != null) && (item).equals(Items.TORCH)) { return; }
-
-        for (int  i = 0; i < config.maxInteractionPerTick; i++) {
-            BlockPos.streamOutwards(playerPos, reachDistance, reachDistance, reachDistance).
-                    filter(e -> isSpawnableBlock(e.asLong(), false, Integer.MAX_VALUE)).
-                    filter(e -> playerPos.getSquaredDistance(e)<reachDistance * reachDistance).
-                    filter(e -> !nanotimeMap.containsValue(e.asLong()) || (nanotimeMap.get(e.asLong()) > System.nanoTime()+1e9)).
-                    limit(1).forEach((e) -> { placeBlock(e, false); });
+                    limit(1).forEach(e -> placeBlock(e, (Integer) result[0], (Item) result[1]));
         }
     }
 
-    private static void placeBlock(BlockPos blockPos, boolean light) {
-        Object[] objects = getItem(light);
-        int slotNum = (int) objects[0];
+    private static void placeBlock(BlockPos blockPos, int slotNum, Item item) {
         World world = MinecraftClient.getInstance().world;
+        ModConfig config = AutoConfig.getConfigHolder(ModConfig.class).getConfig();
 
         if (slotNum == -1) {
             sendActionMessage("[SpawnProofer] No item in the inventory");
@@ -111,12 +136,7 @@ public class SpawnProoferHelper {
             return;
         }
 
-        //Prevent breaking torch if we are placing torch
-        boolean arg0 = ((Item) objects[1]).equals(Items.TORCH);
-        boolean arg1 = world.getBlockState(blockPos).getBlock().equals(Blocks.TORCH);
-        if ((arg0 && arg1)) { return; }
-
-        if ((world.getBlockState(blockPos).getHardness(world, blockPos) <= 0.0f) && !world.getBlockState(blockPos).isReplaceable()) {
+        if (config.replace && !Items.BONE_MEAL.equals(item) && (world.getBlockState(blockPos).getHardness(world, blockPos) <= 0.0f) && !world.getBlockState(blockPos).isReplaceable()) {
             minecraft.interactionManager.attackBlock(blockPos, Direction.NORTH);
             minecraft.interactionManager.breakBlock(blockPos);
         }
@@ -127,21 +147,20 @@ public class SpawnProoferHelper {
         nanotimeMap.put(blockPos.asLong(), System.nanoTime());
     }
 
-    private static Object[] getItem(boolean light) {
+    private static Object[] getItem() {
 	    Inventory inventory = minecraft.player.getInventory();
 
 		for (int i = 0; i < inventory.size(); i++) {
 			ItemStack stack = inventory.getStack(i);
 
 			for (TagKey<Item> predicates : spawnProofItems) {
-				if (stack.isIn(predicates)) { return new Object[]{i, stack.getItem()}; }
+				if (stack.isIn(predicates)) { return new Object[] { i, stack.getItem() }; }
 			}
 
-            if (light && stack.getItem().equals(Items.TORCH)) { return new Object[]{i, stack.getItem()}; }
-            if (extraItemList.contains(stack.getItem())) { return new Object[]{i, stack.getItem()}; }
+            if (extraItemList.contains(stack.getItem())) { return new Object[] { i, stack.getItem() }; }
 		}
 
-        return new Object[]{-1, null};
+        return new Object[] { -1, null };
     }
 
     public static boolean playerInventorySwitch(Item itemName) {

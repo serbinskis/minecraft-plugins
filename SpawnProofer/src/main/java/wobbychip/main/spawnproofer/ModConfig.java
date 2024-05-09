@@ -14,4 +14,7 @@ class ModConfig implements ConfigData {
 
     @ConfigEntry.Gui.Tooltip
     public int minLighting = 11;
+
+    @ConfigEntry.Gui.Tooltip()
+    public boolean replace = false;
 }

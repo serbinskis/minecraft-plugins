@@ -9,7 +9,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientPlayerInteractionManager.class)
 public class MixinClientPlayerInteractionManager {
-
     @Inject(at = @At("HEAD"), method = "tick")
     private void init(CallbackInfo ci) {
         if (SpawnProoferHelper.isEnabled()) { SpawnProoferHelper.tick(); }
