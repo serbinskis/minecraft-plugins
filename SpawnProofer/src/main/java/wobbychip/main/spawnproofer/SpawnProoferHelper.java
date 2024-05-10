@@ -24,6 +24,7 @@ import net.minecraft.world.World;
 
 import java.util.*;
 
+import static net.minecraft.block.FlowerbedBlock.FLOWER_AMOUNT;
 import static net.minecraft.item.Item.BLOCK_ITEMS;
 
 public class SpawnProoferHelper {
@@ -84,9 +85,29 @@ public class SpawnProoferHelper {
         if (world == null) { return false; }
 
         Block block = world.getBlockState(blockPos).getBlock();
+        if (Items.PINK_PETALS.equals(item)) { return false; }
         if (Items.BONE_MEAL.equals(item) && (block instanceof Fertilizable)) { return false; } //This is inverted in filter
         Item blockItem = BLOCK_ITEMS.getOrDefault(block, Items.AIR);
         return blockItem.equals(item);
+    }
+
+    public static boolean isCombinable(BlockPos blockPos, Item item) {
+        World world = MinecraftClient.getInstance().world;
+        if (world == null) { return false; }
+        Block block = world.getBlockState(blockPos).getBlock();
+
+        if (Items.BONE_MEAL.equals(item)) {
+            if (!(block instanceof Fertilizable) || (block instanceof GrassBlock)) { return false; } //Skip non flower blocks
+            if (!(block instanceof FlowerbedBlock)) { return true; } //Skip non flower blocks
+            return world.getBlockState(blockPos).get(FLOWER_AMOUNT) < 4;
+        }
+
+        if (Items.PINK_PETALS.equals(item)) {
+            if (!BLOCK_ITEMS.getOrDefault(block, Items.AIR).equals(item)) { return true; } //Skip if not using petals on petals
+            return world.getBlockState(blockPos).get(FLOWER_AMOUNT) < 4;
+        }
+
+        return true;
     }
 
     public static boolean isInstantBreakable(BlockPos blockPos, Item item) {
@@ -97,6 +118,7 @@ public class SpawnProoferHelper {
         Block block = world.getBlockState(blockPos).getBlock();
         if (Items.BONE_MEAL.equals(item) && (block instanceof Fertilizable)) { return true; }
         if (BLOCK_ITEMS.getOrDefault(block, Items.AIR).equals(Items.AIR)) { return true; }
+        if (Items.PINK_PETALS.equals(item) && block.equals(Blocks.PINK_PETALS)) { return true; }
         if (Items.TORCH.equals(item) && block.equals(Blocks.TORCH)) { return false; }
         if ((world.getBlockState(blockPos).getHardness(world, blockPos) <= 0.0f) && !world.getBlockState(blockPos).isReplaceable()) { return config.replace; }
         return true;
@@ -115,6 +137,7 @@ public class SpawnProoferHelper {
             BlockPos.streamOutwards(playerPos, reachDistance, reachDistance, reachDistance).
                     filter(e -> isSpawnableBlock(e, (Item) result[1], light, minLighting)).
                     filter(e -> isInstantBreakable(e, (Item) result[1])).
+                    filter(e -> isCombinable(e, (Item) result[1])).
                     filter(e -> !isItemBlock(e, (Item) result[1])).
                     filter(e -> playerPos.getSquaredDistance(e) < reachDistance * reachDistance).
                     filter(e -> !nanotimeMap.containsValue(e.asLong()) || (nanotimeMap.get(e.asLong()) > System.nanoTime()+1e9)).
