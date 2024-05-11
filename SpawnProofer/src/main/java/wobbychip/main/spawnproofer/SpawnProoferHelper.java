@@ -148,6 +148,7 @@ public class SpawnProoferHelper {
     private static void placeBlock(BlockPos blockPos, int slotNum, Item item) {
         World world = MinecraftClient.getInstance().world;
         ModConfig config = AutoConfig.getConfigHolder(ModConfig.class).getConfig();
+        BlockState blockState = world.getBlockState(blockPos);
 
         if (slotNum == -1) {
             sendActionMessage("[SpawnProofer] No item in the inventory");
@@ -159,9 +160,14 @@ public class SpawnProoferHelper {
             return;
         }
 
-        if (config.replace && !Items.BONE_MEAL.equals(item) && (world.getBlockState(blockPos).getHardness(world, blockPos) <= 0.0f) && !world.getBlockState(blockPos).isReplaceable()) {
+        if (config.replace && !Items.BONE_MEAL.equals(item) && (blockState.getHardness(world, blockPos) <= 0.0f) && !blockState.isReplaceable()) {
             minecraft.interactionManager.attackBlock(blockPos, Direction.NORTH);
             minecraft.interactionManager.breakBlock(blockPos);
+        }
+
+        if (Items.BONE_MEAL.equals(item) && (blockState.getBlock() instanceof FlowerbedBlock)) {
+            BlockState newState = blockState.with(FLOWER_AMOUNT, blockState.get(FLOWER_AMOUNT) + 1);
+            world.setBlockState(blockPos, newState);
         }
 
         Vec3d hitVec = new Vec3d(blockPos.getX(), blockPos.getY(), blockPos.getZ());
