@@ -11,5 +11,7 @@
   "text.autoconfig.spawnproofer.option.minLighting": "Minimum Required Lighting",
   "text.autoconfig.spawnproofer.option.minLighting.@Tooltip": "Minimum required lighting for torch to be placed",
   "text.autoconfig.spawnproofer.option.replace": "Replace Instat Break Blocks",
-  "text.autoconfig.spawnproofer.option.replace.@Tooltip": "Will replace insta-break blocks"
+  "text.autoconfig.spawnproofer.option.replace.@Tooltip": "Will replace insta-break blocks",
+  "text.autoconfig.spawnproofer.option.stack": "Stack stackable blocks",
+  "text.autoconfig.spawnproofer.option.stack.@Tooltip": "Will stack stackable blocks, for example, flowers"
 }

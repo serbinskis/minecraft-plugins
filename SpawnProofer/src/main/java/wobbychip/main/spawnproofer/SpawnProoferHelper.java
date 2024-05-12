@@ -92,6 +92,7 @@ public class SpawnProoferHelper {
     }
 
     public static boolean isCombinable(BlockPos blockPos, Item item) {
+        ModConfig config = AutoConfig.getConfigHolder(ModConfig.class).getConfig();
         World world = MinecraftClient.getInstance().world;
         if (world == null) { return false; }
         Block block = world.getBlockState(blockPos).getBlock();
@@ -104,7 +105,7 @@ public class SpawnProoferHelper {
 
         if (Items.PINK_PETALS.equals(item)) {
             if (!BLOCK_ITEMS.getOrDefault(block, Items.AIR).equals(item)) { return true; } //Skip if not using petals on petals
-            return world.getBlockState(blockPos).get(FLOWER_AMOUNT) < 4;
+            return config.stack && world.getBlockState(blockPos).get(FLOWER_AMOUNT) < 4;
         }
 
         return true;
