@@ -60,7 +60,7 @@ public class WormholePotion extends CustomPotion {
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onPlayerDeathEvent(PlayerDeathEvent event) {
-		unmarkPlayer(event.getPlayer());
+		unmarkPlayer(event.getEntity());
 	}
 
 	public void saveTarget(Player target, Arrow arrow) {
