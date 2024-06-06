@@ -12,8 +12,8 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 public class Config {
-	private FileConfiguration customConfig;
-	private File file;
+	private final FileConfiguration customConfig;
+	private final File file;
 
 	public Config(String configPath, String savePath) {
 		file = new File(Main.plugin.getDataFolder() + savePath);
