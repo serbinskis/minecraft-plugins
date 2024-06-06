@@ -6,6 +6,10 @@ import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Arrow;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
@@ -13,6 +17,8 @@ import org.bukkit.event.player.PlayerPickupArrowEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 
 import java.util.Arrays;
@@ -23,16 +29,17 @@ public class CustomPotion implements Listener {
 	private boolean enabled = true;
 	private Object base;
 	private String cbase;
-	private Material ingredient;
-	private String name;
-	private Color color;
-
+	private final Material ingredient;
+	private final String name;
+	private final Color color;
 	private String displayName = "";
 	private List<String> lore = null;
-
 	private boolean allowVillagerTrades = false;
 	private boolean allowTippedArrow = false;
 	private String tippedArrowName = null;
+	private PotionEffect potionEffect;
+	private PotionEffect arrowEffect;
+	private PotionEffect cloudEffect;
 
 	public CustomPotion(String base, Material ingredient, String name, Color color) {
 		this((Object) null, ingredient, name, color);
@@ -58,6 +65,24 @@ public class CustomPotion implements Listener {
 		} else {
 			this.enabled = section.getBoolean(name.toUpperCase());
 		}
+	}
+
+	protected void addPotionEffect(PotionEffectType type, int duration, int amplifier) {
+		this.potionEffect = new PotionEffect(type, duration, amplifier);
+		this.arrowEffect = new PotionEffect(type, (int) (duration * 0.125f), amplifier);
+		this.cloudEffect = new PotionEffect(type, (int) (duration * 0.25f), amplifier);
+	}
+
+	public PotionEffect getPotionEffect() {
+		return this.potionEffect;
+	}
+
+	public PotionEffect getArrowEffect() {
+		return this.arrowEffect;
+	}
+
+	public PotionEffect getCloudEffect() {
+		return this.cloudEffect;
 	}
 
 	public boolean isEnabled() {
@@ -147,7 +172,8 @@ public class CustomPotion implements Listener {
 			potionMeta.setColor(color);
 			if (tippedArrowName != null) { potionMeta.setDisplayName(tippedArrowName); }
 			if (lore != null) { potionMeta.setLore(lore); }
-			potionMeta.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
+			if (potionEffect == null) { potionMeta.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP); }
+			if (potionEffect != null) { potionMeta.addCustomEffect(potionEffect, true); }
 			item.setItemMeta(potionMeta);
 			PersistentUtils.setPersistentDataString(item, CustomPotions.TAG_CUSTOM_POTION, name);
 			return item;
@@ -165,7 +191,8 @@ public class CustomPotion implements Listener {
 		potionMeta.setColor(color);
 		potionMeta.setDisplayName(getPrefix(item.getType()) + displayName);
 		if (lore != null) { potionMeta.setLore(lore); }
-		potionMeta.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
+		if (potionEffect == null) { potionMeta.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP); }
+		if (potionEffect != null) { potionMeta.addCustomEffect(potionEffect, true); }
 		item.setItemMeta(potionMeta);
 		PersistentUtils.setPersistentDataString(item, CustomPotions.TAG_CUSTOM_POTION, name);
 		return tag ? setPotionTag(item) : item;
@@ -185,12 +212,47 @@ public class CustomPotion implements Listener {
 		return customPotion.getName().equals(this.getName());
 	}
 
-	public void onPotionConsume(PlayerItemConsumeEvent event) {}
-	public void onPotionSplash(PotionSplashEvent event) {}
+	public void onPotionConsume(PlayerItemConsumeEvent event) {
+		onAffectPlayer(event.getPlayer(), event);
+		onAffectLivingEntity(event.getPlayer(), event);
+	}
+
+	public void onPotionSplash(PotionSplashEvent event) {
+		for (LivingEntity livingEntity : event.getAffectedEntities()) {
+			if (!onAffectLivingEntity(livingEntity, event)) { break; }
+		}
+
+		for (LivingEntity livingEntity : event.getAffectedEntities()) {
+			if (livingEntity instanceof Player player) {
+				if (!onAffectPlayer(player, event)) { break; }
+			}
+		}
+	}
+
 	public void onLingeringPotionSplash(LingeringPotionSplashEvent event) {}
-	public void onAreaEffectCloudApply(AreaEffectCloudApplyEvent event) {}
+
+	public void onAreaEffectCloudApply(AreaEffectCloudApplyEvent event) {
+		for (LivingEntity livingEntity : event.getAffectedEntities()) {
+			if (!onAffectLivingEntity(livingEntity, event)) { break; }
+		}
+
+		for (LivingEntity livingEntity : event.getAffectedEntities()) {
+			if (livingEntity instanceof Player player) {
+				if (!onAffectPlayer(player, event)) { break; }
+			}
+		}
+	}
+
+	public void onProjectileHit(ProjectileHitEvent event) {
+		if (event.getEntity() instanceof Arrow) {
+			if (event.getHitEntity() instanceof LivingEntity livingEntity) { onAffectLivingEntity(livingEntity, event); }
+			if (event.getHitEntity() instanceof Player player) { onAffectPlayer(player, event); }
+		}
+	}
+
 	public void onEntityShootBowEvent(EntityShootBowEvent event) {}
-	public void onProjectileHit(ProjectileHitEvent event) {}
 	public void onPlayerPickupArrow(PlayerPickupArrowEvent event) {}
 	public void onProjectileLaunch(ProjectileLaunchEvent event) {}
+	public boolean onAffectPlayer(Player player, Event event) { return true; }
+	public boolean onAffectLivingEntity(LivingEntity livingEntity, Event event) { return true; }
 }

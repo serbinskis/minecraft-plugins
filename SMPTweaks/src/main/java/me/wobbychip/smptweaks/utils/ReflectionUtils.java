@@ -1,5 +1,6 @@
 package me.wobbychip.smptweaks.utils;
 
+import com.google.common.reflect.ClassPath;
 import com.mojang.authlib.GameProfile;
 import io.netty.channel.*;
 import io.netty.channel.embedded.EmbeddedChannel;
@@ -79,6 +80,7 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
+import java.io.IOException;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.function.Consumer;
@@ -333,6 +335,29 @@ public class ReflectionUtils {
 			if (verbose) { e.printStackTrace(); }
 			return null;
 		}
+	}
+
+	public static <T> List<T> getInstances(ClassLoader loader, String packageName, Class<T> clazz, boolean recursive, boolean sort) {
+		return getInstances(loader, packageName, clazz, recursive, sort, new Class<?>[] {}, new Object[] {});
+	}
+
+	public static <T> List<T> getInstances(ClassLoader loader, String packageName, Class<T> clazz, boolean recursive, boolean sort, Class<?>[] parameters, Object[] args) {
+		List<T> instances = new ArrayList<>();
+
+		try {
+			ClassPath classPath = ClassPath.from(loader);
+
+			for (ClassPath.ClassInfo classInfo : recursive ? classPath.getTopLevelClassesRecursive(packageName) : classPath.getTopLevelClasses(packageName)) {
+				Class<?> newClazz = Class.forName(classInfo.getName(), true, loader);
+				if (!clazz.isAssignableFrom(newClazz)) { continue; }
+				instances.add((T) newClazz.getConstructor(parameters).newInstance(args));
+			}
+		} catch (IOException | ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+			e.printStackTrace();
+		}
+
+		if (sort) { instances = instances.stream().sorted(java.util.Comparator.comparing(e -> e.getClass().getSimpleName())).toList(); }
+		return instances;
 	}
 
 	public static net.minecraft.server.level.ServerPlayer getEntityPlayer(Player player) {

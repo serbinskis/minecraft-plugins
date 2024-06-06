@@ -1,6 +1,5 @@
 package me.wobbychip.smptweaks.custom.custompotions.potions;
 
-import com.google.common.reflect.ClassPath;
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
 import me.wobbychip.smptweaks.utils.PersistentUtils;
@@ -12,8 +11,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionType;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -21,23 +18,6 @@ public class PotionManager {
 	protected Map<CustomPotion, String> waiting = new HashMap<>();
 	protected Map<String, CustomPotion> potions = new HashMap<>();
 	protected Map<String, Object> registry = new HashMap<>();
-
-	public List<CustomPotion> getPotions(ClassLoader loader, String packageName) {
-		List<CustomPotion> potions = new ArrayList<>();
-
-		try {
-			ClassPath classPath = ClassPath.from(loader);
-
-			for (ClassPath.ClassInfo classInfo : classPath.getTopLevelClasses(packageName)) {
-				Class<?> clazz = Class.forName(classInfo.getName(), true, loader);
-				potions.add((CustomPotion) clazz.getConstructor().newInstance());
-			}
-		} catch (IOException | ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-			e.printStackTrace();
-		}
-
-		return potions;
-	}
 
 	public List<CustomPotion> getPotions(boolean includeDisabled) {
 		List<CustomPotion> result = new ArrayList<>();

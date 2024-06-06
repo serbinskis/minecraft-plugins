@@ -21,7 +21,7 @@ public class ListCommand {
 			if (!CustomPotions.manager.getCustomPotion(name).isEnabled()) { continue; }
 			if (size+name.length() >= MAX_TEXT_LENGTH) { break; }
 			size += name.length()+2;
-			names.add(Utils.toTitleCase(name));
+			names.add(Utils.toTitleCase(name.replaceAll("_", " ")));
 		}
 
 		String message = "&a&lCustomPotions &8» &7" +

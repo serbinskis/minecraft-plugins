@@ -1,42 +1,13 @@
 package me.wobbychip.smptweaks;
 
 import me.wobbychip.smptweaks.commands.Commands;
-import me.wobbychip.smptweaks.custom.allcraftingrecipes.AllCraftingRecipes;
-import me.wobbychip.smptweaks.custom.anticreepergrief.AntiCreeperGrief;
-import me.wobbychip.smptweaks.custom.antiendermangrief.AntiEndermanGrief;
-import me.wobbychip.smptweaks.custom.autocraft.AutoCraft;
-import me.wobbychip.smptweaks.custom.autotrade.AutoTrade;
-import me.wobbychip.smptweaks.custom.betterlead.BetterLead;
-import me.wobbychip.smptweaks.custom.chunkloader.ChunkLoader;
-import me.wobbychip.smptweaks.custom.custombreaking.CustomBreaking;
-import me.wobbychip.smptweaks.custom.custompotions.CustomPotions;
-import me.wobbychip.smptweaks.custom.customworld.CustomWorlds;
-import me.wobbychip.smptweaks.custom.disableinvulnerability.DisableInvulnerability;
-import me.wobbychip.smptweaks.custom.dropcursedpumpkin.DropCursedPumpkin;
-import me.wobbychip.smptweaks.custom.entitylimit.EntityLimit;
-import me.wobbychip.smptweaks.custom.essentials.Essentials;
-import me.wobbychip.smptweaks.custom.fastcuring.FastCuring;
-import me.wobbychip.smptweaks.custom.funnymessages.FunnyMessages;
-import me.wobbychip.smptweaks.custom.globaltrading.GlobalTrading;
-import me.wobbychip.smptweaks.custom.gravitycontrol.GravityControl;
-import me.wobbychip.smptweaks.custom.headdrops.HeadDrops;
-import me.wobbychip.smptweaks.custom.holograms.Holograms;
-import me.wobbychip.smptweaks.custom.magnetblock.MagnetBlock;
-import me.wobbychip.smptweaks.custom.noadvancements.NoAdvancements;
-import me.wobbychip.smptweaks.custom.noarrowinfinity.NoArrowInfinity;
-import me.wobbychip.smptweaks.custom.noendportal.NoEndPortal;
-import me.wobbychip.smptweaks.custom.notooexpensive.NoTooExpensive;
-import me.wobbychip.smptweaks.custom.preventdropcentering.PreventDropCentering;
-import me.wobbychip.smptweaks.custom.pvpdropinventory.PvPDropInventory;
-import me.wobbychip.smptweaks.custom.removedatapackitems.RemoveDatapackItems;
-import me.wobbychip.smptweaks.custom.repairwithxp.RepairWithXP;
-import me.wobbychip.smptweaks.custom.respawnabledragonegg.RespawnableDragonEgg;
-import me.wobbychip.smptweaks.custom.serverpause.ServerPause;
 import me.wobbychip.smptweaks.library.customblocks.CustomBlocks;
 import me.wobbychip.smptweaks.library.placeholderapi.PlaceholderAPI;
 import me.wobbychip.smptweaks.library.tinyprotocol.TinyProtocol;
+import me.wobbychip.smptweaks.tweaks.CustomTweak;
 import me.wobbychip.smptweaks.tweaks.TweakManager;
 import me.wobbychip.smptweaks.utils.GameRules;
+import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -50,6 +21,7 @@ public class Main extends JavaPlugin implements Listener {
 	public static boolean DEBUG_MODE = System.getenv("computername").equalsIgnoreCase("WOBBYCHIP-PC");
 	public static Sound DENY_SOUND_EFFECT = Sound.BLOCK_NOTE_BLOCK_HARP;
 	public static char SYM_COLOR = '§';
+	public static String TWEAKS_PACKAGE = "me.wobbychip.smptweaks.custom";
 	public static String MESSAGE_COLOR = SYM_COLOR + "9";
 	public static String PREFIX = "SMPTweaks-";
 	public static GameRules gameRules;
@@ -61,43 +33,15 @@ public class Main extends JavaPlugin implements Listener {
 		Main.plugin = this;
 		Main.plugin.saveDefaultConfig();
 		Main.gameRules = new GameRules(Main.plugin).register();
+		Main.manager = new TweakManager();
 
 		Utils.sendMessage("[SMPTweaks] Server Version: " + Bukkit.getBukkitVersion() + " (STARTUP)");
 		Bukkit.getPluginManager().registerEvents(Main.plugin, Main.plugin);
 
-		Main.manager = new TweakManager();
-		Main.manager.addTweak(new AllCraftingRecipes());
-		Main.manager.addTweak(new AntiCreeperGrief());
-		Main.manager.addTweak(new AntiEndermanGrief());
-		Main.manager.addTweak(new AutoCraft());
-		Main.manager.addTweak(new AutoTrade());
-		Main.manager.addTweak(new BetterLead());
-		Main.manager.addTweak(new CustomBreaking());
-		Main.manager.addTweak(new ChunkLoader());
-		Main.manager.addTweak(new CustomPotions());
-		Main.manager.addTweak(new CustomWorlds());
-		Main.manager.addTweak(new CustomBlocks());
-		Main.manager.addTweak(new DisableInvulnerability());
-		Main.manager.addTweak(new DropCursedPumpkin());
-		Main.manager.addTweak(new EntityLimit());
-		Main.manager.addTweak(new Essentials());
-		Main.manager.addTweak(new FastCuring());
-		Main.manager.addTweak(new FunnyMessages());
-		Main.manager.addTweak(new GlobalTrading());
-		Main.manager.addTweak(new GravityControl());
-		Main.manager.addTweak(new HeadDrops());
-		Main.manager.addTweak(new Holograms());
-		Main.manager.addTweak(new MagnetBlock());
-		Main.manager.addTweak(new NoAdvancements());
-		Main.manager.addTweak(new NoArrowInfinity());
-		Main.manager.addTweak(new NoEndPortal());
-		Main.manager.addTweak(new NoTooExpensive());
-		Main.manager.addTweak(new PreventDropCentering());
-		Main.manager.addTweak(new PvPDropInventory());
-		Main.manager.addTweak(new RemoveDatapackItems());
-		Main.manager.addTweak(new RepairWithXP());
-		Main.manager.addTweak(new RespawnableDragonEgg());
-		Main.manager.addTweak(new ServerPause());
+		for (CustomTweak tweak : ReflectionUtils.getInstances(getPluginClassLoader(), TWEAKS_PACKAGE, CustomTweak.class, true, true)) {
+			Main.manager.addTweak(tweak);
+		}
+
 		Main.manager.loadTweaks(true);
 	}
 

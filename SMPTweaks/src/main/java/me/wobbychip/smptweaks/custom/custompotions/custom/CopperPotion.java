@@ -37,14 +37,14 @@ public class CopperPotion extends CustomPotion {
 	public void onProjectileHit(ProjectileHitEvent event) {
 		if (!event.getEntity().getWorld().isThundering()) { return; }
 
-		if (event.getEntity() instanceof Arrow) {
-			Entity entity = (event.getHitEntity() != null) ? event.getHitEntity() : event.getEntity();
+		if (event.getEntity() instanceof Arrow arrow) {
+			Entity entity = (event.getHitEntity() != null) ? event.getHitEntity() : arrow;
 			summonLighting(entity.getLocation());
-			event.getEntity().remove();
+			arrow.remove();
 		}
 
-		if (event.getEntity() instanceof ThrownPotion) {
-			if (((ThrownPotion) event.getEntity()).getItem().getType() != Material.SPLASH_POTION) { return; }
+		if (event.getEntity() instanceof ThrownPotion thrownPotion) {
+			if (thrownPotion.getItem().getType() != Material.SPLASH_POTION) { return; }
 			summonLighting(event.getEntity().getLocation());
 		}
 	}

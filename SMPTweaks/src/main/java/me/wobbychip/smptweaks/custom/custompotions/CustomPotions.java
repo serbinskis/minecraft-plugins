@@ -7,12 +7,14 @@ import me.wobbychip.smptweaks.custom.custompotions.events.*;
 import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
 import me.wobbychip.smptweaks.custom.custompotions.potions.PotionManager;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
+import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import org.bukkit.Bukkit;
 
 import java.util.List;
 
 public class CustomPotions extends CustomTweak {
 	public static CustomTweak tweak;
+	public final static String POTIONS_PACKAGE = "me.wobbychip.smptweaks.custom.custompotions.custom";
 	public final static String TAG_CUSTOM_POTION = "CustomPotion";
 	public static int tradingPotionChance = 5;
 	public static int tradingArrowChance = 5;
@@ -35,7 +37,7 @@ public class CustomPotions extends CustomTweak {
 		manager = new PotionManager();
 		boolean allowVillagerTrading = CustomPotions.config.getConfig().getConfigurationSection("config").getBoolean("allowVillagerTrading");
 
-		for (CustomPotion potion : manager.getPotions(Main.plugin.getPluginClassLoader(), "me.wobbychip.smptweaks.custom.custompotions.custom")) {
+		for (CustomPotion potion : ReflectionUtils.getInstances(Main.plugin.getPluginClassLoader(), POTIONS_PACKAGE, CustomPotion.class, true, false)) {
 			if (!allowVillagerTrading) { potion.setAllowVillagerTrades(false); }
 			manager.registerPotion(potion);
 		}

@@ -10,14 +10,12 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.BrewingStand;
 import org.bukkit.block.data.type.LightningRod;
 import org.bukkit.entity.Arrow;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.ThrownPotion;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.weather.LightningStrikeEvent;
 
 import java.util.List;
@@ -32,27 +30,25 @@ public class LightingPotion extends CustomPotion {
 		this.setAllowVillagerTrades(true);
 	}
 
-	public void onPotionConsume(PlayerItemConsumeEvent event) {
-		summonLighting(event.getPlayer().getLocation());
-	}
+	@Override
+	public boolean onAffectLivingEntity(LivingEntity livingEntity, Event event) {
+		if (event instanceof AreaEffectCloudApplyEvent areaEffectCloudApplyEvent) {
+			int i = new Random().nextInt(areaEffectCloudApplyEvent.getAffectedEntities().size());
+			summonLighting(areaEffectCloudApplyEvent.getAffectedEntities().get(i).getLocation());
+			return false;
+		}
 
-	public void onAreaEffectCloudApply(AreaEffectCloudApplyEvent event) {
-		if (event.getAffectedEntities().isEmpty()) { return; }
-		int i = new Random().nextInt(event.getAffectedEntities().size());
-		summonLighting(((LivingEntity) event.getAffectedEntities().toArray()[i]).getLocation());
+		summonLighting(livingEntity.getLocation());
+		return true;
 	}
 
 	public void onProjectileHit(ProjectileHitEvent event) {
-		if (event.getEntity() instanceof Arrow) {
-			Entity entity = (event.getHitEntity() != null) ? event.getHitEntity() : event.getEntity();
-			summonLighting(entity.getLocation());
-			event.getEntity().remove();
+		if ((event.getEntity() instanceof Arrow arrow) && (event.getHitEntity() == null)) {
+			summonLighting(arrow.getLocation());
+			arrow.remove();
 		}
 
-		if (event.getEntity() instanceof ThrownPotion) {
-			if (((ThrownPotion) event.getEntity()).getItem().getType() != Material.SPLASH_POTION) { return; }
-			summonLighting(event.getEntity().getLocation());
-		}
+		super.onProjectileHit(event);
 	}
 
 	public void summonLighting(Location location) {

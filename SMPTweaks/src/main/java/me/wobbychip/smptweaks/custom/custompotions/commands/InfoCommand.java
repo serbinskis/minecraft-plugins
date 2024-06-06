@@ -32,6 +32,7 @@ public class InfoCommand {
 		String description = ChatColor.stripColor(potion.getLore().get(0));
 		String ingredient = (potion.getMaterial() != null) ? Utils.getMaterialName(potion.getMaterial()) : "Unknown";
 		String basePotion = Utils.toTitleCase(potion.getBaseName());
+		String potionEffect = (potion.getPotionEffect() != null) ? Utils.toTitleCase(potion.getPotionEffect().getType().getName().replaceAll("_", " ").toString()) : "None";
 		String allowArrow = potion.getAllowTippedArrow() ? "Yes" : "No";
 		String allowTrade = potion.getAllowVillagerTrades() ? "Yes" : "No";
 
@@ -40,6 +41,7 @@ public class InfoCommand {
 				"&9Description: &f" + description + "\n" +
 				"&9Ingredient: &f" + ingredient + "\n" +
 				"&9Base Potion: &f" + basePotion + "\n" +
+				"&9Effect: &f" + potionEffect + "\n" +
 				"&9Can villagers trade: &f" + allowTrade + "\n" +
 				"&9Can craft arrows: &f" + allowArrow;
 

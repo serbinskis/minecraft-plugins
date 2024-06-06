@@ -7,11 +7,12 @@ import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.*;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
-import org.bukkit.event.entity.PotionSplashEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.potion.PotionEffect;
@@ -29,31 +30,15 @@ public class ScreamerPotion extends CustomPotion {
 		this.setAllowVillagerTrades(true);
 	}
 
-	public void onPotionConsume(PlayerItemConsumeEvent event) {
-		screamerPlayer(event.getPlayer());
-	}
+	@Override
+	public boolean onAffectPlayer(Player player, Event event) {
+		screamerPlayer(player);
 
-	public void onPotionSplash(PotionSplashEvent event) {
-		for (LivingEntity livingEntity : event.getAffectedEntities()) {
-			if (livingEntity instanceof Player) { screamerPlayer((Player) livingEntity); }
+		if (event instanceof AreaEffectCloudApplyEvent areaEffectCloudApplyEvent) {
+			areaEffectCloudApplyEvent.getEntity().setDuration(0);
 		}
-	}
 
-	public void onAreaEffectCloudApply(AreaEffectCloudApplyEvent event) {
-		for (LivingEntity livingEntity : event.getAffectedEntities()) {
-			if (livingEntity instanceof Player) {
-				event.getEntity().setDuration(0);;
-				screamerPlayer((Player) livingEntity);
-			}
-		}
-	}
-
-	public void onProjectileHit(ProjectileHitEvent event) {
-		if (event.getEntity() instanceof Arrow) {
-			if (event.getHitEntity() instanceof Player) {
-				screamerPlayer((Player) event.getHitEntity());
-			}
-		}
+		return true;
 	}
 
 	public void screamerPlayer(Player player) {

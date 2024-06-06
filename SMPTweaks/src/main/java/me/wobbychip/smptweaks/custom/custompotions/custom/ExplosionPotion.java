@@ -2,11 +2,9 @@ package me.wobbychip.smptweaks.custom.custompotions.custom;
 
 import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
 import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.entity.Arrow;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.ThrownPotion;
+import org.bukkit.entity.*;
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
@@ -24,28 +22,40 @@ public class ExplosionPotion extends CustomPotion {
 	}
 
 	public void onPotionConsume(PlayerItemConsumeEvent event) {
-		World world = event.getPlayer().getLocation().getWorld();
-		world.createExplosion(event.getPlayer().getLocation(), 2.0f);
+		createExplosion(event.getPlayer(), event.getPlayer().getLocation(), 2.0f, false, true);
 	}
 
 	public void onAreaEffectCloudApply(AreaEffectCloudApplyEvent event) {
 		for (LivingEntity livingEntity : event.getAffectedEntities()) {
-			World world = livingEntity.getLocation().getWorld();
-			world.createExplosion(livingEntity.getLocation(), .75f, false, false);
+			createExplosion(null, livingEntity.getLocation(), 0.75f, false, false);
 		}
 	}
 
 	public void onProjectileHit(ProjectileHitEvent event) {
-		if (event.getEntity() instanceof Arrow) {
-			World world = event.getEntity().getLocation().getWorld();
-			world.createExplosion(event.getEntity().getLocation(), .75f, false, false);
-			event.getEntity().remove();
+		if (event.getEntity() instanceof Arrow arrow) {
+			createExplosion((Player) arrow.getShooter(), arrow.getLocation(), 0.75f, false, false);
+			arrow.remove();
 		}
 
-		if (event.getEntity() instanceof ThrownPotion) {
-			if (((ThrownPotion) event.getEntity()).getItem().getType() != Material.SPLASH_POTION) { return; }
-			World world = event.getEntity().getLocation().getWorld();
-			world.createExplosion(event.getEntity().getLocation(), 2.0f);
+		if (event.getEntity() instanceof ThrownPotion thrownPotion) {
+			if (thrownPotion.getItem().getType() != Material.SPLASH_POTION) { return; }
+			createExplosion((Player) thrownPotion.getShooter(), thrownPotion.getLocation(), 2.0f, false, true);
 		}
+	}
+
+	public void createExplosion(Player player, Location location, float power, boolean setFire, boolean breakBlocks) {
+		if (!breakBlocks || (player == null)) {
+			location.getWorld().createExplosion(location, power, setFire, false);
+			return;
+		}
+
+		location.getWorld().spawn(location, TNTPrimed.class, tntPrimed -> {
+			tntPrimed.setInvisible(true);
+			tntPrimed.setFuseTicks(-1);
+			tntPrimed.setSource(player); //Needed for anti-grief plugins
+			tntPrimed.setSilent(true);
+			tntPrimed.setYield(power);
+			tntPrimed.setIsIncendiary(setFire);
+        });
 	}
 }

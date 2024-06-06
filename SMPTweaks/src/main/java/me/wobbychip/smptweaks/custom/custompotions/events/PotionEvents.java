@@ -5,6 +5,7 @@ import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
 import me.wobbychip.smptweaks.utils.PersistentUtils;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import org.bukkit.entity.AreaEffectCloud;
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.ThrownPotion;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -38,6 +39,8 @@ public class PotionEvents implements Listener {
 
 		if (!event.isCancelled()) {
 			AreaEffectCloud effectCloud = event.getAreaEffectCloud();
+			effectCloud.clearCustomEffects();
+			if (customPotion.getCloudEffect() != null) { effectCloud.addCustomEffect(customPotion.getCloudEffect(), true); }
 			effectCloud.addCustomEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 0, 0), false);
 			PersistentUtils.setPersistentDataString(effectCloud, CustomPotions.TAG_CUSTOM_POTION, customPotion.getName());
 			effectCloud.setColor(customPotion.getColor());
@@ -54,9 +57,14 @@ public class PotionEvents implements Listener {
 	//Dispenser doesn't work because bukkit is again garbage and doesn't even apply metadata from item to arrow
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onProjectileHit(ProjectileHitEvent event) {
-		if (event.getEntity() instanceof ThrownPotion) {
-			CustomPotion customPotion = CustomPotions.manager.getCustomPotion(((ThrownPotion) event.getEntity()).getItem());
-			if (customPotion != null) { PersistentUtils.setPersistentDataString(event.getEntity(), CustomPotions.TAG_CUSTOM_POTION, customPotion.getName()); }
+		if (event.getEntity() instanceof ThrownPotion thrownPotion) {
+			CustomPotion customPotion = CustomPotions.manager.getCustomPotion(thrownPotion.getItem());
+			if (customPotion != null) { PersistentUtils.setPersistentDataString(thrownPotion, CustomPotions.TAG_CUSTOM_POTION, customPotion.getName()); }
+		}
+
+		if (event.getEntity() instanceof Arrow arrow) {
+			CustomPotion customPotion = CustomPotions.manager.getCustomPotion(event.getEntity());
+			if ((customPotion != null) && (customPotion.getArrowEffect() != null)) { arrow.addCustomEffect(customPotion.getArrowEffect(), true); }
 		}
 
 		CustomPotion customPotion = CustomPotions.manager.getCustomPotion(event.getEntity());

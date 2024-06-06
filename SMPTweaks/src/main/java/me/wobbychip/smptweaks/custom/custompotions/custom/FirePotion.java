@@ -3,8 +3,8 @@ package me.wobbychip.smptweaks.custom.custompotions.custom;
 import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
 import org.bukkit.Color;
 import org.bukkit.Material;
-import org.bukkit.entity.Arrow;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.Event;
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
@@ -22,27 +22,17 @@ public class FirePotion extends CustomPotion {
 		this.setAllowVillagerTrades(true);
 	}
 
-	public void onPotionConsume(PlayerItemConsumeEvent event) {
-		event.getPlayer().setFireTicks(20*10);
-	}
+	@Override
+	public boolean onAffectLivingEntity(LivingEntity livingEntity, Event event) {
+		int ticks = 20 * switch (event) {
+			case PlayerItemConsumeEvent ignored -> 10;
+			case PotionSplashEvent ignored -> 5;
+			case ProjectileHitEvent ignored -> 5;
+			case AreaEffectCloudApplyEvent ignored -> 1;
+			default -> livingEntity.getFireTicks()/20;
+		};
 
-	public void onPotionSplash(PotionSplashEvent event) {
-		for (LivingEntity livingEntity : event.getAffectedEntities()) {
-			livingEntity.setFireTicks(20*5);
-		}
-	}
-
-	public void onAreaEffectCloudApply(AreaEffectCloudApplyEvent event) {
-		for (LivingEntity livingEntity : event.getAffectedEntities()) {
-			livingEntity.setFireTicks(20*1);
-		}
-	}
-
-	public void onProjectileHit(ProjectileHitEvent event) {
-		if (event.getEntity() instanceof Arrow) {
-			if (event.getHitEntity() != null) {
-				event.getHitEntity().setFireTicks(20*5);
-			}
-		}
+		if (livingEntity.getFireTicks() < ticks)  { livingEntity.setFireTicks(ticks); }
+		return true;
 	}
 }

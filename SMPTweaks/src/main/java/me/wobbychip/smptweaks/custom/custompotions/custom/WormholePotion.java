@@ -6,16 +6,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Arrow;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.scoreboard.Criteria;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
@@ -27,35 +24,20 @@ public class WormholePotion extends CustomPotion {
 	public WormholePotion() {
 		super("recall", Material.ENDER_EYE, "wormhole", Color.fromRGB(120, 105, 235));
 		this.setDisplayName("§r§fPotion of Wormhole");
-		this.setLore(List.of("§9Shoot a player and then use the potion."));
+		this.setLore(List.of("§9Shoot a player with arrow and then use the potion."));
 		this.setTippedArrow(true, "§r§fArrow of Wormhole");
 		this.setAllowVillagerTrades(true);
 	}
 
-	public void onPotionConsume(PlayerItemConsumeEvent event) {
-		teleportAttacker(event.getPlayer());
-	}
-
-	public void onPotionSplash(PotionSplashEvent event) {
-		for (LivingEntity livingEntity : event.getAffectedEntities()) {
-			if (livingEntity instanceof Player) { teleportAttacker((Player) livingEntity); }
+	@Override
+	public boolean onAffectPlayer(Player player, Event event) {
+		if (event.getClass().equals(ProjectileHitEvent.class)) {
+			saveTarget(player, ((ProjectileHitEvent) event).getEntity());
+		} else {
+			teleportAttacker(player);
 		}
-	}
 
-	public void onAreaEffectCloudApply(AreaEffectCloudApplyEvent event) {
-		for (LivingEntity livingEntity : event.getAffectedEntities()) {
-			if (livingEntity instanceof Player) {
-				teleportAttacker((Player) livingEntity);
-			}
-		}
-	}
-
-	public void onProjectileHit(ProjectileHitEvent event) {
-		if (event.getEntity() instanceof Arrow) {
-			if (event.getHitEntity() instanceof Player) {
-				saveTarget((Player) event.getHitEntity(), (Arrow) event.getEntity());
-			}
-		}
+		return true;
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -63,7 +45,7 @@ public class WormholePotion extends CustomPotion {
 		unmarkPlayer(event.getEntity());
 	}
 
-	public void saveTarget(Player target, Arrow arrow) {
+	public void saveTarget(Player target, Projectile arrow) {
 		if (!(arrow.getShooter() instanceof Player attacker)) { return; }
 
 		if (target.getUniqueId().equals(attacker.getUniqueId())) {
@@ -72,7 +54,7 @@ public class WormholePotion extends CustomPotion {
 		}
 
 		String uuid = target.getUniqueId().toString();
-		String objectiveName = this.getName() + "_" + attacker.getUniqueId().toString();
+		String objectiveName = this.getName() + "_" + attacker.getUniqueId();
 		Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
 
 		if (scoreboard.getObjective(objectiveName) == null) {

@@ -4,18 +4,17 @@ import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.utils.PaperUtils;
 import org.bukkit.Bukkit;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 public class TweakManager {
 	protected Map<String, CustomTweak> tweaks = new HashMap<>();
 	public boolean isProtocolLib = (Bukkit.getServer().getPluginManager().getPlugin("ProtocolLib") != null);
 
 	public void loadTweaks(boolean startup) {
-		for (CustomTweak tweak : tweaks.values()) {
+		List<CustomTweak> values = tweaks.values().stream().sorted(Comparator.comparing(e -> e.getClass().getSimpleName())).toList();
+
+		for (CustomTweak tweak : values) {
 			if (startup && tweak.isStartup()) { loadTweak(tweak); }
 			if (!startup && !tweak.isStartup()) { loadTweak(tweak); }
 		}
