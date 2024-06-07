@@ -37,11 +37,7 @@ public class Main extends JavaPlugin implements Listener {
 
 		Utils.sendMessage("[SMPTweaks] Server Version: " + Bukkit.getBukkitVersion() + " (STARTUP)");
 		Bukkit.getPluginManager().registerEvents(Main.plugin, Main.plugin);
-
-		for (CustomTweak tweak : ReflectionUtils.getInstances(getPluginClassLoader(), TWEAKS_PACKAGE, CustomTweak.class, true, true)) {
-			Main.manager.addTweak(tweak);
-		}
-
+		ReflectionUtils.getInstances(getPluginClassLoader(), TWEAKS_PACKAGE, CustomTweak.class, true, true).forEach(Main.manager::addTweak);
 		Main.manager.loadTweaks(true);
 	}
 
