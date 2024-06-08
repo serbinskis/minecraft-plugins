@@ -22,14 +22,18 @@ public class ReturnPotion extends CustomPotion {
 
 	@Override
 	public boolean onAffectPlayer(Player player, Event event) {
+		returnPlayer(player);
+		return true;
+	}
+
+	public void returnPlayer(Player player) {
 		Location location = player.getLastDeathLocation();
-		if (location == null) { return true; }
+		if (location == null) { return; }
 
 		location.setDirection(player.getLocation().getDirection());
 		player.setVelocity(new Vector(0, 0, 0));
 		player.setFallDistance(0);
 		player.teleport(location);
 		player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 1.0f);
-		return true;
 	}
 }

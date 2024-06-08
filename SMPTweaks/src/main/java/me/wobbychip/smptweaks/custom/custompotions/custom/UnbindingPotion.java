@@ -6,10 +6,12 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionType;
 
 import java.util.List;
+import java.util.Objects;
 
 public class UnbindingPotion extends CustomPotion {
 	public UnbindingPotion() {
@@ -22,37 +24,16 @@ public class UnbindingPotion extends CustomPotion {
 
 	@Override
 	public boolean onAffectPlayer(Player player, Event event) {
-		removeBindedArmour(player);
+		removeBoundArmour(player);
 		return true;
 	}
 
-	public void removeBindedArmour(Player player) {
-		ItemStack helmetSlot = player.getInventory().getHelmet();
-		if ((helmetSlot != null) && helmetSlot.hasItemMeta() && helmetSlot.getItemMeta().hasEnchant(Enchantment.BINDING_CURSE)) {
-			player.getWorld().dropItemNaturally(player.getLocation(), helmetSlot);
-			player.getInventory().setHelmet(new ItemStack(Material.AIR));
-			return;
-		}
-
-		ItemStack chestplateSlot = player.getInventory().getChestplate();
-		if ((chestplateSlot != null) && chestplateSlot.hasItemMeta() && chestplateSlot.getItemMeta().hasEnchant(Enchantment.BINDING_CURSE)) {
-			player.getWorld().dropItemNaturally(player.getLocation(), chestplateSlot);
-			player.getInventory().setChestplate(new ItemStack(Material.AIR));
-			return;
-		}
-
-		ItemStack leggingsSlot = player.getInventory().getLeggings();
-		if ((leggingsSlot != null) && leggingsSlot.hasItemMeta() && leggingsSlot.getItemMeta().hasEnchant(Enchantment.BINDING_CURSE)) {
-			player.getWorld().dropItemNaturally(player.getLocation(), leggingsSlot);
-			player.getInventory().setLeggings(new ItemStack(Material.AIR));
-			return;
-		}
-
-		ItemStack bootsSlot = player.getInventory().getBoots();
-		if ((bootsSlot != null) && bootsSlot.hasItemMeta() && bootsSlot.getItemMeta().hasEnchant(Enchantment.BINDING_CURSE)) {
-			player.getWorld().dropItemNaturally(player.getLocation(), bootsSlot);
-			player.getInventory().setBoots(new ItemStack(Material.AIR));
-			return;
-		}
+	public void removeBoundArmour(Player player) {
+		List.of(EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET).forEach(equipmentSlot -> {
+			ItemStack itemStack = Objects.requireNonNullElseGet(player.getInventory().getItem(equipmentSlot), () -> new ItemStack(Material.AIR));
+			if (!itemStack.hasItemMeta() || !itemStack.getItemMeta().hasEnchant(Enchantment.BINDING_CURSE)) { return; }
+			player.getWorld().dropItemNaturally(player.getLocation(), itemStack);
+			player.getInventory().setItem(equipmentSlot, new ItemStack(Material.AIR));
+		});
 	}
 }

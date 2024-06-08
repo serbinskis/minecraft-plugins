@@ -29,7 +29,7 @@ public class FirePotion extends CustomPotion {
 			case PotionSplashEvent ignored -> 5;
 			case ProjectileHitEvent ignored -> 5;
 			case AreaEffectCloudApplyEvent ignored -> 1;
-			default -> livingEntity.getFireTicks()/20;
+			default -> 0;
 		};
 
 		if (livingEntity.getFireTicks() < ticks)  { livingEntity.setFireTicks(ticks); }

@@ -20,6 +20,11 @@ public class RecallPotion extends CustomPotion {
 
 	@Override
 	public boolean onAffectPlayer(Player player, Event event) {
+		respawnPlayer(player);
+		return true;
+	}
+
+	public void respawnPlayer(Player player) {
 		Location location = player.getBedSpawnLocation();
 
 		if (location == null) {
@@ -34,6 +39,5 @@ public class RecallPotion extends CustomPotion {
 		player.setFallDistance(0);
 		player.teleport(location);
 		player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 1.0f);
-		return true;
 	}
 }
