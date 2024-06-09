@@ -49,7 +49,7 @@ public class Events implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerQuitEvent(PlayerQuitEvent event) {
-		//1, because at the moment when player leaves, he still is online
+		//1, because at the moment when player leaves, he still is online,
 		//and we need this code only to run when last player leaves
 		if (Bukkit.getOnlinePlayers().size() > 1) { return; }
 		onServerConnectionEvent(new ServerConnectionEvent(0, false));

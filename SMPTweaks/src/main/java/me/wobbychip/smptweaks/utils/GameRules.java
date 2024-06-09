@@ -18,7 +18,7 @@ public class GameRules implements Listener {
 	public HashMap<String, Object> rules = new HashMap<>();
 	public List<String> globals = new ArrayList<>();
 	public List<?> allowed = Arrays.asList(Boolean.class, Integer.class);
-	private Plugin plugin;
+	private final Plugin plugin;
 
 	public GameRules(Plugin plugin) {
 		this.plugin = plugin;

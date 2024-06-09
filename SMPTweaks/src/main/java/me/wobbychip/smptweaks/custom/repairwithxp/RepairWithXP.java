@@ -53,7 +53,7 @@ public class RepairWithXP extends CustomTweak {
 		//Check if player has enough exp
 		if (Utils.getPlayerExp(player) < amountXP) { return; }
 
-		//Get player off hand item
+		//Get player offhand item
 		ItemStack offHand = player.getInventory().getItemInOffHand();
 
 		//Check if item is damaged

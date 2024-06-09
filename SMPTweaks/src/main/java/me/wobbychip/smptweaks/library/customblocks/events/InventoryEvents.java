@@ -24,7 +24,7 @@ public record InventoryEvents(CustomBlock customBlock) implements Listener {
 		result = customBlock.prepareCraft(event, world, result);
 
 		if (result == null) {
-			Player player = (Player) event.getViewers().get(0);
+			Player player = (Player) event.getViewers().getFirst();
 			player.playSound(player.getLocation(), Main.DENY_SOUND_EFFECT, 1.0f, 1.0f);
 			Utils.sendActionMessage(player, "This recipe is disabled.");
 			result = new ItemStack(Material.AIR);

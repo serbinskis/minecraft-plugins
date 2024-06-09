@@ -9,10 +9,10 @@ import java.util.List;
 public class TweakCommands {
 	public static String NO_CONSOLE = Main.MESSAGE_COLOR + "This command can only be executed by a player!";
 	public static String NO_PERMISSIONS = "&cYou do not have permissions!";
-	private CustomTweak tweak;
-	private String command;
-	private List<String> arguments;
-	private String usage;
+	private final CustomTweak tweak;
+	private final String command;
+	private final List<String> arguments;
+	private final String usage;
 
 	public TweakCommands(CustomTweak tweak, String command, List<String> arguments) {
 		this.tweak = tweak;

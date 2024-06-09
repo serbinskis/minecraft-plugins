@@ -2,11 +2,12 @@ package me.wobbychip.smptweaks.events;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 public class ServerConnectionEvent extends Event {
 	private static final HandlerList handlers = new HandlerList();
-	private int connections;
-	private boolean online;
+	private final int connections;
+	private final boolean online;
 
 	public ServerConnectionEvent(int connections, boolean online) {
 		this.connections  = connections;
@@ -17,7 +18,7 @@ public class ServerConnectionEvent extends Event {
 		return handlers;
 	}
 
-	public HandlerList getHandlers() {
+	public @NotNull HandlerList getHandlers() {
 		return handlers;
 	}
 

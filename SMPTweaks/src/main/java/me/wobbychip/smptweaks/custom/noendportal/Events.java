@@ -18,6 +18,7 @@ public class Events implements Listener {
 	public void onEntityPortalEvent(EntityPortalEvent event) {
 		if (event.getTo().getWorld().getEnvironment() != Environment.THE_END) { return; }
 		if (NoEndPortal.tweak.getGameRuleBoolean(event.getEntity().getWorld())) { return; }
+		if (event.getEntity().isOp()) { return; }
 		event.setCancelled(true);
 	}
 
@@ -25,6 +26,7 @@ public class Events implements Listener {
 	public void onPlayerTeleportEvent(PlayerTeleportEvent event) {
 		if (event.getTo().getWorld().getEnvironment() != Environment.THE_END) { return; }
 		if (NoEndPortal.tweak.getGameRuleBoolean(event.getPlayer().getWorld())) { return; }
+		if (event.getPlayer().isOp()) { return; }
 		event.setCancelled(true);
 	}
 

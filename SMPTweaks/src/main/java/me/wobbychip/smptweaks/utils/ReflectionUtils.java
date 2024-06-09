@@ -73,6 +73,7 @@ import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionType;
@@ -642,6 +643,34 @@ public class ReflectionUtils {
 		player.setAllowFlight(true);
 		player.setFlying(true);
 		return player;
+	}
+
+	public static void changeDimension(Player player, World.Environment environment, @Nullable World world) {
+		if (player.getWorld().getEnvironment() == environment) { return; }
+
+		ResourceKey<Level> resourceKey = switch (environment) {
+			case World.Environment.NETHER -> Level.NETHER;
+			case World.Environment.THE_END -> Level.END;
+			default -> Level.OVERWORLD;
+		};
+
+		PlayerTeleportEvent.TeleportCause teleportCause = switch (environment) {
+			case World.Environment.NETHER -> PlayerTeleportEvent.TeleportCause.NETHER_PORTAL;
+			case World.Environment.THE_END -> PlayerTeleportEvent.TeleportCause.END_PORTAL;
+			default -> PlayerTeleportEvent.TeleportCause.UNKNOWN;
+		};
+
+		ServerPlayer serverPlayer = getEntityPlayer(player);
+		ServerLevel worldServer = (world != null) ? getWorld(world) : MinecraftServer.getServer().getLevel(resourceKey);
+
+		if (environment == World.Environment.NETHER) {
+			serverPlayer.setPortalCooldown(0);
+			serverPlayer.handleInsidePortal(serverPlayer.blockPosition());
+			serverPlayer.setPortalCooldown();
+		}
+
+		serverPlayer.changeDimension(worldServer, teleportCause);
+		if (environment == World.Environment.NETHER) { serverPlayer.isInsidePortal = false; }
 	}
 
 	public static void setPlayerAdvancements(Player player1, Player player2) {

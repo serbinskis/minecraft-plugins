@@ -21,7 +21,7 @@ public class Events implements Listener {
 	//BUG LIST
 	//[+] Picking up tipped arrow while aiming will shoot it but not consume
 
-	//CONCERNT LIST
+	//CONCERT LIST
 	//[-] While aiming player has instant build, this potentially can be exploited with modified clients
 
 	//If arrow is CREATIVE_ONLY then PlayerPickupArrowEvent will not fire (fuck you bukkit)

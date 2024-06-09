@@ -35,8 +35,9 @@ public class Events implements Listener {
 		if (!PersistentUtils.hasPersistentDataString(event.getWorld(), CustomWorlds.TAG_CUSTOM_WORLD)) { return; }
 		CustomWorld type = CustomWorld.getCustomType(PersistentUtils.getPersistentDataString(event.getWorld(), CustomWorlds.TAG_CUSTOM_WORLD));
 		if ((type == null) || (type == CustomWorld.NONE)) { return; }
+		if (event.getWorld().getEnvironment() == type.getEnvironment()) { return; }
 
-		ReflectionUtils.setCustomDimension(event.getWorld(), null, type.getEnvironment(), null, null, null, null, null, null, null, null, 0, null, null, null, null, null, null);
+		ReflectionUtils.setCustomDimension(event.getWorld(), null, type.getEnvironment(), null, null, null, null, null, null, null, null, type.getMinY(), null, null, null, null, null, null);
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)

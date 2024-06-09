@@ -13,17 +13,17 @@ import java.util.List;
 import java.util.Map;
 
 public class CustomTweak {
-	private Class<?> clazz;
-	private String name;
+	private final Class<?> clazz;
+	private final String name;
 	private String description;
 	private String gamerule = null;
 	private Object gameruleValue = null;
 	private TweakCommands command;
-	private List<String> configNames = new ArrayList<>();
-	private List<Config> configs = new ArrayList<>();
+	private final List<String> configNames = new ArrayList<>();
+	private final List<Config> configs = new ArrayList<>();
 	private boolean gameruleGlobal = false;
-	private boolean requiresPaper;
-	private boolean requiresProtocolLib;
+	private final boolean requiresPaper;
+	private final boolean requiresProtocolLib;
 	private boolean startup = false;
 	private boolean enabled = true;
 	private boolean loaded = false;

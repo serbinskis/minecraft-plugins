@@ -15,7 +15,7 @@ import java.util.Map.Entry;
 
 public class PlayerTimer {
 	protected Config config;
-	protected Map<UUID, Integer> timers = new HashMap<UUID, Integer>();
+	protected Map<UUID, Integer> timers = new HashMap<>();
 	protected List<UUID> tried = new ArrayList<>();
 	protected int taskId;
 	protected String actionBarMessage;
