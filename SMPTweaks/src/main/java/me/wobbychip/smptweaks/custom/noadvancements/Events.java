@@ -1,5 +1,6 @@
 package me.wobbychip.smptweaks.custom.noadvancements;
 
+import com.destroystokyo.paper.event.player.PlayerAdvancementCriterionGrantEvent;
 import me.wobbychip.smptweaks.library.tinyprotocol.PacketEvent;
 import me.wobbychip.smptweaks.library.tinyprotocol.PacketType;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
@@ -24,11 +25,18 @@ public class Events implements Listener {
 	public HashMap<UUID, String> preventSound = new HashMap<>();
 	public boolean preventConsole = false;
 
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true) //PaperMC Event
+	public void onPlayerAdvancementCriterionGrantEvent(PlayerAdvancementCriterionGrantEvent event) {
+		if (NoAdvancements.tweak.getGameRuleBoolean(event.getPlayer().getWorld())) { return; }
+		if (event.getAdvancement().getKey().toString().contains(EXCLUDE_ADVANCEMENT)) { return; }
+		event.setCancelled(true);
+	}
+
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerAdvancementDoneEvent(PlayerAdvancementDoneEvent event) {
 		if (NoAdvancements.tweak.getGameRuleBoolean(event.getPlayer().getWorld())) { return; }
 		if (event.getAdvancement().getKey().toString().contains(EXCLUDE_ADVANCEMENT)) { return; }
-		Utils.revokeAdvancemnt(event.getPlayer(), event.getAdvancement());
+		Utils.revokeAdvancement(event.getPlayer(), event.getAdvancement());
 
 		//Prevent player experience and sound
 		UUID uniqueId = event.getPlayer().getUniqueId();

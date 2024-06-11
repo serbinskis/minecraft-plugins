@@ -4,6 +4,7 @@ import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
 import me.wobbychip.smptweaks.utils.TaskUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.CraftingRecipe;
 import org.bukkit.inventory.Recipe;
@@ -25,9 +26,11 @@ public class AllCraftingRecipes extends CustomTweak {
 		TaskUtils.scheduleSyncDelayedTask(() -> {
 			Iterator<Recipe> recipeIterator = Bukkit.getServer().recipeIterator();
 			Stream<Recipe> recipeStream = Stream.generate(() -> null).takeWhile(e -> recipeIterator.hasNext()).map(n -> recipeIterator.next());
-			recipeStream.filter(CraftingRecipe.class::isInstance).map(CraftingRecipe.class::cast).forEach(e -> recipeKeys.add(e.getKey()));
+			Stream<CraftingRecipe> craftingRecipeStream = recipeStream.filter(CraftingRecipe.class::isInstance).map(CraftingRecipe.class::cast);
+			craftingRecipeStream.filter(e -> !e.getResult().getType().equals(Material.STRUCTURE_VOID)).forEach(e -> recipeKeys.add(e.getKey()));
 		}, 0);
 
+		//Filter STRUCTURE_VOID, it is support for Stellarity datapack, since they use special recipes for custom events
 		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 	}
 }

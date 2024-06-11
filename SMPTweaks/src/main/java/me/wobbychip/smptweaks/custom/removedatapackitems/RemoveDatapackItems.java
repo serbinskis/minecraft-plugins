@@ -34,6 +34,7 @@ public class RemoveDatapackItems extends CustomTweak {
 	}
 
 	public static ItemStack normalizeDatapackItem(ItemStack itemStack) {
+		if (itemStack.getType() == Material.KNOWLEDGE_BOOK) { return new ItemStack(Material.AIR); }
 		ItemMeta oldMeta = itemStack.getItemMeta();
 		ItemMeta newMeta = new ItemStack(itemStack.getType()).getItemMeta();
 		oldMeta.getEnchants().forEach((k, v) -> newMeta.addEnchant(k, v, true));

@@ -37,7 +37,7 @@ public class CustomPotions extends CustomTweak {
 		manager = new PotionManager();
 		boolean allowVillagerTrading = CustomPotions.config.getConfig().getConfigurationSection("config").getBoolean("allowVillagerTrading");
 
-		for (CustomPotion potion : ReflectionUtils.getInstances(Main.plugin.getPluginClassLoader(), POTIONS_PACKAGE, CustomPotion.class, true, false)) {
+		for (CustomPotion potion : ReflectionUtils.getInstances(Main.plugin.getPluginClassLoader(), POTIONS_PACKAGE, CustomPotion.class, true, false, true)) {
 			if (!allowVillagerTrading) { potion.setAllowVillagerTrades(false); }
 			manager.registerPotion(potion);
 		}

@@ -7,10 +7,12 @@ import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.LootGenerateEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.util.Vector;
 
 public class Incendium {
@@ -32,6 +34,15 @@ public class Incendium {
         if (!(event.getEntity() instanceof PiglinBrute piglinBrute)) { return; }
         if (piglinBrute.getScoreboardTags().stream().noneMatch(e -> e.equalsIgnoreCase("in.flying"))) { return; }
         piglinBrute.remove();
+    }
+
+    public static void onPlayerJoinEvent(PlayerJoinEvent event) {
+        PlayerInventory inventory = event.getPlayer().getInventory();
+
+        for (int i = 0; i < inventory.getSize(); i++) {
+            if (!isIncendiumItem(inventory.getItem(i))) { continue; }
+            inventory.setItem(i, RemoveDatapackItems.normalizeDatapackItem(inventory.getItem(i)));
+        }
     }
 
     public static void onInventoryClickEvent(InventoryClickEvent event) {

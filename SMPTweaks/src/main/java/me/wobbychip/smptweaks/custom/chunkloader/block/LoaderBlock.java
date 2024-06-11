@@ -4,7 +4,7 @@ import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.custom.chunkloader.ChunkLoader;
 import me.wobbychip.smptweaks.custom.chunkloader.loaders.Border;
 import me.wobbychip.smptweaks.custom.chunkloader.loaders.Chunks;
-import me.wobbychip.smptweaks.custom.chunkloader.loaders.FakePlayer;
+import me.wobbychip.smptweaks.custom.chunkloader.loaders.Fakes;
 import me.wobbychip.smptweaks.library.customblocks.blocks.CustomBlock;
 import me.wobbychip.smptweaks.utils.ServerUtils;
 import me.wobbychip.smptweaks.utils.Utils;
@@ -66,10 +66,10 @@ public class LoaderBlock extends CustomBlock {
     }
 
     @Override
-    public void remove(Block block) {
+    public void remove(Block block, boolean intentional) {
         block.getWorld().playSound(block.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1, 1);
         BLOCKS.remove(Utils.locationToString(block.getLocation()));
-        FakePlayer.setEnabled(false, block);
+        Fakes.setEnabled(false, block);
         Chunks.markChunks(block.getLocation(), ChunkLoader.viewDistance, false);
         Border.remove(block);
         saveAll();
@@ -87,7 +87,7 @@ public class LoaderBlock extends CustomBlock {
         if (!busy) { block.getWorld().playSound(block.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1, 1); }
         setGlowing(block, (ChunkLoader.highlighting ? (isPowered ? ChatColor.GREEN : ChatColor.RED) : ChatColor.RESET));
         Chunks.markChunks(block.getLocation(), ChunkLoader.viewDistance, isPowered);
-        FakePlayer.setEnabled(isPowered, block);
+        Fakes.setEnabled(isPowered, block);
     }
 
     public static void saveAll() {

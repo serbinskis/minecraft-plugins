@@ -11,10 +11,12 @@ import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.LootGenerateEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.util.Vector;
 
 import java.util.List;
@@ -35,6 +37,15 @@ public class Stellarity {
     }
 
     public static void onEntitySpawnEvent(EntitySpawnEvent event) {}
+
+    public static void onPlayerJoinEvent(PlayerJoinEvent event) {
+        PlayerInventory inventory = event.getPlayer().getInventory();
+
+        for (int i = 0; i < inventory.getSize(); i++) {
+            if (!isStellarityItem(inventory.getItem(i))) { continue; }
+            inventory.setItem(i, RemoveDatapackItems.normalizeDatapackItem(inventory.getItem(i)));
+        }
+    }
 
     public static void onInventoryClickEvent(InventoryClickEvent event) {
         if (!isStellarityItem(event.getCurrentItem())) { return; }

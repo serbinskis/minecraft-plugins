@@ -5,6 +5,7 @@ import com.mojang.authlib.GameProfile;
 import io.netty.channel.*;
 import io.netty.channel.embedded.EmbeddedChannel;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.*;
 import net.minecraft.core.component.DataComponents;
@@ -61,6 +62,7 @@ import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.redstone.NeighborUpdater;
 import org.bukkit.*;
+import org.bukkit.advancement.Advancement;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.block.data.BlockData;
@@ -93,6 +95,7 @@ import java.util.stream.Stream;
 public class ReflectionUtils {
 	public static Registry<Potion> POTION = BuiltInRegistries.POTION;
 	public static HashMap<String, GossipType> reputations = new HashMap<>();
+	public static Class<?> CraftAdvancement;
 	public static Class<?> CraftServer;
 	public static Class<?> CraftEntity;
 	public static Class<?> CraftHumanEntity;
@@ -131,6 +134,7 @@ public class ReflectionUtils {
 	public static Method RegistryMaterials_getHolder;
 
 	static {
+		CraftAdvancement = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.advancement.CraftAdvancement"));
 		CraftServer = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.CraftServer"));
 		CraftEntity = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.entity.CraftEntity"));
 		CraftHumanEntity = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.entity.CraftHumanEntity"));
@@ -175,10 +179,19 @@ public class ReflectionUtils {
 		ServerConnectionListener_channels = Objects.requireNonNull(getField(ServerConnectionListener.class, List.class, ChannelFuture.class, true));
 	}
 
-	public static Class<?> loadClass(String arg0, boolean verbose) {
+	public static Class<?> loadClass(String name, boolean verbose) {
 		try {
-			return Class.forName(arg0);
+			return Class.forName(name);
 		} catch (ClassNotFoundException e) {
+			if (verbose) { e.printStackTrace(); }
+			return null;
+		}
+	}
+
+	public static Class<?> loadClass(String name, ClassLoader loader, boolean initialize, boolean verbose) {
+		try {
+			return Class.forName(name, initialize, loader);
+		} catch (ClassNotFoundException | NoClassDefFoundError e) {
 			if (verbose) { e.printStackTrace(); }
 			return null;
 		}
@@ -338,22 +351,23 @@ public class ReflectionUtils {
 		}
 	}
 
-	public static <T> List<T> getInstances(ClassLoader loader, String packageName, Class<T> clazz, boolean recursive, boolean sort) {
-		return getInstances(loader, packageName, clazz, recursive, sort, new Class<?>[] {}, new Object[] {});
+	public static <T> List<T> getInstances(ClassLoader loader, String packagePrefix, Class<T> clazz, boolean recursive, boolean sort, boolean excludeParentClass) {
+		return getInstances(loader, packagePrefix, clazz, recursive, sort, excludeParentClass, new Class<?>[] {}, new Object[] {});
 	}
 
-	public static <T> List<T> getInstances(ClassLoader loader, String packageName, Class<T> clazz, boolean recursive, boolean sort, Class<?>[] parameters, Object[] args) {
+	public static <T> List<T> getInstances(ClassLoader loader, String packagePrefix, Class<T> clazz, boolean recursive, boolean sort, boolean excludeParentClass, Class<?>[] parameters, Object[] args) {
 		List<T> instances = new ArrayList<>();
 
 		try {
 			ClassPath classPath = ClassPath.from(loader);
 
-			for (ClassPath.ClassInfo classInfo : recursive ? classPath.getTopLevelClassesRecursive(packageName) : classPath.getTopLevelClasses(packageName)) {
-				Class<?> newClazz = Class.forName(classInfo.getName(), true, loader);
-				if (!clazz.isAssignableFrom(newClazz)) { continue; }
+			for (ClassPath.ClassInfo classInfo : recursive ? classPath.getTopLevelClassesRecursive(packagePrefix) : classPath.getTopLevelClasses(packagePrefix)) {
+				Class<?> newClazz = loadClass(classInfo.getName(), loader, true, false);
+				if ((newClazz == null) || !clazz.isAssignableFrom(newClazz)) { continue; }
+				if (newClazz.equals(clazz) && excludeParentClass) { continue; }
 				instances.add((T) newClazz.getConstructor(parameters).newInstance(args));
 			}
-		} catch (IOException | ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+		} catch (IOException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 		}
 
@@ -597,10 +611,6 @@ public class ReflectionUtils {
 		return MinecraftServer.getServer().getTickCount();
 	}
 
-	public static void setDisabledSlots(ArmorStand stand, int slots) {
-		((net.minecraft.world.entity.decoration.ArmorStand) getEntity(stand)).disabledSlots = slots;
-	}
-
 	public static Channel getChannel(Player player) {
 		try {
 			ServerGamePacketListenerImpl packetListener = getEntityPlayer(player).connection;
@@ -619,11 +629,11 @@ public class ReflectionUtils {
 		Connection networkManager = new Connection(PacketFlow.SERVERBOUND);
 		EmbeddedChannel embeddedChannel = new EmbeddedChannel(networkManager); //For some reason this is needed: GameTestHelper#makeMockServerPlayerInLevel()
 		CommonListenerCookie commonListenerCookie = CommonListenerCookie.createInitial(new GameProfile(uuid, " ".repeat(5)), false);
-		ServerGamePacketListenerImpl connection = new ServerGamePacketListenerImpl(server, networkManager, entityPlayer, commonListenerCookie) {};
-		Player player = (Player) getBukkitEntity(entityPlayer);
+        entityPlayer.connection = new ServerGamePacketListenerImpl(server, networkManager, entityPlayer, commonListenerCookie) {};
+		entityPlayer.connection.teleport(location);
 
-		entityPlayer.connection = connection;
 		if (addPlayer) { world.addNewPlayer(entityPlayer); }
+		Player player = (Player) getBukkitEntity(entityPlayer);
 
 		//Will hide from Bukkit.getOnlinePlayers()
 		if (addPlayer && hideOnline) {
@@ -637,6 +647,7 @@ public class ReflectionUtils {
 		}
 
 		player.setGameMode(GameMode.CREATIVE);
+		player.setCollidable(false);
 		player.setSleepingIgnored(true);
 		player.setInvulnerable(true);
 		player.setGravity(false);
@@ -673,10 +684,13 @@ public class ReflectionUtils {
 		if (environment == World.Environment.NETHER) { serverPlayer.isInsidePortal = false; }
 	}
 
-	public static void setPlayerAdvancements(Player player1, Player player2) {
-		ServerPlayer entityPlayer1 = getEntityPlayer(player1);
-		ServerPlayer entityPlayer2 = getEntityPlayer(player2);
-		setValue(EntityPlayer_advancements, entityPlayer2, entityPlayer1.getAdvancements());
+	public static PlayerAdvancements getPlayerAdvancements(Player player) {
+		return getEntityPlayer(player).getAdvancements();
+	}
+
+	public static void setPlayerAdvancements(Player player, Object playerAdvancements) {
+		if (!(playerAdvancements instanceof PlayerAdvancements)) { return; }
+		setValue(EntityPlayer_advancements, getEntityPlayer(player), playerAdvancements);
 	}
 
 	public static void removeFakePlayer(Player player) {
@@ -686,7 +700,7 @@ public class ReflectionUtils {
 	}
 
 	//This needed to update player chunks and make them tickable
-	public static void updateFakePlayer(Player player) {
+	public static void updateFakePlayerChunks(Player player) {
 		ServerLevel world = getWorld(player.getWorld());
 		world.getChunkSource().move(getEntityPlayer(player));
 	}
@@ -705,6 +719,17 @@ public class ReflectionUtils {
 
 	public static void selectTrade(Player player, int slot) {
 		handlePacket(player, new ServerboundSelectTradePacket(slot));
+	}
+
+	public static int getAdvancementExp(Advancement advancement) {
+		try {
+			Object craftAdvancement = CraftAdvancement.cast(advancement);
+			AdvancementHolder advancementHolder = (AdvancementHolder) craftAdvancement.getClass().getDeclaredMethod("getHandle").invoke(craftAdvancement);
+			return advancementHolder.value().rewards().experience();
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+			e.printStackTrace();
+			return 0;
+		}
 	}
 
 	//Simulate shift+click on specific slot on opened inventory

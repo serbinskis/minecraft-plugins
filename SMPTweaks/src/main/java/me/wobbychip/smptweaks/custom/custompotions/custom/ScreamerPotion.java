@@ -1,7 +1,6 @@
 package me.wobbychip.smptweaks.custom.custompotions.custom;
 
 import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
-import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import me.wobbychip.smptweaks.utils.TaskUtils;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -13,12 +12,14 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class ScreamerPotion extends CustomPotion {
@@ -49,22 +50,22 @@ public class ScreamerPotion extends CustomPotion {
 			Location spawn = player.getLocation().clone().add(view.getX(), 0, view.getZ());
 			spawn.setDirection(spawn.getDirection().multiply(-1));
 
-			ArmorStand stand = (ArmorStand) player.getWorld().spawnEntity(spawn, EntityType.ARMOR_STAND);
-			ReflectionUtils.setDisabledSlots(stand, 2039583);
-			stand.setCanPickupItems(false);
-			stand.setPersistent(false);
-			stand.setGravity(false);
-			stand.setInvulnerable(true);
-			stand.setInvisible(true);
-			stand.setCustomName(stand.getUniqueId().toString());
-			stand.setCustomNameVisible(false);
+			ArmorStand armorStand = (ArmorStand) player.getWorld().spawnEntity(spawn, EntityType.ARMOR_STAND);
+			Arrays.asList(EquipmentSlot.values()).forEach(e -> armorStand.addEquipmentLock(e, ArmorStand.LockType.REMOVING_OR_CHANGING));
+			armorStand.setCanPickupItems(false);
+			armorStand.setPersistent(false);
+			armorStand.setGravity(false);
+			armorStand.setInvulnerable(true);
+			armorStand.setInvisible(true);
+			armorStand.setCustomName(armorStand.getUniqueId().toString());
+			armorStand.setCustomNameVisible(false);
 
-			stand.getEquipment().setHelmet(new ItemStack(Material.WITHER_SKELETON_SKULL));
-			stand.getEquipment().setChestplate(makeColoredArmour(Material.LEATHER_CHESTPLATE, 0));
-			stand.getEquipment().setLeggings(makeColoredArmour(Material.LEATHER_LEGGINGS, 0));
-			stand.getEquipment().setBoots(makeColoredArmour(Material.LEATHER_BOOTS, 0));
+			armorStand.getEquipment().setHelmet(new ItemStack(Material.WITHER_SKELETON_SKULL));
+			armorStand.getEquipment().setChestplate(makeColoredArmour(Material.LEATHER_CHESTPLATE, 0));
+			armorStand.getEquipment().setLeggings(makeColoredArmour(Material.LEATHER_LEGGINGS, 0));
+			armorStand.getEquipment().setBoots(makeColoredArmour(Material.LEATHER_BOOTS, 0));
 
-			moveEntity(stand, player, 5);
+			moveEntity(armorStand, player, 5);
 			player.playSound(player, Sound.ENTITY_ENDERMAN_DEATH, 3, 1);
 		}, 3L);
 	}

@@ -1,6 +1,8 @@
 package me.wobbychip.smptweaks.library.customblocks.events;
 
+import me.wobbychip.smptweaks.library.customblocks.CustomBlocks;
 import me.wobbychip.smptweaks.library.customblocks.blocks.CustomBlock;
+import me.wobbychip.smptweaks.library.customblocks.blocks.CustomMarker;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import me.wobbychip.smptweaks.utils.TaskUtils;
 import me.wobbychip.smptweaks.utils.Utils;
@@ -14,6 +16,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.inventory.Inventory;
@@ -21,6 +24,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class BlockEvents implements Listener {
 	public static int DEFAULT_COMPARATOR_DELAY = 2;
@@ -43,7 +47,14 @@ public class BlockEvents implements Listener {
 		if (itemStack.getType() != customBlock.getBlockBase()) { return; }
 		if (customBlock.isCustomBlock(itemStack)) { return; } //Case, where custom block was inside inventory
 		if (customBlock.isMarkedItem(itemStack)) { event.getEntity().setItemStack(customBlock.removeMarkedItem(itemStack)); return; } //Case, where normal block of cblock was inside inventory
-		event.getEntity().setItemStack(customBlock.getDropItem(false)); //Case, where dropped block is normal and not marked, this is item of cblock
+		int amount = event.getEntity().getItemStack().getAmount();
+		event.getEntity().setItemStack(Utils.cloneItem(customBlock.getDropItem(false), amount)); //Case, where dropped block is normal and not marked, this is item of cblock
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void onEntityExplodeEvent(EntityExplodeEvent event) {
+		Block block = event.getLocation().getBlock();
+		onBlockExplodeEvent(new BlockExplodeEvent(block, block.getState(), event.blockList(), event.getYield()));
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -58,7 +69,7 @@ public class BlockEvents implements Listener {
 
 			customBlock.setMarkedInventory(block);
 			customBlock.removeBlock(block);
-			customBlock.remove(block);
+			customBlock.remove(block, true);
 		}
 	}
 
@@ -69,7 +80,10 @@ public class BlockEvents implements Listener {
 		//This is needed because #isCustomBlock is based on entity
 		//And if we remove it here then it will not work inside BlockDropItemEvent
 		TaskUtils.scheduleSyncDelayedTask(() -> customBlock.removeBlock(event.getBlock()), 1L);
-		customBlock.remove(event.getBlock());
+		customBlock.remove(event.getBlock(), true);
+
+		CustomMarker customMarker = CustomMarker.getMarker(event.getBlock());
+		if (customMarker != null) { customMarker.setDestroyed(true); }
 
 		if (!customBlock.hasInventory()) { return; }
 		customBlock.setMarkedInventory(event.getBlock());
@@ -92,6 +106,24 @@ public class BlockEvents implements Listener {
 	public void onBlockPlaceEvent(BlockPlaceEvent event) {
 		if (!customBlock.isCustomBlock(event.getItemInHand())) { return; }
 		customBlock.createBlock(event.getBlockPlaced(), true);
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void onBlockPistonRetractEvent(BlockPistonRetractEvent event) {
+		onBlockPistonExtendEvent(new BlockPistonExtendEvent(event.getBlock(), event.getBlocks(), event.getDirection()));
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void onBlockPistonExtendEvent(BlockPistonExtendEvent event) {
+		Map<Block, CustomBlock> blockList = event.getBlocks().stream().filter(CustomBlocks::isCustomBlock).collect(Collectors.toMap(e -> e, CustomBlocks::getCustomBlock));
+		if (blockList.isEmpty()) { return; }
+		blockList.forEach((block, customBlock) -> customBlock.removeBlock(block));
+
+		//For some reason this event is applied later, because runnable execute before blocks are updated
+		//And runnable do run in the end or beginning of tick, so this means this operation is delayed
+		TaskUtils.scheduleSyncDelayedTask(() -> {
+			blockList.forEach((block, customBlock) -> customBlock.createBlock(block.getRelative(event.getDirection()), true));
+		}, 2L);
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)

@@ -7,6 +7,7 @@ import me.wobbychip.smptweaks.library.customblocks.commands.Commands;
 import me.wobbychip.smptweaks.library.customblocks.events.BlockEvents;
 import me.wobbychip.smptweaks.library.customblocks.events.InventoryEvents;
 import me.wobbychip.smptweaks.library.customblocks.events.WorldEvents;
+import me.wobbychip.smptweaks.library.customblocks.test.MovableBlock;
 import me.wobbychip.smptweaks.library.customblocks.test.TestBlock;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
 import me.wobbychip.smptweaks.utils.PersistentUtils;
@@ -42,6 +43,7 @@ public class CustomBlocks extends CustomTweak {
 
 		Bukkit.getPluginManager().registerEvents(new WorldEvents(), Main.plugin);
 		if (Main.DEBUG_MODE) { CustomBlocks.registerBlock(new TestBlock()); }
+		if (Main.DEBUG_MODE) { CustomBlocks.registerBlock(new MovableBlock()); }
 
 		for (CustomBlock customBlock : REGISTRY_CUSTOM_BLOCKS.values()) {
 			Bukkit.getPluginManager().registerEvents(customBlock, Main.plugin);

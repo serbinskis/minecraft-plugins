@@ -47,7 +47,7 @@ public class Traders {
 		if (villager.getProfession() == Profession.NONE) { return Map.entry(false, List.of()); }
 		if (villager.isTrading() || villager.isSleeping()) { return Map.entry(false, List.of()); }
 
-		Bukkit.getPluginManager().callEvent(new PlayerInteractEntityEvent(AutoTrade.fakePlayer, villager)); //Support global trading tweak
+		Bukkit.getPluginManager().callEvent(new PlayerInteractEntityEvent(AutoTrade.fakePlayer, villager)); //Support for global trading tweak
 
 		for (MerchantRecipe recipe : villager.getRecipes()) {
 			Map.Entry<Boolean, List<ItemStack>> result = handleTrade(block, villager, recipe, source, destination, trader);

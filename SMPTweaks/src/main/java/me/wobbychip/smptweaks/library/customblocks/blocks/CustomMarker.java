@@ -26,6 +26,7 @@ import java.util.*;
 
 public class CustomMarker implements Runnable {
     public static final String TAG_MARKER = "SMPTWEAKS_CUSTOM_MARKER";
+    public static final String TAG_DESTROYED = "SMPTWEAKS_CUSTOM_MARKER_DESTROYED";
     private static final HashMap<String, CustomMarker> markers = new HashMap<>();
     private final ItemDisplay display;
     private final CustomBlock customBlock;
@@ -134,6 +135,15 @@ public class CustomMarker implements Runnable {
         });
     }
 
+    public void setDestroyed(boolean destroyed) {
+        PersistentUtils.setPersistentDataBoolean(display, TAG_DESTROYED, destroyed);
+    }
+
+    public boolean isDestroyed() {
+        if (!PersistentUtils.hasPersistentDataBoolean(display, TAG_DESTROYED)) { return false; }
+        return PersistentUtils.getPersistentDataBoolean(display, TAG_DESTROYED);
+    }
+
     public void recreate() {
         remove(true);
         Block block = display.getLocation().getBlock();
@@ -153,7 +163,14 @@ public class CustomMarker implements Runnable {
         Location location = display.getLocation();
         if (!location.getWorld().isChunkLoaded(location.getBlockX() >> 4, location.getBlockZ() >> 4)) { remove(false); return; }
         if (!display.isValid()) { recreate(); return; }
-        if (block.getType() != customBlock.getBlockBase()) { remove(true); return; }
+
+        if (block.getType() != customBlock.getBlockBase()) {
+            boolean destroyed = isDestroyed();
+            remove(true);
+            if (!destroyed) { customBlock.remove(block, false); }
+            return;
+        }
+
         if (customBlock.isTickable()) { customBlock.tick(block, ServerUtils.getTick()); }
     }
 }

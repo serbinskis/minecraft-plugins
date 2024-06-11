@@ -43,7 +43,6 @@ public class Villagers {
 
 	public static boolean canBuy(Player player, Villager villager, int trade) {
 		player.openMerchant(villager, true);
-
 		TradeSelectEvent event = new TradeSelectEvent(player.getOpenInventory(), trade);
 		Bukkit.getPluginManager().callEvent(event);
 

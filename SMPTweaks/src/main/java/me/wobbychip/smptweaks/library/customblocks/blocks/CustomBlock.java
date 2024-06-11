@@ -236,7 +236,7 @@ public class CustomBlock implements Listener {
     public ChatColor prepareGlowingColor(Block block) { return this.glow_color; }
     public void tick(Block block, long tick) {}
     public void create(Block block, boolean new_block) {}
-    public void remove(Block block) {}
+    public void remove(Block block, boolean intentional) {}
 
     public enum Dispensable { DISABLE, IGNORE, CUSTOM }
     public enum Comparable { DISABLE, IGNORE, CUSTOM }

@@ -2,6 +2,7 @@ package me.wobbychip.smptweaks.library.customblocks.test;
 
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.library.customblocks.blocks.CustomBlock;
+import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -51,5 +52,10 @@ public class TestBlock extends CustomBlock {
         //dispense.put(drop, Map.entry(new ItemStack(Material.AIR), -1));
         dispense.put(drop, Map.entry(drop, -1));
         return true;
+    }
+
+    @Override
+    public void remove(Block block, boolean intentional) {
+        Utils.sendMessage("remove -> custom_block: (intentional: " + intentional + ") | " + block);
     }
 }

@@ -345,15 +345,12 @@ public class Utils {
 		return file;
 	}
 
-	public static void grantAdvancemnt(Player player, Advancement advancment) {
+	public static void grantAdvancement(Player player, Advancement advancment) {
 		AdvancementProgress progress = player.getAdvancementProgress(advancment);
-
-		for (String criteria : progress.getRemainingCriteria()) {
-			progress.awardCriteria(criteria);
-		}
+		progress.getRemainingCriteria().forEach(progress::awardCriteria);
 	}
 
-	public static void revokeAdvancemnt(Player player, Advancement advancment) {
+	public static void revokeAdvancement(Player player, Advancement advancment) {
 		AdvancementProgress progress = player.getAdvancementProgress(advancment);
 
 		for (String criteria : progress.getAwardedCriteria()) {

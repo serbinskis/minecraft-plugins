@@ -51,7 +51,7 @@ public class TraderBlock extends CustomBlock {
     }
 
     @Override
-    public void remove(Block block) {
-        Villagers.releaseXp(block, block.getLocation().clone().add(0.5, 0.5, 0.5));
+    public void remove(Block block, boolean intentional) {
+        if (intentional) { Villagers.releaseXp(block, block.getLocation().clone().add(0.5, 0.5, 0.5)); }
     }
 }
