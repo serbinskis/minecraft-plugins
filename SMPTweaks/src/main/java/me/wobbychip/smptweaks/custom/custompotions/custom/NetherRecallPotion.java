@@ -29,7 +29,7 @@ public class NetherRecallPotion extends CustomPotion {
 	@Override
 	public boolean onAffectPlayer(Player player, Event event) {
 		TELEPORT_ALLOW.add(player.getUniqueId());
-		ReflectionUtils.changeDimension(player, World.Environment.NETHER, null);
+		ReflectionUtils.changeDimension(player, World.Environment.NETHER);
 		TELEPORT_ALLOW.remove(player.getUniqueId());
 		return true;
 	}

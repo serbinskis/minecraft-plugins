@@ -11,7 +11,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Collection;
@@ -100,7 +99,7 @@ public class FakePlayer {
                 armorStand.setInvulnerable(true);
                 armorStand.setGliding(true);
                 armorStand.setPersistent(false);
-                armorStand.setItem(EquipmentSlot.HEAD, new ItemStack(Material.PLAYER_HEAD));
+                armorStand.setHelmet(new ItemStack(Material.PLAYER_HEAD));
             }));
         }));
     }

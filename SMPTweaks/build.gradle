@@ -29,9 +29,8 @@ repositories {
 
 dependencies {
     compileOnly "com.sk89q.worldedit:worldedit-bukkit:7.2.0"
-    compileOnly "com.comphenix.protocol:ProtocolLib:5.1.0"
-    compileOnly "net.essentialsx:EssentialsX:2.20.0"
-    compileOnly "me.clip:placeholderapi:2.11.5"
+    compileOnly "net.essentialsx:EssentialsX:2.20.1"
+    compileOnly "me.clip:placeholderapi:2.11.6"
     compileOnly "io.papermc.paper:paper-api:${project.minecraft_version}-R0.1-SNAPSHOT"
     paperweight.paperDevBundle("${project.minecraft_version}-R0.1-SNAPSHOT")
 }

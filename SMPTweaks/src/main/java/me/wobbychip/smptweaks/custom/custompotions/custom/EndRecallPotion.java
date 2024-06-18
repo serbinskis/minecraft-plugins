@@ -21,7 +21,7 @@ public class EndRecallPotion extends CustomPotion {
 
 	@Override
 	public boolean onAffectPlayer(Player player, Event event) {
-		ReflectionUtils.changeDimension(player, World.Environment.THE_END, null);
+		ReflectionUtils.changeDimension(player, World.Environment.THE_END);
 		return true;
 	}
 }

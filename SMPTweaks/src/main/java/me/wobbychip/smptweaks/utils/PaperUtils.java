@@ -2,11 +2,13 @@ package me.wobbychip.smptweaks.utils;
 
 public class PaperUtils {
 	public static Class<?> EntityLookup;
+	public static Class<?> ServerEntityLookup;
 	public static boolean isPaper = isPaper();
 
 	static {
 		if (isPaper) {
-			EntityLookup = io.papermc.paper.chunk.system.entity.EntityLookup.class;
+			EntityLookup = ca.spottedleaf.moonrise.patches.chunk_system.level.entity.EntityLookup.class;
+			ServerEntityLookup = ca.spottedleaf.moonrise.patches.chunk_system.level.entity.server.ServerEntityLookup.class;
 		}
 	}
 

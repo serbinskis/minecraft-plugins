@@ -40,7 +40,7 @@ public class InventoryEvents implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onInventoryClick(InventoryClickEvent event) {
 		//When putting item inside brewing stand, convert it to nms potion
-		if (event.getView().getTopInventory() instanceof BrewerInventory) {
+		if (event.getInventory() instanceof BrewerInventory) {
 			CustomPotion customPotion = CustomPotions.manager.getCustomPotion(event.getCurrentItem());
 			if (customPotion != null) { event.setCurrentItem(customPotion.setPotionTag(event.getCurrentItem())); }
 		}
@@ -58,9 +58,8 @@ public class InventoryEvents implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onInventoryDrag(InventoryDragEvent event) {
 		//When putting item inside brewing stand, convert it to nms potion
-		if (event.getView().getTopInventory() instanceof BrewerInventory) {
+		if (event.getInventory() instanceof BrewerInventory inv) {
 			TaskUtils.scheduleSyncDelayedTask(() -> {
-				Inventory inv = event.getView().getTopInventory();
 				for (int i = 0; i < inv.getSize(); i++) {
 					CustomPotion customPotion = CustomPotions.manager.getCustomPotion(inv.getItem(i));
 					if (customPotion != null) { inv.setItem(i, customPotion.setPotionTag(inv.getItem(i))); }
@@ -82,9 +81,8 @@ public class InventoryEvents implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onInventoryMoveItem(InventoryMoveItemEvent event) {
 		//When moving item to brewing stand, convert it to nms potion
-		if (event.getDestination().getType() == InventoryType.BREWING) {
+		if (event.getDestination() instanceof BrewerInventory inv) {
 			TaskUtils.scheduleSyncDelayedTask(() -> {
-				Inventory inv = event.getDestination();
 				for (int i = 0; i < inv.getSize(); i++) {
 					CustomPotion customPotion = CustomPotions.manager.getCustomPotion(inv.getItem(i));
 					if (customPotion != null) { inv.setItem(i, customPotion.setPotionTag(inv.getItem(i))); }

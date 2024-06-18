@@ -18,6 +18,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.ShapedRecipe;
 
 import java.util.HashMap;
@@ -39,7 +40,8 @@ public class CustomBlocks extends CustomTweak {
 
 	public static void start() {
 		EMPTY_RECIPE.shape("AAA", "AAA", "AAA");
-		EMPTY_RECIPE.setIngredient('A', Material.AIR);
+		ItemStack itemStack = PersistentUtils.setPersistentDataString(new ItemStack(Material.STRUCTURE_VOID), Utils.randomString(16, true), Utils.randomString(16, true));
+		EMPTY_RECIPE.setIngredient('A', new RecipeChoice.ExactChoice(itemStack)); //Generate item that 100% nobody can have.
 
 		Bukkit.getPluginManager().registerEvents(new WorldEvents(), Main.plugin);
 		if (Main.DEBUG_MODE) { CustomBlocks.registerBlock(new TestBlock()); }

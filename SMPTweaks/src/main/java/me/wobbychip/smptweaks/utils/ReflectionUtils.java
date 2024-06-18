@@ -36,6 +36,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity.RemovalReason;
+import net.minecraft.world.entity.PortalProcessor;
 import net.minecraft.world.entity.ai.gossip.GossipContainer;
 import net.minecraft.world.entity.ai.gossip.GossipType;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -60,6 +61,8 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
+import net.minecraft.world.level.entity.LevelCallback;
+import net.minecraft.world.level.portal.DimensionTransition;
 import net.minecraft.world.level.redstone.NeighborUpdater;
 import org.bukkit.*;
 import org.bukkit.advancement.Advancement;
@@ -75,7 +78,6 @@ import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionType;
@@ -656,32 +658,26 @@ public class ReflectionUtils {
 		return player;
 	}
 
-	public static void changeDimension(Player player, World.Environment environment, @Nullable World world) {
+	public static void changeDimension(Player player, World.Environment environment) {
 		if (player.getWorld().getEnvironment() == environment) { return; }
 
-		ResourceKey<Level> resourceKey = switch (environment) {
-			case World.Environment.NETHER -> Level.NETHER;
-			case World.Environment.THE_END -> Level.END;
-			default -> Level.OVERWORLD;
-		};
-
-		PlayerTeleportEvent.TeleportCause teleportCause = switch (environment) {
-			case World.Environment.NETHER -> PlayerTeleportEvent.TeleportCause.NETHER_PORTAL;
-			case World.Environment.THE_END -> PlayerTeleportEvent.TeleportCause.END_PORTAL;
-			default -> PlayerTeleportEvent.TeleportCause.UNKNOWN;
-		};
+		Block portalBlock = null;
+		if ((player.getWorld().getEnvironment() == World.Environment.NORMAL) && (environment == World.Environment.NETHER)) { portalBlock = Blocks.NETHER_PORTAL; }
+		if ((player.getWorld().getEnvironment() == World.Environment.NORMAL) && (environment == World.Environment.THE_END)) { portalBlock = Blocks.END_PORTAL; }
+		if ((player.getWorld().getEnvironment() == World.Environment.NETHER) && (environment == World.Environment.NORMAL)) { portalBlock = Blocks.NETHER_PORTAL; }
+		if ((player.getWorld().getEnvironment() == World.Environment.NETHER) && (environment == World.Environment.THE_END)) { portalBlock = Blocks.END_PORTAL; }
+		if ((player.getWorld().getEnvironment() == World.Environment.THE_END) && (environment == World.Environment.NORMAL)) { portalBlock = Blocks.END_PORTAL; }
+		if ((player.getWorld().getEnvironment() == World.Environment.THE_END) && (environment == World.Environment.NETHER)) { portalBlock = Blocks.NETHER_PORTAL; }
+		if (portalBlock == null) { return; }
 
 		ServerPlayer serverPlayer = getEntityPlayer(player);
-		ServerLevel worldServer = (world != null) ? getWorld(world) : MinecraftServer.getServer().getLevel(resourceKey);
+		PortalProcessor portalProcessor = new PortalProcessor((Portal) portalBlock, serverPlayer.blockPosition());
+		serverPlayer.setPortalCooldown();
 
-		if (environment == World.Environment.NETHER) {
-			serverPlayer.setPortalCooldown(0);
-			serverPlayer.handleInsidePortal(serverPlayer.blockPosition());
-			serverPlayer.setPortalCooldown();
-		}
-
-		serverPlayer.changeDimension(worldServer, teleportCause);
-		if (environment == World.Environment.NETHER) { serverPlayer.isInsidePortal = false; }
+		DimensionTransition portalDestination = portalProcessor.getPortalDestination(getWorld(player.getWorld()), serverPlayer);
+		if (portalDestination == null) { return; }
+		serverPlayer.changeDimension(portalDestination);
+		serverPlayer.portalProcess = null;
 	}
 
 	public static PlayerAdvancements getPlayerAdvancements(Player player) {
@@ -1407,18 +1403,11 @@ public class ReflectionUtils {
 		//Replace stupid paper EntityLookup system, because it initializes and uses old minY and height variables
 		//FUCK YOU PAPER -> io.papermc.paper.chunk.system.entity.EntityLookup -> minSection = WorldUtil.getMinSection(world)
 		if (PaperUtils.isPaper()) {
-			Field ServerLevel_entityLookup = getField(ServerLevel.class, PaperUtils.EntityLookup, null, true);
-			Field EntityLookup_worldCallback = getField(PaperUtils.EntityLookup, net.minecraft.world.level.entity.LevelCallback.class, null, true);
-			net.minecraft.world.level.entity.LevelCallback<?> callback = (net.minecraft.world.level.entity.LevelCallback<?>) getValue(EntityLookup_worldCallback, level.getEntityLookup());
-			Class<?>[] parameters = { ServerLevel.class, net.minecraft.world.level.entity.LevelCallback.class };
-			Object entityLookup = newInstance(PaperUtils.EntityLookup, parameters, new Object[]{ level, callback }, true, true);
-			setValue(ServerLevel_entityLookup, level, entityLookup);
-
-			//FUCK YOU PAPER, it took me like 5 days to find this, IDK why I can modify final, but *this is fine*
-			Field Level_minSection = Objects.requireNonNull(getField(Level.class, int.class, null, level, level.minSection, false));
-			Field Level_maxSection = Objects.requireNonNull(getField(Level.class, int.class, null, level, level.maxSection, false));
-			setValue(Level_minSection, level, (type.minY() >> 4));
-			setValue(Level_maxSection, level, ((type.minY() + type.height() - 1) >> 4));
+			Field Level_entityLookup = getField(Level.class, PaperUtils.EntityLookup, null, true);
+			Field EntityLookup_levelCallback = getField(PaperUtils.EntityLookup, net.minecraft.world.level.entity.LevelCallback.class, null, true);
+			LevelCallback<?> callback = (LevelCallback<net.minecraft.world.entity.Entity>) getValue(EntityLookup_levelCallback, level.moonrise$getEntityLookup());
+			Object entityLookup = newInstance(PaperUtils.ServerEntityLookup, new Class[]{ ServerLevel.class, LevelCallback.class }, new Object[]{ level, callback }, true, true);
+			setValue(Level_entityLookup, level, entityLookup);
 		}
 	}
 
@@ -1431,8 +1420,8 @@ public class ReflectionUtils {
 	//This will crash client if he will not rejoin and receive custom biome, because client only receives biomes when joining,
 	// but if we create new biome and send it to client, he won't know what to do with it and crash
 	public static Biome registerBiome(String basename, String namespace, String name, int skyColor, int fogColor, int waterColor, int waterFogColor, int foliageColor, int grassColor, boolean effectsEnabled) {
-		ResourceKey<Biome> minecraftKey = ResourceKey.create(Registries.BIOME, new ResourceLocation(basename.split(":")[0], basename.split(":")[1]));
-		ResourceKey<Biome> customKey = ResourceKey.create(Registries.BIOME, new ResourceLocation(namespace, name));
+		ResourceKey<Biome> minecraftKey = ResourceKey.create(Registries.BIOME, ResourceLocation.fromNamespaceAndPath(basename.split(":")[0], basename.split(":")[1]));
+		ResourceKey<Biome> customKey = ResourceKey.create(Registries.BIOME, ResourceLocation.fromNamespaceAndPath(namespace, name));
 		WritableRegistry<Biome> biomeRegirsty = (WritableRegistry<Biome>) getRegistry(Registries.BIOME);
 		Biome minecraftBiome = biomeRegirsty.get(minecraftKey);
 
