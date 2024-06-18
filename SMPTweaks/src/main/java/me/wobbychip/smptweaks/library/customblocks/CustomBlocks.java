@@ -40,7 +40,7 @@ public class CustomBlocks extends CustomTweak {
 
 	public static void start() {
 		EMPTY_RECIPE.shape("AAA", "AAA", "AAA");
-		ItemStack itemStack = PersistentUtils.setPersistentDataString(new ItemStack(Material.STRUCTURE_VOID), Utils.randomString(16, true), Utils.randomString(16, true));
+		ItemStack itemStack = PersistentUtils.setPersistentDataString(new ItemStack(Material.STRUCTURE_VOID), Utils.randomString(16, false), Utils.randomString(16, false));
 		EMPTY_RECIPE.setIngredient('A', new RecipeChoice.ExactChoice(itemStack)); //Generate item that 100% nobody can have.
 
 		Bukkit.getPluginManager().registerEvents(new WorldEvents(), Main.plugin);

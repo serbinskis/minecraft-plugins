@@ -6,6 +6,8 @@ import io.netty.channel.*;
 import io.netty.channel.embedded.EmbeddedChannel;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.advancements.AdvancementHolder;
+import net.minecraft.commands.CacheableFunction;
+import net.minecraft.commands.functions.CommandFunction;
 import net.minecraft.core.Registry;
 import net.minecraft.core.*;
 import net.minecraft.core.component.DataComponents;
@@ -64,6 +66,7 @@ import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.entity.LevelCallback;
 import net.minecraft.world.level.portal.DimensionTransition;
 import net.minecraft.world.level.redstone.NeighborUpdater;
+import net.minecraft.world.level.storage.loot.LootTable;
 import org.bukkit.*;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.block.BlockFace;
@@ -127,6 +130,9 @@ public class ReflectionUtils {
 	public static Field Holder_value;
 	public static Field ServerCommonPacketListenerImpl_connection;
 	public static Field ServerConnectionListener_channels;
+	public static Field CacheableFunction_id;
+	public static Field CacheableFunction_resolved;
+	public static Field CacheableFunction_function;
 	public static Field GossipContainer_gossips;
 	public static Field EntityGossips_entries;
 	public static Field PotionBrewing_potionMixes;
@@ -179,6 +185,9 @@ public class ReflectionUtils {
 		Holder_value = Objects.requireNonNull(getField(Holder.Reference.class, Object.class, null, true));
 		ServerCommonPacketListenerImpl_connection = Objects.requireNonNull(getField(ServerCommonPacketListenerImpl.class, Connection.class, null, true));
 		ServerConnectionListener_channels = Objects.requireNonNull(getField(ServerConnectionListener.class, List.class, ChannelFuture.class, true));
+		CacheableFunction_id = Objects.requireNonNull(getField(CacheableFunction.class, ResourceLocation.class, null, true));
+		CacheableFunction_resolved = Objects.requireNonNull(getField(CacheableFunction.class, boolean.class, null, true));
+		CacheableFunction_function = Objects.requireNonNull(getField(CacheableFunction.class, Optional.class, CommandFunction.class, true));
 	}
 
 	public static Class<?> loadClass(String name, boolean verbose) {
@@ -456,6 +465,17 @@ public class ReflectionUtils {
 		}
 	}
 
+	public static net.minecraft.advancements.Advancement getNMSAdvancement(Advancement advancement) {
+		try {
+			Object craftAdvancement = CraftAdvancement.cast(advancement);
+			AdvancementHolder advancementHolder = (AdvancementHolder) craftAdvancement.getClass().getDeclaredMethod("getHandle").invoke(craftAdvancement);
+			return advancementHolder.value();
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
 	public static net.minecraft.world.item.ItemStack asNMSCopy(ItemStack itemStack) {
 		try {
 			Method method = CraftItemStack.getDeclaredMethod("asNMSCopy", ItemStack.class);
@@ -717,15 +737,53 @@ public class ReflectionUtils {
 		handlePacket(player, new ServerboundSelectTradePacket(slot));
 	}
 
-	public static int getAdvancementExp(Advancement advancement) {
-		try {
-			Object craftAdvancement = CraftAdvancement.cast(advancement);
-			AdvancementHolder advancementHolder = (AdvancementHolder) craftAdvancement.getClass().getDeclaredMethod("getHandle").invoke(craftAdvancement);
-			return advancementHolder.value().rewards().experience();
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-			e.printStackTrace();
-			return 0;
-		}
+	public static int getAdvancementExperience(Advancement advancement) {
+		return getNMSAdvancement(advancement).rewards().experience();
+	}
+
+	public static List<ResourceKey<LootTable>> getAdvancementLoot(Advancement advancement) {
+		List<ResourceKey<LootTable>> loot = getNMSAdvancement(advancement).rewards().loot();
+		return loot.isEmpty() ? List.of() : loot;
+	}
+
+	public static List<ResourceLocation> getAdvancementRecipes(Advancement advancement) {
+		return getNMSAdvancement(advancement).rewards().recipes();
+	}
+
+	public static String[] getAdvancementFunction(Advancement advancement) {
+		Optional<CacheableFunction> function = getNMSAdvancement(advancement).rewards().function();
+		if (function.isEmpty()) { return null; }
+
+		ResourceLocation resourceLocation = (ResourceLocation) getValue(CacheableFunction_id, function.get());
+		return new String[] { resourceLocation.getNamespace(), resourceLocation.getPath() };
+	}
+
+	public static void setAdvancementFunction(Advancement advancement, String namespace, String path) {
+		Optional<CacheableFunction> function = getNMSAdvancement(advancement).rewards().function();
+		if (function.isEmpty()) { return; }
+
+		setValue(CacheableFunction_resolved, function.get(), false);
+		setValue(CacheableFunction_function, function.get(), null);
+		setResourceLocation((ResourceLocation) getValue(CacheableFunction_id, function.get()), namespace, path);
+	}
+
+	public static String[] getResourceLocation(ResourceKey<?> resourceKey) {
+		return getResourceLocation(resourceKey.location());
+	}
+
+	public static String[] getResourceLocation(ResourceLocation resourceLocation) {
+		return new String[] { resourceLocation.getNamespace(), resourceLocation.getPath() };
+	}
+
+	public static void setResourceLocation(ResourceKey<?> resourceKey, String namespace, String path) {
+		setResourceLocation(resourceKey.location(), namespace, path);
+	}
+
+	public static void setResourceLocation(ResourceLocation resourceLocation, String namespace, String path) {
+		Field ResourceLocation_namespace = getField(ResourceLocation.class, String.class, null, resourceLocation, resourceLocation.getNamespace(), true, null, Modifier.STATIC);
+		Field ResourceLocation_path = getField(ResourceLocation.class, String.class, null, resourceLocation, resourceLocation.getPath(), true, null, Modifier.STATIC);
+		setValue(ResourceLocation_namespace, resourceLocation, namespace);
+		setValue(ResourceLocation_path, resourceLocation, path);
 	}
 
 	//Simulate shift+click on specific slot on opened inventory

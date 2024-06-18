@@ -57,12 +57,13 @@ public class Main extends JavaPlugin implements Listener {
 		TinyProtocol.start();
 	}
 
-	public ClassLoader getPluginClassLoader() {
-		return this.getClassLoader();
-	}
-
 	@Override
 	public void onDisable() {
 		manager.disableAll();
+		TinyProtocol.stop();
+	}
+
+	public ClassLoader getPluginClassLoader() {
+		return this.getClassLoader();
 	}
 }

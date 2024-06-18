@@ -8,7 +8,7 @@ public class NoAdvancements extends CustomTweak {
 	public static CustomTweak tweak;
 
 	public NoAdvancements() {
-		super(NoAdvancements.class, true, false);
+		super(NoAdvancements.class, false, false);
 		this.setGameRule("doAdvancements", true, false);
 		this.setDescription("Disable advancements with custom gamerule.");
 		NoAdvancements.tweak = this;

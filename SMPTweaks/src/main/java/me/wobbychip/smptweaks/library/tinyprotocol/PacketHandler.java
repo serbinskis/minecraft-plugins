@@ -25,7 +25,7 @@ public class PacketHandler extends ChannelDuplexHandler {
     @Override
     public void write(ChannelHandlerContext ctx, Object packet, ChannelPromise promise) throws Exception {
         String packetType = ReflectionUtils.getPacketType(packet);
-        if (packetType.isEmpty()) { super.write(ctx, packet, promise); return; }
+        if (packetType.isEmpty() || !TinyProtocol.enabled) { super.write(ctx, packet, promise); return; }
 
         PacketEvent packetEvent = new PacketEvent(playerId, PacketType.Flow.CLIENTBOUND, PacketType.getType(packetType), packet);
         Bukkit.getPluginManager().callEvent(packetEvent);
@@ -42,7 +42,7 @@ public class PacketHandler extends ChannelDuplexHandler {
         }
 
         String packetType = ReflectionUtils.getPacketType(packet);
-        if (packetType.isEmpty()) { super.channelRead(ctx, packet); return; }
+        if (packetType.isEmpty() || !TinyProtocol.enabled) { super.channelRead(ctx, packet); return; }
 
         PacketEvent packetEvent = new PacketEvent(playerId, PacketType.Flow.SERVERBOUND, PacketType.getType(packetType), packet);
         Bukkit.getPluginManager().callEvent(packetEvent);

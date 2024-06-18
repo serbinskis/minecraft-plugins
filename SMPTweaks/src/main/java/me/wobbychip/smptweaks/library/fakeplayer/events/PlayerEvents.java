@@ -1,6 +1,7 @@
 package me.wobbychip.smptweaks.library.fakeplayer.events;
 
 import me.wobbychip.smptweaks.Main;
+import me.wobbychip.smptweaks.custom.noadvancements.NoAdvancements;
 import me.wobbychip.smptweaks.library.fakeplayer.FakePlayer;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import org.bukkit.event.EventHandler;
@@ -9,6 +10,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
+import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
@@ -30,6 +32,12 @@ public class PlayerEvents implements Listener {
 		if (!FakePlayer.isFakePlayer(event.getPlayer())) { return; }
 		if (!allowTeleport) { event.setTo(event.getFrom()); }
 		event.setCancelled(allowTeleport); //For some reason this doesn't work
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onPlayerAdvancementDoneEvent(PlayerAdvancementDoneEvent event) {
+		if (!FakePlayer.isFakePlayer(event.getPlayer()) || NoAdvancements.tweak.isEnabled()) { return; }
+		new me.wobbychip.smptweaks.custom.noadvancements.Events().onPlayerAdvancementDoneEvent(event);
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)

@@ -63,7 +63,7 @@ public class RepairWithXP extends CustomTweak {
 		if (!checkEnchantments(offHand)) { return; }
 
 		//Remove specific amount of XP from player
-		player.giveExp(amountXP * -1);
+		player.giveExp(-amountXP);
 
 		//Spawn XP orb with specific amount of XP
 		ExperienceOrb orb = player.getWorld().spawn(player.getLocation(), ExperienceOrb.class);

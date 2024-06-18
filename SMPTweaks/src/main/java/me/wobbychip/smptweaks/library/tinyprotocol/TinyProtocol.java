@@ -13,6 +13,8 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.jetbrains.annotations.Nullable;
 
 public class TinyProtocol implements Listener {
+    public static boolean enabled;
+
     private static void addPlayer(Player player) {
         Channel channel = PacketHandler.channel_cache.remove(player.getName());
         if (channel == null) { channel = ReflectionUtils.getChannel(player); }
@@ -47,5 +49,10 @@ public class TinyProtocol implements Listener {
     public static void start() {
         Bukkit.getPluginManager().registerEvents(new TinyProtocol(), Main.plugin);
         ReflectionUtils.createServerChannelHandler(channel -> addConnection(channel, null));
+        enabled = true;
+    }
+
+    public static void stop() {
+        enabled = false;
     }
 }
