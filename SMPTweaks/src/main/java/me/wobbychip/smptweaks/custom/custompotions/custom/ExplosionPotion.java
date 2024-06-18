@@ -50,7 +50,6 @@ public class ExplosionPotion extends CustomPotion {
 		}
 
 		location.getWorld().spawn(location, TNTPrimed.class, tntPrimed -> {
-			tntPrimed.setInvisible(true);
 			tntPrimed.setFuseTicks(-1);
 			tntPrimed.setSource(player); //Needed for anti-grief plugins
 			tntPrimed.setSilent(true);
