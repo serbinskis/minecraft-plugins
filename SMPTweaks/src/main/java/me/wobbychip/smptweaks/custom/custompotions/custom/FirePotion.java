@@ -26,7 +26,7 @@ public class FirePotion extends CustomPotion {
 	public boolean onAffectLivingEntity(LivingEntity livingEntity, Event event) {
 		int ticks = 20 * switch (event) {
 			case PlayerItemConsumeEvent ignored -> 10;
-			case PotionSplashEvent ignored -> 5;
+			case PotionSplashEvent ignored -> 7;
 			case ProjectileHitEvent ignored -> 5;
 			case AreaEffectCloudApplyEvent ignored -> 1;
 			default -> 0;
