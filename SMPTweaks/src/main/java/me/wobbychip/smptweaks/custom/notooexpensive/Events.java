@@ -29,7 +29,7 @@ public class Events implements Listener {
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
-	public static void onInventoryClick(InventoryClickEvent event) {
+	public static void onInventoryClickEvent(InventoryClickEvent event) {
 		if (!(event.getInventory() instanceof AnvilInventory inventory)) { return; }
 		if (event.getSlot() != 2) { return; }
 		if (event.getWhoClicked().getGameMode() == GameMode.CREATIVE) { return; }

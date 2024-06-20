@@ -13,7 +13,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 
 public class Events implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onEntityDeath(EntityDeathEvent event) {
+	public void onEntityDeathEvent(EntityDeathEvent event) {
 		if (!event.getEntityType().equals(EntityType.ENDER_DRAGON)) { return; }
 		if (!event.getEntity().getWorld().getEnvironment().equals(Environment.THE_END)) { return; }
 		if (!event.getEntity().getWorld().getEnderDragonBattle().hasBeenPreviouslyKilled()) { return; }

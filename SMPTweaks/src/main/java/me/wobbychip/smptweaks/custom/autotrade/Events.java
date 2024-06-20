@@ -1,6 +1,7 @@
 package me.wobbychip.smptweaks.custom.autotrade;
 
 import me.wobbychip.smptweaks.library.customblocks.CustomBlocks;
+import me.wobbychip.smptweaks.library.fakeplayer.FakePlayer;
 import org.bukkit.GameMode;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
@@ -14,11 +15,8 @@ public class Events implements Listener {
 	//WHO TF IS CANCELLING MY EVENTS
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onInventoryOpenEvent(InventoryOpenEvent event) {
-		boolean isFakePlayer = event.getPlayer().getUniqueId().equals(AutoTrade.fakePlayer.getUniqueId());
-		if (isFakePlayer) { event.setCancelled(false); }
-
-		if (event.isCancelled()) { return; }
-		if (event.getPlayer().getGameMode() == GameMode.SPECTATOR) { return; }
+		if (FakePlayer.isFakePlayer(event.getPlayer().getUniqueId())) { event.setCancelled(false); }
+		if (event.isCancelled() || (event.getPlayer().getGameMode() == GameMode.SPECTATOR)) { return; }
 
 		InventoryHolder holder = event.getInventory().getHolder();
 		if (!(holder instanceof BlockInventoryHolder)) { return; }

@@ -4,15 +4,15 @@ import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.library.fakeplayer.events.PlayerEvents;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import me.wobbychip.smptweaks.utils.TaskUtils;
-import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Bukkit;
-import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.UUID;
@@ -23,14 +23,6 @@ public class FakePlayer {
     private static final HashMap<UUID, ArmorStand> stands = new HashMap<>();
 
     public static void start() {
-        Player fakePlayer = ReflectionUtils.addFakePlayer(new Location(Bukkit.getWorlds().get(0), 0, 0, 0), UUID.randomUUID(), false, true, true);
-        Boolean gameRuleValue = Bukkit.getWorlds().get(0).getGameRuleValue(GameRule.ANNOUNCE_ADVANCEMENTS);
-        Bukkit.getWorlds().get(0).setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
-        Bukkit.getServer().advancementIterator().forEachRemaining(advancement -> Utils.grantAdvancement(fakePlayer, advancement));
-        Bukkit.getWorlds().get(0).setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, gameRuleValue);
-        advancements = ReflectionUtils.getPlayerAdvancements(fakePlayer);
-        ReflectionUtils.removeFakePlayer(fakePlayer);
-
         Bukkit.getPluginManager().registerEvents(new PlayerEvents(), Main.plugin);
         if (Main.DEBUG_MODE) { TaskUtils.scheduleSyncRepeatingTask(FakePlayer::debugUpdate, 1L, 1L); }
     }
@@ -100,6 +92,7 @@ public class FakePlayer {
                 armorStand.setGliding(true);
                 armorStand.setPersistent(false);
                 armorStand.setHelmet(new ItemStack(Material.PLAYER_HEAD));
+                Arrays.asList(EquipmentSlot.values()).forEach(e -> armorStand.addEquipmentLock(e, ArmorStand.LockType.REMOVING_OR_CHANGING));
             }));
         }));
     }

@@ -1,6 +1,5 @@
 package me.wobbychip.smptweaks.utils;
 
-import me.wobbychip.smptweaks.Config;
 import me.wobbychip.smptweaks.Main;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -29,7 +28,9 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map.Entry;
 
 public class Utils {
@@ -53,11 +54,6 @@ public class Utils {
 		player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(text));
 	}
 
-	//Get string from config
-	public static String getString(String arg0, Config config) {
-		return config.getConfig().getString(arg0);
-	}
-
 	//Generate random range integer
 	public static int randomRange(int min, int max) {
 		return min + (int) (Math.random() * (max - min+1));
@@ -76,7 +72,7 @@ public class Utils {
 	//Calculate players current EXP amount
 	public static int getPlayerExp(Player player) {
 		int level = player.getLevel();
-		int exp = 0;
+		int exp;
 
 		if (level <= 16) {
 			exp = (int) (Math.pow(level, 2) + 6*level);
@@ -177,16 +173,6 @@ public class Utils {
 	public static String randomString(int count, boolean uppercase) {
 		String s = RandomStringUtils.randomAlphanumeric(count);
 		return uppercase ? s.toUpperCase() : s.toLowerCase();
-	}
-
-	public static Entity getEntityByUniqueId(UUID uuid) {
-		for (World world : Bukkit.getWorlds()) {
-			for (Entity entity : world.getEntities()) {
-				if (entity.getUniqueId().equals(uuid)) { return entity; }
-			}
-		}
-
-		return null;
 	}
 
 	//Get nearest player to entity
@@ -409,10 +395,10 @@ public class Utils {
 		try {
 			URL url = new URL(fileUrl);
 			MessageDigest digest = MessageDigest.getInstance("SHA-1");
+			int read;
 
 			try (InputStream inputStream = url.openStream()) {
 				byte[] buffer = new byte[8192];
-				int read = 0;
 				while ((read = inputStream.read(buffer)) > 0) { digest.update(buffer, 0, read); }
 			}
 

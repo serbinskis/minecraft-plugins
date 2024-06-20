@@ -11,7 +11,7 @@ import me.wobbychip.smptweaks.utils.Utils;
 
 public class Events implements Listener {
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-	public void onCreatureSpawn(CreatureSpawnEvent event) {
+	public void onCreatureSpawnEvent(CreatureSpawnEvent event) {
 		//Return if disabled or spawn reason is excluded
 		if (EntityLimit.excludeReason.contains(event.getSpawnReason().toString())) { return; }
 

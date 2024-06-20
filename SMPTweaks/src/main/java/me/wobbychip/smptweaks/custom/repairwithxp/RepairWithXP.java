@@ -4,14 +4,12 @@ import me.wobbychip.smptweaks.tweaks.CustomTweak;
 import me.wobbychip.smptweaks.utils.TaskUtils;
 import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Bukkit;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map.Entry;
 
 public class RepairWithXP extends CustomTweak {
 	public static int task;
@@ -60,7 +58,7 @@ public class RepairWithXP extends CustomTweak {
 		if (offHand.getDurability() <= 0) { return; }
 
 		//Check if item has mending
-		if (!checkEnchantments(offHand)) { return; }
+		if (!Utils.containsEnchantment(offHand, mendings)) { return; }
 
 		//Remove specific amount of XP from player
 		player.giveExp(-amountXP);
@@ -68,17 +66,5 @@ public class RepairWithXP extends CustomTweak {
 		//Spawn XP orb with specific amount of XP
 		ExperienceOrb orb = player.getWorld().spawn(player.getLocation(), ExperienceOrb.class);
 		orb.setExperience(amountXP);
-	}
-
-	public static boolean checkEnchantments(ItemStack item) {
-		for (Entry<Enchantment, Integer> entrySet : item.getEnchantments().entrySet()) {
-			if (entrySet.getValue() > 0) {
-				String[] splitted = entrySet.getKey().getKey().toString().split(":");
-				String name = splitted[splitted.length-1].toLowerCase();
-				if (mendings.contains(name)) { return true; }
-			}
-		}
-
-		return false;
 	}
 }

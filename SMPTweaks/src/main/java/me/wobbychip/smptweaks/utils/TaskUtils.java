@@ -35,7 +35,6 @@ public class TaskUtils implements Listener {
 		return task;
 	}
 
-	//Sync repeating task
 	public static int scheduleSyncRepeatingTask(Runnable runnable, long first, long interval) {
 		int task = Bukkit.getScheduler().scheduleSyncRepeatingTask(Main.plugin, runnable, first, interval);
 		runnables0.put(task, runnable);

@@ -2,6 +2,7 @@ package me.wobbychip.smptweaks.custom.holograms;
 
 import me.wobbychip.smptweaks.utils.PersistentUtils;
 import me.wobbychip.smptweaks.utils.Utils;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Display.Billboard;
@@ -92,7 +93,7 @@ public class Hologram {
 	}
 
 	public static Hologram get(UUID uuid) {
-		return get((Interaction) Utils.getEntityByUniqueId(uuid));
+		return get((Interaction) Bukkit.getEntity(uuid));
 	}
 
 	public static Hologram get(Interaction interaction) {
@@ -102,7 +103,7 @@ public class Hologram {
 		if (!PersistentUtils.hasPersistentDataString(interaction, TAG_DISPLAY)) { return null; }
 
 		UUID uuid = UUID.fromString(PersistentUtils.getPersistentDataString(interaction, TAG_DISPLAY));
-		Entity entity = Utils.getEntityByUniqueId(uuid);
+		Entity entity = Bukkit.getEntity(uuid);
 		if ((entity == null) || (entity.getType() != EntityType.TEXT_DISPLAY)) { return null; }
 
 		int y = PersistentUtils.getPersistentDataInteger(interaction, TAG_POSITION);

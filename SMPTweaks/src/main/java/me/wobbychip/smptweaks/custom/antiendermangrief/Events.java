@@ -8,7 +8,7 @@ import org.bukkit.event.entity.EntityChangeBlockEvent;
 
 public class Events implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-	public void onEntityChangeBlock(EntityChangeBlockEvent event) {
+	public void onEntityChangeBlockEvent(EntityChangeBlockEvent event) {
 		if (AntiEndermanGrief.tweak.getGameRuleBoolean(event.getEntity().getWorld())) { return; }
 		if (event.getEntityType() == EntityType.ENDERMAN) { event.setCancelled(true); }
 	}

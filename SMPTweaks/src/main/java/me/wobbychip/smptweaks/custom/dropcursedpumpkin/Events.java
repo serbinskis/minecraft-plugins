@@ -10,7 +10,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class Events implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
-	public void onPlayerDeath(PlayerDeathEvent event) {
+	public void onPlayerDeathEvent(PlayerDeathEvent event) {
 		if (!event.getKeepInventory()) { return; }
 
 		ItemStack helmetSlot = event.getEntity().getInventory().getHelmet();
