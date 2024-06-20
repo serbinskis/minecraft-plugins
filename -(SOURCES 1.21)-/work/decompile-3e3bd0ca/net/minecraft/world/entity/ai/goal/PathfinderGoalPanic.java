@@ -1,0 +1,110 @@
+package net.minecraft.world.entity.ai.goal;
+
+import java.util.EnumSet;
+import java.util.function.Function;
+import javax.annotation.Nullable;
+import net.minecraft.core.BlockPosition;
+import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.tags.TagKey;
+import net.minecraft.tags.TagsFluid;
+import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityCreature;
+import net.minecraft.world.entity.ai.util.DefaultRandomPos;
+import net.minecraft.world.level.IBlockAccess;
+import net.minecraft.world.phys.Vec3D;
+
+public class PathfinderGoalPanic extends PathfinderGoal {
+
+    public static final int WATER_CHECK_DISTANCE_VERTICAL = 1;
+    protected final EntityCreature mob;
+    protected final double speedModifier;
+    protected double posX;
+    protected double posY;
+    protected double posZ;
+    protected boolean isRunning;
+    private final Function<EntityCreature, TagKey<DamageType>> panicCausingDamageTypes;
+
+    public PathfinderGoalPanic(EntityCreature entitycreature, double d0) {
+        this(entitycreature, d0, DamageTypeTags.PANIC_CAUSES);
+    }
+
+    public PathfinderGoalPanic(EntityCreature entitycreature, double d0, TagKey<DamageType> tagkey) {
+        this(entitycreature, d0, (entitycreature1) -> {
+            return tagkey;
+        });
+    }
+
+    public PathfinderGoalPanic(EntityCreature entitycreature, double d0, Function<EntityCreature, TagKey<DamageType>> function) {
+        this.mob = entitycreature;
+        this.speedModifier = d0;
+        this.panicCausingDamageTypes = function;
+        this.setFlags(EnumSet.of(PathfinderGoal.Type.MOVE));
+    }
+
+    @Override
+    public boolean canUse() {
+        if (!this.shouldPanic()) {
+            return false;
+        } else {
+            if (this.mob.isOnFire()) {
+                BlockPosition blockposition = this.lookForWater(this.mob.level(), this.mob, 5);
+
+                if (blockposition != null) {
+                    this.posX = (double) blockposition.getX();
+                    this.posY = (double) blockposition.getY();
+                    this.posZ = (double) blockposition.getZ();
+                    return true;
+                }
+            }
+
+            return this.findRandomPosition();
+        }
+    }
+
+    protected boolean shouldPanic() {
+        return this.mob.getLastDamageSource() != null && this.mob.getLastDamageSource().is((TagKey) this.panicCausingDamageTypes.apply(this.mob));
+    }
+
+    protected boolean findRandomPosition() {
+        Vec3D vec3d = DefaultRandomPos.getPos(this.mob, 5, 4);
+
+        if (vec3d == null) {
+            return false;
+        } else {
+            this.posX = vec3d.x;
+            this.posY = vec3d.y;
+            this.posZ = vec3d.z;
+            return true;
+        }
+    }
+
+    public boolean isRunning() {
+        return this.isRunning;
+    }
+
+    @Override
+    public void start() {
+        this.mob.getNavigation().moveTo(this.posX, this.posY, this.posZ, this.speedModifier);
+        this.isRunning = true;
+    }
+
+    @Override
+    public void stop() {
+        this.isRunning = false;
+    }
+
+    @Override
+    public boolean canContinueToUse() {
+        return !this.mob.getNavigation().isDone();
+    }
+
+    @Nullable
+    protected BlockPosition lookForWater(IBlockAccess iblockaccess, Entity entity, int i) {
+        BlockPosition blockposition = entity.blockPosition();
+
+        return !iblockaccess.getBlockState(blockposition).getCollisionShape(iblockaccess, blockposition).isEmpty() ? null : (BlockPosition) BlockPosition.findClosestMatch(entity.blockPosition(), i, 1, (blockposition1) -> {
+            return iblockaccess.getFluidState(blockposition1).is(TagsFluid.WATER);
+        }).orElse((Object) null);
+    }
+}

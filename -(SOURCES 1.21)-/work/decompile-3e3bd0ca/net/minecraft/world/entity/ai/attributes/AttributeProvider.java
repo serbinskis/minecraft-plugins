@@ -1,0 +1,111 @@
+package net.minecraft.world.entity.ai.attributes;
+
+import com.google.common.collect.ImmutableMap;
+import java.util.Map;
+import java.util.function.Consumer;
+import javax.annotation.Nullable;
+import net.minecraft.core.Holder;
+import net.minecraft.resources.MinecraftKey;
+
+public class AttributeProvider {
+
+    private final Map<Holder<AttributeBase>, AttributeModifiable> instances;
+
+    AttributeProvider(Map<Holder<AttributeBase>, AttributeModifiable> map) {
+        this.instances = map;
+    }
+
+    private AttributeModifiable getAttributeInstance(Holder<AttributeBase> holder) {
+        AttributeModifiable attributemodifiable = (AttributeModifiable) this.instances.get(holder);
+
+        if (attributemodifiable == null) {
+            throw new IllegalArgumentException("Can't find attribute " + holder.getRegisteredName());
+        } else {
+            return attributemodifiable;
+        }
+    }
+
+    public double getValue(Holder<AttributeBase> holder) {
+        return this.getAttributeInstance(holder).getValue();
+    }
+
+    public double getBaseValue(Holder<AttributeBase> holder) {
+        return this.getAttributeInstance(holder).getBaseValue();
+    }
+
+    public double getModifierValue(Holder<AttributeBase> holder, MinecraftKey minecraftkey) {
+        AttributeModifier attributemodifier = this.getAttributeInstance(holder).getModifier(minecraftkey);
+
+        if (attributemodifier == null) {
+            String s = String.valueOf(minecraftkey);
+
+            throw new IllegalArgumentException("Can't find modifier " + s + " on attribute " + holder.getRegisteredName());
+        } else {
+            return attributemodifier.amount();
+        }
+    }
+
+    @Nullable
+    public AttributeModifiable createInstance(Consumer<AttributeModifiable> consumer, Holder<AttributeBase> holder) {
+        AttributeModifiable attributemodifiable = (AttributeModifiable) this.instances.get(holder);
+
+        if (attributemodifiable == null) {
+            return null;
+        } else {
+            AttributeModifiable attributemodifiable1 = new AttributeModifiable(holder, consumer);
+
+            attributemodifiable1.replaceFrom(attributemodifiable);
+            return attributemodifiable1;
+        }
+    }
+
+    public static AttributeProvider.Builder builder() {
+        return new AttributeProvider.Builder();
+    }
+
+    public boolean hasAttribute(Holder<AttributeBase> holder) {
+        return this.instances.containsKey(holder);
+    }
+
+    public boolean hasModifier(Holder<AttributeBase> holder, MinecraftKey minecraftkey) {
+        AttributeModifiable attributemodifiable = (AttributeModifiable) this.instances.get(holder);
+
+        return attributemodifiable != null && attributemodifiable.getModifier(minecraftkey) != null;
+    }
+
+    public static class Builder {
+
+        private final com.google.common.collect.ImmutableMap.Builder<Holder<AttributeBase>, AttributeModifiable> builder = ImmutableMap.builder();
+        private boolean instanceFrozen;
+
+        public Builder() {}
+
+        private AttributeModifiable create(Holder<AttributeBase> holder) {
+            AttributeModifiable attributemodifiable = new AttributeModifiable(holder, (attributemodifiable1) -> {
+                if (this.instanceFrozen) {
+                    throw new UnsupportedOperationException("Tried to change value for default attribute instance: " + holder.getRegisteredName());
+                }
+            });
+
+            this.builder.put(holder, attributemodifiable);
+            return attributemodifiable;
+        }
+
+        public AttributeProvider.Builder add(Holder<AttributeBase> holder) {
+            this.create(holder);
+            return this;
+        }
+
+        public AttributeProvider.Builder add(Holder<AttributeBase> holder, double d0) {
+            AttributeModifiable attributemodifiable = this.create(holder);
+
+            attributemodifiable.setBaseValue(d0);
+            return this;
+        }
+
+        public AttributeProvider build() {
+            this.instanceFrozen = true;
+            return new AttributeProvider(this.builder.buildKeepingLast());
+        }
+    }
+}
