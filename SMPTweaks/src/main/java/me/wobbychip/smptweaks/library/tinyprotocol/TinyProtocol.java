@@ -15,6 +15,16 @@ import org.jetbrains.annotations.Nullable;
 public class TinyProtocol implements Listener {
     public static boolean enabled;
 
+    public static void start() {
+        Bukkit.getPluginManager().registerEvents(new TinyProtocol(), Main.plugin);
+        ReflectionUtils.createServerChannelHandler(channel -> addConnection(channel, null));
+        enabled = true;
+    }
+
+    public static void stop() {
+        enabled = false;
+    }
+
     private static void addPlayer(Player player) {
         Channel channel = PacketHandler.channel_cache.remove(player.getName());
         if (channel == null) { channel = ReflectionUtils.getChannel(player); }
@@ -44,15 +54,5 @@ public class TinyProtocol implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     private void onPlayerQuit(PlayerQuitEvent event) {
         TinyProtocol.removePlayer(event.getPlayer());
-    }
-
-    public static void start() {
-        Bukkit.getPluginManager().registerEvents(new TinyProtocol(), Main.plugin);
-        ReflectionUtils.createServerChannelHandler(channel -> addConnection(channel, null));
-        enabled = true;
-    }
-
-    public static void stop() {
-        enabled = false;
     }
 }
