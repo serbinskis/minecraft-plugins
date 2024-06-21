@@ -1069,22 +1069,22 @@ public class ReflectionUtils {
 		CompoundTag tag = (CompoundTag) item.saveOptional(MinecraftServer.getServer().registryAccess());
 		if (tag.isEmpty()) { return null; }
 
-		while ((!location.isEmpty()) && (tag.getTagType(location.get(0)) == Tag.TAG_COMPOUND)) {
-			tag = tag.getCompound(location.get(0));
-			location.remove(0);
+		while (!location.isEmpty() && (tag.getTagType(location.getFirst()) == Tag.TAG_COMPOUND)) {
+			tag = tag.getCompound(location.getFirst());
+			location.removeFirst();
 		}
 
 		if (location.isEmpty()) { return (T) tag; }
-		if (tag.getTagType(location.get(0)) == Tag.TAG_BYTE) { return (T) Boolean.valueOf(tag.getBoolean(location.get(0))); }
-		if (tag.getTagType(location.get(0)) == Tag.TAG_INT) { return (T) Integer.valueOf(tag.getInt(location.get(0))); }
-		if (tag.getTagType(location.get(0)) == Tag.TAG_STRING) { return (T) tag.getString(location.get(0)); }
-		if (tag.getTagType(location.get(0)) == Tag.TAG_SHORT) { return (T) (Short) tag.getShort(location.get(0)); }
-		if (tag.getTagType(location.get(0)) == Tag.TAG_FLOAT) { return (T) (Float) tag.getFloat(location.get(0)); }
-		if (tag.getTagType(location.get(0)) == Tag.TAG_DOUBLE) { return (T) (Double) tag.getDouble(location.get(0)); }
-		if (tag.getTagType(location.get(0)) == Tag.TAG_LONG) { return (T) (Long) tag.getLong(location.get(0)); }
-		if (tag.getTagType(location.get(0)) == Tag.TAG_BYTE_ARRAY) { return (T) tag.getByteArray(location.get(0)); }
-		if (tag.getTagType(location.get(0)) == Tag.TAG_INT_ARRAY) { return (T) tag.getIntArray(location.get(0)); }
-		if (tag.getTagType(location.get(0)) == Tag.TAG_LONG_ARRAY) { return (T) tag.getLongArray(location.get(0)); }
+		if (tag.getTagType(location.getFirst()) == Tag.TAG_BYTE) { return (T) Boolean.valueOf(tag.getBoolean(location.getFirst())); }
+		if (tag.getTagType(location.getFirst()) == Tag.TAG_INT) { return (T) Integer.valueOf(tag.getInt(location.getFirst())); }
+		if (tag.getTagType(location.getFirst()) == Tag.TAG_STRING) { return (T) tag.getString(location.getFirst()); }
+		if (tag.getTagType(location.getFirst()) == Tag.TAG_SHORT) { return (T) (Short) tag.getShort(location.getFirst()); }
+		if (tag.getTagType(location.getFirst()) == Tag.TAG_FLOAT) { return (T) (Float) tag.getFloat(location.getFirst()); }
+		if (tag.getTagType(location.getFirst()) == Tag.TAG_DOUBLE) { return (T) (Double) tag.getDouble(location.getFirst()); }
+		if (tag.getTagType(location.getFirst()) == Tag.TAG_LONG) { return (T) (Long) tag.getLong(location.getFirst()); }
+		if (tag.getTagType(location.getFirst()) == Tag.TAG_BYTE_ARRAY) { return (T) tag.getByteArray(location.getFirst()); }
+		if (tag.getTagType(location.getFirst()) == Tag.TAG_INT_ARRAY) { return (T) tag.getIntArray(location.getFirst()); }
+		if (tag.getTagType(location.getFirst()) == Tag.TAG_LONG_ARRAY) { return (T) tag.getLongArray(location.getFirst()); }
 		return null;
 	}
 
@@ -1096,23 +1096,23 @@ public class ReflectionUtils {
 		if (original.isEmpty()) { original = new CompoundTag(); }
 		CompoundTag tag = original;
 
-		while ((location.size() > 1) && ((tag.getTagType(location.get(0)) == Tag.TAG_COMPOUND) || !tag.contains(location.get(0)))) {
-			if (!tag.contains(location.get(0))) { tag.put(location.get(0), new CompoundTag()); }
-			tag = tag.getCompound(location.get(0));
-			location.remove(0);
+		while ((location.size() > 1) && ((tag.getTagType(location.getFirst()) == Tag.TAG_COMPOUND) || !tag.contains(location.getFirst()))) {
+			if (!tag.contains(location.getFirst())) { tag.put(location.getFirst(), new CompoundTag()); }
+			tag = tag.getCompound(location.getFirst());
+			location.removeFirst();
 		}
 
 		if (location.isEmpty()) { return null; }
-		if (value.getClass().equals(Byte.class)) { tag.putByte(location.get(0), (Byte) value); }
-		if (value.getClass().equals(Integer.class)) { tag.putInt(location.get(0), (Integer) value); }
-		if (value.getClass().equals(String.class)) { tag.putString(location.get(0), (String) value); }
-		if (value.getClass().equals(Short.class)) { tag.putShort(location.get(0), (Short) value); }
-		if (value.getClass().equals(Float.class)) { tag.putFloat(location.get(0), (Float) value); }
-		if (value.getClass().equals(Double.class)) { tag.putDouble(location.get(0), (Double) value); }
-		if (value.getClass().equals(Long.class)) { tag.putLong(location.get(0), (Long) value); }
-		if (value.getClass().equals(byte[].class)) { tag.putByteArray(location.get(0), (byte[]) value); }
-		if (value.getClass().equals(int[].class)) { tag.putIntArray(location.get(0), (int[]) value); }
-		if (value.getClass().equals(long[].class)) { tag.putLongArray(location.get(0), (long[]) value); }
+		if (value.getClass().equals(Byte.class)) { tag.putByte(location.getFirst(), (Byte) value); }
+		if (value.getClass().equals(Integer.class)) { tag.putInt(location.getFirst(), (Integer) value); }
+		if (value.getClass().equals(String.class)) { tag.putString(location.getFirst(), (String) value); }
+		if (value.getClass().equals(Short.class)) { tag.putShort(location.getFirst(), (Short) value); }
+		if (value.getClass().equals(Float.class)) { tag.putFloat(location.getFirst(), (Float) value); }
+		if (value.getClass().equals(Double.class)) { tag.putDouble(location.getFirst(), (Double) value); }
+		if (value.getClass().equals(Long.class)) { tag.putLong(location.getFirst(), (Long) value); }
+		if (value.getClass().equals(byte[].class)) { tag.putByteArray(location.getFirst(), (byte[]) value); }
+		if (value.getClass().equals(int[].class)) { tag.putIntArray(location.getFirst(), (int[]) value); }
+		if (value.getClass().equals(long[].class)) { tag.putLongArray(location.getFirst(), (long[]) value); }
 
 		net.minecraft.world.item.ItemStack itemStack1 = net.minecraft.world.item.ItemStack.parseOptional(MinecraftServer.getServer().registryAccess(), original);
 		return asBukkitMirror(itemStack1);
@@ -1607,7 +1607,7 @@ public class ReflectionUtils {
 			}
 		};
 
-		List<ChannelFuture> channels = (List<ChannelFuture>) ReflectionUtils.getValue(ServerConnectionListener_channels, connection);
+		List<ChannelFuture> channels = (List<ChannelFuture>) getValue(ServerConnectionListener_channels, connection);
 		channels.get(0).channel().pipeline().addFirst(serverChannelHandler);
 	}
 }
