@@ -1533,7 +1533,7 @@ public class ReflectionUtils {
 		if (removeEntity) {
 			for (Entity entity : chunk.getEntities()) {
 				if (entity.getType() != EntityType.PLAYER) {
-					try { entity.remove(); } catch (Exception e) {}
+					try { entity.remove(); } catch (Exception ignored) {}
 				}
 			}
 		}
@@ -1546,7 +1546,9 @@ public class ReflectionUtils {
 		for (int x = 0; x < 16; x++) {
 			for (int y = minY; y < maxY; y++) {
 				for (int z = 0; z < 16 ; z++) {
-					levelChunk.setBlockState(new BlockPos(x, y, z), state, false);
+					BlockPos blockPos = new BlockPos(x, y, z);
+					if (levelChunk.getBlockEntity(blockPos) != null) { levelChunk.removeBlockEntity(blockPos); }
+					levelChunk.setBlockState(blockPos, state, false, true);
 				}
 			}
 		}

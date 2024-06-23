@@ -9,6 +9,7 @@ import org.bukkit.advancement.Advancement;
 import org.bukkit.advancement.AdvancementProgress;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
@@ -291,13 +292,14 @@ public class Utils {
 
 		int maxY = chunk.getWorld().getMaxHeight();
 		int minY = chunk.getWorld().getMinHeight();
+		BlockData blockData = material.createBlockData();
 
 		for (int x = 0; x < 16; x++) {
 			for (int y = minY; y <= maxY; y++) {
 				for (int z = 0; z < 16 ; z++) {
 					Block block = chunk.getBlock(x, y, z);
 					if (block.getType() == material) { continue; }
-					block.setType(material, false);
+					block.setBlockData(blockData, false);
 				}
 			}
 		}
