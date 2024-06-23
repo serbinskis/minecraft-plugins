@@ -152,6 +152,7 @@ public class CustomMarker implements Runnable {
     }
 
     public void remove(boolean rmarker) {
+        //markers.values().removeIf(e -> e.display.getUniqueId().equals(display.getUniqueId()));
         markers.remove(Utils.locationToString(display.getLocation().getBlock().getLocation()));
         TaskUtils.cancelTask(task);
         if (rmarker) { display.remove(); }
