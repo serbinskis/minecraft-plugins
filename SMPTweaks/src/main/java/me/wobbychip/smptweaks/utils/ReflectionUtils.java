@@ -709,10 +709,11 @@ public class ReflectionUtils {
 		setValue(EntityPlayer_advancements, getEntityPlayer(player), playerAdvancements);
 	}
 
-	public static void removeFakePlayer(Player player) {
+	public static Player removeFakePlayer(Player player) {
 		ServerPlayer entityPlayer = getEntityPlayer(player);
 		ServerLevel world = getWorld(player.getWorld());
 		world.removePlayerImmediately(entityPlayer, RemovalReason.DISCARDED);
+		return player;
 	}
 
 	//This needed to update player chunks and make them tickable

@@ -2,8 +2,10 @@ package me.wobbychip.smptweaks.library.fakeplayer;
 
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.library.fakeplayer.events.PlayerEvents;
+import me.wobbychip.smptweaks.utils.PersistentUtils;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import me.wobbychip.smptweaks.utils.TaskUtils;
+import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -18,6 +20,12 @@ import java.util.HashMap;
 import java.util.UUID;
 
 public class FakePlayer {
+    private static final String TAG_FAKE_PLAYER_LOCATION = "TAG_FAKE_PLAYER_LOCATION";
+    private static final String TAG_FAKE_PLAYER_ADD_PLAYER = "TAG_FAKE_PLAYER_ADD_PLAYER";
+    private static final String TAG_FAKE_PLAYER_HIDE_ONLINE = "TAG_FAKE_PLAYER_HIDE_ONLINE";
+    private static final String TAG_FAKE_PLAYER_HIDE_WORLD = "TAG_FAKE_PLAYER_HIDE_WORLD";
+    private static final String TAG_FAKE_PLAYER_ADD_ADVANCEMENTS = "TAG_FAKE_PLAYER_ADD_ADVANCEMENTS";
+    private static final String TAG_FAKE_PLAYER_UPDATE_CHUNKS = "TAG_FAKE_PLAYER_UPDATE_CHUNKS";
     private static Object advancements;
     private static final HashMap<UUID, Player> fakes = new HashMap<>();
     private static final HashMap<UUID, ArmorStand> stands = new HashMap<>();
@@ -35,19 +43,44 @@ public class FakePlayer {
         Player fakePlayer = ReflectionUtils.addFakePlayer(location, uuid, addPlayer, hideOnline, hideWorld);
         if (addAdvancements && (advancements != null)) { ReflectionUtils.setPlayerAdvancements(fakePlayer, advancements); }
         if (updateChunks) { ReflectionUtils.updateFakePlayerChunks(fakePlayer); }
+
+        PersistentUtils.setPersistentDataString(fakePlayer, TAG_FAKE_PLAYER_LOCATION, Utils.locationToString(location));
+        PersistentUtils.setPersistentDataBoolean(fakePlayer, TAG_FAKE_PLAYER_ADD_PLAYER, addPlayer);
+        PersistentUtils.setPersistentDataBoolean(fakePlayer, TAG_FAKE_PLAYER_HIDE_ONLINE, hideOnline);
+        PersistentUtils.setPersistentDataBoolean(fakePlayer, TAG_FAKE_PLAYER_HIDE_WORLD, hideWorld);
+        PersistentUtils.setPersistentDataBoolean(fakePlayer, TAG_FAKE_PLAYER_ADD_ADVANCEMENTS, addAdvancements);
+        PersistentUtils.setPersistentDataBoolean(fakePlayer, TAG_FAKE_PLAYER_UPDATE_CHUNKS, updateChunks);
+
         fakes.put(fakePlayer.getUniqueId(), fakePlayer);
         return fakePlayer;
     }
 
-    public static void removeFakePlayer(Player player) {
-        if (!isFakePlayer(player)) { return; }
-        ReflectionUtils.removeFakePlayer(player);
-        fakes.remove(player.getUniqueId());
+    public static Player recreateFakePlayer(Player player) {
+        return recreateFakePlayer(player.getUniqueId());
     }
 
-    public static void removeFakePlayer(UUID uuid) {
-        if (!isFakePlayer(uuid) && !fakes.containsKey(uuid)) { return; }
-        ReflectionUtils.removeFakePlayer(fakes.remove(uuid));
+    public static Player recreateFakePlayer(UUID uuid) {
+        Player fakePlayer = removeFakePlayer(uuid);
+        if (fakePlayer == null) { return null; }
+
+        Location location = Utils.stringToLocation(PersistentUtils.getPersistentDataString(fakePlayer, TAG_FAKE_PLAYER_LOCATION));
+        boolean addPlayer = PersistentUtils.getPersistentDataBoolean(fakePlayer, TAG_FAKE_PLAYER_ADD_PLAYER);
+        boolean hideOnline = PersistentUtils.getPersistentDataBoolean(fakePlayer, TAG_FAKE_PLAYER_HIDE_ONLINE);
+        boolean hideWorld = PersistentUtils.getPersistentDataBoolean(fakePlayer, TAG_FAKE_PLAYER_HIDE_WORLD);
+        boolean addAdvancements = PersistentUtils.getPersistentDataBoolean(fakePlayer, TAG_FAKE_PLAYER_ADD_ADVANCEMENTS);
+        boolean updateChunks = PersistentUtils.getPersistentDataBoolean(fakePlayer, TAG_FAKE_PLAYER_UPDATE_CHUNKS);
+        return addFakePlayer(location, fakePlayer.getUniqueId(), addPlayer, hideOnline, hideWorld, addAdvancements, updateChunks);
+    }
+
+    public static Player removeFakePlayer(Player player) {
+        if (!isFakePlayer(player)) { return null; }
+        ReflectionUtils.removeFakePlayer(player);
+        return fakes.remove(player.getUniqueId());
+    }
+
+    public static Player removeFakePlayer(UUID uuid) {
+        if (!isFakePlayer(uuid) && !fakes.containsKey(uuid)) { return null; }
+        return ReflectionUtils.removeFakePlayer(fakes.remove(uuid));
     }
 
     public static boolean isFakePlayer(Player player) {

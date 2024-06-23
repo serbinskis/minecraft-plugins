@@ -42,7 +42,7 @@ public class PlayerEvents implements Listener {
 
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onPlayerDeathEvent(PlayerDeathEvent event) {
-		if (FakePlayer.isFakePlayer(event.getEntity())) { event.setCancelled(true); }
+		if (FakePlayer.isFakePlayer(event.getEntity())) { FakePlayer.recreateFakePlayer(event.getEntity()); }
 	}
 
 	@EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
