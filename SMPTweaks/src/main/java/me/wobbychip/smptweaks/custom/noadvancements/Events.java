@@ -26,6 +26,7 @@ public class Events implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerAdvancementDoneEvent(PlayerAdvancementDoneEvent event) {
+		scheduled.removeIf(item -> { TaskUtils.finishTask(item); return true; });
 		boolean isFakePlayer = FakePlayer.isFakePlayer(event.getPlayer());
 		if (!isFakePlayer && NoAdvancements.tweak.getGameRuleBoolean(event.getPlayer().getWorld())) { return; }
 		if (EXCLUDE_ADVANCEMENT.stream().anyMatch(e -> event.getAdvancement().getKey().toString().contains(e))) { return; }
@@ -47,7 +48,6 @@ public class Events implements Listener {
 	}
 
 	private static void hijackAdvancement(Player player, Advancement advancement) {
-		scheduled.removeIf(item -> { TaskUtils.finishTask(item); return true; });
 		//Utils.sendMessage("hijackAdvancement ->");
 
 		//Disable announce advancements to prevent chat messages
