@@ -2,7 +2,6 @@ package me.wobbychip.smptweaks.custom.custompotions.custom;
 
 import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
-import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -16,22 +15,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class NetherRecallPotion extends CustomPotion {
+public class OverworldRecallPotion extends CustomPotion {
 	public ArrayList<UUID> TELEPORT_ALLOW = new ArrayList<>();
 
-	public NetherRecallPotion() {
-		super("recall", Material.CRYING_OBSIDIAN, "nether_recall", Color.fromRGB(174, 55, 255));
-		this.setDisplayName("§r§fPotion of Nether Recall");
-		this.setLore(List.of("§9Teleports to Nether"));
-		this.setTippedArrow(true, "§r§fArrow of Nether Recall");
+	public OverworldRecallPotion() {
+		super("nether_recall", Material.GRASS_BLOCK, "overworld_recall", Color.fromRGB(91, 135, 49));
+		this.setDisplayName("§r§fPotion of Overworld Recall");
+		this.setLore(List.of("§9Teleports to The Overworld"));
+		this.setTippedArrow(true, "§r§fArrow of End Overworld");
 		this.setAllowVillagerTrades(false);
 	}
 
 	@Override
 	public boolean onAffectPlayer(Player player, Event event) {
 		TELEPORT_ALLOW.add(player.getUniqueId());
-		if (player.getWorld().getEnvironment() != World.Environment.NORMAL) { Utils.sendActionMessage(player, "Potion can only be used in the overworld."); }
-		if (player.getWorld().getEnvironment() == World.Environment.NORMAL) { ReflectionUtils.changeDimension(player, World.Environment.NETHER); }
+		ReflectionUtils.changeDimension(player, World.Environment.NORMAL);
 		TELEPORT_ALLOW.remove(player.getUniqueId());
 		return true;
 	}

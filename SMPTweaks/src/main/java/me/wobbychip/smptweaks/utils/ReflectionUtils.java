@@ -1053,9 +1053,9 @@ public class ReflectionUtils {
 		Class<?> ImageFrame = loadClass("com.loohp.imageframe.ImageFrame", false);
 		if ((ImageFrame == null) || (checkNull && (obj == null))) { return null; }
 
-		Class<?> AnimatedFakeMapManager = loadClass("com.loohp.imageframe.objectholders.AnimatedFakeMapManager", false);
+		Class<?> AnimatedFakeMapManager = loadClass("com.loohp.imageframe.objectholders.AnimatedFakeMapManager", true);
 		Field ImageFrame_animatedFakeMapManager = getField(ImageFrame, AnimatedFakeMapManager, null, false);
-		Field AnimatedFakeMapManager_itemFrames = getField(AnimatedFakeMapManager, Map.class, ItemFrame.class, true);
+		Field AnimatedFakeMapManager_itemFrames = getField(AnimatedFakeMapManager, Map.class, UUID.class, true);
 
 		Object animatedFakeMapManager = getValue(ImageFrame_animatedFakeMapManager, null);
 		Object itemFrames = getValue(AnimatedFakeMapManager_itemFrames, animatedFakeMapManager);

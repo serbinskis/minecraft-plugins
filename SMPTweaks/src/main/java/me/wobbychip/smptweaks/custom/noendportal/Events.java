@@ -27,6 +27,9 @@ public class Events implements Listener {
 		if (event.getTo().getWorld().getEnvironment() != Environment.THE_END) { return; }
 		if (NoEndPortal.tweak.getGameRuleBoolean(event.getPlayer().getWorld())) { return; }
 		if (event.getPlayer().isOp()) { return; }
+
+		event.getPlayer().playSound(event.getPlayer().getLocation(), Main.DENY_SOUND_EFFECT, 1.0f, 1.0f);
+		Utils.sendActionMessage(event.getPlayer(), "End portal is currently disabled.");
 		event.setCancelled(true);
 	}
 
@@ -37,6 +40,7 @@ public class Events implements Listener {
 		ItemStack itemStack = event.getPlayer().getInventory().getItem(event.getHand());
 		if (itemStack.getType() != Material.ENDER_EYE) { return; }
 		if (NoEndPortal.tweak.getGameRuleBoolean(event.getPlayer().getWorld())) { return; }
+
 		event.getPlayer().playSound(event.getPlayer().getLocation(), Main.DENY_SOUND_EFFECT, 1.0f, 1.0f);
 		Utils.sendActionMessage(event.getPlayer(), "End portal is currently disabled.");
 		event.setCancelled(true);

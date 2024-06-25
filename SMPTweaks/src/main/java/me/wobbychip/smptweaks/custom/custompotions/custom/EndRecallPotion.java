@@ -2,6 +2,7 @@ package me.wobbychip.smptweaks.custom.custompotions.custom;
 
 import me.wobbychip.smptweaks.custom.custompotions.potions.CustomPotion;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
+import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -21,7 +22,8 @@ public class EndRecallPotion extends CustomPotion {
 
 	@Override
 	public boolean onAffectPlayer(Player player, Event event) {
-		ReflectionUtils.changeDimension(player, World.Environment.THE_END);
+		if (player.getWorld().getEnvironment() == World.Environment.NORMAL) { ReflectionUtils.changeDimension(player, World.Environment.THE_END); }
+		if (player.getWorld().getEnvironment() != World.Environment.NORMAL) { Utils.sendActionMessage(player, "Potion can only be used in the overworld."); }
 		return true;
 	}
 }
