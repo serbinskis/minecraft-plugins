@@ -6,6 +6,7 @@ import io.netty.channel.*;
 import io.netty.channel.embedded.EmbeddedChannel;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.advancements.AdvancementHolder;
+import net.minecraft.advancements.DisplayInfo;
 import net.minecraft.commands.CacheableFunction;
 import net.minecraft.commands.functions.CommandFunction;
 import net.minecraft.core.Registry;
@@ -81,6 +82,7 @@ import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
+import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionType;
@@ -766,6 +768,18 @@ public class ReflectionUtils {
 		setValue(CacheableFunction_resolved, function.get(), false);
 		setValue(CacheableFunction_function, function.get(), null);
 		setResourceLocation((ResourceLocation) getValue(CacheableFunction_id, function.get()), namespace, path);
+	}
+
+	public static boolean getAnnounceChat(Advancement advancement) {
+		DisplayInfo displayInfo = getNMSAdvancement(advancement).display().orElse(null);
+		return ((displayInfo != null) && displayInfo.shouldAnnounceChat());
+	}
+
+	public static void setAnnounceChat(Advancement advancement, @Nullable PlayerAdvancementDoneEvent event, boolean announceChat) {
+		if (PaperUtils.isPaper && (event != null) && !announceChat) { event.message(null); }
+		DisplayInfo displayInfo = new DisplayInfo(null, null, null, null, null, false, true, false);
+		Field DisplayInfo_announceChat = getField(DisplayInfo.class, boolean.class, null, displayInfo, displayInfo.shouldAnnounceChat(), true);
+		getNMSAdvancement(advancement).display().ifPresent(display -> setValue(DisplayInfo_announceChat, display, announceChat));
 	}
 
 	public static String[] getResourceLocation(ResourceKey<?> resourceKey) {

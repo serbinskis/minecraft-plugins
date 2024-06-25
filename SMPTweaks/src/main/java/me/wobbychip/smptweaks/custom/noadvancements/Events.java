@@ -6,7 +6,6 @@ import me.wobbychip.smptweaks.library.tinyprotocol.PacketType;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
 import me.wobbychip.smptweaks.utils.TaskUtils;
 import me.wobbychip.smptweaks.utils.Utils;
-import org.bukkit.GameRule;
 import org.bukkit.Sound;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.entity.Player;
@@ -15,11 +14,14 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 public class Events implements Listener {
-	public static List<String> EXCLUDE_ADVANCEMENT = List.of("recipes/decorations/crafting_table", "blazeandcave:technical/inventory_changed");
+	public static List<String> EXCLUDE_ADVANCEMENT = List.of("recipes/decorations/crafting_table", "blazeandcave:technical/inventory_changed", "dungeons_arise:wda_root");
 	public static HashMap<UUID, String> preventSoundPackets = new HashMap<>();
 	public static HashMap<UUID, String> preventExperiencePackets = new HashMap<>();
 	public static List<Integer> scheduled = new LinkedList<>();
@@ -32,7 +34,7 @@ public class Events implements Listener {
 		if (EXCLUDE_ADVANCEMENT.stream().anyMatch(e -> event.getAdvancement().getKey().toString().contains(e))) { return; }
 
 		Utils.revokeAdvancement(event.getPlayer(), event.getAdvancement());
-		hijackAdvancement(event.getPlayer(), event.getAdvancement());
+		hijackAdvancement(event.getPlayer(), event.getAdvancement(), event);
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
@@ -47,13 +49,13 @@ public class Events implements Listener {
 		}
 	}
 
-	private static void hijackAdvancement(Player player, Advancement advancement) {
+	private static void hijackAdvancement(Player player, Advancement advancement, PlayerAdvancementDoneEvent event) {
 		//Utils.sendMessage("hijackAdvancement ->");
 
 		//Disable announce advancements to prevent chat messages
-		Boolean gameRuleValue = player.getWorld().getGameRuleValue(GameRule.ANNOUNCE_ADVANCEMENTS);
-		player.getWorld().setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
-		scheduled.add(TaskUtils.scheduleSyncDelayedTask(() -> player.getWorld().setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, gameRuleValue), 0L));
+		boolean announceChat = ReflectionUtils.getAnnounceChat(advancement);
+		ReflectionUtils.setAnnounceChat(advancement, event, false);
+		scheduled.add(TaskUtils.scheduleSyncDelayedTask(() -> ReflectionUtils.setAnnounceChat(advancement, null, announceChat), 0L));
 
 		//Replace loot resource keys with random gibberish
 		ReflectionUtils.getAdvancementLoot(advancement).forEach(resourceLoot -> {
