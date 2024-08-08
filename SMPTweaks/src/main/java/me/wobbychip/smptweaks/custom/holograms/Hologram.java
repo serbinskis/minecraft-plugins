@@ -17,6 +17,7 @@ public class Hologram {
 	public static String TAG_IS_HOLOGRAM = "tag_is_hologram";
 	public static String TAG_POSITION = "tag_hologram_position";
 	public static String TAG_DISPLAY = "tag_hologram_display";
+	public static String TAG_DISPLAY_UUID = "tag_hologram_display_uuid";
 	public TextDisplay display;
 	public Interaction interaction;
 	public int y;
@@ -85,11 +86,10 @@ public class Hologram {
 		BookMeta bookMeta = (BookMeta) book.getItemMeta();
 		String location = Utils.locationToString(this.getLocation());
 		bookMeta.setDisplayName("§bHologram (" + location + ")");
-		bookMeta.setAuthor(getUniqueId().toString());
 		bookMeta.setPages(this.getText());
 		bookMeta.setEnchantmentGlintOverride(true);
 		book.setItemMeta(bookMeta);
-		return book;
+		return PersistentUtils.setPersistentDataString(book, TAG_DISPLAY_UUID, getUniqueId().toString());
 	}
 
 	public static Hologram get(UUID uuid) {

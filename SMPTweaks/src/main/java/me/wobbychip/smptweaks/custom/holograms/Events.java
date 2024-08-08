@@ -1,7 +1,7 @@
 package me.wobbychip.smptweaks.custom.holograms;
 
-import java.util.UUID;
-
+import me.wobbychip.smptweaks.utils.PersistentUtils;
+import me.wobbychip.smptweaks.utils.Utils;
 import org.bukkit.Material;
 import org.bukkit.entity.Display.Billboard;
 import org.bukkit.entity.EntityType;
@@ -20,7 +20,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
-import me.wobbychip.smptweaks.utils.Utils;
+import java.util.UUID;
 
 public class Events implements Listener {
 	@EventHandler(priority = EventPriority.NORMAL)
@@ -64,7 +64,8 @@ public class Events implements Listener {
 		UUID uuid;
 
 		try {
-			uuid = UUID.fromString(event.getPreviousBookMeta().getAuthor());
+			ItemStack item = event.getPlayer().getInventory().getItem(event.getSlot());
+			uuid = UUID.fromString(PersistentUtils.getPersistentDataString(item, Hologram.TAG_DISPLAY_UUID));
 		} catch (Exception e) { return; }
 
 		Hologram hologram = Hologram.get(uuid);

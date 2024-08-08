@@ -23,6 +23,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -53,13 +54,16 @@ public class BlockEvents implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onEntityExplodeEvent(EntityExplodeEvent event) {
-		Block block = event.getLocation().getBlock();
-		onBlockExplodeEvent(new BlockExplodeEvent(block, block.getState(), event.blockList(), event.getYield()));
+		onBlockExplodeEvent(event.blockList());
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockExplodeEvent(BlockExplodeEvent event) {
-		for (Block block : event.blockList()) {
+		onBlockExplodeEvent(event.blockList());
+	}
+
+	public void onBlockExplodeEvent(List<Block> blockList) {
+		for (Block block : blockList) {
 			if (!customBlock.isCustomBlock(block)) { continue; }
 
 			//Add block location to list to process items inside ItemSpawnEvent
