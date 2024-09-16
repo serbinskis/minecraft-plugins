@@ -2,6 +2,7 @@ package me.wobbychip.smptweaks.custom.noadvancements;
 
 import me.wobbychip.smptweaks.Main;
 import me.wobbychip.smptweaks.tweaks.CustomTweak;
+import me.wobbychip.smptweaks.utils.TaskUtils;
 import org.bukkit.Bukkit;
 
 public class NoAdvancements extends CustomTweak {
@@ -16,5 +17,9 @@ public class NoAdvancements extends CustomTweak {
 
 	public void onEnable() {
 		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
+	}
+
+	public void onDisable() {
+		Events.scheduled.removeIf(item -> { TaskUtils.finishTask(item); return true; });
 	}
 }

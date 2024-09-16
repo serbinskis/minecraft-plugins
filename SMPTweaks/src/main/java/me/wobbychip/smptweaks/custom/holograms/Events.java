@@ -106,7 +106,8 @@ public class Events implements Listener {
 		UUID uuid;
 
 		try {
-			uuid = UUID.fromString(bookMeta.getAuthor());
+			ItemStack item = event.getPlayer().getInventory().getItemInMainHand();
+			uuid = UUID.fromString(PersistentUtils.getPersistentDataString(item, Hologram.TAG_DISPLAY_UUID));
 		} catch (Exception e) { return; }
 
 		Hologram hologram = Hologram.get(uuid);

@@ -14,6 +14,7 @@ import org.bukkit.inventory.MerchantRecipe;
 
 import me.wobbychip.smptweaks.utils.PersistentUtils;
 import me.wobbychip.smptweaks.utils.ReflectionUtils;
+import org.bukkit.inventory.view.MerchantView;
 
 public class Villagers {
 	public static boolean tradeVillager(Block trader, Villager villager, int trade) {
@@ -43,7 +44,7 @@ public class Villagers {
 
 	public static boolean canBuy(Player player, Villager villager, int trade) {
 		player.openMerchant(villager, true);
-		TradeSelectEvent event = new TradeSelectEvent(player.getOpenInventory(), trade);
+		TradeSelectEvent event = new TradeSelectEvent((MerchantView) player.getOpenInventory(), trade);
 		Bukkit.getPluginManager().callEvent(event);
 
 		player.closeInventory();
