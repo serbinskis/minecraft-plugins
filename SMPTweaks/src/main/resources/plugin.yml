@@ -1,9 +1,9 @@
-main: me.wobbychip.smptweaks.Main
+main: me.serbinskis.smptweaks.Main
 name: SMPTweaks
 api-version: 1.13
 version: 1.0
 load: STARTUP
-author: WobbyChip
+author: Serbinskis
 softdepend: [ ProtocolLib, PlaceholderAPI ]
 
 commands:
