@@ -22,5 +22,15 @@ Allows players to use a bow with infinity without arrows
 
 Pauses the server when there are no players online.
 
+## Holograms
+
+## Auto Craft
+
+## Auto Trade
+
+## Chunk Loader
+
+## Breakable Bedrock
+
 ## Download
 You can download the SMPTweaks [here](https://github.com/serbinskis/minecraft-plugins/raw/refs/heads/master/SMPTweaks/build/SMPTweaks.jar).
