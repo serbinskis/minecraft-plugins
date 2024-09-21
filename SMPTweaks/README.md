@@ -24,6 +24,10 @@ Pauses the server when there are no players online.
 
 ## Holograms
 
+<p align="center"><img width="1500" height="1080" src="https://i.imgur.com/26ufsgu.png"></p>
+
+Admin tool to make holograms with display text entity. Crouch and right-click a block with a book to create and hit to remove. Stick - Right click: toggle following | Left click:  toggle see through. Compass - Left click: cycle rotation. Blaze Rod - Left click: cycle alignment. Special book - Right-click block: teleport hologram.
+
 ## Auto Craft
 
 <p align="center" float="left">
