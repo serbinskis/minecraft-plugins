@@ -40,7 +40,7 @@ Admin tool to make holograms with display text entity. Crouch and right-click a 
 
 <p align="center" float="left">
   <img width="500" height="325" src="https://i.imgur.com/cGCJNSP.png">
-  <img width="500" height="325" src="https://i.imgur.com/YtAdr3V.gif">
+  <img width="500" height="325" src="https://i.imgur.com/NszlbgI.gif">
 </p>
 
 ## Magnet Block
