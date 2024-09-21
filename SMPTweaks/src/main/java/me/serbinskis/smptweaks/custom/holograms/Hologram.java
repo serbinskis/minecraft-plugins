@@ -5,8 +5,8 @@ import me.serbinskis.smptweaks.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.entity.Display.Billboard;
 import org.bukkit.entity.*;
+import org.bukkit.entity.Display.Billboard;
 import org.bukkit.entity.TextDisplay.TextAlignment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
@@ -162,6 +162,7 @@ public class Hologram {
 		interaction.teleport(location.clone().add(0.5, (0.5-(interaction.getInteractionHeight()/2)), 0.5));
 		location.setY(this.y + (0.5-(height/2)));
 		display.teleport(location.clone().add(0.5, 0, 0.5));
+		display.setBrightness(new Display.Brightness(15, 15));
 		setAlignment(getAlignment());
 	}
 
