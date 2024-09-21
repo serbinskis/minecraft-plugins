@@ -14,5 +14,13 @@ To get more info about potions use command /smptweaks execute cpotions info
 - Unbinding -> Drops armour with curse of binding
 - Screamer -> Prank a friend
 
+## No Arrow Infinity
+
+Allows players to use a bow with infinity without arrows
+
+## Server Pause
+
+Pauses the server when there are no players online.
+
 ## Download
 You can download the SMPTweaks [here](https://github.com/serbinskis/minecraft-plugins/raw/refs/heads/master/SMPTweaks/build/SMPTweaks.jar).
