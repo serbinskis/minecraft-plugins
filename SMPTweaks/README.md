@@ -1,4 +1,4 @@
-# SMPTweaks & CustomPotions
+# SMPTweaks
 
 This is the source code of SMPTweaks. SMPTweaks is a plugin which tweaks some game mechanics and adds extra features. Every one of these tweaks can be disabled and enabled inside the config: `/plugins/SMPTweaks/config.yml`.
 
