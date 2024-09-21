@@ -47,5 +47,44 @@ Admin tool to make holograms with display text entity. Crouch and right-click a 
 
 ## Breakable Bedrock
 
+Allows you to destroy bedrock and collect it. Destroy time and drop are configurable.
+
+<p align="center"><img width="480" height="300" src="https://i.imgur.com/4GopRGY.gif"></p>
+
+## No End Portal
+Disable end portal with custom gamerule. This will prevent from placing ender eyes, also prevent from going through the end portal.
+- /gamerule doEndPortal false
+
+## No Advancements
+- Disable advancements per world with custom gamerule.
+- /gamerule doAdvancements false
+
+## No Too Expensive
+- Removes "Too expensive" from anvils and allows you to spend any level if you have enough
+
+## Repair With XP
+Allow repairing mending tools with XP. Put item with mending in offhand and crouch
+
+## Better Lead
+Makes lead much longer and allow to lead almost any mob
+
+## Disable Invulnerability
+Removes 3s invulnerability when a player joins the server
+
+## All Crafting Recipes
+Give all crafting recipes when a player joins
+
+## Anti Creeper Grief
+Prevent creepers from exploding blocks
+
+## Anti Enderman Grief
+Prevent enderman from picking up blocks
+
+## Drop Cursed Pumpkin
+Drop cursed pumpkin on death when keep inventory is on
+
+## Entity Limit
+Limits entity spawn
+
 ## Download
 You can download the SMPTweaks [here](https://github.com/serbinskis/minecraft-plugins/raw/refs/heads/master/SMPTweaks/build/SMPTweaks.jar).
