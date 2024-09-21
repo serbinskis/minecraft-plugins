@@ -160,7 +160,8 @@ public class Hologram {
 		PersistentUtils.setPersistentDataInteger(interaction, TAG_POSITION, this.y);
 
 		interaction.teleport(location.clone().add(0.5, (0.5-(interaction.getInteractionHeight()/2)), 0.5));
-		display.teleport(location.clone().add(0.5, (0.5-(height/2)), 0.5));
+		location.setY(this.y + (0.5-(height/2)));
+		display.teleport(location.clone().add(0.5, 0, 0.5));
 		setAlignment(getAlignment());
 	}
 
@@ -197,11 +198,11 @@ public class Hologram {
 
 		float height = (getText().split("\r\n|\r|\n").length * 0.25f);
 		PersistentUtils.setPersistentDataInteger(interaction, TAG_ALIGNMENT, alignment);
-		Location ilocation = interaction.getLocation().add(ALIGNMENTS[alignment][0], ALIGNMENTS[alignment][1], ALIGNMENTS[alignment][2]);
+		Location ilocation = interaction.getLocation().add(ALIGNMENTS[alignment][0], 0, ALIGNMENTS[alignment][2]);
 
 		Location dlocation = display.getLocation();
 		dlocation.setX(ilocation.getX());
-		dlocation.setY(ilocation.getY() + (0.5-(height/2)));
+		dlocation.setY(this.y + (0.5-(height/2)) + ALIGNMENTS[alignment][1]);
 		dlocation.setZ(ilocation.getZ());
 		display.teleport(dlocation);
 	}
