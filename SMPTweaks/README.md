@@ -1,6 +1,6 @@
 # SMPTweaks
 
-This is the source code of SMPTweaks. SMPTweaks is a plugin that tweaks some game mechanics and adds extra features. Every one of these tweaks can be disabled and enabled inside the config: `/plugins/SMPTweaks/config.yml`.
+This is the source code of SMPTweaks. SMPTweaks is a plugin that tweaks some game mechanics and adds extra features. Every one of these tweaks can be disabled and enabled inside the config: `/plugins/SMPTweaks/config.yml`. You can download the SMPTweaks [here](https://github.com/serbinskis/minecraft-plugins/raw/refs/heads/master/SMPTweaks/build/SMPTweaks.jar).
 
 ## Custom Potions
 
@@ -122,6 +122,3 @@ Drop cursed pumpkin on death when keep inventory is on.
 ## Entity Limit
 
 Limits entity spawn.
-
-## Download
-You can download the SMPTweaks [here](https://github.com/serbinskis/minecraft-plugins/raw/refs/heads/master/SMPTweaks/build/SMPTweaks.jar).
