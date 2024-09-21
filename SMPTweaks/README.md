@@ -8,9 +8,8 @@ Adds to the server different new potions and new brewing recipes. To get more in
 
 - Recall -> Teleport to spawn point
 - Wormhole -> Shoot a player and then use the potion
-- Void -> Destroys bedrock
-- Explosion -> Explodes
 - Unbinding -> Drops armor with the curse of binding
+- Explosion -> Explodes
 - Screamer -> Prank a friend
 
 <p align="center"><img width="586" height="332" src="https://i.imgur.com/1lQELw2.png"></p>
