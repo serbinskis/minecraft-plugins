@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/08b5c678-2709-4371-808a-39a4fe3b4f05)# SMPTweaks
+# SMPTweaks
 
 This is the source code of SMPTweaks. SMPTweaks is a plugin which tweaks some game mechanics and adds extra features. Every one of these tweaks can be disabled and enabled inside the config: `/plugins/SMPTweaks/config.yml`.
 
