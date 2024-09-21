@@ -26,7 +26,7 @@ Pauses the server when there are no players online.
 
 ## Auto Craft
 
-<p align="center">
+<p align="center" style="display: inline-block">
   <img width="510" height="332" src="https://i.imgur.com/1iqkVOJ.png">
   <img width="510" height="332" src="https://i.imgur.com/iLnQvnp.gif">
 </p>
