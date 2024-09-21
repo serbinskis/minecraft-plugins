@@ -5,14 +5,16 @@ This is the source code of SMPTweaks. SMPTweaks is a plugin that tweaks some gam
 ## Custom Potions
 
 Adds to the server different new potions and new brewing recipes
-To get more info about potions use command /smptweaks execute cpotions info
+To get more info about potions use command `/smptweaks execute cpotions info`
 
 - Recall -> Teleport to spawn point
 - Wormhole -> Shoot a player and then use the potion
 - Void -> Destroys bedrock
 - Explosion -> Explodes
-- Unbinding -> Drops armor with curse of binding
+- Unbinding -> Drops armor with the curse of binding
 - Screamer -> Prank a friend
+
+<p align="center"><img width="586" height="332" src="https://i.imgur.com/1lQELw2.png"></p>
 
 ## No Arrow Infinity
 
@@ -59,9 +61,9 @@ Allows loading chunks as if a player were standing there. Crops do grow and mobs
   <img width="500" height="325" src="https://i.imgur.com/PIzYgd3.png">
 </p>
 
-## Breakable Bedrock
+## Custom Breaking
 
-Allows you to destroy bedrock and collect it. Destroy time and drop are configurable.
+Allows you to destroy bedrock and collect it. Destroy time and drop are configurable. Also allows to collect spawners.
 
 <p align="center"><img width="480" height="300" src="https://i.imgur.com/4GopRGY.gif"></p>
 
@@ -78,6 +80,12 @@ Removes "Too expensive" from anvils and allows you to spend any level if you hav
 
 ## Repair With XP
 Allow repairing mending tools with XP. Put item with mending in offhand and crouch
+
+## Head Drops
+Drop player head on death if killed by player.
+
+## Fast Curing
+Makes curing villagers much faster.
 
 ## Better Lead
 Makes lead much longer and allows to lead almost any mob
