@@ -16,7 +16,7 @@ Adds to the server different new potions and new brewing recipes. To get more in
 
 ## No Arrow Infinity
 
-Allows players to use a bow with infinity without arrows
+Allows players to use a bow with infinity without arrows.
 
 ## Server Pause
 
@@ -74,10 +74,10 @@ Disable advancements per world with custom gamerule.
 - /gamerule doAdvancements false
 
 ## No Too Expensive
-Removes "Too expensive" from anvils and allows you to spend any level if you have enough
+Removes "Too expensive" from anvils and allows you to spend any level if you have enough.
 
 ## Repair With XP
-Allow repairing mending tools with XP. Put item with mending in offhand and crouch
+Allow repairing mending tools with XP. Put item with mending in offhand and crouch.
 
 ## Head Drops
 Drop player head on death if killed by player.
@@ -86,25 +86,25 @@ Drop player head on death if killed by player.
 Makes curing villagers much faster.
 
 ## Better Lead
-Makes lead much longer and allows to lead almost any mob
+Makes lead much longer and allows to lead almost any mob.
 
 ## Disable Invulnerability
-Removes 3s invulnerability when a player joins the server
+Removes 3s invulnerability when a player joins the server.
 
 ## All Crafting Recipes
-Give all crafting recipes when a player joins
+Give all crafting recipes when a player joins.
 
 ## Anti Creeper Grief
-Prevent creepers from exploding blocks
+Prevent creepers from exploding blocks.
 
 ## Anti Enderman Grief
-Prevent enderman from picking up blocks
+Prevent enderman from picking up blocks.
 
 ## Drop Cursed Pumpkin
-Drop cursed pumpkin on death when keep inventory is on
+Drop cursed pumpkin on death when keep inventory is on.
 
 ## Entity Limit
-Limits entity spawn
+Limits entity spawn.
 
 ## Download
 You can download the SMPTweaks [here](https://github.com/serbinskis/minecraft-plugins/raw/refs/heads/master/SMPTweaks/build/SMPTweaks.jar).
