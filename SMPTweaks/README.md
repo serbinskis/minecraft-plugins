@@ -4,8 +4,7 @@ This is the source code of SMPTweaks. SMPTweaks is a plugin that tweaks some gam
 
 ## Custom Potions
 
-Adds to the server different new potions and new brewing recipes
-To get more info about potions use command `/smptweaks execute cpotions info`
+Adds to the server different new potions and new brewing recipes. To get more info about potions use the command: `/smptweaks execute cpotions info`.
 
 - Recall -> Teleport to spawn point
 - Wormhole -> Shoot a player and then use the potion
