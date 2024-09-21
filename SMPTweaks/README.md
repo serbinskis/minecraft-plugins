@@ -1,17 +1,17 @@
 # SMPTweaks
 
-This is the source code of SMPTweaks. SMPTweaks is a plugin which tweaks some game mechanics and adds extra features. Every one of these tweaks can be disabled and enabled inside the config: `/plugins/SMPTweaks/config.yml`.
+This is the source code of SMPTweaks. SMPTweaks is a plugin that tweaks some game mechanics and adds extra features. Every one of these tweaks can be disabled and enabled inside the config: `/plugins/SMPTweaks/config.yml`.
 
 ## Custom Potions
 
 Adds to the server different new potions and new brewing recipes
 To get more info about potions use command /smptweaks execute cpotions info
 
-- Recall -> Teleport to spawnpoint
+- Recall -> Teleport to spawn point
 - Wormhole -> Shoot a player and then use the potion
 - Void -> Destroys bedrock
 - Explosion -> Explodes
-- Unbinding -> Drops armour with curse of binding
+- Unbinding -> Drops armor with curse of binding
 - Screamer -> Prank a friend
 
 ## No Arrow Infinity
@@ -43,7 +43,21 @@ Admin tool to make holograms with display text entity. Crouch and right-click a 
   <img width="500" height="325" src="https://i.imgur.com/DAmVJWl.gif">
 </p>
 
+## Magnet Block
+
+<p align="center" float="left">
+  <img width="500" height="325" src="https://i.imgur.com/tXmRkff.png">
+  <img width="500" height="325" src="https://i.imgur.com/fRUHC1a.gif">
+</p>
+
 ## Chunk Loader
+
+Allows loading chunks as if a player were standing there. Crops do grow and mobs also spawn.
+
+<p align="center" float="left">
+  <img width="500" height="325" src="https://i.imgur.com/UchF5xf.png">
+  <img width="500" height="325" src="https://i.imgur.com/PIzYgd3.png">
+</p>
 
 ## Breakable Bedrock
 
@@ -56,17 +70,17 @@ Disable end portal with custom gamerule. This will prevent from placing ender ey
 - /gamerule doEndPortal false
 
 ## No Advancements
-- Disable advancements per world with custom gamerule.
+Disable advancements per world with custom gamerule.
 - /gamerule doAdvancements false
 
 ## No Too Expensive
-- Removes "Too expensive" from anvils and allows you to spend any level if you have enough
+Removes "Too expensive" from anvils and allows you to spend any level if you have enough
 
 ## Repair With XP
 Allow repairing mending tools with XP. Put item with mending in offhand and crouch
 
 ## Better Lead
-Makes lead much longer and allow to lead almost any mob
+Makes lead much longer and allows to lead almost any mob
 
 ## Disable Invulnerability
 Removes 3s invulnerability when a player joins the server
