@@ -40,7 +40,7 @@ Admin tool to make holograms with display text entity. Crouch and right-click a 
 
 <p align="center" float="left">
   <img width="500" height="325" src="https://i.imgur.com/cGCJNSP.png">
-  <img width="500" height="325" src="https://i.imgur.com/NszlbgI.gif">
+  <img width="500" height="325" src="https://i.imgur.com/Oj53dxt.gif">
 </p>
 
 ## Magnet Block
@@ -66,7 +66,7 @@ Allows you to destroy bedrock and collect it. Destroy time and drop are configur
 <p align="center"><img width="480" height="300" src="https://i.imgur.com/4GopRGY.gif"></p>
 
 ## No End Portal
-Disable end portal with custom gamerule. This will prevent from placing ender eyes, also prevent from going through the end portal.
+Disable end portal with custom gamerule. This will prevent placing ender eyes, and also prevent from going through the end portal.
 - /gamerule doEndPortal false
 
 ## No Advancements
