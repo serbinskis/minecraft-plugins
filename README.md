@@ -1,6 +1,6 @@
 # Minecraft Plugins
 
-Welcome to the collection of my plugins and mods for the game minecraft.
+Welcome to the collection of my plugins and mods for the game Minecraft.
 
 ## Table of Contents
 
