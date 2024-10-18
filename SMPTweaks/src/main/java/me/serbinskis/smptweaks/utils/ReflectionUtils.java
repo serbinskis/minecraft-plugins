@@ -20,6 +20,8 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.Connection;
+import net.minecraft.network.PacketSendListener;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.*;
@@ -92,6 +94,9 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.lang.reflect.*;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -641,6 +646,34 @@ public class ReflectionUtils {
 			Connection connection = (Connection) getValue(ServerCommonPacketListenerImpl_connection, packetListener);
 			return connection.channel;
 		} catch (Exception ex) { return null; }
+	}
+
+	public static void resetOfflinePlayer(Location location, OfflinePlayer offlinePlayer) throws UnknownHostException {
+		MinecraftServer server = MinecraftServer.getServer();
+		ServerLevel serverLevel = getWorld(Bukkit.getWorlds().get(0));
+		ServerPlayer entityPlayer = new ServerPlayer(server, serverLevel, new GameProfile(offlinePlayer.getUniqueId(), offlinePlayer.getName()), ClientInformation.createDefault());
+
+		Connection networkManager = new Connection(PacketFlow.SERVERBOUND);
+		EmbeddedChannel embeddedChannel = new EmbeddedChannel(networkManager); //For some reason this is needed: GameTestHelper#makeMockServerPlayerInLevel()
+		CommonListenerCookie commonListenerCookie = CommonListenerCookie.createInitial(new GameProfile(offlinePlayer.getUniqueId(), offlinePlayer.getName()), false);
+
+		entityPlayer.connection = new ServerGamePacketListenerImpl(server, networkManager, entityPlayer, commonListenerCookie) {
+			public void send(Packet<?> packet, @org.jetbrains.annotations.Nullable PacketSendListener callbacks) {}
+		};
+
+		entityPlayer.connection.connection.setupInboundProtocol(GameProtocols.SERVERBOUND_TEMPLATE.bind(RegistryFriendlyByteBuf.decorator(MinecraftServer.getServer().registries().compositeAccess())), entityPlayer.connection);
+		entityPlayer.connection.connection.address = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 0);
+
+		Player player = (Player) getBukkitEntity(entityPlayer);
+		player.loadData();
+		player.teleport(location);
+		Utils.dropItems(player);
+		player.setExp(0);
+		player.setTotalExperience(0);
+		player.setLevel(0);
+		player.teleport(new Location(Bukkit.getWorlds().get(0), 0, 65, 0));
+		player.saveData();
+		player.kick();
 	}
 
 	public static Player addFakePlayer(Location location, UUID uuid, boolean addPlayer, boolean hideOnline, boolean hideWorld) {

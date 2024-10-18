@@ -29,9 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
 
 public class Utils {
@@ -112,6 +110,19 @@ public class Utils {
 		Item itemDropped = player.getWorld().dropItem(location, item);
 		itemDropped.setVelocity(vector);
 		itemDropped.setPickupDelay(40);
+	}
+
+	public static void dropItems(Player player) {
+		Arrays.stream(player.getInventory().getStorageContents()).filter(Objects::nonNull).forEach(itemStack -> {
+			player.getWorld().dropItem(player.getLocation(), itemStack);
+		});
+
+		Arrays.stream(player.getEnderChest().getStorageContents()).filter(Objects::nonNull).forEach(itemStack -> {
+			player.getWorld().dropItem(player.getLocation(), itemStack);
+		});
+
+		player.getInventory().clear();
+		player.getEnderChest().clear();
 	}
 
 	//Check for permissions

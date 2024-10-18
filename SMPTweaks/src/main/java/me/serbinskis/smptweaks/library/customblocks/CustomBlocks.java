@@ -2,6 +2,7 @@ package me.serbinskis.smptweaks.library.customblocks;
 
 import me.serbinskis.smptweaks.library.customblocks.blocks.CustomMarker;
 import me.serbinskis.smptweaks.library.customblocks.commands.Commands;
+import me.serbinskis.smptweaks.library.customblocks.custom.PlayerResetBlock;
 import me.serbinskis.smptweaks.library.customblocks.events.BlockEvents;
 import me.serbinskis.smptweaks.library.customblocks.events.InventoryEvents;
 import me.serbinskis.smptweaks.library.customblocks.events.WorldEvents;
@@ -46,6 +47,7 @@ public class CustomBlocks extends CustomTweak {
 		Bukkit.getPluginManager().registerEvents(new WorldEvents(), Main.plugin);
 		if (Main.DEBUG_MODE) { CustomBlocks.registerBlock(new TestBlock()); }
 		if (Main.DEBUG_MODE) { CustomBlocks.registerBlock(new MovableBlock()); }
+		CustomBlocks.registerBlock(new PlayerResetBlock());
 
 		for (CustomBlock customBlock : REGISTRY_CUSTOM_BLOCKS.values()) {
 			Bukkit.getPluginManager().registerEvents(customBlock, Main.plugin);

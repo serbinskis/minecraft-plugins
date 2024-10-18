@@ -16,8 +16,9 @@ import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.recipe.CraftingBookCategory;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class LoaderBlock extends CustomBlock {
     public static LoaderBlock LOADER_BLOCK;
@@ -91,7 +92,7 @@ public class LoaderBlock extends CustomBlock {
     }
 
     public static void saveAll() {
-        ArrayList<String> loaders = new ArrayList<>(BLOCKS.keySet());
+        List<String> loaders = BLOCKS.entrySet().stream().filter(Map.Entry::getValue).map(Map.Entry::getKey).toList();
         ChunkLoader.tweak.getConfig(1).getConfig().set("chunkloaders", loaders);
         ChunkLoader.tweak.getConfig(1).save();
     }
