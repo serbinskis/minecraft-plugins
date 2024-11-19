@@ -30,11 +30,16 @@ public class CustomTweak {
 	private boolean isReloadable = false;
 
 	public CustomTweak(Class<?> clazz, boolean requiresPaper, boolean requiresProtocolLib) {
+		this(clazz, requiresPaper, requiresProtocolLib, false);
+	}
+
+	public CustomTweak(Class<?> clazz, boolean requiresPaper, boolean requiresProtocolLib, boolean permanent) {
 		this.clazz = clazz;
 		this.requiresPaper = requiresPaper;
 		this.requiresProtocolLib = requiresProtocolLib;
 		this.name = clazz.getSimpleName();
 		this.description = "No description";
+		if (permanent) { return; }
 
 		if (!Main.plugin.getConfig().contains(name.toUpperCase())) {
 			Main.plugin.getConfig().set(name.toUpperCase(), enabled);

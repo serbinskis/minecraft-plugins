@@ -22,7 +22,8 @@ public class Config {
 			try {
 				file.getParentFile().mkdirs();
 				InputStream inputStream = Main.plugin.getResource(configPath);
-				Files.copy(inputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+				if (inputStream != null) { Files.copy(inputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING); }
+				if (inputStream == null) { file.createNewFile(); }
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
