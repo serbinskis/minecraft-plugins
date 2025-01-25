@@ -54,6 +54,7 @@ import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.SignalGetter;
@@ -67,8 +68,10 @@ import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.entity.LevelCallback;
-import net.minecraft.world.level.portal.DimensionTransition;
+import net.minecraft.world.level.portal.TeleportTransition;
+import net.minecraft.world.level.redstone.ExperimentalRedstoneUtils;
 import net.minecraft.world.level.redstone.NeighborUpdater;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.level.storage.loot.LootTable;
 import org.bukkit.*;
 import org.bukkit.advancement.Advancement;
@@ -552,10 +555,6 @@ public class ReflectionUtils {
 		Block.popResource(getWorld(location.getWorld()), position, asNMSCopy(item));
 	}
 
-	public static void setInvulnerableTicks(Player player, int ticks) {
-		getEntityPlayer(player).spawnInvulnerableTime = ticks;
-	}
-
 	public static Abilities getPlayerAbilities(Player player) {
 		return getEntityPlayer(player).getAbilities();
 	}
@@ -658,7 +657,7 @@ public class ReflectionUtils {
 		CommonListenerCookie commonListenerCookie = CommonListenerCookie.createInitial(new GameProfile(offlinePlayer.getUniqueId(), offlinePlayer.getName()), false);
 
 		entityPlayer.connection = new ServerGamePacketListenerImpl(server, networkManager, entityPlayer, commonListenerCookie) {
-			public void send(Packet<?> packet, @org.jetbrains.annotations.Nullable PacketSendListener callbacks) {}
+			public void send(@NotNull Packet<?> packet, @org.jetbrains.annotations.Nullable PacketSendListener callbacks) {}
 		};
 
 		entityPlayer.connection.connection.setupInboundProtocol(GameProtocols.SERVERBOUND_TEMPLATE.bind(RegistryFriendlyByteBuf.decorator(MinecraftServer.getServer().registries().compositeAccess())), entityPlayer.connection);
@@ -729,9 +728,9 @@ public class ReflectionUtils {
 		PortalProcessor portalProcessor = new PortalProcessor((Portal) portalBlock, serverPlayer.blockPosition());
 		serverPlayer.setPortalCooldown();
 
-		DimensionTransition portalDestination = portalProcessor.getPortalDestination(getWorld(player.getWorld()), serverPlayer);
+		TeleportTransition portalDestination = portalProcessor.getPortalDestination(getWorld(player.getWorld()), serverPlayer);
 		if (portalDestination == null) { return; }
-		serverPlayer.changeDimension(portalDestination);
+		serverPlayer.teleport(portalDestination);
 		serverPlayer.portalProcess = null;
 	}
 
@@ -782,7 +781,7 @@ public class ReflectionUtils {
 		return loot.isEmpty() ? List.of() : loot;
 	}
 
-	public static List<ResourceLocation> getAdvancementRecipes(Advancement advancement) {
+	public static List<ResourceKey<Recipe<?>>> getAdvancementRecipes(Advancement advancement) {
 		return getNMSAdvancement(advancement).rewards().recipes();
 	}
 
@@ -885,7 +884,7 @@ public class ReflectionUtils {
 	}
 
 	public static String getPotionRegistryName(Holder<Potion> potion) {
-		return Potion.getName(Optional.of(potion), "");
+		return potion.value().name();
 	}
 
 	public static String getPotionTag(ItemStack item) {
@@ -928,7 +927,7 @@ public class ReflectionUtils {
 	}
 
 	public static <E> Registry<E> getRegistry(ResourceKey<? extends Registry<? extends E>> key) {
-		return MinecraftServer.getServer().registries().compositeAccess().registryOrThrow(key);
+		return MinecraftServer.getServer().registries().compositeAccess().lookupOrThrow(key);
 	}
 
 	public static void setRegistryFrozen(Object registry, boolean frozen) {
@@ -952,7 +951,7 @@ public class ReflectionUtils {
 	public static Holder<Potion> registerInstantPotion(String name) {
 		try {
 			setRegistryFrozen(POTION, false);
-			Potion placeHolder = new Potion();
+			Potion placeHolder = new Potion(name);
 			POTION.createIntrusiveHolder(placeHolder);
 			Holder<Potion> potionHolder = (Holder<Potion>) Potions_register.invoke(Potions_register, name, placeHolder);
 			setRegistryFrozen(POTION, true);
@@ -1003,7 +1002,7 @@ public class ReflectionUtils {
 		if (brewable) { potionStream = potionStream.filter(e -> MinecraftServer.getServer().potionBrewing().isBrewablePotion(Holder.direct(e))); }
 
 		//Goofy way to get rid of "minecraft:" or "anything:", or ":"
-		List<String> potions = potionStream.map(e -> Arrays.stream(Potion.getName(Optional.of(Holder.direct(e)), "").split(":")).reduce((a, b) -> b).stream().toList().get(0)).toList();
+		List<String> potions = potionStream.map(e -> Arrays.stream(e.name().split(":")).reduce((a, b) -> b).stream().toList().get(0)).toList();
 		if (!custom) { potions = potions.stream().filter(predicate).toList(); }
 		return potions;
 	}
@@ -1013,13 +1012,15 @@ public class ReflectionUtils {
 	public static void fixHolder(Registry<?> registry, Object value, int ...currentId)
 	{
 		try {
-			if ((currentId.length == 0) || (currentId[0] < 0)) { currentId = new int[] { (int) registry.holders().count()-1 }; }
+			if ((currentId.length == 0) || (currentId[0] < 0)) { currentId = new int[] { registry.size()-1 }; }
 			Optional<Holder<?>> holder = (Optional<Holder<?>>) RegistryMaterials_getHolder.invoke(registry, currentId[0]);
-			Holder.Reference<?> holder_c = (Holder.Reference<?>) holder.get();
+			Holder.Reference<?> custom_holder_value = (Holder.Reference<?>) holder.orElseThrow();
+			Holder.Reference<?> dummy_holder_value = registry.get(0).orElseThrow();
 
 			for (Field field : Holder.Reference.class.getDeclaredFields()) {
 				field.setAccessible(true);
-				if (field.get(holder_c) == null) { field.set(holder_c, value); }
+				if (field.get(dummy_holder_value) != dummy_holder_value.value()) { continue; }
+				field.set(custom_holder_value, value);
 			}
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			e.printStackTrace();
@@ -1182,14 +1183,14 @@ public class ReflectionUtils {
 
 		blockEntity.loadWithComponents(tag, MinecraftServer.getServer().registryAccess()); //Loading NBT doesn't trigger physics update of block itself
 		if (applyPhysics) { blockEntity.setChanged(); } //This only updates block around (AND IT DOESN'T WORK, FUCK YOU MOJANG)
-		if (applyPhysics) { NeighborUpdater.executeUpdate(serverLevel, blockEntity.getBlockState(), blockPos, blockEntity.getBlockState().getBlock(), blockPos, true); }
+		if (applyPhysics) { NeighborUpdater.executeUpdate(serverLevel, blockEntity.getBlockState(), blockPos, blockEntity.getBlockState().getBlock(), null, true); }
 	}
 
 	public static void forceUpdateBlock(org.bukkit.block.Block block) {
 		BlockPos blockPos = new BlockPos(block.getX(), block.getY(), block.getZ());
 		ServerLevel serverLevel = getWorld(block.getLocation().getWorld());
 		BlockState blockState = serverLevel.getBlockState(blockPos);
-		NeighborUpdater.executeUpdate(serverLevel, blockState, blockPos, blockState.getBlock(), blockPos, true);
+		NeighborUpdater.executeUpdate(serverLevel, blockState, blockPos, blockState.getBlock(), null, true);
 	}
 
 	public static void forceUpdateNeighbors(org.bukkit.block.Block block, int distance, @Nullable Material type, @Nullable Material exclude) {
@@ -1207,9 +1208,10 @@ public class ReflectionUtils {
 
 		Direction enumdirection = block_sate.getValue(DiodeBlock.FACING);
 		BlockPos blockposition1 = block_pos.relative(enumdirection.getOpposite());
+		Orientation orientation = ExperimentalRedstoneUtils.initialOrientation(block_world, enumdirection.getOpposite(), null);
 
-		block_world.neighborChanged(blockposition1, block_nms, block_pos);
-		block_world.updateNeighborsAtExceptFromFacing(blockposition1, block_nms, enumdirection);
+		block_world.neighborChanged(blockposition1, block_nms, orientation);
+		block_world.updateNeighborsAtExceptFromFacing(blockposition1, block_nms, enumdirection, orientation);
 	}
 
 	public static int getComparatorOutputSignal(org.bukkit.block.Block block, @Nullable BlockData blockData, int power) {
@@ -1452,9 +1454,9 @@ public class ReflectionUtils {
 
 	public static CommonPlayerSpawnInfo editCommonPlayerSpawnInfo(CommonPlayerSpawnInfo commonPlayerSpawnInfo, @Nullable Boolean isFlat, @Nullable World.Environment env) {
 		Holder<DimensionType> dimensionType = commonPlayerSpawnInfo.dimensionType();
-		if (env == World.Environment.NORMAL) { dimensionType = getRegistry(Registries.LEVEL_STEM).get(LevelStem.OVERWORLD).type(); }
-		if (env == World.Environment.NETHER) { dimensionType = getRegistry(Registries.LEVEL_STEM).get(LevelStem.NETHER).type(); }
-		if (env == World.Environment.THE_END) { dimensionType = getRegistry(Registries.LEVEL_STEM).get(LevelStem.END).type(); }
+		if (env == World.Environment.NORMAL) { dimensionType = getRegistry(Registries.LEVEL_STEM).get(LevelStem.OVERWORLD).orElseThrow().value().type(); }
+		if (env == World.Environment.NETHER) { dimensionType = getRegistry(Registries.LEVEL_STEM).get(LevelStem.NETHER).orElseThrow().value().type(); }
+		if (env == World.Environment.THE_END) { dimensionType = getRegistry(Registries.LEVEL_STEM).get(LevelStem.END).orElseThrow().value().type(); }
 
 		ResourceKey<Level> dimension = commonPlayerSpawnInfo.dimension();
 		long seed = commonPlayerSpawnInfo.seed();
@@ -1464,7 +1466,7 @@ public class ReflectionUtils {
 		isFlat = (isFlat != null) ? isFlat : commonPlayerSpawnInfo.isFlat();
 		Optional<GlobalPos> lastDeathLocation = commonPlayerSpawnInfo.lastDeathLocation();
 		int portalCooldown = commonPlayerSpawnInfo.portalCooldown();
-		return new CommonPlayerSpawnInfo(dimensionType, dimension, seed, gameType, previousGameType, isDebug, isFlat, lastDeathLocation, portalCooldown);
+		return new CommonPlayerSpawnInfo(dimensionType, dimension, seed, gameType, previousGameType, isDebug, isFlat, lastDeathLocation, portalCooldown, commonPlayerSpawnInfo.seaLevel());
 	}
 
 	//This is very unstable and can produce server crash, use only in WorldInitEvent
@@ -1477,9 +1479,9 @@ public class ReflectionUtils {
 
 		//Select dimension data if environment parameter is used and others are not
 		boolean b1 = (fixedTime == null) && (hasSkyLight == null) && (hasCeiling == null) && (ultraWarm == null) && (natural == null) && (coordinateScale == null) && (bedWorks == null) && (respawnAnchorWorks == null) && (minY == null) && (height == null) && (logicalHeight == null) && (infiniburn == null) && (effectsLocation == null) && (ambientLight == null) && (monsterSettings == null);
-		if (b1 && (env == World.Environment.NORMAL)) { copy = getRegistry(Registries.LEVEL_STEM).get(LevelStem.OVERWORLD.location()).type().value(); }
-		if (b1 && (env == World.Environment.NETHER)) { copy = getRegistry(Registries.LEVEL_STEM).get(LevelStem.NETHER.location()).type().value(); }
-		if (b1 && (env == World.Environment.THE_END)) { copy = getRegistry(Registries.LEVEL_STEM).get(LevelStem.END.location()).type().value(); }
+		if (b1 && (env == World.Environment.NORMAL)) { copy = getRegistry(Registries.LEVEL_STEM).get(LevelStem.OVERWORLD.location()).orElseThrow().value().type().value(); }
+		if (b1 && (env == World.Environment.NETHER)) { copy = getRegistry(Registries.LEVEL_STEM).get(LevelStem.NETHER.location()).orElseThrow().value().type().value(); }
+		if (b1 && (env == World.Environment.THE_END)) { copy = getRegistry(Registries.LEVEL_STEM).get(LevelStem.END.location()).orElseThrow().value().type().value(); }
 
 		//Create new dimension data from given parameters
 		DimensionType type = new DimensionType(
@@ -1509,6 +1511,11 @@ public class ReflectionUtils {
 		//Replace stupid paper EntityLookup system, because it initializes and uses old minY and height variables
 		//FUCK YOU PAPER -> io.papermc.paper.chunk.system.entity.EntityLookup -> minSection = WorldUtil.getMinSection(world)
 		if (PaperUtils.isPaper()) {
+			Field field_minSectionY = getField(Level.class, int.class, null, level, level.getMinSectionY(), true, Modifier.FINAL, Modifier.PUBLIC);
+			Field field_minY = getField(Level.class, int.class, null, level, level.getMinY(), true, Modifier.FINAL, Modifier.PUBLIC);
+			setValue(field_minSectionY, level, type.minY() >> 4);
+			setValue(field_minY, level, type.minY());
+
 			Field Level_entityLookup = getField(Level.class, PaperUtils.EntityLookup, null, true);
 			Field EntityLookup_levelCallback = getField(PaperUtils.EntityLookup, net.minecraft.world.level.entity.LevelCallback.class, null, true);
 			LevelCallback<?> callback = (LevelCallback<net.minecraft.world.entity.Entity>) getValue(EntityLookup_levelCallback, level.moonrise$getEntityLookup());
@@ -1529,7 +1536,7 @@ public class ReflectionUtils {
 		ResourceKey<Biome> minecraftKey = ResourceKey.create(Registries.BIOME, ResourceLocation.fromNamespaceAndPath(basename.split(":")[0], basename.split(":")[1]));
 		ResourceKey<Biome> customKey = ResourceKey.create(Registries.BIOME, ResourceLocation.fromNamespaceAndPath(namespace, name));
 		WritableRegistry<Biome> biomeRegirsty = (WritableRegistry<Biome>) getRegistry(Registries.BIOME);
-		Biome minecraftBiome = biomeRegirsty.get(minecraftKey);
+		Biome minecraftBiome = biomeRegirsty.get(minecraftKey).orElseThrow().value();
 
 		BiomeSpecialEffects.Builder biomeSpecialEffects = new BiomeSpecialEffects.Builder();
 		biomeSpecialEffects.grassColorModifier(minecraftBiome.getSpecialEffects().getGrassColorModifier());

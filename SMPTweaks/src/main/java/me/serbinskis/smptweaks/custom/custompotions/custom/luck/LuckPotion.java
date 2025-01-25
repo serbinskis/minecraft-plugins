@@ -8,7 +8,7 @@ import org.bukkit.potion.PotionType;
 
 public class LuckPotion extends CustomPotion {
 	public LuckPotion() {
-		super(PotionType.THICK, Material.EXPERIENCE_BOTTLE, "luck", Color.fromRGB(89, 193, 6));
+		super(PotionType.THICK, Material.EXPERIENCE_BOTTLE, "lucky", Color.fromRGB(89, 193, 6));
 		this.addPotionEffect(PotionEffectType.LUCK, 3600, 0);
 		this.setDisplayName("§r§fPotion of Luck");
 		this.setTippedArrow(true, "§r§fArrow of Luck");

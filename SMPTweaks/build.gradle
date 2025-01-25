@@ -1,6 +1,6 @@
 plugins {
-    id "java"
-    id "io.papermc.paperweight.userdev" version "1.7.1"
+    id("java")
+    id("io.papermc.paperweight.userdev") version "2.0.0-beta.12"
 }
 
 sourceCompatibility = JavaVersion.VERSION_21
@@ -28,10 +28,10 @@ repositories {
 }
 
 dependencies {
-    compileOnly "com.sk89q.worldedit:worldedit-bukkit:7.2.0"
-    compileOnly "net.essentialsx:EssentialsX:2.20.1"
-    compileOnly "me.clip:placeholderapi:2.11.6"
-    compileOnly "io.papermc.paper:paper-api:${project.minecraft_version}-R0.1-SNAPSHOT"
+    implementation("com.sk89q.worldedit:worldedit-bukkit:7.2.0") { exclude group: 'org.spigotmc', module: 'spigot-api' }
+    implementation("net.essentialsx:EssentialsX:2.20.1") { exclude group: 'org.spigotmc', module: 'spigot-api' }
+    implementation("me.clip:placeholderapi:2.11.6")
+    implementation("io.papermc.paper:paper-api:${project.minecraft_version}-R0.1-SNAPSHOT")
     paperweight.paperDevBundle("${project.minecraft_version}-R0.1-SNAPSHOT")
 }
 

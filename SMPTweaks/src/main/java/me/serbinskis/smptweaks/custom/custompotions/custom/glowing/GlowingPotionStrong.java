@@ -7,7 +7,7 @@ import org.bukkit.potion.PotionEffectType;
 
 public class GlowingPotionStrong extends CustomPotion {
 	public GlowingPotionStrong() {
-		super("glowing", Material.GLOWSTONE_DUST, "strong_nausea", Color.fromRGB(255, 255, 255));
+		super("glowing", Material.GLOWSTONE_DUST, "strong_glowing", Color.fromRGB(255, 255, 255));
 		this.addPotionEffect(PotionEffectType.GLOWING, 450, 1);
 		this.setDisplayName("§r§fPotion of Glowing");
 		this.setTippedArrow(true, "§r§fArrow of Glowing");
