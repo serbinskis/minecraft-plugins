@@ -27,7 +27,7 @@ public class LoaderBlock extends CustomBlock {
 
     public LoaderBlock() {
         super("loader_block", Material.LODESTONE);
-        this.setCustomModel(1000310000);
+        this.setTexture("loader_block.png");
         this.setCustomName(Main.SYM_COLOR + "rChunk Loader");
         this.setTickable(true);
         LoaderBlock.LOADER_BLOCK = this;

@@ -27,7 +27,7 @@ public class MagnetBlock extends CustomBlock {
 
     public MagnetBlock() {
         super("magnet_block", Material.BARREL);
-        this.setCustomModel(1000410000);
+        this.setTexture("magnet_block.png");
         this.setCustomName(Main.SYM_COLOR + "rMagnet Block");
         this.setCustomTitle("Magnet Block");
         this.setTickable(true);

@@ -56,7 +56,7 @@ public class CustomMarker implements Runnable {
         if (markers.containsKey(location)) { markers.get(location).remove(true); }
 
         Map.Entry<BlockFace, Transformation> orientation = getOrientation(customBlock, block);
-        ItemStack itemStack = customBlock.getDropItem(Arrays.asList(BlockFace.UP, BlockFace.DOWN).contains(orientation.getKey()));
+        ItemStack itemStack = customBlock.getDropItem(customBlock.prepareTextureIndex(block));
 
         ItemDisplay display = (ItemDisplay) block.getWorld().spawnEntity(block.getLocation().add(0.5, 0.5, 0.5), EntityType.ITEM_DISPLAY);
         PersistentUtils.setPersistentDataString(display, CustomBlock.TAG_BLOCK, customBlock.getId());
@@ -72,6 +72,11 @@ public class CustomMarker implements Runnable {
         CustomMarker marker = new CustomMarker(display, customBlock);
         markers.put(location, marker);
         return marker;
+    }
+
+    public void updateTexture(Block block) {
+        ItemStack itemStack = customBlock.getDropItem(customBlock.prepareTextureIndex(block));
+        display.setItemStack(itemStack);
     }
 
     public static Map.Entry<BlockFace, Transformation> getOrientation(CustomBlock customBlock, Block block) {

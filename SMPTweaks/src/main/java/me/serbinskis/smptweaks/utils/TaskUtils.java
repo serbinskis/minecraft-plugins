@@ -41,6 +41,19 @@ public class TaskUtils implements Listener {
 		return task;
 	}
 
+	public static int scheduleAsyncRepeatingTask(Runnable runnable, long first, long interval) {
+		int task = Bukkit.getScheduler().scheduleAsyncRepeatingTask(Main.plugin, runnable, first, interval);
+		runnables0.put(task, runnable);
+		return task;
+	}
+
+	public static int rescheduleAsyncRepeatingTask(int task, long first, long interval) {
+		if (!runnables0.containsKey(task)) { return -1; }
+		Bukkit.getScheduler().cancelTask(task);
+		Runnable runnable = runnables0.remove(task);
+		return scheduleAsyncRepeatingTask(runnable, first, interval);
+	}
+
 	public static int rescheduleSyncRepeatingTask(int task, long first, long interval) {
 		if (!runnables0.containsKey(task)) { return -1; }
 		Bukkit.getScheduler().cancelTask(task);

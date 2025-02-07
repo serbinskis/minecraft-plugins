@@ -19,7 +19,7 @@ import java.util.Map;
 public class TestBlock extends CustomBlock {
     public TestBlock() {
         super("custom_block", Material.DISPENSER);
-        this.setCustomModel(1000110000, 1000120000);
+        this.setTexture("crafter_block.png");
         this.setCustomName(Main.SYM_COLOR + "rCustom Block");
         this.setCustomTitle("Custom Block");
         this.setDispensable(Dispensable.CUSTOM);

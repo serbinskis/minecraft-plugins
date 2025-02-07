@@ -1,5 +1,6 @@
 package me.serbinskis.smptweaks.library.customblocks.blocks;
 
+import me.serbinskis.smptweaks.library.customblocks.textures.TextureSplitter;
 import me.serbinskis.smptweaks.utils.PersistentUtils;
 import me.serbinskis.smptweaks.utils.ReflectionUtils;
 import me.serbinskis.smptweaks.Main;
@@ -8,6 +9,7 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.Container;
 import org.bukkit.block.TileState;
 import org.bukkit.block.data.AnaloguePowerable;
@@ -23,9 +25,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.util.Transformation;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.InputStream;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,13 +45,16 @@ public class CustomBlock implements Listener {
     private final String id;
     private String name;
     private String title;
-    private int model = -1;
-    private int model_extra = -1;
+    private String texture;
 
     public CustomBlock(String id, Material block_base) {
         this.id = id;
         this.name = id;
         this.block_base = block_base;
+    }
+
+    public String getId() {
+        return id;
     }
 
     public void setCustomName(String name) {
@@ -65,20 +73,22 @@ public class CustomBlock implements Listener {
         return title;
     }
 
-    public void setCustomModel(int ...models) {
-        this.model = (models.length > 0) ? models[0] : model;
-        this.model_extra = (models.length > 1) ? models[1] : model_extra;
+    public void setTexture(String texture) {
+        this.texture = texture;
     }
 
-    public String getId() {
-        return id;
+    public byte[][] getCustomTextures() {
+        if (texture == null) { return null; }
+        InputStream inputStream = Main.plugin.getResource("textures/blocks/" + texture);
+        if (inputStream == null) { return null; }
+        return TextureSplitter.splitTexture(inputStream);
     }
 
     public Material getBlockBase() { return block_base; }
 
     @Nonnull
-    public ItemStack getDropItem(boolean extra) {
-        return PersistentUtils.setPersistentDataString(prepareDropItem(extra), TAG_BLOCK, id);
+    public ItemStack getDropItem(int textureIndex) {
+        return PersistentUtils.setPersistentDataString(prepareDropItem(textureIndex), TAG_BLOCK, id);
     }
 
     public void setTickable(boolean tickable) {
@@ -118,9 +128,15 @@ public class CustomBlock implements Listener {
         return glow_color;
     }
 
+    public int prepareTextureIndex(Block block) {
+        Map.Entry<BlockFace, Transformation> orientation = CustomMarker.getOrientation(this, block);
+        if (Arrays.asList(BlockFace.UP, BlockFace.DOWN).contains(orientation.getKey())) { return 1; }
+        return 0;
+    }
+
     @Nullable
     public Recipe getRecipe() {
-        return prepareRecipe(new NamespacedKey(Main.plugin, id), getDropItem(false));
+        return prepareRecipe(new NamespacedKey(Main.plugin, id), getDropItem(0));
     }
 
     public boolean hasInventory() {
@@ -218,12 +234,15 @@ public class CustomBlock implements Listener {
         return ((marker != null) && marker.getId().equalsIgnoreCase(id));
     }
 
-    public ItemStack prepareDropItem(boolean extra) {
+    public ItemStack prepareDropItem(int textureIndex) {
         ItemStack item = new ItemStack(block_base);
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(name);
-        if (model > 0) { meta.setCustomModelData(model); }
-        if (extra && (model_extra > 0)) { meta.setCustomModelData(model_extra); }
+
+        if (this.texture != null) {
+            meta.setItemModel(new NamespacedKey("smptweaks", "blocks/" + this.id + "_" + textureIndex));
+        }
+
         item.setItemMeta(meta);
         return item;
     }

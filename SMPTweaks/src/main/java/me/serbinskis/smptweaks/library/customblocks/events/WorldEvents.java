@@ -23,8 +23,8 @@ public class WorldEvents implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerJoin(PlayerJoinEvent event) {
-		if (CustomBlocks.getSize() == 0) { return; }
-		event.getPlayer().addResourcePack(CustomBlocks.RESOURCE_PACK_UUID, CustomBlocks.RESOURCE_PACK_URL, CustomBlocks.RESOURCE_PACK_HASH, CustomBlocks.RESOURCE_PACK_PROMPT, true);
+		if ((CustomBlocks.getSize() == 0) || (CustomBlocks.RESOURCE_PACK_CDN_URL == null) || (CustomBlocks.RESOURCE_PACK_HASH.length == 0)) { return; }
+		event.getPlayer().addResourcePack(CustomBlocks.RESOURCE_PACK_UUID, CustomBlocks.RESOURCE_PACK_CDN_URL, CustomBlocks.RESOURCE_PACK_HASH, CustomBlocks.RESOURCE_PACK_PROMPT, true);
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)

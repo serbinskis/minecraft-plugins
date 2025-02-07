@@ -21,6 +21,7 @@ import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -344,6 +345,23 @@ public class Utils {
 		return file;
 	}
 
+	public static File saveResource(String savePath, byte[] data) {
+		File file = new File(Main.plugin.getDataFolder() + savePath);
+
+		if (!file.exists()) {
+			try {
+				file.getParentFile().mkdirs();
+				ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
+				Files.copy(inputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+				inputStream.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return file;
+	}
+
 	public static void grantAdvancement(Player player, Advancement advancment) {
 		AdvancementProgress progress = player.getAdvancementProgress(advancment);
 		progress.getRemainingCriteria().forEach(progress::awardCriteria);
@@ -417,6 +435,16 @@ public class Utils {
 
 			return digest.digest();
 		} catch (IOException | NoSuchAlgorithmException e) {
+			return new byte[0];
+		}
+	}
+
+	public static byte[] getFileHash(byte[] fileData) {
+		try {
+			MessageDigest digest = MessageDigest.getInstance("SHA-1");
+			digest.update(fileData, 0, fileData.length);
+			return digest.digest();
+		} catch (NoSuchAlgorithmException e) {
 			return new byte[0];
 		}
 	}

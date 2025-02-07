@@ -25,6 +25,7 @@ public class PlayerResetBlock  extends CustomBlock {
 
         for (OfflinePlayer offlinePlayer : Arrays.stream(Bukkit.getOfflinePlayers()).toList()) {
             if (offlinePlayer.getLocation() == null) { continue; }
+            if (offlinePlayer.getLocation().getWorld() == null) { continue; }
             if (!offlinePlayer.getLocation().getWorld().equals(block.getWorld())) { continue; }
             if (offlinePlayer.getPlayer() != null) { continue; }
             try { ReflectionUtils.resetOfflinePlayer(block.getLocation(), offlinePlayer); } catch (UnknownHostException ignored) {}

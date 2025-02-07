@@ -49,7 +49,7 @@ public class BlockEvents implements Listener {
 		if (customBlock.isCustomBlock(itemStack)) { return; } //Case, where custom block was inside inventory
 		if (customBlock.isMarkedItem(itemStack)) { event.getEntity().setItemStack(customBlock.removeMarkedItem(itemStack)); return; } //Case, where normal block of cblock was inside inventory
 		int amount = event.getEntity().getItemStack().getAmount();
-		event.getEntity().setItemStack(Utils.cloneItem(customBlock.getDropItem(false), amount)); //Case, where dropped block is normal and not marked, this is item of cblock
+		event.getEntity().setItemStack(Utils.cloneItem(customBlock.getDropItem(0), amount)); //Case, where dropped block is normal and not marked, this is item of cblock
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -102,7 +102,7 @@ public class BlockEvents implements Listener {
 			if (itemStack.getType() != customBlock.getBlockBase()) { continue; }
 			if (customBlock.isCustomBlock(itemStack)) { continue; } //Case, where custom block was inside inventory
 			if (customBlock.isMarkedItem(itemStack)) { item.setItemStack(customBlock.removeMarkedItem(itemStack)); continue; } //Case, where normal block of cblock was inside inventory
-			item.setItemStack(customBlock.getDropItem(false)); //Case, where dropped block is normal and not marked, this is item of cblock
+			item.setItemStack(customBlock.getDropItem(0)); //Case, where dropped block is normal and not marked, this is item of cblock
 		}
 	}
 

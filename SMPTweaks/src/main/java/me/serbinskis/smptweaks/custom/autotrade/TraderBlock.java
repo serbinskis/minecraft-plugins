@@ -18,9 +18,9 @@ import java.util.Map;
 public class TraderBlock extends CustomBlock {
     public TraderBlock() {
         super("trader_block", Material.DISPENSER);
-        this.setCustomModel(1000210000, 1000220000);
         this.setCustomName(Main.SYM_COLOR + "rAuto Trader");
         this.setCustomTitle("Auto Trader");
+        this.setTexture("trader_block.png");
         this.setDispensable(Dispensable.CUSTOM);
         this.setComparable(Comparable.IGNORE);
     }
