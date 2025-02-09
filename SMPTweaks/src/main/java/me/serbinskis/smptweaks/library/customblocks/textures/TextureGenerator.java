@@ -9,6 +9,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.attribute.FileTime;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.zip.ZipEntry;
@@ -32,19 +33,18 @@ public class TextureGenerator {
     }
 
     public void addCustomBlock(CustomBlock customBlock) {
-        String block_base = customBlock.getBlockBase().toString().toLowerCase();
         byte[][] textures = customBlock.getCustomTextures();
         if (textures == null) { return; }
 
-        addBlockTexture(block_base, customBlock.getId() + "_0", textures[0]);
-        addBlockTexture(block_base, customBlock.getId() + "_1", textures[1]);
+        addBlockTexture(customBlock.getId() + "_0", textures[0]);
+        addBlockTexture(customBlock.getId() + "_1", textures[1]);
     }
 
     public void addCustomBlocks(Collection<CustomBlock> customBlocks) {
         customBlocks.forEach(this::addCustomBlock);
     }
 
-    private void addBlockTexture(String block_base, String cid, byte[] texture) {
+    private void addBlockTexture(String cid, byte[] texture) {
         String block_json = "{\n" +
                 "\t\"parent\": \"block/cube\",\n" +
                 "\t\"textures\": {\n" +
@@ -79,7 +79,12 @@ public class TextureGenerator {
 
     private void addZipEntry(String entryName, byte[] buffer) {
         try {
-            zipOutputStream.putNextEntry(new ZipEntry(entryName));
+            ZipEntry zipEntry = new ZipEntry(entryName);
+            zipEntry.setTime(0);
+            zipEntry.setCreationTime(FileTime.fromMillis(0));
+            zipEntry.setLastAccessTime(FileTime.fromMillis(0));
+            zipEntry.setLastModifiedTime(FileTime.fromMillis(0));
+            zipOutputStream.putNextEntry(zipEntry);
             if (buffer.length > 0) { zipOutputStream.write(buffer); }
             zipOutputStream.closeEntry();
         } catch (IOException e) {

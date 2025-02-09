@@ -39,6 +39,7 @@ public class CustomBlocks extends CustomTweak {
 	public static UUID RESOURCE_PACK_UUID;
 	public static HashMap<String, CustomBlock> REGISTRY_CUSTOM_BLOCKS = new HashMap<>();
 	public static ShapedRecipe EMPTY_RECIPE = new ShapedRecipe(new NamespacedKey(Main.plugin, "f9300cc0c1434e088d114b8869dd379e"), new ItemStack(Material.POISONOUS_POTATO));
+	private static long lastUpdateCdnTime = 0;
 
 	public CustomBlocks() {
 		super(CustomBlocks.class, false, false, true);
@@ -65,7 +66,6 @@ public class CustomBlocks extends CustomTweak {
 
 		updateTextures(REGISTRY_CUSTOM_BLOCKS.values());
 		TaskUtils.scheduleAsyncRepeatingTask(() -> CustomBlocks.updateTextures(REGISTRY_CUSTOM_BLOCKS.values()), 20L*60*60*24, 20L*60*60*24);
-		TaskUtils.scheduleAsyncRepeatingTask(CustomBlocks::updateCdnRedirect, 20L*30, 20L*30);
 		CustomMarker.collectUnmarkedBlocks();
 	}
 
@@ -87,7 +87,8 @@ public class CustomBlocks extends CustomTweak {
 		updateCdnRedirect();
 	}
 
-	private static void updateCdnRedirect() {
+	public static void updateCdnRedirect() {
+		if (System.currentTimeMillis() - lastUpdateCdnTime < 30000) { return; }
 		RESOURCE_PACK_CDN_URL = null;
 		if (RESOURCE_PACK_URL == null) { return; }
 
@@ -105,6 +106,7 @@ public class CustomBlocks extends CustomTweak {
 
 			if (connection.getResponseCode() == HttpURLConnection.HTTP_MOVED_TEMP || connection.getResponseCode() == HttpURLConnection.HTTP_MOVED_PERM) {
 				RESOURCE_PACK_CDN_URL = connection.getHeaderField("Location");
+				lastUpdateCdnTime = System.currentTimeMillis();
 			}
 
 			connection.disconnect();
