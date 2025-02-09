@@ -80,7 +80,6 @@ public class TextureGenerator {
     private void addZipEntry(String entryName, byte[] buffer) {
         try {
             ZipEntry zipEntry = new ZipEntry(entryName);
-            zipEntry.setTime(0);
             zipEntry.setCreationTime(FileTime.fromMillis(0));
             zipEntry.setLastAccessTime(FileTime.fromMillis(0));
             zipEntry.setLastModifiedTime(FileTime.fromMillis(0));
