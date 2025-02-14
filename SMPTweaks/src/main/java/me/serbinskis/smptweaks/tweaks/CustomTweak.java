@@ -29,6 +29,10 @@ public class CustomTweak {
 	private boolean loaded = false;
 	private boolean isReloadable = false;
 
+	public CustomTweak(Class<?> clazz, boolean requiresPaper) {
+		this(clazz, requiresPaper, false, false);
+	}
+
 	public CustomTweak(Class<?> clazz, boolean requiresPaper, boolean requiresProtocolLib) {
 		this(clazz, requiresPaper, requiresProtocolLib, false);
 	}

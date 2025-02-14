@@ -143,6 +143,12 @@ public class Utils {
 		return Math.sqrt(x+y+z);
 	}
 
+	public static double distance2D(Location l1, Location l2) {
+		double x = Math.pow(l1.getX()-l2.getX(), 2);
+		double z = Math.pow(l1.getZ()-l2.getZ(), 2);
+		return Math.sqrt(x+z);
+	}
+
 	//Check if itemstack is a potion
 	public static boolean isPotion(ItemStack itemStack) {
 		return ((itemStack != null) && ((itemStack.getType() == Material.POTION) || (itemStack.getType() == Material.SPLASH_POTION) || (itemStack.getType() == Material.LINGERING_POTION)));
