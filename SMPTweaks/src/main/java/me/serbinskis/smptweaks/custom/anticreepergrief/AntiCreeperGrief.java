@@ -10,7 +10,7 @@ public class AntiCreeperGrief extends CustomTweak {
 
 	public AntiCreeperGrief() {
 		super(AntiCreeperGrief.class, false, false);
-		this.setGameRule("doCreeperGrief", false, false);
+		this.setGameRule("doCreeperGrief", true, false);
 		this.setDescription("Prevent creepers from exploding blocks with gamerule.");
 		AntiCreeperGrief.tweak = this;
 	}

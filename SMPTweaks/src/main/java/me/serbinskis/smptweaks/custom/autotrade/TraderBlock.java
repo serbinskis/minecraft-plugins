@@ -54,4 +54,12 @@ public class TraderBlock extends CustomBlock {
     public void remove(Block block, boolean intentional) {
         if (intentional) { Villagers.releaseXp(block, block.getLocation().clone().add(0.5, 0.5, 0.5)); }
     }
+
+    /*@Override
+    public void tick(Block block, long tick) {
+        CrafterInventory inventory = (CrafterInventory) ((Container) block.getState()).getInventory();
+        CraftInventoryCrafter inventory1 = (CraftInventoryCrafter) inventory;
+        inventory1.getResultInventory().setItem(0, Objects.requireNonNull(ReflectionUtils.asNMSCopy(new ItemStack(Material.DIAMOND))));
+        CrafterBlock;
+    }*/
 }

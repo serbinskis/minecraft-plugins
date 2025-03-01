@@ -2,6 +2,8 @@ package me.serbinskis.smptweaks;
 
 import me.serbinskis.smptweaks.commands.Commands;
 import me.serbinskis.smptweaks.library.customblocks.CustomBlocks;
+import me.serbinskis.smptweaks.library.customitems.CustomItems;
+import me.serbinskis.smptweaks.library.customtextures.CustomTextures;
 import me.serbinskis.smptweaks.library.fakeplayer.FakePlayer;
 import me.serbinskis.smptweaks.library.placeholderapi.PlaceholderAPI;
 import me.serbinskis.smptweaks.library.tinyprotocol.TinyProtocol;
@@ -54,6 +56,8 @@ public class Main extends JavaPlugin implements Listener {
 
 		PlaceholderAPI.register();
 		CustomBlocks.start();
+		CustomItems.start();
+		CustomTextures.start();
 		TinyProtocol.start();
 	}
 

@@ -48,6 +48,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Abilities;
 import net.minecraft.world.entity.player.ChatVisiblity;
 import net.minecraft.world.flag.FeatureFlags;
+import net.minecraft.world.inventory.MerchantMenu;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.alchemy.Potion;
@@ -768,8 +769,16 @@ public class ReflectionUtils {
 		}
 	}
 
-	public static void selectTrade(Player player, int slot) {
-		handlePacket(player, new ServerboundSelectTradePacket(slot));
+	public static void selectTrade(Player player, int index) {
+		ServerPlayer entityPlayer = ReflectionUtils.getEntityPlayer(player);
+		((MerchantMenu) entityPlayer.containerMenu).setSelectionHint(index);
+		((MerchantMenu) entityPlayer.containerMenu).tryMoveItems(index);
+	}
+
+	public static void sendMerchantOffers(Player player, Villager villager) {
+		ServerPlayer entityPlayer = ReflectionUtils.getEntityPlayer(player);
+		net.minecraft.world.entity.npc.Villager entityVillager = ReflectionUtils.getEntityVillager(villager);
+		entityPlayer.sendMerchantOffers(entityPlayer.containerMenu.containerId, entityVillager.getOffers(), villager.getVillagerLevel(), villager.getVillagerExperience(), true, true);
 	}
 
 	public static int getAdvancementExperience(Advancement advancement) {

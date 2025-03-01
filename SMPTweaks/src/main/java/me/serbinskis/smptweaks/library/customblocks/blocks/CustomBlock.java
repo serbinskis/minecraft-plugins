@@ -1,6 +1,6 @@
 package me.serbinskis.smptweaks.library.customblocks.blocks;
 
-import me.serbinskis.smptweaks.library.customblocks.textures.TextureSplitter;
+import me.serbinskis.smptweaks.library.customtextures.TextureSplitter;
 import me.serbinskis.smptweaks.utils.PersistentUtils;
 import me.serbinskis.smptweaks.utils.ReflectionUtils;
 import me.serbinskis.smptweaks.Main;

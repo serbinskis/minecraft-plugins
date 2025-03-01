@@ -1,5 +1,7 @@
 package me.serbinskis.smptweaks.library.customblocks;
 
+import me.serbinskis.smptweaks.Main;
+import me.serbinskis.smptweaks.library.customblocks.blocks.CustomBlock;
 import me.serbinskis.smptweaks.library.customblocks.blocks.CustomMarker;
 import me.serbinskis.smptweaks.library.customblocks.commands.Commands;
 import me.serbinskis.smptweaks.library.customblocks.custom.PlayerResetBlock;
@@ -8,13 +10,10 @@ import me.serbinskis.smptweaks.library.customblocks.events.InventoryEvents;
 import me.serbinskis.smptweaks.library.customblocks.events.WorldEvents;
 import me.serbinskis.smptweaks.library.customblocks.test.MovableBlock;
 import me.serbinskis.smptweaks.library.customblocks.test.TestBlock;
-import me.serbinskis.smptweaks.library.customblocks.textures.TextureGenerator;
+import me.serbinskis.smptweaks.library.customtextures.CustomTextures;
 import me.serbinskis.smptweaks.tweaks.CustomTweak;
 import me.serbinskis.smptweaks.utils.PersistentUtils;
-import me.serbinskis.smptweaks.utils.TaskUtils;
 import me.serbinskis.smptweaks.utils.Utils;
-import me.serbinskis.smptweaks.Main;
-import me.serbinskis.smptweaks.library.customblocks.blocks.CustomBlock;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -24,22 +23,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.ShapedRecipe;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.UUID;
 
 public class CustomBlocks extends CustomTweak {
-	public static final String RESOURCE_PACK_PROMPT = "This resource pack is required for custom blocks.";
-	public static String RESOURCE_PACK_URL;
-	public static String RESOURCE_PACK_CDN_URL;
-	public static byte[] RESOURCE_PACK_HASH;
-	public static UUID RESOURCE_PACK_UUID;
 	public static HashMap<String, CustomBlock> REGISTRY_CUSTOM_BLOCKS = new HashMap<>();
 	public static ShapedRecipe EMPTY_RECIPE = new ShapedRecipe(new NamespacedKey(Main.plugin, "f9300cc0c1434e088d114b8869dd379e"), new ItemStack(Material.POISONOUS_POTATO));
-	private static long lastUpdateCdnTime = 0;
 
 	public CustomBlocks() {
 		super(CustomBlocks.class, false, false, true);
@@ -64,55 +52,8 @@ public class CustomBlocks extends CustomTweak {
 			if (customBlock.getRecipe() != null) { Bukkit.addRecipe(customBlock.getRecipe()); }
 		}
 
-		updateTextures(REGISTRY_CUSTOM_BLOCKS.values());
-		TaskUtils.scheduleAsyncRepeatingTask(() -> CustomBlocks.updateTextures(REGISTRY_CUSTOM_BLOCKS.values()), 20L*60*60*24, 20L*60*60*24);
+		CustomTextures.addCustomBlocks(REGISTRY_CUSTOM_BLOCKS.values());
 		CustomMarker.collectUnmarkedBlocks();
-	}
-
-	private static void updateTextures(Collection<CustomBlock> customBlocks) {
-		TextureGenerator generator = new TextureGenerator(customBlocks);
-		RESOURCE_PACK_URL = generator.upload();
-
-		if (RESOURCE_PACK_URL == null) {
-			TaskUtils.scheduleSyncDelayedTask(() -> CustomBlocks.updateTextures(customBlocks), 20L*60*5);
-			Utils.sendMessage("[SMPTweaks] Failed to upload custom resource pack to filebin.net");
-			updateCdnRedirect();
-			return;
-		} else {
-			Utils.sendMessage("[SMPTweaks] Successfully uploaded custom resource pack to: " + RESOURCE_PACK_URL);
-		}
-
-		RESOURCE_PACK_HASH = Utils.getFileHash(generator.generate());
-		RESOURCE_PACK_UUID = UUID.nameUUIDFromBytes(RESOURCE_PACK_HASH);
-		updateCdnRedirect();
-	}
-
-	public static void updateCdnRedirect() {
-		if (System.currentTimeMillis() - lastUpdateCdnTime < 30000) { return; }
-		RESOURCE_PACK_CDN_URL = null;
-		if (RESOURCE_PACK_URL == null) { return; }
-
-		try {
-			HttpURLConnection connection = (HttpURLConnection) new URL(RESOURCE_PACK_URL).openConnection();
-			connection.setRequestMethod("GET");
-			connection.setInstanceFollowRedirects(false);
-			String verified = connection.getHeaderFields().get("Set-Cookie").getFirst();
-			connection.disconnect();
-
-			connection = (HttpURLConnection) new URL(RESOURCE_PACK_URL).openConnection();
-			connection.setRequestMethod("GET");
-			connection.setInstanceFollowRedirects(false);
-			connection.setRequestProperty("Cookie", verified);
-
-			if (connection.getResponseCode() == HttpURLConnection.HTTP_MOVED_TEMP || connection.getResponseCode() == HttpURLConnection.HTTP_MOVED_PERM) {
-				RESOURCE_PACK_CDN_URL = connection.getHeaderField("Location");
-				lastUpdateCdnTime = System.currentTimeMillis();
-			}
-
-			connection.disconnect();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 
 	public static void registerBlock(CustomBlock customBlock) {

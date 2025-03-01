@@ -2,6 +2,7 @@ package me.serbinskis.smptweaks.custom.playerstep;
 
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import me.serbinskis.smptweaks.utils.PersistentUtils;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -25,6 +26,7 @@ public class Events implements Listener {
         if (!PlayerStep.tweak.getGameRuleBoolean(event.getPlayer().getWorld())) { return; }
         if (!event.hasChangedPosition() && !event.hasChangedOrientation()) { return; }
         if (!player.isOnGround() || player.isInsideVehicle() || player.isInWater() || player.isInLava()) { return; }
+        if ((player.getGameMode() == GameMode.SPECTATOR) || player.isOp()) { return; }
         if (!event.getTo().clone().add(0, -0.1f, 0).getBlock().getType().isSolid()) { return; }
         if (PlayerStep.isPlayerStepNearby(event.getTo())) return;
 

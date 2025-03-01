@@ -1,6 +1,7 @@
-package me.serbinskis.smptweaks.library.customblocks.textures;
+package me.serbinskis.smptweaks.library.customtextures;
 
 import me.serbinskis.smptweaks.library.customblocks.blocks.CustomBlock;
+import me.serbinskis.smptweaks.library.customitems.items.CustomItem;
 import me.serbinskis.smptweaks.utils.Utils;
 
 import java.io.ByteArrayOutputStream;
@@ -25,11 +26,14 @@ public class TextureGenerator {
     private final ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream);
     private byte[] texture_pack_data = null;
 
-    public TextureGenerator(Collection<CustomBlock> customBlocks) {
+    public TextureGenerator() {
         zipOutputStream.setLevel(9);
         addZipEntry("pack.mcmeta", PACK_MCMETA.getBytes());
         addZipEntry("pack.png", Base64.getDecoder().decode(PACK_IMAGE));
-        addCustomBlocks(customBlocks);
+    }
+
+    public void addCustomBlocks(Collection<CustomBlock> customBlocks) {
+        customBlocks.forEach(this::addCustomBlock);
     }
 
     public void addCustomBlock(CustomBlock customBlock) {
@@ -38,10 +42,6 @@ public class TextureGenerator {
 
         addBlockTexture(customBlock.getId() + "_0", textures[0]);
         addBlockTexture(customBlock.getId() + "_1", textures[1]);
-    }
-
-    public void addCustomBlocks(Collection<CustomBlock> customBlocks) {
-        customBlocks.forEach(this::addCustomBlock);
     }
 
     private void addBlockTexture(String cid, byte[] texture) {
@@ -75,6 +75,36 @@ public class TextureGenerator {
         addZipEntry("assets/smptweaks/textures/block/" + cid + "/particle.png", blockTexture.particle());
         addZipEntry("assets/smptweaks/models/item/blocks/" + cid + ".json", block_json.getBytes());
         addZipEntry("assets/smptweaks/items/blocks/" + cid + ".json", block_model.getBytes());
+    }
+
+    public void addCustomItems(Collection<CustomItem> customItems) {
+        customItems.forEach(this::addCustomItem);
+    }
+
+    public void addCustomItem(CustomItem customItem) {
+        byte[] texture = customItem.getCustomTextures();
+        if (texture == null) { return; }
+        addItemTexture(customItem.getId() + "_0", texture);
+    }
+
+    private void addItemTexture(String cid, byte[] texture) {
+        String item_json = "{\n" +
+                "\t\"parent\": \"item/handheld\",\n" +
+                "\t\"textures\": {\n" +
+                "        \"layer0\": \"smptweaks:item/" + cid + "\"\n" +
+                "\t}\n" +
+                "}";
+
+        String item_model = "{\n" +
+                "  \"model\": {\n" +
+                "    \"type\": \"model\",\n" +
+                "    \"model\": \"smptweaks:item/" + cid + "\"\n" +
+                "  }\n" +
+                "}";
+
+        addZipEntry("assets/smptweaks/textures/item/" + cid + ".png", texture);
+        addZipEntry("assets/smptweaks/models/item/" + cid + ".json", item_json.getBytes());
+        addZipEntry("assets/smptweaks/items/" + cid + ".json", item_model.getBytes());
     }
 
     private void addZipEntry(String entryName, byte[] buffer) {

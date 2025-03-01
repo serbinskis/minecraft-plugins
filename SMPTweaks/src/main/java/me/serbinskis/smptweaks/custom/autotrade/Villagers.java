@@ -19,13 +19,13 @@ import org.bukkit.inventory.view.MerchantView;
 public class Villagers {
 	public static boolean tradeVillager(Block trader, Villager villager, int trade) {
 		if (!canBuy(AutoTrade.fakePlayer, villager, trade)) { return false; }
-		AutoTrade.fakePlayer.openMerchant(villager, true);
 
 		for (ItemStack item : villager.getRecipes().get(trade).getIngredients()) {
 			item.setAmount(item.getMaxStackSize());
 			AutoTrade.fakePlayer.getInventory().addItem(item);
 		}
 
+		AutoTrade.fakePlayer.openMerchant(villager, true);
 		ReflectionUtils.selectTrade(AutoTrade.fakePlayer, trade);
 		ReflectionUtils.quickMoveStack(AutoTrade.fakePlayer, 2);
 
@@ -46,7 +46,6 @@ public class Villagers {
 		player.openMerchant(villager, true);
 		TradeSelectEvent event = new TradeSelectEvent((MerchantView) player.getOpenInventory(), trade);
 		Bukkit.getPluginManager().callEvent(event);
-
 		player.closeInventory();
 		return (event.getResult() != Result.DENY);
 	}

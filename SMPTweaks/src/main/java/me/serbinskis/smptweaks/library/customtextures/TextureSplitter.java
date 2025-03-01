@@ -1,4 +1,4 @@
-package me.serbinskis.smptweaks.library.customblocks.textures;
+package me.serbinskis.smptweaks.library.customtextures;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
