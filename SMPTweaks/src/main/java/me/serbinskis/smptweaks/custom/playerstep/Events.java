@@ -15,6 +15,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 public class Events implements Listener {
@@ -26,7 +27,8 @@ public class Events implements Listener {
         if (!PlayerStep.tweak.getGameRuleBoolean(event.getPlayer().getWorld())) { return; }
         if (!event.hasChangedPosition() && !event.hasChangedOrientation()) { return; }
         if (!player.isOnGround() || player.isInsideVehicle() || player.isInWater() || player.isInLava()) { return; }
-        if ((player.getGameMode() == GameMode.SPECTATOR) || player.isOp()) { return; }
+        if ((List.of(GameMode.SPECTATOR, GameMode.CREATIVE).contains(player.getGameMode())) || player.isOp()) { return; }
+        if (player.hasPermission("smptweaks.playerstep.ignore")) { return; }
         if (!event.getTo().clone().add(0, -0.1f, 0).getBlock().getType().isSolid()) { return; }
         if (PlayerStep.isPlayerStepNearby(event.getTo())) return;
 
