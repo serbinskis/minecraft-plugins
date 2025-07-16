@@ -1,5 +1,6 @@
 package me.serbinskis.smptweaks.custom.cycletrades;
 
+import com.destroystokyo.paper.entity.villager.ReputationType;
 import io.papermc.paper.event.player.PlayerTradeEvent;
 import me.serbinskis.smptweaks.library.fakeplayer.FakePlayer;
 import me.serbinskis.smptweaks.utils.PersistentUtils;
@@ -14,7 +15,9 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.TradeSelectEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -35,7 +38,16 @@ public class Events implements Listener {
 
 		if (villager.getVillagerLevel() > 1) { return; }
 		if (villager.getVillagerExperience() > 0) { return; }
-		TaskUtils.scheduleSyncDelayedTask(() -> removeCycleTradesButton(villager, event.getPlayer()), 0L);
+
+		//Remove first item, which should be cycle_trade, and replace it with cycle_trade_disabled
+		//When closing inventory it should be removed automatically
+
+		TaskUtils.scheduleSyncDelayedTask(() -> {
+			if (villager.getTrader() == null) { return; }
+			Stream<MerchantRecipe> recipeStream = villager.getRecipes().stream().filter(recipe -> !PersistentUtils.hasPersistentDataBoolean(recipe.getResult(), CycleTrades.CYCLE_ITEM_TAG));
+			villager.setRecipes(Stream.concat(Stream.of(CycleTrades.getMerchantRecipe(true)), recipeStream).toList());
+			ReflectionUtils.sendMerchantOffers(event.getPlayer(), villager);
+		}, 0L);
 	}
 
 	@EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
@@ -60,7 +72,7 @@ public class Events implements Listener {
 		if (villager.getVillagerExperience() > 0) { return; }
 
 		removeCycleTradesButton(villager, null);
-		List<MerchantRecipe> recipes = Stream.concat(Stream.of(CycleTrades.getMerchantRecipe()), villager.getRecipes().stream()).toList();
+		List<MerchantRecipe> recipes = Stream.concat(Stream.of(CycleTrades.getMerchantRecipe(false)), villager.getRecipes().stream()).toList();
 		villager.setRecipes(recipes);
 	}
 
@@ -82,7 +94,39 @@ public class Events implements Listener {
 
 		villager.setRecipes(List.of());
 		villager.addTrades(2);
+		updateSpecialPrices(player, villager);
 		addCycleTradesButton(villager);
 		ReflectionUtils.sendMerchantOffers(player, villager);
+	}
+
+	//Reference: net.minecraft.world.entity.npc.Villager@updateSpecialPrices(Player player)
+	//Reference: net.minecraft.world.entity.ai.gossip.GossipType
+	//They do reset automatically when inventory is closed
+	public static void updateSpecialPrices(Player player, Villager villager) {
+		int playerReputation = villager.getReputation(player.getUniqueId()).getReputation(ReputationType.MAJOR_POSITIVE) * 5;
+		playerReputation -= villager.getReputation(player.getUniqueId()).getReputation(ReputationType.MAJOR_NEGATIVE) * 5;
+		playerReputation += villager.getReputation(player.getUniqueId()).getReputation(ReputationType.MINOR_POSITIVE);
+		playerReputation -= villager.getReputation(player.getUniqueId()).getReputation(ReputationType.MINOR_NEGATIVE);
+		playerReputation += villager.getReputation(player.getUniqueId()).getReputation(ReputationType.TRADING);
+		List<MerchantRecipe> recipes = villager.getRecipes();
+
+		for (MerchantRecipe merchantRecipe : recipes) {
+			if (merchantRecipe.shouldIgnoreDiscounts()) { continue; }
+			int specialPrice = (int) (merchantRecipe.getSpecialPrice() - Math.floor(playerReputation * merchantRecipe.getPriceMultiplier()));
+			merchantRecipe.setSpecialPrice(specialPrice);
+		}
+
+		for (MerchantRecipe merchantRecipe : recipes) {
+			if (!player.hasPotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE)) { continue; }
+			int amplifier = player.getPotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE).getAmplifier();
+			if (merchantRecipe.shouldIgnoreDiscounts()) { continue; }
+			ItemStack baseItem = merchantRecipe.getIngredients().getFirst();
+			int baseCost = (baseItem != null ? baseItem.getAmount() : 0);
+			int i = (int) Math.floor((0.3 + 0.0625 * amplifier) * baseCost);
+			double specialPrice = merchantRecipe.getSpecialPrice() - Math.max(i, 1);
+			merchantRecipe.setSpecialPrice((int) specialPrice);
+		}
+
+		villager.setRecipes(recipes);
 	}
 }

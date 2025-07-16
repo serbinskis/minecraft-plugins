@@ -25,16 +25,18 @@ public class CustomItem {
         return id;
     }
 
-    public void setCustomName(String name) {
+    public CustomItem setCustomName(String name) {
         this.name = name;
+        return this;
     }
 
     public String getCustomName() {
         return name;
     }
 
-    public void setTexture(String texture) {
+    public CustomItem setTexture(String texture) {
         this.texture = texture;
+        return this;
     }
 
     public byte[] getCustomTextures() {
