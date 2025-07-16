@@ -1,6 +1,7 @@
 package me.serbinskis.smptweaks.custom.custompotions.custom;
 
 import me.serbinskis.smptweaks.custom.custompotions.potions.CustomPotion;
+import me.serbinskis.smptweaks.custom.custompotions.potions.UnregisteredPotion;
 import me.serbinskis.smptweaks.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
@@ -22,7 +23,7 @@ import java.util.UUID;
 
 public class WormholePotion extends CustomPotion {
 	public WormholePotion() {
-		super("recall", Material.ENDER_EYE, "wormhole", Color.fromRGB(120, 105, 235));
+		super(UnregisteredPotion.create(RecallPotion.class), Material.ENDER_EYE, "wormhole", Color.fromRGB(120, 105, 235));
 		this.setDisplayName("§r§fPotion of Wormhole");
 		this.setLore(List.of("§9Shoot a player with arrow and then use the potion."));
 		this.setTippedArrow(true, "§r§fArrow of Wormhole");

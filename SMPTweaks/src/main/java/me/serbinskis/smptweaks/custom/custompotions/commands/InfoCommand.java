@@ -1,5 +1,6 @@
 package me.serbinskis.smptweaks.custom.custompotions.commands;
 
+import me.serbinskis.smptweaks.custom.custompotions.potions.PotionManager;
 import me.serbinskis.smptweaks.tweaks.CustomTweak;
 import me.serbinskis.smptweaks.utils.Utils;
 import me.serbinskis.smptweaks.custom.custompotions.CustomPotions;
@@ -20,7 +21,7 @@ public class InfoCommand {
 			return true;
 		}
 
-		CustomPotion potion = CustomPotions.manager.getCustomPotion(args[0].toLowerCase());
+		CustomPotion potion = PotionManager.getCustomPotion(args[0].toLowerCase());
 
 		if ((potion == null) || !potion.isEnabled()) {
 			Utils.sendMessage(sender, Commands.NO_POTION);
@@ -31,7 +32,7 @@ public class InfoCommand {
 		String displayName = ChatColor.stripColor(potion.getDisplayName());
 		String description = ChatColor.stripColor(potion.getLore().get(0));
 		String ingredient = (potion.getMaterial() != null) ? Utils.getMaterialName(potion.getMaterial()) : "Unknown";
-		String basePotion = Utils.toTitleCase(potion.getBaseName().replaceAll("_", " "));
+		String basePotion = Utils.toTitleCase(potion.getBase().getName().replaceAll("_", " "));
 		String potionEffect = (potion.getPotionEffect() != null) ? Utils.toTitleCase(potion.getPotionEffect().getType().getName().replaceAll("_", " ").toString()) : "None";
 		String allowArrow = potion.getAllowTippedArrow() ? "Yes" : "No";
 		String allowTrade = potion.getAllowVillagerTrades() ? "Yes" : "No";
@@ -53,8 +54,8 @@ public class InfoCommand {
 		if (args.length == 2) {
 			List<String> potions = new ArrayList<>();
 
-			for (String name : CustomPotions.manager.getPotionSet()) {
-				if (!CustomPotions.manager.getCustomPotion(name).isEnabled()) { continue; }
+			for (String name : PotionManager.getPotionSet()) {
+				if (!PotionManager.getCustomPotion(name).isEnabled()) { continue; }
 				potions.add(name);
 			}
 

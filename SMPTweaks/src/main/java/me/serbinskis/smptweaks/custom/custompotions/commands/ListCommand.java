@@ -1,5 +1,6 @@
 package me.serbinskis.smptweaks.custom.custompotions.commands;
 
+import me.serbinskis.smptweaks.custom.custompotions.potions.PotionManager;
 import me.serbinskis.smptweaks.tweaks.CustomTweak;
 import me.serbinskis.smptweaks.utils.Utils;
 import me.serbinskis.smptweaks.custom.custompotions.CustomPotions;
@@ -17,8 +18,8 @@ public class ListCommand {
 		List<String> names = new ArrayList<>();
 		int size = 0;
 
-		for (String name : CustomPotions.manager.getPotionSet()) {
-			if (!CustomPotions.manager.getCustomPotion(name).isEnabled()) { continue; }
+		for (String name : PotionManager.getPotionSet()) {
+			if (!PotionManager.getCustomPotion(name).isEnabled()) { continue; }
 			if (size+name.length() >= MAX_TEXT_LENGTH) { break; }
 			size += name.length()+2;
 			names.add(Utils.toTitleCase(name.replaceAll("_", " ")));

@@ -1,6 +1,7 @@
 package me.serbinskis.smptweaks.custom.custompotions.custom;
 
 import me.serbinskis.smptweaks.custom.custompotions.potions.CustomPotion;
+import me.serbinskis.smptweaks.custom.custompotions.potions.VanillaPotion;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -14,7 +15,7 @@ import java.util.List;
 
 public class ExplosionPotion extends CustomPotion {
 	public ExplosionPotion() {
-		super(PotionType.AWKWARD, Material.TNT, "explosion", Color.fromRGB(255, 0, 0));
+		super(VanillaPotion.create(PotionType.AWKWARD), Material.TNT, "explosion", Color.fromRGB(255, 0, 0));
 		this.setDisplayName("§r§fPotion of Explosion");
 		this.setLore(List.of("§9Creates an explosion"));
 		this.setTippedArrow(true, "§r§fArrow of Explosion");

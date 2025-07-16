@@ -1,6 +1,7 @@
 package me.serbinskis.smptweaks.custom.custompotions.custom;
 
 import me.serbinskis.smptweaks.custom.custompotions.potions.CustomPotion;
+import me.serbinskis.smptweaks.custom.custompotions.potions.UnregisteredPotion;
 import me.serbinskis.smptweaks.utils.ReflectionUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -11,7 +12,7 @@ import java.util.List;
 
 public class RecallPotion extends CustomPotion {
 	public RecallPotion() {
-		super("amethyst", Material.CHORUS_FRUIT, "recall", Color.fromRGB(23, 193, 224));
+		super(UnregisteredPotion.create(AmethystPotion.class), Material.CHORUS_FRUIT, "recall", Color.fromRGB(23, 193, 224));
 		this.setDisplayName("§r§fPotion of Recalling");
 		this.setLore(List.of("§9Teleports to Spawnpoint"));
 		this.setTippedArrow(true, "§r§fArrow of Recalling");

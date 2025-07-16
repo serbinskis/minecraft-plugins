@@ -2,6 +2,7 @@ package me.serbinskis.smptweaks.utils;
 
 import com.google.common.reflect.ClassPath;
 import com.mojang.authlib.GameProfile;
+import com.mojang.logging.LogUtils;
 import io.netty.channel.*;
 import io.netty.channel.embedded.EmbeddedChannel;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -17,6 +18,7 @@ import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.Connection;
@@ -39,6 +41,7 @@ import net.minecraft.server.network.ServerConnectionListener;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity.RemovalReason;
 import net.minecraft.world.entity.PortalProcessor;
@@ -73,6 +76,8 @@ import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.level.redstone.ExperimentalRedstoneUtils;
 import net.minecraft.world.level.redstone.NeighborUpdater;
 import net.minecraft.world.level.redstone.Orientation;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.loot.LootTable;
 import org.bukkit.*;
 import org.bukkit.advancement.Advancement;
@@ -89,6 +94,7 @@ import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.player.PlayerAdvancementDoneEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionType;
@@ -361,6 +367,10 @@ public class ReflectionUtils {
 		}
 	}
 
+	public static Object newInstance(Class<?> clazz, Class<?>[] parameters, Object[] args) {
+		return newInstance(clazz, parameters, args, false, false);
+	}
+
 	public static Object newInstance(Class<?> clazz, Class<?>[] parameters, Object[] args, boolean isPrivate, boolean verbose) {
 		try {
 			if (parameters == null) { parameters = new Class<?>[] {}; }
@@ -538,7 +548,9 @@ public class ReflectionUtils {
 	}
 
 	public static World getRespawnWorld(Player player) {
-		return MinecraftServer.getServer().getLevel(getEntityPlayer(player).getRespawnDimension()).getWorld();
+		ServerPlayer.RespawnConfig respawnConfig = getEntityPlayer(player).getRespawnConfig();
+		ResourceKey<Level> dimension = (respawnConfig != null) ? respawnConfig.dimension() : Level.OVERWORLD;
+		return MinecraftServer.getServer().getLevel(dimension).getWorld();
 	}
 
 	//Get block destroy time per tick which is based on player
@@ -661,7 +673,7 @@ public class ReflectionUtils {
 			public void send(@NotNull Packet<?> packet, @org.jetbrains.annotations.Nullable PacketSendListener callbacks) {}
 		};
 
-		entityPlayer.connection.connection.setupInboundProtocol(GameProtocols.SERVERBOUND_TEMPLATE.bind(RegistryFriendlyByteBuf.decorator(MinecraftServer.getServer().registries().compositeAccess())), entityPlayer.connection);
+		entityPlayer.connection.connection.setupInboundProtocol(GameProtocols.SERVERBOUND_TEMPLATE.bind(RegistryFriendlyByteBuf.decorator(MinecraftServer.getServer().registries().compositeAccess()), entityPlayer.connection), entityPlayer.connection);
 		entityPlayer.connection.connection.address = new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 0);
 
 		Player player = (Player) getBukkitEntity(entityPlayer);
@@ -905,11 +917,11 @@ public class ReflectionUtils {
 	}
 
 	//!!! This will soft lock the game, because FUCKING MOJANG cannot decode custom potion tag client side
-	public static ItemStack setPotionTag(ItemStack item, String name) {
+	/*public static ItemStack setPotionTag(ItemStack item, String name) {
 		return setItemNbt(item, List.of("components", "minecraft:potion_contents", "potion"), name);
-	}
+	}*/
 
-	public static Object fakePotionTags(Object pck, String potionTag, Predicate<ItemStack> predicate) {
+	/*public static Object fakePotionTags(Object pck, String potionTag, Predicate<ItemStack> predicate) {
 		if (pck instanceof ClientboundContainerSetSlotPacket packet) {
 			ItemStack itemStack = asBukkitMirror(packet.getItem());
 			if (!predicate.test(itemStack)) { return packet; }
@@ -918,9 +930,9 @@ public class ReflectionUtils {
 		}
 
 		if (pck instanceof ClientboundContainerSetContentPacket packet) {
-			ItemStack carriedItem = asBukkitMirror(packet.getCarriedItem());
+			ItemStack carriedItem = asBukkitMirror(packet.carriedItem());
 
-			net.minecraft.world.item.ItemStack[] collect = packet.getItems().stream().map(e -> {
+			net.minecraft.world.item.ItemStack[] collect = packet.items().stream().map(e -> {
 				ItemStack itemStack = asBukkitMirror(e);
 				if (!predicate.test(itemStack)) { return e; }
 				return asNMSCopy(setPotionTag(itemStack, potionTag));
@@ -929,11 +941,11 @@ public class ReflectionUtils {
 			if (predicate.test(carriedItem)) { carriedItem = setPotionTag(carriedItem, potionTag); }
 			net.minecraft.world.item.ItemStack nmsStack = Objects.requireNonNull(asNMSCopy(carriedItem));
 			NonNullList<net.minecraft.world.item.ItemStack> contents = NonNullList.of(net.minecraft.world.item.ItemStack.EMPTY, collect);
-			return new ClientboundContainerSetContentPacket(packet.getContainerId(), packet.getStateId(), contents, nmsStack);
+			return new ClientboundContainerSetContentPacket(packet.containerId(), packet.stateId(), contents, nmsStack);
 		}
 
 		return pck;
-	}
+	}*/
 
 	public static <E> Registry<E> getRegistry(ResourceKey<? extends Registry<? extends E>> key) {
 		return MinecraftServer.getServer().registries().compositeAccess().lookupOrThrow(key);
@@ -1120,7 +1132,7 @@ public class ReflectionUtils {
 		return itemFrames;
 	}
 
-	public static <T> T getItemNbt(ItemStack itemStack, List<String> location) {
+	/*public static <T> T getItemNbt(ItemStack itemStack, List<String> location) {
 		if (location.isEmpty()) { return null; }
 		location = new ArrayList<>(location); //Convert list to mutable list
 		net.minecraft.world.item.ItemStack item = Objects.requireNonNull(asNMSCopy(itemStack));
@@ -1144,9 +1156,9 @@ public class ReflectionUtils {
 		if (tag.getTagType(location.getFirst()) == Tag.TAG_INT_ARRAY) { return (T) tag.getIntArray(location.getFirst()); }
 		if (tag.getTagType(location.getFirst()) == Tag.TAG_LONG_ARRAY) { return (T) tag.getLongArray(location.getFirst()); }
 		return null;
-	}
+	}*/
 
-	public static ItemStack setItemNbt(ItemStack itemStack, List<String> location, Object value) {
+	/*public static ItemStack setItemNbt(ItemStack itemStack, List<String> location, Object value) {
 		if (location.isEmpty()) { return null; }
 		location = new ArrayList<>(location); //Convert list to mutable list
 		net.minecraft.world.item.ItemStack item = Objects.requireNonNull(asNMSCopy(itemStack));
@@ -1174,7 +1186,7 @@ public class ReflectionUtils {
 
 		net.minecraft.world.item.ItemStack itemStack1 = net.minecraft.world.item.ItemStack.parseOptional(MinecraftServer.getServer().registryAccess(), original);
 		return asBukkitMirror(itemStack1);
-	}
+	}*/
 
 	public static void setBlockNbt(org.bukkit.block.Block block, String name, Object value, boolean applyPhysics) {
 		BlockPos blockPos = new BlockPos(block.getX(), block.getY(), block.getZ());
@@ -1190,7 +1202,9 @@ public class ReflectionUtils {
 		if (value.getClass().equals(Integer.class)) { tag.putInt(name, (Integer) value); }
 		if (value.getClass().equals(String.class)) { tag.putString(name, (String) value); }
 
-		blockEntity.loadWithComponents(tag, MinecraftServer.getServer().registryAccess()); //Loading NBT doesn't trigger physics update of block itself
+		ProblemReporter.ScopedCollector scopedCollector = new ProblemReporter.ScopedCollector(LogUtils.getLogger());
+
+		blockEntity.loadWithComponents(TagValueInput.create(scopedCollector, MinecraftServer.getServer().registryAccess(), tag)); //Loading NBT doesn't trigger physics update of block itself
 		if (applyPhysics) { blockEntity.setChanged(); } //This only updates block around (AND IT DOESN'T WORK, FUCK YOU MOJANG)
 		if (applyPhysics) { NeighborUpdater.executeUpdate(serverLevel, blockEntity.getBlockState(), blockPos, blockEntity.getBlockState().getBlock(), null, true); }
 	}
@@ -1310,7 +1324,7 @@ public class ReflectionUtils {
 		DispenserBlockEntity tileentitydispenser = serverLevel.getBlockEntity(blockPos, BlockEntityType.DISPENSER).orElse(null);
 		BlockSource blockSource = new BlockSource(serverLevel, blockPos, blockState, tileentitydispenser);
 
-		DispenseItemBehavior dispenseItemBehavior = (source.getType() == Material.DISPENSER) ? DispenserBlock.DISPENSER_REGISTRY.get(asNMSCopy(drop).getItem()) : new DefaultDispenseItemBehavior(true);
+		DispenseItemBehavior dispenseItemBehavior = (source.getType() == Material.DISPENSER) ? DispenserBlock.DISPENSER_REGISTRY.get(asNMSCopy(drop).getItem()) : new DefaultDispenseItemBehavior();
 		net.minecraft.world.item.ItemStack result = dispenseItemBehavior.dispense(blockSource, asNMSCopy(drop));
 		if (result.getCount() == drop.getAmount()) { return false; } //It failed to dispense or item was modified inside called event
 
@@ -1479,7 +1493,7 @@ public class ReflectionUtils {
 	}
 
 	//This is very unstable and can produce server crash, use only in WorldInitEvent
-	public static void setCustomDimension(World world, @Nullable DimensionType copy, @Nullable World.Environment env, @Nullable Long fixedTime, @Nullable Boolean hasSkyLight, @Nullable Boolean hasCeiling, @Nullable Boolean ultraWarm, @Nullable Boolean natural, @Nullable Double coordinateScale, @Nullable Boolean bedWorks, @Nullable Boolean respawnAnchorWorks, @Nullable Integer minY, @Nullable Integer height, @Nullable Integer logicalHeight, @Nullable TagKey<Block> infiniburn, @Nullable ResourceLocation effectsLocation, @Nullable Float ambientLight, @Nullable DimensionType.MonsterSettings monsterSettings) {
+	/*public static void setCustomDimension(World world, @Nullable DimensionType copy, @Nullable World.Environment env, @Nullable Long fixedTime, @Nullable Boolean hasSkyLight, @Nullable Boolean hasCeiling, @Nullable Boolean ultraWarm, @Nullable Boolean natural, @Nullable Double coordinateScale, @Nullable Boolean bedWorks, @Nullable Boolean respawnAnchorWorks, @Nullable Integer minY, @Nullable Integer height, @Nullable Integer logicalHeight, @Nullable TagKey<Block> infiniburn, @Nullable ResourceLocation effectsLocation, @Nullable Float ambientLight, @Nullable DimensionType.MonsterSettings monsterSettings) {
 		ServerLevel level = getWorld(world);
 		DimensionType original = level.dimensionType();
 
@@ -1531,7 +1545,7 @@ public class ReflectionUtils {
 			Object entityLookup = newInstance(PaperUtils.ServerEntityLookup, new Class[]{ ServerLevel.class, LevelCallback.class }, new Object[]{ level, callback }, true, true);
 			setValue(Level_entityLookup, level, entityLookup);
 		}
-	}
+	}*/
 
 	public static List<String> getBiomes(String exnamespace) {
 		ArrayList<ResourceLocation> resourceLocations = new ArrayList<>(getRegistry(Registries.BIOME).keySet());
@@ -1591,7 +1605,7 @@ public class ReflectionUtils {
 		return customBiome;
 	}
 
-	public static void fillChunk(Chunk chunk, Material material, boolean removeEntity, boolean refresh) {
+	/*public static void fillChunk(Chunk chunk, Material material, boolean removeEntity, boolean refresh) {
 		if (!chunk.isLoaded()) { return; }
 
 		if (removeEntity) {
@@ -1622,7 +1636,7 @@ public class ReflectionUtils {
 			Collection<Entity> players = Utils.getNearbyEntities(chunk.getBlock(8, 0, 8).getLocation(), EntityType.PLAYER, Bukkit.getViewDistance()*16, true);
 			players.stream().map(Player.class::cast).forEach(e -> sendPacket(e, npacket));
 		}
-	}
+	}*/
 
 	public static float getLocalDifficulty(Player player, boolean real) {
 		Difficulty difficulty = player.getWorld().getDifficulty();

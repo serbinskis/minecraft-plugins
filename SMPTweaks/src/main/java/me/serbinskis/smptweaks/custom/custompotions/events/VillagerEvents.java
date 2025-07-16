@@ -2,6 +2,7 @@ package me.serbinskis.smptweaks.custom.custompotions.events;
 
 import me.serbinskis.smptweaks.custom.custompotions.CustomPotions;
 import me.serbinskis.smptweaks.custom.custompotions.potions.CustomPotion;
+import me.serbinskis.smptweaks.custom.custompotions.potions.PotionManager;
 import me.serbinskis.smptweaks.utils.ReflectionUtils;
 import me.serbinskis.smptweaks.utils.Utils;
 import org.bukkit.GameMode;
@@ -27,7 +28,7 @@ import java.util.Random;
 
 public class VillagerEvents implements Listener {
 	List<Material> potionTypes = Arrays.asList(Material.POTION, Material.SPLASH_POTION, Material.LINGERING_POTION);
-	public List<String> vanilla = ReflectionUtils.getVanillaPotions(true, false, CustomPotions.manager::isCustomPotion);
+	public List<String> vanilla = ReflectionUtils.getVanillaPotions(true, false, PotionManager::isCustomPotion);
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onVillagerAcquireTradeEvent(VillagerAcquireTradeEvent event) {
@@ -55,10 +56,11 @@ public class VillagerEvents implements Listener {
 		event.setCancelled(true);
 	}
 
+	//If potion is disabled, but we still have villager that have it, prevent trade selection
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onTradeSelectEvent(TradeSelectEvent event) {
 		MerchantRecipe recipe = event.getMerchant().getRecipe(event.getIndex());
-		CustomPotion customPotion = CustomPotions.manager.getCustomPotion(recipe.getResult());
+		CustomPotion customPotion = PotionManager.getCustomPotion(recipe.getResult());
 		if (customPotion == null) { return; }
 
 		boolean canBuy = customPotion.isEnabled() && customPotion.getAllowVillagerTrades();
@@ -69,22 +71,14 @@ public class VillagerEvents implements Listener {
 		event.setResult(Result.DENY);
 	}
 
+	//In case if new trade tipped arrow, then with random cache we replace it with custom potion arrow
 	public void villagerAcquireTradeFletcher(VillagerAcquireTradeEvent event) {
 		if (event.getRecipe().getResult().getType() != Material.TIPPED_ARROW) { return; }
-		boolean isCustom = !event.getRecipe().getResult().hasItemMeta();
-		boolean isChance = !(new Random().nextInt(100)+1 >= CustomPotions.tradingArrowChance);
+		if (new Random().nextInt(100)+1 >= CustomPotions.tradingArrowChance) { return; }
 
-		List<CustomPotion> potions = CustomPotions.manager.getPotions(false);
+		List<CustomPotion> potions = PotionManager.getPotions(false);
 		potions.removeIf(potion -> !potion.getAllowTippedArrow() || !potion.getAllowVillagerTrades());
-		ItemStack arrow;
-
-		if (!potions.isEmpty() && isChance) {
-			CustomPotion customPotion = potions.get(new Random().nextInt(potions.size()));
-			arrow = customPotion.getTippedArrow(true, event.getRecipe().getResult().getAmount());
-		} else if (isCustom) {
-			String vanillaPotion = vanilla.get(new Random().nextInt(vanilla.size()));
-			arrow = ReflectionUtils.setPotionTag(event.getRecipe().getResult(), "minecraft:" + vanillaPotion);
-		} else { return; }
+		if (potions.isEmpty()) { return; }
 
 		int uses = event.getRecipe().getUses();
 		int maxUses = event.getRecipe().getMaxUses();
@@ -94,21 +88,21 @@ public class VillagerEvents implements Listener {
 		int demand = event.getRecipe().getDemand();
 		int specialPrice = event.getRecipe().getSpecialPrice();
 
+		CustomPotion customPotion = potions.get(new Random().nextInt(potions.size()));
+		ItemStack arrow = customPotion.getTippedArrow(true, event.getRecipe().getResult().getAmount());
 		MerchantRecipe recipe = new MerchantRecipe(arrow, uses, maxUses, experienceReward, villagerExperience, priceMultiplier, demand, specialPrice);
 		recipe.setIngredients(event.getRecipe().getIngredients());
 		event.setRecipe(recipe);
 	}
 
+	//In case if new trade contains experience bottle, then with random cache we replace it with custom potion
 	public void villagerAcquireTradeCleric(VillagerAcquireTradeEvent event) {
 		if (event.getRecipe().getResult().getType() != Material.EXPERIENCE_BOTTLE) { return; }
 		if (new Random().nextInt(100)+1 >= CustomPotions.tradingPotionChance) { return; }
 
-		List<CustomPotion> potions = CustomPotions.manager.getPotions(false);
+		List<CustomPotion> potions = PotionManager.getPotions(false);
 		potions.removeIf(potion -> !potion.getAllowVillagerTrades());
-
 		if (potions.isEmpty()) { return; }
-		CustomPotion customPotion = potions.get(new Random().nextInt(potions.size()));
-		ItemStack potion = customPotion.setProperties(new ItemStack(potionTypes.get(new Random().nextInt(potionTypes.size()))), false);
 
 		int uses = event.getRecipe().getUses();
 		int maxUses = event.getRecipe().getMaxUses();
@@ -118,6 +112,8 @@ public class VillagerEvents implements Listener {
 		int demand = event.getRecipe().getDemand();
 		int specialPrice = event.getRecipe().getSpecialPrice();
 
+		CustomPotion customPotion = potions.get(new Random().nextInt(potions.size()));
+		ItemStack potion = customPotion.setProperties(new ItemStack(potionTypes.get(new Random().nextInt(potionTypes.size()))));
 		MerchantRecipe recipe = new MerchantRecipe(potion, uses, maxUses, experienceReward, villagerExperience, priceMultiplier, demand, specialPrice);
 		recipe.setIngredients(event.getRecipe().getIngredients());
 		event.setRecipe(recipe);

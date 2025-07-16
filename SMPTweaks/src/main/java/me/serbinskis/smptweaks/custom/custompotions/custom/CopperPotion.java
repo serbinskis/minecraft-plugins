@@ -1,6 +1,7 @@
 package me.serbinskis.smptweaks.custom.custompotions.custom;
 
 import me.serbinskis.smptweaks.custom.custompotions.potions.CustomPotion;
+import me.serbinskis.smptweaks.custom.custompotions.potions.UnregisteredPotion;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -17,7 +18,7 @@ import java.util.Random;
 
 public class CopperPotion extends CustomPotion {
 	public CopperPotion() {
-		super("amethyst", Material.COPPER_INGOT, "copper", Color.fromRGB(231, 124, 86));
+		super(UnregisteredPotion.create(AmethystPotion.class), Material.COPPER_INGOT, "copper", Color.fromRGB(231, 124, 86));
 		this.setDisplayName("§r§fPotion of Copper");
 		this.setLore(List.of("§9Use when thunder"));
 		this.setTippedArrow(true, "§r§fArrow of Copper");

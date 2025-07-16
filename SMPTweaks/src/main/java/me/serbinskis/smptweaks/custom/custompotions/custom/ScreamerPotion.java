@@ -1,6 +1,7 @@
 package me.serbinskis.smptweaks.custom.custompotions.custom;
 
 import me.serbinskis.smptweaks.custom.custompotions.potions.CustomPotion;
+import me.serbinskis.smptweaks.custom.custompotions.potions.UnregisteredPotion;
 import me.serbinskis.smptweaks.utils.TaskUtils;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -24,7 +25,7 @@ import java.util.List;
 
 public class ScreamerPotion extends CustomPotion {
 	public ScreamerPotion() {
-		super("amethyst", Material.WITHER_SKELETON_SKULL, "screamer", Color.fromRGB(0, 0, 0));
+		super(UnregisteredPotion.create(AmethystPotion.class), Material.WITHER_SKELETON_SKULL, "screamer", Color.fromRGB(0, 0, 0));
 		this.setDisplayName("§r§fPotion of Screamer");
 		this.setLore(List.of("§9Drop this on a friend"));
 		this.setTippedArrow(true, "§r§fArrow of Screamer");

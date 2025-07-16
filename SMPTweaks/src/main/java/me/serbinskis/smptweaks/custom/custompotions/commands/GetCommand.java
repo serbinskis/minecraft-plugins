@@ -3,6 +3,7 @@ package me.serbinskis.smptweaks.custom.custompotions.commands;
 import me.serbinskis.smptweaks.Main;
 import me.serbinskis.smptweaks.custom.custompotions.CustomPotions;
 import me.serbinskis.smptweaks.custom.custompotions.potions.CustomPotion;
+import me.serbinskis.smptweaks.custom.custompotions.potions.PotionManager;
 import me.serbinskis.smptweaks.tweaks.CustomTweak;
 import me.serbinskis.smptweaks.utils.Utils;
 import org.bukkit.GameMode;
@@ -40,7 +41,7 @@ public class GetCommand {
 		}
 
 		ItemStack item = new ItemStack(Material.AIR);
-		CustomPotion potion = CustomPotions.manager.getCustomPotion(args[0].toLowerCase());
+		CustomPotion potion = PotionManager.getCustomPotion(args[0].toLowerCase());
 
 		if ((potion == null) || !potion.isEnabled()) {
 			Utils.sendMessage(sender, Commands.NO_POTION);
@@ -50,15 +51,15 @@ public class GetCommand {
 		switch (args[1].toLowerCase()) {
 			case "potion":
 				item.setType(Material.POTION);
-				item = potion.setProperties(item, false);
+				item = potion.setProperties(item);
 				break;
 			case "splash":
 				item.setType(Material.SPLASH_POTION);
-				item = potion.setProperties(item, false);
+				item = potion.setProperties(item);
 				break;
 			case "lingering":
 				item.setType(Material.LINGERING_POTION);
-				item = potion.setProperties(item, false);
+				item = potion.setProperties(item);
 				break;
 			case "arrow":
 				item = potion.getTippedArrow(false, 64);
@@ -80,8 +81,8 @@ public class GetCommand {
 		if (args.length == 2) {
 			ArrayList<String> potions = new ArrayList<>();
 
-			for (String name : CustomPotions.manager.getPotionSet()) {
-				if (!CustomPotions.manager.getCustomPotion(name).isEnabled()) { continue; }
+			for (String name : PotionManager.getPotionSet()) {
+				if (!PotionManager.getCustomPotion(name).isEnabled()) { continue; }
 				potions.add(name);
 			}
 

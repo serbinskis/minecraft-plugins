@@ -2,6 +2,7 @@ package me.serbinskis.smptweaks.custom.custompotions.custom;
 
 import me.serbinskis.smptweaks.custom.custompotions.potions.CustomPotion;
 import me.serbinskis.smptweaks.custom.custompotions.potions.PotionManager;
+import me.serbinskis.smptweaks.custom.custompotions.potions.UnregisteredPotion;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -23,7 +24,7 @@ import java.util.Random;
 
 public class LightingPotion extends CustomPotion {
 	public LightingPotion() {
-		super("copper", null, "lighting", Color.fromRGB(197, 235, 252));
+		super(UnregisteredPotion.create(CopperPotion.class), null, "lighting", Color.fromRGB(197, 235, 252));
 		this.setDisplayName("§r§fPotion of Lighting");
 		this.setLore(List.of("§9Strike brewing stand with lighting"));
 		this.setTippedArrow(true, "§r§fArrow of Lighting");
@@ -66,6 +67,6 @@ public class LightingPotion extends CustomPotion {
 		Block rod = event.getLightning().getLocation().getBlock().getRelative(BlockFace.DOWN);
 		Block block = (rod.getType() == Material.LIGHTNING_ROD) ? getAttached(rod) : brewing;
 		if (block.getType() != Material.BREWING_STAND) { return; }
-		PotionManager.convertPotion("copper", "lighting", (BrewingStand) block.getState());
+		PotionManager.convertPotion(getBase().getName(), getName(), (BrewingStand) block.getState());
 	}
 }

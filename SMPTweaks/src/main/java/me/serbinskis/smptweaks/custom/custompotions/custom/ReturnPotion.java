@@ -1,6 +1,7 @@
 package me.serbinskis.smptweaks.custom.custompotions.custom;
 
 import me.serbinskis.smptweaks.custom.custompotions.potions.CustomPotion;
+import me.serbinskis.smptweaks.custom.custompotions.potions.UnregisteredPotion;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -13,7 +14,7 @@ import java.util.List;
 
 public class ReturnPotion extends CustomPotion {
 	public ReturnPotion() {
-		super("recall", Material.ENDER_EYE, "return", Color.fromRGB(129, 111, 179));
+		super(UnregisteredPotion.create(RecallPotion.class), Material.ENDER_EYE, "return", Color.fromRGB(129, 111, 179));
 		this.setDisplayName("§r§fPotion of Return");
 		this.setLore(List.of("§9Teleports to Deathpoint"));
 		this.setTippedArrow(true, "§r§fArrow of Return");

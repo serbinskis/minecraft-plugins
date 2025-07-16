@@ -21,7 +21,7 @@ import org.bukkit.event.server.ServerLoadEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin implements Listener {
-	public static boolean DEBUG_MODE = System.getenv("computername").equalsIgnoreCase("WOBBYCHIP-PC");
+	public static boolean DEBUG_MODE = System.getenv("computername").equalsIgnoreCase("SERBIX-PC");
 	public static Sound DENY_SOUND_EFFECT = Sound.BLOCK_NOTE_BLOCK_HARP;
 	public static char SYM_COLOR = '§';
 	public static String TWEAKS_PACKAGE = "me.serbinskis.smptweaks";

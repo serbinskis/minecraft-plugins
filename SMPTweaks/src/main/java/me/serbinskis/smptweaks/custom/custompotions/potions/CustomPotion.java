@@ -1,10 +1,12 @@
 package me.serbinskis.smptweaks.custom.custompotions.potions;
 
+import io.papermc.paper.potion.PotionMix;
+import me.serbinskis.smptweaks.Main;
 import me.serbinskis.smptweaks.utils.PersistentUtils;
-import me.serbinskis.smptweaks.utils.ReflectionUtils;
 import me.serbinskis.smptweaks.custom.custompotions.CustomPotions;
 import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.LivingEntity;
@@ -16,19 +18,17 @@ import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerPickupArrowEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class CustomPotion implements Listener {
-	public static String PLACEHOLDER_POTION = "minecraft:awkward";
 	private boolean enabled = true;
-	private Object base;
-	private String cbase;
+	private CustomPotion base;
 	private final Material ingredient;
 	private final String name;
 	private final Color color;
@@ -41,21 +41,13 @@ public class CustomPotion implements Listener {
 	private PotionEffect arrowEffect;
 	private PotionEffect cloudEffect;
 
-	public CustomPotion(String base, Material ingredient, String name, Color color) {
-		this((Object) null, ingredient, name, color);
-		this.cbase = base;
-	}
-
-	public CustomPotion(PotionType potionType, Material ingredient, String name, Color color) {
-		this(PotionManager.getPotion(potionType), ingredient, name, color);
-	}
-
-	public CustomPotion(Object base, Material ingredient, String name, Color color) {
+	public CustomPotion(CustomPotion base, Material ingredient, String name, Color color) {
 		this.base = base;
 		this.ingredient = ingredient;
 		this.name = name;
 		this.color = color;
 
+		if (name == null) { return; }
 		if (!CustomPotions.config.getConfig().isConfigurationSection("potions")) { CustomPotions.config.getConfig().createSection("potions"); }
 		ConfigurationSection section = CustomPotions.config.getConfig().getConfigurationSection("potions");
 
@@ -89,12 +81,8 @@ public class CustomPotion implements Listener {
 		return enabled;
 	}
 
-	public Object getBase() {
+	public CustomPotion getBase() {
 		return base;
-	}
-
-	public String getBaseName() {
-		return (base != null) ? ReflectionUtils.getPotionRegistryName(base) : cbase;
 	}
 
 	public String getPrefix(Material material) {
@@ -110,6 +98,33 @@ public class CustomPotion implements Listener {
 		if (material == Material.SPLASH_POTION) { return result + "Splash "; }
 		if (material == Material.LINGERING_POTION) { return result + "Lingering "; }
 		return "";
+	}
+
+	public List<PotionMix> getPotionMixes() {
+		List<PotionMix> potionMixes = new LinkedList<>();
+
+		//Base Potion + Material = New Custom Potion
+		//Base Splash Potion + Material = New Custom Splash Potion
+		//Base Lingering Potion + Material = New Custom Lingering Potion
+
+		for (Material material : List.of(Material.POTION, Material.SPLASH_POTION, Material.LINGERING_POTION)) {
+			if (ingredient == null) { break; }
+			RecipeChoice predicateChoice = PotionMix.createPredicateChoice((input) -> input.getType().equals(material) && base.isCustomPotion(input));
+			NamespacedKey namespacedKey = new NamespacedKey(Main.plugin.getName().toLowerCase() + "_" + material.name().toLowerCase(), this.getName());
+			potionMixes.add(new PotionMix(namespacedKey, setProperties(new ItemStack(material)), predicateChoice, new RecipeChoice.MaterialChoice(ingredient)));
+		}
+
+		//Custom Potion + Gunpowder = Custom Splash Potion
+		RecipeChoice predicateChoice1 = PotionMix.createPredicateChoice((input) -> input.getType().equals(Material.POTION) && isCustomPotion(input));
+		NamespacedKey namespacedKey1 = new NamespacedKey(Main.plugin.getName().toLowerCase() + Material.GUNPOWDER.name().toLowerCase(), this.getName());
+		potionMixes.add(new PotionMix(namespacedKey1, setProperties(new ItemStack(Material.SPLASH_POTION)), predicateChoice1, new RecipeChoice.MaterialChoice(Material.GUNPOWDER)));
+
+		//Custom Splash Potion + Dragon breath = Custom Lingering Potion
+		RecipeChoice predicateChoice2 = PotionMix.createPredicateChoice((input) -> input.getType().equals(Material.SPLASH_POTION) && isCustomPotion(input));
+		NamespacedKey namespacedKey2 = new NamespacedKey(Main.plugin.getName().toLowerCase() + Material.DRAGON_BREATH.name().toLowerCase(), this.getName());
+		potionMixes.add(new PotionMix(namespacedKey2, setProperties(new ItemStack(Material.LINGERING_POTION)), predicateChoice2, new RecipeChoice.MaterialChoice(Material.DRAGON_BREATH)));
+
+		return potionMixes;
 	}
 
 	public Material getMaterial() {
@@ -128,7 +143,7 @@ public class CustomPotion implements Listener {
 		return new java.awt.Color(color.getRed(), color.getGreen(), color.getBlue()).getRGB();
 	}
 
-	public void setBase(Object base) {
+	public void setBase(CustomPotion base) {
 		this.base = base;
 	}
 
@@ -182,11 +197,7 @@ public class CustomPotion implements Listener {
 		}
 	}
 
-	public ItemStack setPotionTag(ItemStack item) {
-		return ReflectionUtils.setPotionTag(item, "minecraft:" + name);
-	}
-
-	public ItemStack setProperties(ItemStack item, boolean tag) {
+	public ItemStack setProperties(ItemStack item) {
 		PotionMeta potionMeta = (PotionMeta) item.getItemMeta();
 		potionMeta.setColor(color);
 		potionMeta.setDisplayName(getPrefix(item.getType()) + displayName);
@@ -194,22 +205,21 @@ public class CustomPotion implements Listener {
 		if (potionEffect == null) { potionMeta.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP); }
 		if (potionEffect != null) { potionMeta.addCustomEffect(potionEffect, true); }
 		item.setItemMeta(potionMeta);
-		PersistentUtils.setPersistentDataString(item, CustomPotions.TAG_CUSTOM_POTION, name);
-		return tag ? setPotionTag(item) : item;
+		return PersistentUtils.setPersistentDataString(item, CustomPotions.TAG_CUSTOM_POTION, name);
 	}
 
 	public ItemStack getDisabledPotion(ItemStack item) {		
 		PotionMeta potionMeta = (PotionMeta) item.getItemMeta();
 		potionMeta.setDisplayName("§r§fPotions are disabled");
 		potionMeta.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
+		potionMeta.setBasePotionType(PotionType.AWKWARD);
 		item.setItemMeta(potionMeta);
-		return ReflectionUtils.setPotionTag(item, PLACEHOLDER_POTION);
+		return item;
 	}
 
 	public boolean isCustomPotion(ItemStack itemStack) {
-		CustomPotion customPotion = CustomPotions.manager.getCustomPotion(itemStack);
-		if (customPotion == null) { return false; }
-		return customPotion.getName().equals(this.getName());
+		CustomPotion customPotion = PotionManager.getCustomPotion(itemStack);
+		return (customPotion != null) && customPotion.getName().equals(this.getName());
 	}
 
 	public void onPotionConsume(PlayerItemConsumeEvent event) {

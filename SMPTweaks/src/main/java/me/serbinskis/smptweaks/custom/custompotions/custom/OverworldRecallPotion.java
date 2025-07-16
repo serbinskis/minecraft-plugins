@@ -1,6 +1,7 @@
 package me.serbinskis.smptweaks.custom.custompotions.custom;
 
 import me.serbinskis.smptweaks.custom.custompotions.potions.CustomPotion;
+import me.serbinskis.smptweaks.custom.custompotions.potions.UnregisteredPotion;
 import me.serbinskis.smptweaks.utils.ReflectionUtils;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -19,7 +20,7 @@ public class OverworldRecallPotion extends CustomPotion {
 	public ArrayList<UUID> TELEPORT_ALLOW = new ArrayList<>();
 
 	public OverworldRecallPotion() {
-		super("nether_recall", Material.GRASS_BLOCK, "overworld_recall", Color.fromRGB(91, 135, 49));
+		super(UnregisteredPotion.create(NetherRecallPotion.class), Material.GRASS_BLOCK, "overworld_recall", Color.fromRGB(91, 135, 49));
 		this.setDisplayName("§r§fPotion of Overworld Recall");
 		this.setLore(List.of("§9Teleports to The Overworld"));
 		this.setTippedArrow(true, "§r§fArrow of End Overworld");

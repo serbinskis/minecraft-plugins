@@ -2,6 +2,7 @@ package me.serbinskis.smptweaks.custom.custompotions.events;
 
 import me.serbinskis.smptweaks.custom.custompotions.CustomPotions;
 import me.serbinskis.smptweaks.custom.custompotions.potions.CustomPotion;
+import me.serbinskis.smptweaks.custom.custompotions.potions.PotionManager;
 import me.serbinskis.smptweaks.utils.PersistentUtils;
 import me.serbinskis.smptweaks.utils.ReflectionUtils;
 import org.bukkit.entity.AreaEffectCloud;
@@ -19,21 +20,21 @@ import org.bukkit.potion.PotionEffectType;
 public class PotionEvents implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onPlayerItemConsume(PlayerItemConsumeEvent event) {
-		CustomPotion customPotion = CustomPotions.manager.getCustomPotion(event.getItem());
+		CustomPotion customPotion = PotionManager.getCustomPotion(event.getItem());
 		if ((customPotion == null) || !customPotion.isEnabled()) { return; }
 		customPotion.onPotionConsume(event);
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onPotionSplash(PotionSplashEvent event) {
-		CustomPotion customPotion = CustomPotions.manager.getCustomPotion(event.getEntity().getItem());
+		CustomPotion customPotion = PotionManager.getCustomPotion(event.getEntity().getItem());
 		if ((customPotion == null) || !customPotion.isEnabled()) { return; }
 		customPotion.onPotionSplash(event);
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onLingeringPotionSplash(LingeringPotionSplashEvent event) {
-		CustomPotion customPotion = CustomPotions.manager.getCustomPotion(event.getEntity().getItem());
+		CustomPotion customPotion = PotionManager.getCustomPotion(event.getEntity().getItem());
 		if (customPotion == null) { return; }
 		if (customPotion.isEnabled()) { customPotion.onLingeringPotionSplash(event); }
 
@@ -49,7 +50,7 @@ public class PotionEvents implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onAreaEffectCloudApply(AreaEffectCloudApplyEvent event) {
-		CustomPotion customPotion = CustomPotions.manager.getCustomPotion(event.getEntity());
+		CustomPotion customPotion = PotionManager.getCustomPotion(event.getEntity());
 		if ((customPotion == null) || !customPotion.isEnabled()) { return; }
 		customPotion.onAreaEffectCloudApply(event);
 	}
@@ -58,25 +59,25 @@ public class PotionEvents implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onProjectileHit(ProjectileHitEvent event) {
 		if (event.getEntity() instanceof ThrownPotion thrownPotion) {
-			CustomPotion customPotion = CustomPotions.manager.getCustomPotion(thrownPotion.getItem());
+			CustomPotion customPotion = PotionManager.getCustomPotion(thrownPotion.getItem());
 			if (customPotion != null) { PersistentUtils.setPersistentDataString(thrownPotion, CustomPotions.TAG_CUSTOM_POTION, customPotion.getName()); }
 		}
 
 		if (event.getEntity() instanceof Arrow arrow) {
-			CustomPotion customPotion = CustomPotions.manager.getCustomPotion(event.getEntity());
+			CustomPotion customPotion = PotionManager.getCustomPotion(event.getEntity());
 			if ((customPotion != null) && (customPotion.getArrowEffect() != null)) { arrow.addCustomEffect(customPotion.getArrowEffect(), true); }
 		}
 
-		CustomPotion customPotion = CustomPotions.manager.getCustomPotion(event.getEntity());
+		CustomPotion customPotion = PotionManager.getCustomPotion(event.getEntity());
 		if ((customPotion == null) || !customPotion.isEnabled()) { return; }
 		customPotion.onProjectileHit(event);
 	}
 
-	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+	/*@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onItemSpawn(ItemSpawnEvent event) {
 		ItemStack itemStack = event.getEntity().getItemStack();
-		CustomPotion customPotion = CustomPotions.manager.getCustomPotion(itemStack);
+		CustomPotion customPotion = PotionManager.getCustomPotion(itemStack);
 		if (customPotion == null) { return; }
 		event.getEntity().setItemStack(ReflectionUtils.setPotionTag(itemStack, CustomPotion.PLACEHOLDER_POTION));
-	}
+	}*/
 }

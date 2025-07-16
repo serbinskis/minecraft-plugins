@@ -1,6 +1,7 @@
 package me.serbinskis.smptweaks.custom.custompotions.custom;
 
 import me.serbinskis.smptweaks.custom.custompotions.potions.CustomPotion;
+import me.serbinskis.smptweaks.custom.custompotions.potions.UnregisteredPotion;
 import me.serbinskis.smptweaks.utils.ReflectionUtils;
 import me.serbinskis.smptweaks.utils.Utils;
 import org.bukkit.Color;
@@ -20,7 +21,7 @@ public class NetherRecallPotion extends CustomPotion {
 	public ArrayList<UUID> TELEPORT_ALLOW = new ArrayList<>();
 
 	public NetherRecallPotion() {
-		super("recall", Material.CRYING_OBSIDIAN, "nether_recall", Color.fromRGB(174, 55, 255));
+		super(UnregisteredPotion.create(RecallPotion.class), Material.CRYING_OBSIDIAN, "nether_recall", Color.fromRGB(174, 55, 255));
 		this.setDisplayName("§r§fPotion of Nether Recall");
 		this.setLore(List.of("§9Teleports to Nether"));
 		this.setTippedArrow(true, "§r§fArrow of Nether Recall");
