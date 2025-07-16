@@ -9,6 +9,7 @@ import me.serbinskis.smptweaks.utils.Utils;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -102,4 +103,18 @@ public class Events implements Listener {
 		if ((entityIds[1] > 0) || !preventPacket.containsKey(entityIds[0])) { return; }
 		event.setCancelled(true);
 	}
+
+	//Have to somehow prevent leash breaking sound, sound goes to all players, so idk how to indentify correct sound
+
+	/*@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+	public void onPacketEvent12312(PacketEvent event) {
+		if ((event.getPacketType() == PacketType.SOUND) && (preventSoundPackets.remove(event.getPlayer().getUniqueId()) != null)) {
+			Sound sound = ReflectionUtils.getBukkitSound(event.getPacket());
+			if (sound.equals(Sound.ENTITY_PLAYER_LEVELUP)) { event.setCancelled(true); }
+		}
+
+		if ((event.getPacketType() == PacketType.SET_EXPERIENCE) && (preventExperiencePackets.remove(event.getPlayer().getUniqueId()) != null)) {
+			event.setCancelled(true);
+		}
+	}*/
 }
