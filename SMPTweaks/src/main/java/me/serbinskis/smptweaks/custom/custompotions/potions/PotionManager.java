@@ -34,7 +34,7 @@ public class PotionManager {
 
 	public static CustomPotion registerPotion(CustomPotion potion) {
 		if (potions.containsKey(potion.getName())) { return potions.get(potion.getName()); }
-		if (!potion.isEnabled()) { CustomPotions.tweak.printMessage("Failed to register disabled potion: " + potion.getName(), true); }
+		if (!potion.isEnabled()) { CustomPotions.tweak.printMessage("Skipping registering disabled potion: " + potion.getName(), true); }
 		if (!potion.isEnabled()) { return null; }
 
 		//In case if base potion is not yet registered, we first register base potion
