@@ -41,18 +41,20 @@ public class VillagerEvents implements Listener {
 	public void onPlayerInteractEntityEvent(PlayerInteractEntityEvent event) {
 		if (event.getHand() != EquipmentSlot.HAND) { return; }
 		if (!(event.getRightClicked() instanceof Villager villager)) { return; }
-		if ((villager.getProfession() != Profession.FLETCHER) || (villager.getProfession() == Profession.CLERIC)) { return; }
+		if ((villager.getProfession() != Profession.FLETCHER) && (villager.getProfession() != Profession.CLERIC)) { return; }
 		ItemStack item = event.getPlayer().getInventory().getItem(event.getHand());
 		if (item.getType() != Material.DEBUG_STICK) { return; }
 		if (!Utils.hasPermissions(event.getPlayer(), "cpotions.get") || event.getPlayer().getGameMode() != GameMode.CREATIVE) { return; }
+		villager.setRecipes(List.of());
 
-		int level = Math.min(villager.getVillagerLevel() + 1, 5);
-		villager.setVillagerLevel(level);
+		for (int i = 1; i <= 5; i++) {
+			villager.setVillagerLevel(i);
+			villager.addTrades(2);
+		}
 
-		int experience = ((level == 1) ? 10 : (level == 2) ? 70 : (level == 3) ? 150 : (level == 4) ? 250 : 0);
-		villager.setVillagerExperience(experience);
-
+		villager.setVillagerExperience(999);
 		event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
+		event.getPlayer().openMerchant(villager, true);
 		event.setCancelled(true);
 	}
 
