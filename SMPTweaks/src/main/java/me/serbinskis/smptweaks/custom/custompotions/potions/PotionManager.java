@@ -34,22 +34,21 @@ public class PotionManager {
 
 	public static CustomPotion registerPotion(CustomPotion potion) {
 		if (potions.containsKey(potion.getName())) { return potions.get(potion.getName()); }
+		if (!potion.isEnabled()) { CustomPotions.tweak.printMessage("Failed to register disabled potion: " + potion.getName(), true); }
+		if (!potion.isEnabled()) { return null; }
 
 		//In case if base potion is not yet registered, we first register base potion
 		//This recursion will fail if one of the base potions cannot be registered, for unknow reason
-		if (potion.getBase() instanceof UnregisteredPotion unregistreredPotion) {
-			CustomPotion success = registerPotion(unregistreredPotion.getCustomPotion());
-			if (success == null) { CustomPotions.tweak.printMessage("Failed to register potion: " + unregistreredPotion.getName(), true); }
+		if (potion.getBase() instanceof UnregisteredPotion unregisteredPotion) {
+			CustomPotion success = registerPotion(unregisteredPotion.getCustomPotion());
+			if (success == null) { CustomPotions.tweak.printMessage("Failed to register potion: " + unregisteredPotion.getName(), true); }
 			if (success == null) { return null; } else { potion.setBase(success); }
 		}
 
-		if (!potion.isEnabled()) { CustomPotions.tweak.printMessage("Failed to register disabled potion: " + potion.getName(), true); }
-		if (!potion.isEnabled()) { return null; } else { potions.put(potion.getName(), potion); }
-		CustomPotions.tweak.printMessage("Registering '" + potion.getName() + "' with the base '" + potion.getBase().getName() + "'", true);
-
 		Bukkit.getPluginManager().registerEvents(potion, Main.plugin);
 		potion.getPotionMixes().forEach((mix) -> Bukkit.getPotionBrewer().addPotionMix(mix));
-		return potion;
+		CustomPotions.tweak.printMessage("Registered '" + potion.getName() + "' with the base '" + potion.getBase().getName() + "'", true);
+		return potions.compute(potion.getName(), (k, v) -> potion);
 
 
 

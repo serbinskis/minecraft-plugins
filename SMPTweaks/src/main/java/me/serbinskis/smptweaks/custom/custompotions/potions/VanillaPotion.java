@@ -19,7 +19,7 @@ public class VanillaPotion extends CustomPotion {
 
     @Override
     public String getName() {
-        return potionType.name();
+        return potionType.getKey().getKey();
     }
 
     @Override

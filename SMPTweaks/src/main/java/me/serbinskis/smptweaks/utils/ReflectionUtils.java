@@ -1132,62 +1132,6 @@ public class ReflectionUtils {
 		return itemFrames;
 	}
 
-	/*public static <T> T getItemNbt(ItemStack itemStack, List<String> location) {
-		if (location.isEmpty()) { return null; }
-		location = new ArrayList<>(location); //Convert list to mutable list
-		net.minecraft.world.item.ItemStack item = Objects.requireNonNull(asNMSCopy(itemStack));
-		CompoundTag tag = (CompoundTag) item.saveOptional(MinecraftServer.getServer().registryAccess());
-		if (tag.isEmpty()) { return null; }
-
-		while (!location.isEmpty() && (tag.getTagType(location.getFirst()) == Tag.TAG_COMPOUND)) {
-			tag = tag.getCompound(location.getFirst());
-			location.removeFirst();
-		}
-
-		if (location.isEmpty()) { return (T) tag; }
-		if (tag.getTagType(location.getFirst()) == Tag.TAG_BYTE) { return (T) Boolean.valueOf(tag.getBoolean(location.getFirst())); }
-		if (tag.getTagType(location.getFirst()) == Tag.TAG_INT) { return (T) Integer.valueOf(tag.getInt(location.getFirst())); }
-		if (tag.getTagType(location.getFirst()) == Tag.TAG_STRING) { return (T) tag.getString(location.getFirst()); }
-		if (tag.getTagType(location.getFirst()) == Tag.TAG_SHORT) { return (T) (Short) tag.getShort(location.getFirst()); }
-		if (tag.getTagType(location.getFirst()) == Tag.TAG_FLOAT) { return (T) (Float) tag.getFloat(location.getFirst()); }
-		if (tag.getTagType(location.getFirst()) == Tag.TAG_DOUBLE) { return (T) (Double) tag.getDouble(location.getFirst()); }
-		if (tag.getTagType(location.getFirst()) == Tag.TAG_LONG) { return (T) (Long) tag.getLong(location.getFirst()); }
-		if (tag.getTagType(location.getFirst()) == Tag.TAG_BYTE_ARRAY) { return (T) tag.getByteArray(location.getFirst()); }
-		if (tag.getTagType(location.getFirst()) == Tag.TAG_INT_ARRAY) { return (T) tag.getIntArray(location.getFirst()); }
-		if (tag.getTagType(location.getFirst()) == Tag.TAG_LONG_ARRAY) { return (T) tag.getLongArray(location.getFirst()); }
-		return null;
-	}*/
-
-	/*public static ItemStack setItemNbt(ItemStack itemStack, List<String> location, Object value) {
-		if (location.isEmpty()) { return null; }
-		location = new ArrayList<>(location); //Convert list to mutable list
-		net.minecraft.world.item.ItemStack item = Objects.requireNonNull(asNMSCopy(itemStack));
-		CompoundTag original = (CompoundTag) item.saveOptional(MinecraftServer.getServer().registryAccess());
-		if (original.isEmpty()) { original = new CompoundTag(); }
-		CompoundTag tag = original;
-
-		while ((location.size() > 1) && ((tag.getTagType(location.getFirst()) == Tag.TAG_COMPOUND) || !tag.contains(location.getFirst()))) {
-			if (!tag.contains(location.getFirst())) { tag.put(location.getFirst(), new CompoundTag()); }
-			tag = tag.getCompound(location.getFirst());
-			location.removeFirst();
-		}
-
-		if (location.isEmpty()) { return null; }
-		if (value.getClass().equals(Byte.class)) { tag.putByte(location.getFirst(), (Byte) value); }
-		if (value.getClass().equals(Integer.class)) { tag.putInt(location.getFirst(), (Integer) value); }
-		if (value.getClass().equals(String.class)) { tag.putString(location.getFirst(), (String) value); }
-		if (value.getClass().equals(Short.class)) { tag.putShort(location.getFirst(), (Short) value); }
-		if (value.getClass().equals(Float.class)) { tag.putFloat(location.getFirst(), (Float) value); }
-		if (value.getClass().equals(Double.class)) { tag.putDouble(location.getFirst(), (Double) value); }
-		if (value.getClass().equals(Long.class)) { tag.putLong(location.getFirst(), (Long) value); }
-		if (value.getClass().equals(byte[].class)) { tag.putByteArray(location.getFirst(), (byte[]) value); }
-		if (value.getClass().equals(int[].class)) { tag.putIntArray(location.getFirst(), (int[]) value); }
-		if (value.getClass().equals(long[].class)) { tag.putLongArray(location.getFirst(), (long[]) value); }
-
-		net.minecraft.world.item.ItemStack itemStack1 = net.minecraft.world.item.ItemStack.parseOptional(MinecraftServer.getServer().registryAccess(), original);
-		return asBukkitMirror(itemStack1);
-	}*/
-
 	public static void setBlockNbt(org.bukkit.block.Block block, String name, Object value, boolean applyPhysics) {
 		BlockPos blockPos = new BlockPos(block.getX(), block.getY(), block.getZ());
 		ServerLevel serverLevel = getWorld(block.getLocation().getWorld());
@@ -1324,7 +1268,7 @@ public class ReflectionUtils {
 		DispenserBlockEntity tileentitydispenser = serverLevel.getBlockEntity(blockPos, BlockEntityType.DISPENSER).orElse(null);
 		BlockSource blockSource = new BlockSource(serverLevel, blockPos, blockState, tileentitydispenser);
 
-		DispenseItemBehavior dispenseItemBehavior = (source.getType() == Material.DISPENSER) ? DispenserBlock.DISPENSER_REGISTRY.get(asNMSCopy(drop).getItem()) : new DefaultDispenseItemBehavior();
+		DispenseItemBehavior dispenseItemBehavior = DispenserBlock.getDispenseBehavior(blockSource, asNMSCopy(drop));
 		net.minecraft.world.item.ItemStack result = dispenseItemBehavior.dispense(blockSource, asNMSCopy(drop));
 		if (result.getCount() == drop.getAmount()) { return false; } //It failed to dispense or item was modified inside called event
 
@@ -1492,61 +1436,6 @@ public class ReflectionUtils {
 		return new CommonPlayerSpawnInfo(dimensionType, dimension, seed, gameType, previousGameType, isDebug, isFlat, lastDeathLocation, portalCooldown, commonPlayerSpawnInfo.seaLevel());
 	}
 
-	//This is very unstable and can produce server crash, use only in WorldInitEvent
-	/*public static void setCustomDimension(World world, @Nullable DimensionType copy, @Nullable World.Environment env, @Nullable Long fixedTime, @Nullable Boolean hasSkyLight, @Nullable Boolean hasCeiling, @Nullable Boolean ultraWarm, @Nullable Boolean natural, @Nullable Double coordinateScale, @Nullable Boolean bedWorks, @Nullable Boolean respawnAnchorWorks, @Nullable Integer minY, @Nullable Integer height, @Nullable Integer logicalHeight, @Nullable TagKey<Block> infiniburn, @Nullable ResourceLocation effectsLocation, @Nullable Float ambientLight, @Nullable DimensionType.MonsterSettings monsterSettings) {
-		ServerLevel level = getWorld(world);
-		DimensionType original = level.dimensionType();
-
-		Field CraftWorld_environment = getField(CraftWorld, World.Environment.class, null, true);
-		if (env != null) { setValue(CraftWorld_environment, level.getWorld(), env); }
-
-		//Select dimension data if environment parameter is used and others are not
-		boolean b1 = (fixedTime == null) && (hasSkyLight == null) && (hasCeiling == null) && (ultraWarm == null) && (natural == null) && (coordinateScale == null) && (bedWorks == null) && (respawnAnchorWorks == null) && (minY == null) && (height == null) && (logicalHeight == null) && (infiniburn == null) && (effectsLocation == null) && (ambientLight == null) && (monsterSettings == null);
-		if (b1 && (env == World.Environment.NORMAL)) { copy = getRegistry(Registries.LEVEL_STEM).get(LevelStem.OVERWORLD.location()).orElseThrow().value().type().value(); }
-		if (b1 && (env == World.Environment.NETHER)) { copy = getRegistry(Registries.LEVEL_STEM).get(LevelStem.NETHER.location()).orElseThrow().value().type().value(); }
-		if (b1 && (env == World.Environment.THE_END)) { copy = getRegistry(Registries.LEVEL_STEM).get(LevelStem.END.location()).orElseThrow().value().type().value(); }
-
-		//Create new dimension data from given parameters
-		DimensionType type = new DimensionType(
-				(fixedTime == null) ? ((copy == null) ? original.fixedTime() : copy.fixedTime()) : OptionalLong.of(fixedTime),
-				(hasSkyLight == null) ? ((copy == null) ? original.hasSkyLight() : copy.hasSkyLight()) : hasSkyLight,
-				(hasCeiling == null) ? ((copy == null) ? original.hasCeiling() : copy.hasCeiling()) : hasCeiling,
-				(ultraWarm == null) ? ((copy == null) ? original.ultraWarm() : copy.ultraWarm()) : ultraWarm,
-				(natural == null) ? ((copy == null) ? original.natural() : copy.natural()) : natural,
-				(coordinateScale == null) ? ((copy == null) ? original.coordinateScale() : copy.coordinateScale()) : coordinateScale,
-				(bedWorks == null) ? ((copy == null) ? original.bedWorks() : copy.bedWorks()) : bedWorks,
-				(respawnAnchorWorks == null) ? ((copy == null) ? original.respawnAnchorWorks() : copy.respawnAnchorWorks()) : respawnAnchorWorks,
-				(minY == null) ? ((copy == null) ? original.minY() : copy.minY()) : minY,
-				(height == null) ? ((copy == null) ? original.height() : copy.height()) : height,
-				(logicalHeight == null) ? ((copy == null) ? original.logicalHeight() : copy.logicalHeight()) : logicalHeight,
-				(infiniburn == null) ? ((copy == null) ? original.infiniburn() : copy.infiniburn()) : infiniburn,
-				(effectsLocation == null) ? ((copy == null) ? original.effectsLocation() : copy.effectsLocation()) : effectsLocation,
-				(ambientLight == null) ? ((copy == null) ? original.ambientLight() : copy.ambientLight()) : ambientLight,
-				(monsterSettings == null) ? ((copy == null) ? original.monsterSettings() : copy.monsterSettings()) : monsterSettings
-		);
-
-		//Create holder and replace dimension data inside level
-		Holder<DimensionType> holder = (Holder<DimensionType>) getValue(Level_dimensionTypeRegistration, level); //Get original holder
-		HolderOwner<DimensionType> owner = (HolderOwner<DimensionType>) getValue(Holder_owner, holder); //Get original holder owner
-		Holder<DimensionType> newHolder = Holder.Reference.createIntrusive(owner, type); //Create new holder, so that we don't affect all worlds
-		setValue(Level_dimensionTypeRegistration, level, newHolder); //Replace old holder with new one
-
-		//Replace stupid paper EntityLookup system, because it initializes and uses old minY and height variables
-		//FUCK YOU PAPER -> io.papermc.paper.chunk.system.entity.EntityLookup -> minSection = WorldUtil.getMinSection(world)
-		if (PaperUtils.isPaper()) {
-			Field field_minSectionY = getField(Level.class, int.class, null, level, level.getMinSectionY(), true, Modifier.FINAL, Modifier.PUBLIC);
-			Field field_minY = getField(Level.class, int.class, null, level, level.getMinY(), true, Modifier.FINAL, Modifier.PUBLIC);
-			setValue(field_minSectionY, level, type.minY() >> 4);
-			setValue(field_minY, level, type.minY());
-
-			Field Level_entityLookup = getField(Level.class, PaperUtils.EntityLookup, null, true);
-			Field EntityLookup_levelCallback = getField(PaperUtils.EntityLookup, net.minecraft.world.level.entity.LevelCallback.class, null, true);
-			LevelCallback<?> callback = (LevelCallback<net.minecraft.world.entity.Entity>) getValue(EntityLookup_levelCallback, level.moonrise$getEntityLookup());
-			Object entityLookup = newInstance(PaperUtils.ServerEntityLookup, new Class[]{ ServerLevel.class, LevelCallback.class }, new Object[]{ level, callback }, true, true);
-			setValue(Level_entityLookup, level, entityLookup);
-		}
-	}*/
-
 	public static List<String> getBiomes(String exnamespace) {
 		ArrayList<ResourceLocation> resourceLocations = new ArrayList<>(getRegistry(Registries.BIOME).keySet());
 		if (!exnamespace.isEmpty()) { resourceLocations.removeIf(e -> e.getNamespace().equalsIgnoreCase(exnamespace)); }
@@ -1605,39 +1494,6 @@ public class ReflectionUtils {
 		return customBiome;
 	}
 
-	/*public static void fillChunk(Chunk chunk, Material material, boolean removeEntity, boolean refresh) {
-		if (!chunk.isLoaded()) { return; }
-
-		if (removeEntity) {
-			for (Entity entity : chunk.getEntities()) {
-				if (entity.getType() != EntityType.PLAYER) {
-					try { entity.remove(); } catch (Exception ignored) {}
-				}
-			}
-		}
-
-		int maxY = chunk.getWorld().getMaxHeight();
-		int minY = chunk.getWorld().getMinHeight();
-		BlockState state = getBlock(material).defaultBlockState();
-		LevelChunk levelChunk = getWorld(chunk.getWorld()).getChunk(chunk.getX(), chunk.getZ());
-
-		for (int x = 0; x < 16; x++) {
-			for (int y = minY; y < maxY; y++) {
-				for (int z = 0; z < 16 ; z++) {
-					BlockPos blockPos = new BlockPos(x, y, z);
-					if (levelChunk.getBlockEntity(blockPos) != null) { levelChunk.removeBlockEntity(blockPos); }
-					levelChunk.setBlockState(blockPos, state, false, true);
-				}
-			}
-		}
-
-		if (refresh) {
-			ClientboundLevelChunkWithLightPacket npacket = new ClientboundLevelChunkWithLightPacket(levelChunk, levelChunk.getLevel().getLightEngine(), null, null, true);
-			Collection<Entity> players = Utils.getNearbyEntities(chunk.getBlock(8, 0, 8).getLocation(), EntityType.PLAYER, Bukkit.getViewDistance()*16, true);
-			players.stream().map(Player.class::cast).forEach(e -> sendPacket(e, npacket));
-		}
-	}*/
-
 	public static float getLocalDifficulty(Player player, boolean real) {
 		Difficulty difficulty = player.getWorld().getDifficulty();
 		float timeOfDay = getWorld(player.getWorld()).getLevelData().getDayTime();
@@ -1690,4 +1546,148 @@ public class ReflectionUtils {
 		List<ChannelFuture> channels = (List<ChannelFuture>) getValue(ServerConnectionListener_channels, connection);
 		channels.get(0).channel().pipeline().addFirst(serverChannelHandler);
 	}
+
+		/*public static <T> T getItemNbt(ItemStack itemStack, List<String> location) {
+		if (location.isEmpty()) { return null; }
+		location = new ArrayList<>(location); //Convert list to mutable list
+		net.minecraft.world.item.ItemStack item = Objects.requireNonNull(asNMSCopy(itemStack));
+		CompoundTag tag = (CompoundTag) item.saveOptional(MinecraftServer.getServer().registryAccess());
+		if (tag.isEmpty()) { return null; }
+
+		while (!location.isEmpty() && (tag.getTagType(location.getFirst()) == Tag.TAG_COMPOUND)) {
+			tag = tag.getCompound(location.getFirst());
+			location.removeFirst();
+		}
+
+		if (location.isEmpty()) { return (T) tag; }
+		if (tag.getTagType(location.getFirst()) == Tag.TAG_BYTE) { return (T) Boolean.valueOf(tag.getBoolean(location.getFirst())); }
+		if (tag.getTagType(location.getFirst()) == Tag.TAG_INT) { return (T) Integer.valueOf(tag.getInt(location.getFirst())); }
+		if (tag.getTagType(location.getFirst()) == Tag.TAG_STRING) { return (T) tag.getString(location.getFirst()); }
+		if (tag.getTagType(location.getFirst()) == Tag.TAG_SHORT) { return (T) (Short) tag.getShort(location.getFirst()); }
+		if (tag.getTagType(location.getFirst()) == Tag.TAG_FLOAT) { return (T) (Float) tag.getFloat(location.getFirst()); }
+		if (tag.getTagType(location.getFirst()) == Tag.TAG_DOUBLE) { return (T) (Double) tag.getDouble(location.getFirst()); }
+		if (tag.getTagType(location.getFirst()) == Tag.TAG_LONG) { return (T) (Long) tag.getLong(location.getFirst()); }
+		if (tag.getTagType(location.getFirst()) == Tag.TAG_BYTE_ARRAY) { return (T) tag.getByteArray(location.getFirst()); }
+		if (tag.getTagType(location.getFirst()) == Tag.TAG_INT_ARRAY) { return (T) tag.getIntArray(location.getFirst()); }
+		if (tag.getTagType(location.getFirst()) == Tag.TAG_LONG_ARRAY) { return (T) tag.getLongArray(location.getFirst()); }
+		return null;
+	}*/
+
+	/*public static ItemStack setItemNbt(ItemStack itemStack, List<String> location, Object value) {
+		if (location.isEmpty()) { return null; }
+		location = new ArrayList<>(location); //Convert list to mutable list
+		net.minecraft.world.item.ItemStack item = Objects.requireNonNull(asNMSCopy(itemStack));
+		CompoundTag original = (CompoundTag) item.saveOptional(MinecraftServer.getServer().registryAccess());
+		if (original.isEmpty()) { original = new CompoundTag(); }
+		CompoundTag tag = original;
+
+		while ((location.size() > 1) && ((tag.getTagType(location.getFirst()) == Tag.TAG_COMPOUND) || !tag.contains(location.getFirst()))) {
+			if (!tag.contains(location.getFirst())) { tag.put(location.getFirst(), new CompoundTag()); }
+			tag = tag.getCompound(location.getFirst());
+			location.removeFirst();
+		}
+
+		if (location.isEmpty()) { return null; }
+		if (value.getClass().equals(Byte.class)) { tag.putByte(location.getFirst(), (Byte) value); }
+		if (value.getClass().equals(Integer.class)) { tag.putInt(location.getFirst(), (Integer) value); }
+		if (value.getClass().equals(String.class)) { tag.putString(location.getFirst(), (String) value); }
+		if (value.getClass().equals(Short.class)) { tag.putShort(location.getFirst(), (Short) value); }
+		if (value.getClass().equals(Float.class)) { tag.putFloat(location.getFirst(), (Float) value); }
+		if (value.getClass().equals(Double.class)) { tag.putDouble(location.getFirst(), (Double) value); }
+		if (value.getClass().equals(Long.class)) { tag.putLong(location.getFirst(), (Long) value); }
+		if (value.getClass().equals(byte[].class)) { tag.putByteArray(location.getFirst(), (byte[]) value); }
+		if (value.getClass().equals(int[].class)) { tag.putIntArray(location.getFirst(), (int[]) value); }
+		if (value.getClass().equals(long[].class)) { tag.putLongArray(location.getFirst(), (long[]) value); }
+
+		net.minecraft.world.item.ItemStack itemStack1 = net.minecraft.world.item.ItemStack.parseOptional(MinecraftServer.getServer().registryAccess(), original);
+		return asBukkitMirror(itemStack1);
+	}*/
+
+	//This is very unstable and can produce server crash, use only in WorldInitEvent
+	/*public static void setCustomDimension(World world, @Nullable DimensionType copy, @Nullable World.Environment env, @Nullable Long fixedTime, @Nullable Boolean hasSkyLight, @Nullable Boolean hasCeiling, @Nullable Boolean ultraWarm, @Nullable Boolean natural, @Nullable Double coordinateScale, @Nullable Boolean bedWorks, @Nullable Boolean respawnAnchorWorks, @Nullable Integer minY, @Nullable Integer height, @Nullable Integer logicalHeight, @Nullable TagKey<Block> infiniburn, @Nullable ResourceLocation effectsLocation, @Nullable Float ambientLight, @Nullable DimensionType.MonsterSettings monsterSettings) {
+		ServerLevel level = getWorld(world);
+		DimensionType original = level.dimensionType();
+
+		Field CraftWorld_environment = getField(CraftWorld, World.Environment.class, null, true);
+		if (env != null) { setValue(CraftWorld_environment, level.getWorld(), env); }
+
+		//Select dimension data if environment parameter is used and others are not
+		boolean b1 = (fixedTime == null) && (hasSkyLight == null) && (hasCeiling == null) && (ultraWarm == null) && (natural == null) && (coordinateScale == null) && (bedWorks == null) && (respawnAnchorWorks == null) && (minY == null) && (height == null) && (logicalHeight == null) && (infiniburn == null) && (effectsLocation == null) && (ambientLight == null) && (monsterSettings == null);
+		if (b1 && (env == World.Environment.NORMAL)) { copy = getRegistry(Registries.LEVEL_STEM).get(LevelStem.OVERWORLD.location()).orElseThrow().value().type().value(); }
+		if (b1 && (env == World.Environment.NETHER)) { copy = getRegistry(Registries.LEVEL_STEM).get(LevelStem.NETHER.location()).orElseThrow().value().type().value(); }
+		if (b1 && (env == World.Environment.THE_END)) { copy = getRegistry(Registries.LEVEL_STEM).get(LevelStem.END.location()).orElseThrow().value().type().value(); }
+
+		//Create new dimension data from given parameters
+		DimensionType type = new DimensionType(
+				(fixedTime == null) ? ((copy == null) ? original.fixedTime() : copy.fixedTime()) : OptionalLong.of(fixedTime),
+				(hasSkyLight == null) ? ((copy == null) ? original.hasSkyLight() : copy.hasSkyLight()) : hasSkyLight,
+				(hasCeiling == null) ? ((copy == null) ? original.hasCeiling() : copy.hasCeiling()) : hasCeiling,
+				(ultraWarm == null) ? ((copy == null) ? original.ultraWarm() : copy.ultraWarm()) : ultraWarm,
+				(natural == null) ? ((copy == null) ? original.natural() : copy.natural()) : natural,
+				(coordinateScale == null) ? ((copy == null) ? original.coordinateScale() : copy.coordinateScale()) : coordinateScale,
+				(bedWorks == null) ? ((copy == null) ? original.bedWorks() : copy.bedWorks()) : bedWorks,
+				(respawnAnchorWorks == null) ? ((copy == null) ? original.respawnAnchorWorks() : copy.respawnAnchorWorks()) : respawnAnchorWorks,
+				(minY == null) ? ((copy == null) ? original.minY() : copy.minY()) : minY,
+				(height == null) ? ((copy == null) ? original.height() : copy.height()) : height,
+				(logicalHeight == null) ? ((copy == null) ? original.logicalHeight() : copy.logicalHeight()) : logicalHeight,
+				(infiniburn == null) ? ((copy == null) ? original.infiniburn() : copy.infiniburn()) : infiniburn,
+				(effectsLocation == null) ? ((copy == null) ? original.effectsLocation() : copy.effectsLocation()) : effectsLocation,
+				(ambientLight == null) ? ((copy == null) ? original.ambientLight() : copy.ambientLight()) : ambientLight,
+				(monsterSettings == null) ? ((copy == null) ? original.monsterSettings() : copy.monsterSettings()) : monsterSettings
+		);
+
+		//Create holder and replace dimension data inside level
+		Holder<DimensionType> holder = (Holder<DimensionType>) getValue(Level_dimensionTypeRegistration, level); //Get original holder
+		HolderOwner<DimensionType> owner = (HolderOwner<DimensionType>) getValue(Holder_owner, holder); //Get original holder owner
+		Holder<DimensionType> newHolder = Holder.Reference.createIntrusive(owner, type); //Create new holder, so that we don't affect all worlds
+		setValue(Level_dimensionTypeRegistration, level, newHolder); //Replace old holder with new one
+
+		//Replace stupid paper EntityLookup system, because it initializes and uses old minY and height variables
+		//FUCK YOU PAPER -> io.papermc.paper.chunk.system.entity.EntityLookup -> minSection = WorldUtil.getMinSection(world)
+		if (PaperUtils.isPaper()) {
+			Field field_minSectionY = getField(Level.class, int.class, null, level, level.getMinSectionY(), true, Modifier.FINAL, Modifier.PUBLIC);
+			Field field_minY = getField(Level.class, int.class, null, level, level.getMinY(), true, Modifier.FINAL, Modifier.PUBLIC);
+			setValue(field_minSectionY, level, type.minY() >> 4);
+			setValue(field_minY, level, type.minY());
+
+			Field Level_entityLookup = getField(Level.class, PaperUtils.EntityLookup, null, true);
+			Field EntityLookup_levelCallback = getField(PaperUtils.EntityLookup, net.minecraft.world.level.entity.LevelCallback.class, null, true);
+			LevelCallback<?> callback = (LevelCallback<net.minecraft.world.entity.Entity>) getValue(EntityLookup_levelCallback, level.moonrise$getEntityLookup());
+			Object entityLookup = newInstance(PaperUtils.ServerEntityLookup, new Class[]{ ServerLevel.class, LevelCallback.class }, new Object[]{ level, callback }, true, true);
+			setValue(Level_entityLookup, level, entityLookup);
+		}
+	}*/
+
+	/*public static void fillChunk(Chunk chunk, Material material, boolean removeEntity, boolean refresh) {
+		if (!chunk.isLoaded()) { return; }
+
+		if (removeEntity) {
+			for (Entity entity : chunk.getEntities()) {
+				if (entity.getType() != EntityType.PLAYER) {
+					try { entity.remove(); } catch (Exception ignored) {}
+				}
+			}
+		}
+
+		int maxY = chunk.getWorld().getMaxHeight();
+		int minY = chunk.getWorld().getMinHeight();
+		BlockState state = getBlock(material).defaultBlockState();
+		LevelChunk levelChunk = getWorld(chunk.getWorld()).getChunk(chunk.getX(), chunk.getZ());
+
+		for (int x = 0; x < 16; x++) {
+			for (int y = minY; y < maxY; y++) {
+				for (int z = 0; z < 16 ; z++) {
+					BlockPos blockPos = new BlockPos(x, y, z);
+					if (levelChunk.getBlockEntity(blockPos) != null) { levelChunk.removeBlockEntity(blockPos); }
+					levelChunk.setBlockState(blockPos, state, false, true);
+				}
+			}
+		}
+
+		if (refresh) {
+			ClientboundLevelChunkWithLightPacket npacket = new ClientboundLevelChunkWithLightPacket(levelChunk, levelChunk.getLevel().getLightEngine(), null, null, true);
+			Collection<Entity> players = Utils.getNearbyEntities(chunk.getBlock(8, 0, 8).getLocation(), EntityType.PLAYER, Bukkit.getViewDistance()*16, true);
+			players.stream().map(Player.class::cast).forEach(e -> sendPacket(e, npacket));
+		}
+	}*/
 }

@@ -160,7 +160,7 @@ public class CustomPotion implements Listener {
 	}
 
 	public List<String> getLore() {
-		return (lore != null) ? lore : Arrays.asList("");
+		return (lore != null) ? lore : List.of("");
 	}
 
 	public void setAllowVillagerTrades(boolean allow) {
