@@ -39,7 +39,7 @@ public class VillagerEvents implements Listener {
 	public void onPlayerInteractEntityEvent(PlayerInteractEntityEvent event) {
 		if (event.getHand() != EquipmentSlot.HAND) { return; }
 		if (!(event.getRightClicked() instanceof Villager villager)) { return; }
-		if ((villager.getProfession() != Profession.FLETCHER) && (villager.getProfession() != Profession.CLERIC)) { return; }
+		if (villager.getProfession() == Profession.NONE) { return; }
 		ItemStack item = event.getPlayer().getInventory().getItem(event.getHand());
 		if (item.getType() != Material.DEBUG_STICK) { return; }
 		if (!Utils.hasPermissions(event.getPlayer(), "cpotions.get") || event.getPlayer().getGameMode() != GameMode.CREATIVE) { return; }
