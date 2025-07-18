@@ -3,7 +3,6 @@ package me.serbinskis.smptweaks.custom.custompotions.events;
 import me.serbinskis.smptweaks.custom.custompotions.CustomPotions;
 import me.serbinskis.smptweaks.custom.custompotions.potions.CustomPotion;
 import me.serbinskis.smptweaks.custom.custompotions.potions.PotionManager;
-import me.serbinskis.smptweaks.utils.ReflectionUtils;
 import me.serbinskis.smptweaks.utils.Utils;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -28,7 +27,6 @@ import java.util.Random;
 
 public class VillagerEvents implements Listener {
 	List<Material> potionTypes = Arrays.asList(Material.POTION, Material.SPLASH_POTION, Material.LINGERING_POTION);
-	public List<String> vanilla = ReflectionUtils.getVanillaPotions(true, false, PotionManager::isCustomPotion);
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onVillagerAcquireTradeEvent(VillagerAcquireTradeEvent event) {
