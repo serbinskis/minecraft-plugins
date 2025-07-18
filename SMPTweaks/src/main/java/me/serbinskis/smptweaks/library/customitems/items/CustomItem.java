@@ -1,6 +1,7 @@
 package me.serbinskis.smptweaks.library.customitems.items;
 
 import me.serbinskis.smptweaks.Main;
+import me.serbinskis.smptweaks.utils.PersistentUtils;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
@@ -10,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class CustomItem {
+    public final static String TAG_CUSTOM_ITEM = "SMPTWEAKS_CUSTOM_ITEM";
     private final Material material;
     private final String id;
     private String name;
@@ -51,15 +53,19 @@ public class CustomItem {
     }
 
     public ItemStack getItemStack(int textureIndex) {
+        return getItemStack(textureIndex, "", "");
+    }
+
+    public ItemStack getItemStack(int textureIndex, String prefix, String suffix) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(name);
+        meta.setDisplayName(prefix+name+suffix);
 
         if (this.texture != null) {
             meta.setItemModel(new NamespacedKey("smptweaks", this.id + "_" + textureIndex));
         }
 
         item.setItemMeta(meta);
-        return item;
+        return PersistentUtils.setPersistentDataString(item, TAG_CUSTOM_ITEM, this.id);
     }
 }

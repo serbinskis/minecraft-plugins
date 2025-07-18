@@ -32,6 +32,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.function.BiPredicate;
+import java.util.stream.Collectors;
 
 public class Utils {
 	public static double ITEM_HEIGHT = 0.25F;
@@ -457,5 +459,14 @@ public class Utils {
 
 	public static float clamp(float value, float min, float max) {
 		return value < min ? min : Math.min(value, max);
+	}
+
+	public static <T> List<T> removeDupes(List<T> list, BiPredicate<T, T> predicate) {
+		Set<T> seen = new LinkedHashSet<>();
+		return list.stream().filter(t -> seen.stream().noneMatch(s -> predicate.test(s, t)) && seen.add(t)).collect(Collectors.toList());
+	}
+
+	public static void playSound(Player player, Sound sound) {
+		player.playSound(player.getLocation(), sound, 1f, 1f);
 	}
 }

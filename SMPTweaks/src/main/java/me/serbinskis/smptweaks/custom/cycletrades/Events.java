@@ -1,11 +1,11 @@
 package me.serbinskis.smptweaks.custom.cycletrades;
 
-import com.destroystokyo.paper.entity.villager.ReputationType;
 import io.papermc.paper.event.player.PlayerTradeEvent;
 import me.serbinskis.smptweaks.library.fakeplayer.FakePlayer;
 import me.serbinskis.smptweaks.utils.PersistentUtils;
 import me.serbinskis.smptweaks.utils.ReflectionUtils;
 import me.serbinskis.smptweaks.utils.TaskUtils;
+import me.serbinskis.smptweaks.utils.VillagerUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
@@ -15,9 +15,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.TradeSelectEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
-import org.bukkit.potion.PotionEffectType;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -94,39 +92,8 @@ public class Events implements Listener {
 
 		villager.setRecipes(List.of());
 		villager.addTrades(2);
-		updateSpecialPrices(player, villager);
+		VillagerUtils.updateSpecialPrices(player, villager);
 		addCycleTradesButton(villager);
 		ReflectionUtils.sendMerchantOffers(player, villager);
-	}
-
-	//Reference: net.minecraft.world.entity.npc.Villager@updateSpecialPrices(Player player)
-	//Reference: net.minecraft.world.entity.ai.gossip.GossipType
-	//They do reset automatically when inventory is closed
-	public static void updateSpecialPrices(Player player, Villager villager) {
-		int playerReputation = villager.getReputation(player.getUniqueId()).getReputation(ReputationType.MAJOR_POSITIVE) * 5;
-		playerReputation -= villager.getReputation(player.getUniqueId()).getReputation(ReputationType.MAJOR_NEGATIVE) * 5;
-		playerReputation += villager.getReputation(player.getUniqueId()).getReputation(ReputationType.MINOR_POSITIVE);
-		playerReputation -= villager.getReputation(player.getUniqueId()).getReputation(ReputationType.MINOR_NEGATIVE);
-		playerReputation += villager.getReputation(player.getUniqueId()).getReputation(ReputationType.TRADING);
-		List<MerchantRecipe> recipes = villager.getRecipes();
-
-		for (MerchantRecipe merchantRecipe : recipes) {
-			if (merchantRecipe.shouldIgnoreDiscounts()) { continue; }
-			int specialPrice = (int) (merchantRecipe.getSpecialPrice() - Math.floor(playerReputation * merchantRecipe.getPriceMultiplier()));
-			merchantRecipe.setSpecialPrice(specialPrice);
-		}
-
-		for (MerchantRecipe merchantRecipe : recipes) {
-			if (!player.hasPotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE)) { continue; }
-			int amplifier = player.getPotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE).getAmplifier();
-			if (merchantRecipe.shouldIgnoreDiscounts()) { continue; }
-			ItemStack baseItem = merchantRecipe.getIngredients().getFirst();
-			int baseCost = (baseItem != null ? baseItem.getAmount() : 0);
-			int i = (int) Math.floor((0.3 + 0.0625 * amplifier) * baseCost);
-			double specialPrice = merchantRecipe.getSpecialPrice() - Math.max(i, 1);
-			merchantRecipe.setSpecialPrice((int) specialPrice);
-		}
-
-		villager.setRecipes(recipes);
 	}
 }

@@ -1,6 +1,9 @@
 package me.serbinskis.smptweaks.custom.autotrade;
 
+import me.serbinskis.smptweaks.custom.autotrade.blocks.TraderBlock;
+import me.serbinskis.smptweaks.utils.ReflectionUtils;
 import me.serbinskis.smptweaks.utils.Utils;
+import me.serbinskis.smptweaks.utils.VillagerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -10,82 +13,74 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.Dispenser;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Villager;
 import org.bukkit.entity.Villager.Profession;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Traders {
 	public static List<ItemStack> handleTrader(Block trader) {
-		Inventory source = getSource(trader);
+		Inventory source = getTraderInventory(trader);
 		if (source == null) { return List.of(); }
-
-		Inventory traderInventory = getTraderInventory(trader);
-		if (traderInventory == null) { return List.of(); }
 
 		Location location = trader.getLocation().clone().add(0.5, 0.5, 0.5);
 		Collection<Entity> villagers = Utils.getNearbyEntities(location, EntityType.VILLAGER, AutoTrade.TRADE_DISTANCE+0.5, false);
 		Inventory destination = getDestination(trader);
 
 		for (Entity villager : villagers) {
-			Map.Entry<Boolean, List<ItemStack>> result = handleVillager(trader, (Villager) villager, source, destination, traderInventory);
+			Map.Entry<Boolean, List<ItemStack>> result = handleVillager(trader, (Villager) villager, source, destination);
 			if (result.getKey()) { return result.getValue(); }
 		}
 
 		return List.of();
 	}
 
-	public static Map.Entry<Boolean, List<ItemStack>> handleVillager(Block block, Villager villager, Inventory source, Inventory destination, Inventory trader) {
+	public static Map.Entry<Boolean, List<ItemStack>> handleVillager(Block block, Villager villager, Inventory source, Inventory destination) {
 		if (villager.getProfession() == Profession.NONE) { return Map.entry(false, List.of()); }
 		if (villager.isTrading() || villager.isSleeping()) { return Map.entry(false, List.of()); }
 
 		Bukkit.getPluginManager().callEvent(new PlayerInteractEntityEvent(AutoTrade.fakePlayer, villager)); //Support for global trading tweak
 
 		for (MerchantRecipe recipe : villager.getRecipes()) {
-			Map.Entry<Boolean, List<ItemStack>> result = handleTrade(block, villager, recipe, source, destination, trader);
+			Map.Entry<Boolean, List<ItemStack>> result = handleTrade(block, villager, recipe, source, destination);
 			if (result.getKey()) { return result; }
 		}
 
 		return Map.entry(false, List.of());
 	}
 
-	public static Map.Entry<Boolean, List<ItemStack>> handleTrade(Block block, Villager villager, MerchantRecipe recipe, Inventory source, Inventory destination, Inventory trader) {
+	public static Map.Entry<Boolean, List<ItemStack>> handleTrade(Block trader, Villager villager, MerchantRecipe recipe, Inventory source, Inventory destination) {
 		List<ItemStack> consumeItems = new ArrayList<>();
 		List<ItemStack> outputItems = new ArrayList<>();
-		getResultItems(villager, recipe, trader, consumeItems, outputItems);
+
+		MerchantRecipe merchantRecipe = TraderBlock.getMerchantRecipe(trader);
+		if (merchantRecipe == null) { return Map.entry(false, List.of()); }
+
+		Inventory recipeInventory = Bukkit.createInventory(null, InventoryType.DISPENSER);
+        recipeInventory.addItem(merchantRecipe.getIngredients().toArray(ItemStack[]::new));
+        recipeInventory.addItem(merchantRecipe.getResult());
+
+        getResultItems(villager, recipe, recipeInventory, consumeItems, outputItems);
 		if (outputItems.isEmpty() || consumeItems.isEmpty()) { return Map.entry(false, List.of()); }
 
 		//If no destination block then just dispense items
 		if ((destination == null) && neededExists(source, consumeItems)) {
-			if (!Villagers.tradeVillager(block, villager, villager.getRecipes().indexOf(recipe))) { return Map.entry(false, List.of()); }
+			if (!Traders.tradeVillager(trader, villager, villager.getRecipes().indexOf(recipe))) { return Map.entry(false, List.of()); }
 			removeConsumedItems(source, consumeItems);
 			return Map.entry(true, outputItems);
 		}
 
 		//Otherwise try to move items to destination
-		boolean result = setResultItems(block, villager, recipe, source, destination, consumeItems, outputItems);
+		boolean result = setResultItems(trader, villager, recipe, source, destination, consumeItems, outputItems);
 		return Map.entry(result, List.of());
     }
-
-	public static Inventory getSource(Block traders) {
-		BlockFace targetFace = ((org.bukkit.block.data.type.Dispenser) traders.getBlockData()).getFacing();
-
-		BlockState source = new Location(traders.getWorld(),
-				traders.getX() + targetFace.getOppositeFace().getModX(),
-				traders.getY() + targetFace.getOppositeFace().getModY(),
-				traders.getZ() + targetFace.getOppositeFace().getModZ()).getBlock().getState();
-
-		if (!(source instanceof InventoryHolder)) { return null; }
-		return ((InventoryHolder) source).getInventory();
-	}
 
 	public static Inventory getDestination(Block trader) {
 		BlockFace targetFace = ((org.bukkit.block.data.type.Dispenser) trader.getBlockData()).getFacing();
@@ -100,7 +95,7 @@ public class Traders {
 	}
 
 	public static Inventory getTraderInventory(Block trader) {
-		Dispenser dispenser = (Dispenser) trader.getState();
+		if (!(trader.getState() instanceof Dispenser dispenser)) { return null; }
 		return dispenser.getInventory();
 	}
 
@@ -111,7 +106,7 @@ public class Traders {
 		ItemStack result = recipe.getResult();
 		if (!trader.containsAtLeast(result, result.getAmount())) { return; }
 
-		ItemStack adjusted = Villagers.adjustItem(villager, recipe, recipe.getIngredients().get(0));
+		ItemStack adjusted = VillagerUtils.adjustItem(villager, AutoTrade.fakePlayer, recipe, recipe.getIngredients().get(0));
 		if (!trader.containsAtLeast(adjusted, adjusted.getAmount())) { return; }
 
 		//Second item should not be adjusted
@@ -136,7 +131,7 @@ public class Traders {
 		if (!neededExists(source, consumeItems)) { return false; }
 
 		//Trade with villager
-		if (!Villagers.tradeVillager(trader, villager, villager.getRecipes().indexOf(recipe))) { return false; }
+		if (!Traders.tradeVillager(trader, villager, villager.getRecipes().indexOf(recipe))) { return false; }
 
 		//Make a copy to restore in case if we run out of space
 		ItemStack[] restore = destination.getContents();
@@ -169,5 +164,41 @@ public class Traders {
 				}
 			}
 		}
+	}
+
+	public static boolean tradeVillager(Block trader, Villager villager, int trade) {
+		if (!VillagerUtils.canBuy(AutoTrade.fakePlayer, villager, trade)) { return false; }
+
+		for (ItemStack item : villager.getRecipes().get(trade).getIngredients()) {
+			item.setAmount(item.getMaxStackSize());
+			AutoTrade.fakePlayer.getInventory().addItem(item);
+		}
+
+		AutoTrade.fakePlayer.openMerchant(villager, true);
+		ReflectionUtils.selectTrade(AutoTrade.fakePlayer, trade);
+		ReflectionUtils.quickMoveStack(AutoTrade.fakePlayer, 2);
+
+		AutoTrade.fakePlayer.closeInventory();
+		AutoTrade.fakePlayer.getInventory().clear();
+		AutoTrade.fakePlayer.setTotalExperience(0);
+
+		//FUCK THE BUKKIT AGAIN, EntitySpawnEvent not working with xp
+		for (Entity entity : villager.getLocation().getWorld().getNearbyEntities(villager.getLocation(), 1, 1, 1)) {
+			if (!(entity instanceof ExperienceOrb)) { continue; }
+			if (storeOrb((ExperienceOrb) entity, villager, trader)) { break; }
+		}
+
+		return true;
+	}
+
+	public static boolean storeOrb(ExperienceOrb orb, Villager villager, Block block) {
+		for (Entity entity : orb.getLocation().getWorld().getNearbyEntities(orb.getLocation(), 0.01, 0.01, 0.01)) {
+			if (!entity.getUniqueId().equals(villager.getUniqueId())) { continue; }
+			TraderBlock.storeXp(block, orb.getExperience());
+			orb.remove();
+			return true;
+		}
+
+		return false;
 	}
 }

@@ -10,8 +10,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerRecipeBookClickEvent;
+import org.bukkit.inventory.BlockInventoryHolder;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 public record InventoryEvents(CustomBlock customBlock) implements Listener {
@@ -48,5 +51,13 @@ public record InventoryEvents(CustomBlock customBlock) implements Listener {
 			Utils.sendActionMessage(player, "This recipe is disabled.");
 			event.setRecipe(CustomBlocks.EMPTY_RECIPE);
 		}
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void onInventoryOpenEvent(InventoryOpenEvent event) {
+		InventoryHolder holder = event.getInventory().getHolder();
+		if (!(holder instanceof BlockInventoryHolder blockHolder)) { return; }
+		if (!customBlock.isCustomBlock(blockHolder.getBlock())) { return; }
+		if (!customBlock.prepareInventory(event, blockHolder.getBlock())) { event.setCancelled(true); }
 	}
 }

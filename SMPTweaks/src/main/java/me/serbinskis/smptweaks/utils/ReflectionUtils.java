@@ -10,17 +10,14 @@ import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.DisplayInfo;
 import net.minecraft.commands.CacheableFunction;
 import net.minecraft.commands.functions.CommandFunction;
-import net.minecraft.core.Registry;
 import net.minecraft.core.*;
+import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.dispenser.BlockSource;
-import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -40,7 +37,6 @@ import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 import net.minecraft.server.network.ServerConnectionListener;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.tags.TagKey;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity.RemovalReason;
@@ -59,6 +55,7 @@ import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.trading.Merchant;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.SignalGetter;
@@ -71,13 +68,11 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
-import net.minecraft.world.level.entity.LevelCallback;
 import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.level.redstone.ExperimentalRedstoneUtils;
 import net.minecraft.world.level.redstone.NeighborUpdater;
 import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.level.storage.TagValueInput;
-import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.loot.LootTable;
 import org.bukkit.*;
 import org.bukkit.advancement.Advancement;
@@ -87,14 +82,16 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.type.Comparator;
 import org.bukkit.craftbukkit.potion.CraftPotionType;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Villager;
 import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.player.PlayerAdvancementDoneEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionType;
@@ -787,10 +784,11 @@ public class ReflectionUtils {
 		((MerchantMenu) entityPlayer.containerMenu).tryMoveItems(index);
 	}
 
-	public static void sendMerchantOffers(Player player, Villager villager) {
+	public static void sendMerchantOffers(Player player, org.bukkit.inventory.Merchant merchant) {
 		ServerPlayer entityPlayer = ReflectionUtils.getEntityPlayer(player);
-		net.minecraft.world.entity.npc.Villager entityVillager = ReflectionUtils.getEntityVillager(villager);
-		entityPlayer.sendMerchantOffers(entityPlayer.containerMenu.containerId, entityVillager.getOffers(), villager.getVillagerLevel(), villager.getVillagerExperience(), true, true);
+		Merchant merhcant = (Merchant) ReflectionUtils.getEntity((Entity) merchant);
+		int level = (merchant instanceof Villager villager) ? villager.getVillagerLevel() : 1;
+		entityPlayer.sendMerchantOffers(entityPlayer.containerMenu.containerId, merhcant.getOffers(), level, merhcant.getVillagerXp(), merhcant.showProgressBar(), merhcant.canRestock());
 	}
 
 	public static int getAdvancementExperience(Advancement advancement) {

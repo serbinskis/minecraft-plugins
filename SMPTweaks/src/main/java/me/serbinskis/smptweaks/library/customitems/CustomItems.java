@@ -5,6 +5,7 @@ import me.serbinskis.smptweaks.library.customitems.custom.EmptyItem;
 import me.serbinskis.smptweaks.library.customitems.items.CustomItem;
 import me.serbinskis.smptweaks.library.customtextures.CustomTextures;
 import me.serbinskis.smptweaks.tweaks.CustomTweak;
+import me.serbinskis.smptweaks.utils.PersistentUtils;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
@@ -31,7 +32,16 @@ public class CustomItems extends CustomTweak {
         return REGISTRY_CUSTOM_ITEMS.getOrDefault(name.toLowerCase(), null);
     }
 
+    public static CustomItem getCustomItem(ItemStack itemStack) {
+        if (!PersistentUtils.hasPersistentDataString(itemStack, CustomItem.TAG_CUSTOM_ITEM)) { return null; }
+        return getCustomItem(PersistentUtils.getPersistentDataString(itemStack, CustomItem.TAG_CUSTOM_ITEM));
+    }
+
     public static ItemStack getItemStack(String name) {
-        return REGISTRY_CUSTOM_ITEMS.getOrDefault(name.toLowerCase(), null).getItemStack(0);
+        return getItemStack(name, "", "");
+    }
+
+    public static ItemStack getItemStack(String name, String prefix, String suffix) {
+        return REGISTRY_CUSTOM_ITEMS.getOrDefault(name.toLowerCase(), null).getItemStack(0, prefix, suffix);
     }
 }

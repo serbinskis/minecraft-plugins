@@ -32,7 +32,7 @@ public class CycleTrades extends CustomTweak {
 	public static MerchantRecipe getMerchantRecipe(boolean disabled) {
 		ItemStack itemStack = CustomItems.getItemStack("cycle_trade" + (disabled ? "_disabled" : ""));
 		MerchantRecipe merchantRecipe = new MerchantRecipe(PersistentUtils.setPersistentDataBoolean(itemStack, CYCLE_ITEM_TAG, true), 1);
-		merchantRecipe.setIngredients(Collections.nCopies(2, CustomItems.getItemStack("cycle_trade" + (disabled ? "_disabled" : ""))));
+		merchantRecipe.setIngredients(Collections.nCopies(2, merchantRecipe.getResult()));
 		return merchantRecipe;
 	}
 }

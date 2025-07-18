@@ -101,6 +101,18 @@ public class PersistentUtils {
 		setPersistentDataString(block.getState(), name, value);
 	}
 
+	public static boolean hasPersistentDataByteArray(Block block, String name) {
+		return hasPersistentDataByteArray(block.getState(), name);
+	}
+
+	public static byte[] getPersistentDataByteArray(Block block, String name) {
+		return getPersistentDataByteArray(block.getState(), name);
+	}
+
+	public static void setPersistentDataByteArray(Block block, String name, byte[] value) {
+		setPersistentDataByteArray(block.getState(), name, value);
+	}
+
 	//BlockState - not all
 	public static void removePersistentData(BlockState state, String name) {
 		NamespacedKey namespacedKey = new NamespacedKey(Main.plugin, name);
@@ -149,6 +161,22 @@ public class PersistentUtils {
 	public static void setPersistentDataString(BlockState state, String name, String value) {
 		NamespacedKey namespacedKey = new NamespacedKey(Main.plugin, name);
 		((TileState) state).getPersistentDataContainer().set(namespacedKey, PersistentDataType.STRING, value);
+		state.update();
+	}
+
+	public static boolean hasPersistentDataByteArray(BlockState state, String name) {
+		NamespacedKey namespacedKey = new NamespacedKey(Main.plugin, name);
+		return ((TileState) state).getPersistentDataContainer().has(namespacedKey, PersistentDataType.BYTE_ARRAY);
+	}
+
+	public static byte[] getPersistentDataByteArray(BlockState state, String name) {
+		NamespacedKey namespacedKey = new NamespacedKey(Main.plugin, name);
+		return ((TileState) state).getPersistentDataContainer().get(namespacedKey, PersistentDataType.BYTE_ARRAY);
+	}
+
+	public static void setPersistentDataByteArray(BlockState state, String name, byte[] value) {
+		NamespacedKey namespacedKey = new NamespacedKey(Main.plugin, name);
+		((TileState) state).getPersistentDataContainer().set(namespacedKey, PersistentDataType.BYTE_ARRAY, value);
 		state.update();
 	}
 

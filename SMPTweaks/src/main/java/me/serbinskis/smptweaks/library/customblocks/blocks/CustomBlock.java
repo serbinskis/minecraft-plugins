@@ -1,9 +1,9 @@
 package me.serbinskis.smptweaks.library.customblocks.blocks;
 
+import me.serbinskis.smptweaks.Main;
 import me.serbinskis.smptweaks.library.customtextures.TextureSplitter;
 import me.serbinskis.smptweaks.utils.PersistentUtils;
 import me.serbinskis.smptweaks.utils.ReflectionUtils;
-import me.serbinskis.smptweaks.Main;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -19,6 +19,7 @@ import org.bukkit.block.data.Powerable;
 import org.bukkit.block.data.type.Crafter;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -252,6 +253,7 @@ public class CustomBlock implements Listener {
     public Recipe prepareRecipe(NamespacedKey key, ItemStack itemStack) { return null; }
     public int preparePower(Block block) { return -1; }
     public boolean prepareDispense(Block block, HashMap<ItemStack, Map.Entry<ItemStack, Integer>> dispense) { return false; }
+    public boolean prepareInventory(InventoryOpenEvent event, Block block) { return true; }
     public ChatColor prepareGlowingColor(Block block) { return this.glow_color; }
     public void tick(Block block, long tick) {}
     public void create(Block block, boolean new_block) {}
