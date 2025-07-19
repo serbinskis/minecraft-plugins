@@ -51,7 +51,7 @@ public class VillagerEvents implements Listener {
 		}
 
 		villager.setVillagerExperience(999);
-		event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
+		Utils.playSound(event.getPlayer(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP);
 		event.getPlayer().openMerchant(villager, true);
 		event.setCancelled(true);
 	}

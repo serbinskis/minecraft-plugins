@@ -22,6 +22,7 @@ import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -149,7 +150,6 @@ public class BlockEvents implements Listener {
 
 		HashMap<ItemStack, Map.Entry<ItemStack, Integer>> dispense = new HashMap<>();
 		if (!customBlock.prepareDispense(event.getBlock(), dispense)) { inventory.setContents(sitems); return; }
-
 		busy = true;
 
 		for (Map.Entry<ItemStack, Map.Entry<ItemStack, Integer>> drop : dispense.entrySet()) {
@@ -187,9 +187,16 @@ public class BlockEvents implements Listener {
 		ItemStack[] sitems = inventory.getContents(); //Save items in case if prepareDispense() returns false
 		inventory.setContents(pitems); //Set items from physics event for custom dispense
 
+		//We restore items from physics event, because they do get modified before dispense event
+		//We could us papermc's pre dispense event, but then this library will work only on paper
+		//This restore is required so that we could correctly scan items inside prepareDispense, if needed
+
+		//Also if there will be any other events between physics event and dispense event
+		//Those items won't be saved, and will be just deleted, some day, I hopefully will fix this
+		//I really just want to drop support for comparators, and start fully depending on papermc
+
 		HashMap<ItemStack, Map.Entry<ItemStack, Integer>> dispense = new HashMap<>();
 		if (!customBlock.prepareDispense(source, dispense)) { inventory.setContents(sitems); return; }
-
 		busy = true;
 
 		for (Map.Entry<ItemStack, Map.Entry<ItemStack, Integer>> drop : dispense.entrySet()) {

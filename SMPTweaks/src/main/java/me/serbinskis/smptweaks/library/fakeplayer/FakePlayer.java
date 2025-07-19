@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -83,7 +84,7 @@ public class FakePlayer {
         return ReflectionUtils.removeFakePlayer(fakes.remove(uuid));
     }
 
-    public static boolean isFakePlayer(Player player) {
+    public static boolean isFakePlayer(HumanEntity player) {
         return isFakePlayer(player.getUniqueId());
     }
 

@@ -2,6 +2,7 @@ package me.serbinskis.smptweaks.custom.autotrade;
 
 import me.serbinskis.smptweaks.Main;
 import me.serbinskis.smptweaks.custom.autotrade.blocks.TraderBlock;
+import me.serbinskis.smptweaks.custom.autotrade.events.InventoryEvents;
 import me.serbinskis.smptweaks.custom.autotrade.inventory.CustomMerchant;
 import me.serbinskis.smptweaks.library.customblocks.CustomBlocks;
 import me.serbinskis.smptweaks.library.customitems.CustomItems;
@@ -30,6 +31,8 @@ public class AutoTrade extends CustomTweak {
 	public void onEnable() {
 		Location location = new Location(Bukkit.getWorlds().get(0), 0, 0, 0);
 		AutoTrade.fakePlayer = FakePlayer.addFakePlayer(location, new UUID(0, 0), false, false, false, true, false);
+
+		Bukkit.getPluginManager().registerEvents(new InventoryEvents(), Main.plugin);
 		Bukkit.getPluginManager().registerEvents(new CustomMerchant(), Main.plugin);
 
 		CustomBlocks.registerBlock(new TraderBlock());

@@ -27,6 +27,7 @@ import org.bukkit.inventory.recipe.CraftingBookCategory;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class TraderBlock extends CustomBlock {
@@ -64,8 +65,9 @@ public class TraderBlock extends CustomBlock {
     @Override
     public boolean prepareDispense(Block block, HashMap<ItemStack, Map.Entry<ItemStack, Integer>> dispense) {
         if (!AutoTrade.tweak.getGameRuleBoolean(block.getWorld())) { return false; }
-        Traders.handleTrader(block).forEach(e -> dispense.put(e, Map.entry(new ItemStack(Material.AIR), -1)));
-        return !dispense.isEmpty();
+        Map.Entry<Boolean, List<ItemStack>> result = Traders.handleTrader(block);
+        result.getValue().forEach(e -> dispense.put(e, Map.entry(new ItemStack(Material.AIR), -1)));
+        return result.getKey();
     }
 
     @Override

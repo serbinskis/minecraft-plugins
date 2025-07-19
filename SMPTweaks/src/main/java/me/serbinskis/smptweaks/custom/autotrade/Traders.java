@@ -26,9 +26,9 @@ import org.bukkit.inventory.MerchantRecipe;
 import java.util.*;
 
 public class Traders {
-	public static List<ItemStack> handleTrader(Block trader) {
+	public static Map.Entry<Boolean, List<ItemStack>> handleTrader(Block trader) {
 		Inventory source = getTraderInventory(trader);
-		if (source == null) { return List.of(); }
+		if (source == null) { return Map.entry(false, List.of()); }
 
 		Location location = trader.getLocation().clone().add(0.5, 0.5, 0.5);
 		Collection<Entity> villagers = Utils.getNearbyEntities(location, EntityType.VILLAGER, AutoTrade.TRADE_DISTANCE+0.5, false);
@@ -36,10 +36,10 @@ public class Traders {
 
 		for (Entity villager : villagers) {
 			Map.Entry<Boolean, List<ItemStack>> result = handleVillager(trader, (Villager) villager, source, destination);
-			if (result.getKey()) { return result.getValue(); }
+			if (result.getKey()) { return result; }
 		}
 
-		return List.of();
+		return Map.entry(false, List.of());
 	}
 
 	public static Map.Entry<Boolean, List<ItemStack>> handleVillager(Block block, Villager villager, Inventory source, Inventory destination) {
@@ -130,22 +130,20 @@ public class Traders {
 		//Check if needed items exists
 		if (!neededExists(source, consumeItems)) { return false; }
 
-		//Trade with villager
-		if (!Traders.tradeVillager(trader, villager, villager.getRecipes().indexOf(recipe))) { return false; }
-
 		//Make a copy to restore in case if we run out of space
-		ItemStack[] restore = destination.getContents();
+		ItemStack[] restore = Arrays.stream(destination.getContents()).map(e -> (e == null) ? null : e.clone()).toArray(ItemStack[]::new);
 
-		for (int i = 0; i < restore.length; i++) {
-			restore[i] = (restore[i] == null) ? null : restore[i].clone();
-		}
-
-		//Add items to destination inventory
+		//Add items to destination inventory, if fail, restore inventory and return
 		for (ItemStack item : outputItems) {
 			Map<Integer, ItemStack> left = destination.addItem(item.clone());
 			if (!left.isEmpty()) { destination.setStorageContents(restore); }
 			if (!left.isEmpty()) { return false; }
 		}
+
+		//Trade with villager, if fail, restore inventory and return
+		boolean result = Traders.tradeVillager(trader, villager, villager.getRecipes().indexOf(recipe));
+		if (!result) { destination.setStorageContents(restore); }
+		if (!result) { return false; }
 
 		//Remove items from source inventory
 		removeConsumedItems(source, consumeItems);

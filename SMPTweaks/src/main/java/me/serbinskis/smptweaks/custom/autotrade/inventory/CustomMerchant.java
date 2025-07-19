@@ -39,7 +39,7 @@ public class CustomMerchant implements Listener {
             wanderingTrader.setInvisible(true);
             wanderingTrader.setGravity(false);
             wanderingTrader.setInvulnerable(true);
-            wanderingTrader.setDespawnDelay(0);
+            wanderingTrader.setDespawnDelay(5);
             wanderingTrader.setSilent(true);
             wanderingTrader.setCanDrinkMilk(false);
             wanderingTrader.setCanDrinkPotion(false);
