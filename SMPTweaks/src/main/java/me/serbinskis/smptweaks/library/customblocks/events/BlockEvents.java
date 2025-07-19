@@ -1,16 +1,13 @@
 package me.serbinskis.smptweaks.library.customblocks.events;
 
+import io.papermc.paper.event.block.BlockPreDispenseEvent;
 import me.serbinskis.smptweaks.library.customblocks.blocks.CustomMarker;
 import me.serbinskis.smptweaks.utils.ReflectionUtils;
 import me.serbinskis.smptweaks.utils.TaskUtils;
 import me.serbinskis.smptweaks.utils.Utils;
 import me.serbinskis.smptweaks.library.customblocks.CustomBlocks;
 import me.serbinskis.smptweaks.library.customblocks.blocks.CustomBlock;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.Directional;
 import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -18,24 +15,17 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
-import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class BlockEvents implements Listener {
-	public static int DEFAULT_COMPARATOR_DELAY = 2;
 	public final CustomBlock customBlock;
 	public final HashMap<String, CustomBlock> explodelist = new HashMap<>();
-	public final HashMap<String, Block> ticklist = new HashMap<>();
-	public final HashMap<String, ItemStack[]> dispenselist = new HashMap<>();
-	public boolean busy = false;
-	public int busy_task = -1;
 
 	public BlockEvents(CustomBlock customBlock) { this.customBlock = customBlock; }
 
@@ -132,86 +122,24 @@ public class BlockEvents implements Listener {
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-	public void onBlockDispenseEvent(BlockDispenseEvent event) {
-		if (busy || !customBlock.isCustomBlock(event.getBlock())) { return; }
+	public void onBlockPreDispenseEvent(BlockPreDispenseEvent event) {
+		if (!customBlock.isCustomBlock(event.getBlock())) { return; }
 		if (customBlock.getDispensable() == CustomBlock.Dispensable.IGNORE) { return; }
 		if (customBlock.getDispensable() != CustomBlock.Dispensable.IGNORE) { event.setCancelled(true); }
 		if (customBlock.getDispensable() == CustomBlock.Dispensable.DISABLE) { return; }
 
 		Block block = event.getBlock();
-		String location = Utils.locationToString(block.getLocation());
-
-		ItemStack[] pitems = dispenselist.remove(location); //Get items before the event inside BlockPhysicsEvent
-		if (pitems == null) { return; }
-
 		Inventory inventory = ((org.bukkit.block.Container) block.getState()).getInventory();
-		ItemStack[] sitems = inventory.getContents(); //Save items in case if prepareDispense() returns false
-		inventory.setContents(pitems); //Set items from physics event for custom dispense
-
 		HashMap<ItemStack, Map.Entry<ItemStack, Integer>> dispense = new HashMap<>();
-		if (!customBlock.prepareDispense(event.getBlock(), dispense)) { inventory.setContents(sitems); return; }
-		busy = true;
+		if (!customBlock.prepareDispense(block, inventory, dispense)) { event.setCancelled(false); }
 
 		for (Map.Entry<ItemStack, Map.Entry<ItemStack, Integer>> drop : dispense.entrySet()) {
-			ReflectionUtils.dispenseItem(block, drop.getKey(), drop.getValue().getKey(), drop.getValue().getValue());
+			boolean result = ReflectionUtils.dispenseItem(block, drop.getKey());
+			if (result) { Utils.removeItem(inventory, drop.getValue().getKey(), drop.getValue().getValue()); } //Doesn't check if item in slot is similar
 		}
-
-		//Set result of custom dispense back to inventory, since even if you cancel event it will still set back old item
-		//(FIXED) This 1 tick allows to for hopper to move items which just replaces moved item from mover
-		ItemStack[] citems = ((org.bukkit.block.Container) block.getState()).getInventory().getContents();
-		busy_task = TaskUtils.scheduleSyncDelayedTask(() -> inventory.setContents(citems), 1L);
-
-		busy = false;
 	}
 
-	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-	public void onInventoryMoveItemEvent(InventoryMoveItemEvent event) {
-		Block source = event.getInitiator().getLocation().getBlock();
-		Block destination = event.getDestination().getLocation().getBlock();
-
-		//Fix for 1 tick gap inside BlockDispenseEvent
-		if ((destination.getType() == Material.DISPENSER || destination.getType() == Material.DROPPER || destination.getType() == Material.CRAFTER) && customBlock.isCustomBlock(destination)) {
-			TaskUtils.finishTask(busy_task);
-		}
-
-		if (busy || !customBlock.isCustomBlock(source)) { return; }
-		if (customBlock.getDispensable() == CustomBlock.Dispensable.IGNORE) { return; }
-		if (customBlock.getDispensable() != CustomBlock.Dispensable.IGNORE) { event.setCancelled(true); }
-		if (customBlock.getDispensable() == CustomBlock.Dispensable.DISABLE) { return; }
-
-		String location = Utils.locationToString(source.getLocation());
-		ItemStack[] pitems = dispenselist.remove(location); //Get items before the event inside BlockPhysicsEvent
-		if (pitems == null) { return; }
-
-		Inventory inventory = ((org.bukkit.block.Container) source.getState()).getInventory();
-		ItemStack[] sitems = inventory.getContents(); //Save items in case if prepareDispense() returns false
-		inventory.setContents(pitems); //Set items from physics event for custom dispense
-
-		//We restore items from physics event, because they do get modified before dispense event
-		//We could us papermc's pre dispense event, but then this library will work only on paper
-		//This restore is required so that we could correctly scan items inside prepareDispense, if needed
-
-		//Also if there will be any other events between physics event and dispense event
-		//Those items won't be saved, and will be just deleted, some day, I hopefully will fix this
-		//I really just want to drop support for comparators, and start fully depending on papermc
-
-		HashMap<ItemStack, Map.Entry<ItemStack, Integer>> dispense = new HashMap<>();
-		if (!customBlock.prepareDispense(source, dispense)) { inventory.setContents(sitems); return; }
-		busy = true;
-
-		for (Map.Entry<ItemStack, Map.Entry<ItemStack, Integer>> drop : dispense.entrySet()) {
-			ReflectionUtils.dispenseItem(source, drop.getKey(), drop.getValue().getKey(), drop.getValue().getValue());
-		}
-
-		//Set result of custom dispense back to inventory, since even if you cancel event it will still set back old item
-		//(FIXED) This 1 tick allows to for hopper to move items which just replaces moved item from mover
-		ItemStack[] citems = ((org.bukkit.block.Container) source.getState()).getInventory().getContents();
-		busy_task = TaskUtils.scheduleSyncDelayedTask(() -> inventory.setContents(citems), 1L);
-
-		busy = false;
-	}
-
-	//TODO: Not finished, there are still bugs, not also sure about infinite loop in here
+	/*//TODO: Not finished, there are still bugs, not also sure about infinite loop in here
 	//TODO: Fix issue with comparators not subtracting correctly when two custom emitted are working together
 	//TODO: https://i.imgur.com/QZ80X4z.png , https://i.imgur.com/308qB8o.png (KINDA FIXED)
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -265,5 +193,5 @@ public class BlockEvents implements Listener {
 				ReflectionUtils.updateNeighborsInFront(block);
 			}, DEFAULT_COMPARATOR_DELAY);
 		}
-	}
+	}*/
 }

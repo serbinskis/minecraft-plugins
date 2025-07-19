@@ -14,6 +14,7 @@ import net.minecraft.core.*;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.dispenser.BlockSource;
+import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -1245,20 +1246,15 @@ public class ReflectionUtils {
 	//ItemStack to remove can be null which means it will not take any items at all from source inventory and only dispense.
 	//If slot is positive it will try to take item from that slot, but if it fails it will take from first available,
 	//slot can be also negative, then it will immediately take from first available slot, if item is not found it will (TODO: fail or succeed?)
-	public static boolean dispenseItem(org.bukkit.block.Block source, ItemStack drop, @Nullable ItemStack remove, int slot) {
-		if (source.getType() == Material.DISPENSER) { return dispenseDispenser(source, drop, remove, slot); }
-		if (source.getType() == Material.DROPPER) { return dispenseDropper(source, drop, remove, slot); }
-		if (source.getType() == Material.CRAFTER) { return dispenseDropper(source, drop, remove, slot); }
+	public static boolean dispenseItem(org.bukkit.block.Block source, ItemStack drop) {
+		if (source.getType() == Material.DISPENSER) { return dispenseDispenser(source, drop); }
+		if (source.getType() == Material.DROPPER) { return dispenseDropper(source, drop); }
 		return false;
 	}
 
-	//TODO: Should we remove item, if result of dispense is modified item? (Currently: NO)
-	private static boolean dispenseDispenser(org.bukkit.block.Block source, ItemStack drop, @Nullable ItemStack remove, int slot) {
+	private static boolean dispenseDispenser(org.bukkit.block.Block source, ItemStack drop) {
 		if (drop.getAmount() <= 0) { return true; }
-		if ((source.getType() != Material.DISPENSER) && (source.getType() != Material.DROPPER)) { return false; }
-		if (remove == null) { remove = new ItemStack(Material.AIR); }
-		if (remove.getType() == Material.AIR) { slot = -1; }
-		drop = drop.clone(); remove = remove.clone(); //Make sure drop and remove are not the same item
+		if (!List.of(Material.DISPENSER, Material.DROPPER).contains(source.getType())) { return false; }
 
 		BlockPos blockPos = new BlockPos(source.getX(), source.getY(), source.getZ());
 		ServerLevel serverLevel = getWorld(source.getLocation().getWorld());
@@ -1267,34 +1263,18 @@ public class ReflectionUtils {
 		BlockSource blockSource = new BlockSource(serverLevel, blockPos, blockState, tileentitydispenser);
 
 		DispenseItemBehavior dispenseItemBehavior = DispenserBlock.getDispenseBehavior(blockSource, asNMSCopy(drop));
+		if (source.getType() == Material.DROPPER) { dispenseItemBehavior = new DefaultDispenseItemBehavior(); }
 		net.minecraft.world.item.ItemStack result = dispenseItemBehavior.dispense(blockSource, asNMSCopy(drop));
 		if (result.getCount() == drop.getAmount()) { return false; } //It failed to dispense or item was modified inside called event
 
-		org.bukkit.block.Container container = (org.bukkit.block.Container) source.getState();
-		remove.setAmount(1); //We always remove by 1 item
-		drop.setAmount(result.getCount()); //Update drop amount after dispense
-
-		//IDC, I will not check if item doesn't exist, I will just remove it
-		if (slot < 0) {
-			Utils.removeItem(container.getInventory(), remove); //Fuck you spigot, can't even make simple method to remove items
-		} else {
-			ItemStack itemStack = container.getInventory().getItem(slot);
-			if (itemStack == null) { itemStack = new ItemStack(Material.AIR); }
-			itemStack.setAmount(itemStack.getAmount()-1);
-			if (itemStack.getAmount() <= 0) { itemStack = new ItemStack(Material.AIR); }
-			container.getInventory().setItem(slot, itemStack);
-		}
-
-		//Sadly, but dispense only can dispense by 1 item
-		return dispenseDispenser(source, drop, remove, slot);
+		drop = Utils.cloneItem(drop, result.getCount());
+		return dispenseDispenser(source, drop); //Sadly, but dispense only can dispense by 1 item
 	}
 
-	private static boolean dispenseDropper(org.bukkit.block.Block source, ItemStack drop, ItemStack remove, int slot) {
+	private static boolean dispenseDropper(org.bukkit.block.Block source, ItemStack drop) {
 		if (drop.getAmount() <= 0) { return true; }
 		if (source.getType() != Material.DROPPER) { return false; }
-		if (remove == null) { remove = new ItemStack(Material.AIR); }
-		if (remove.getType() == Material.AIR) { slot = -1; }
-		drop = drop.clone(); remove = remove.clone();
+		drop = drop.clone();
 
 		BlockPos blockPos = new BlockPos(source.getX(), source.getY(), source.getZ());
 		ServerLevel serverLevel = getWorld(source.getLocation().getWorld());
@@ -1306,7 +1286,7 @@ public class ReflectionUtils {
 
 		//If there is no container in front then just act like dispenser
 		if (!(dblock.getState() instanceof org.bukkit.block.Container container)) {
-			return dispenseDispenser(source, drop, remove, slot);
+			return dispenseDispenser(source, drop);
 		}
 
 		ItemStack event_item = Utils.cloneItem(drop, 1); //We always move by 1 item
@@ -1318,22 +1298,8 @@ public class ReflectionUtils {
 		net.minecraft.world.item.ItemStack itemstack1 = HopperBlockEntity.addItem(tileentitydispenser, iinventory, asNMSCopy(event.getItem()), enumdirection.getOpposite());
 		if (!(event.getItem().equals(event_item) && itemstack1.isEmpty())) { return false; } //If item was modified or was not moved successfully return
 
-		org.bukkit.block.Container dropper = (org.bukkit.block.Container) source.getState();
-		remove.setAmount(1); //We always remove by 1 item
 		drop.setAmount(drop.getAmount()-1); //Update drop amount after moving
-
-		//IDC, I will not check if item doesn't exist, I will just remove it
-		if (slot < 0) {
-			Utils.removeItem(dropper.getInventory(), remove); //Fuck you spigot, can't even make simple method to remove items
-		} else {
-			ItemStack itemStack = dropper.getInventory().getItem(slot);
-			if (itemStack == null) { itemStack = new ItemStack(Material.AIR); }
-			itemStack.setAmount(itemStack.getAmount()-1);
-			if (itemStack.getAmount() <= 0) { itemStack = new ItemStack(Material.AIR); }
-			dropper.getInventory().setItem(slot, itemStack);
-		}
-
-		return dispenseDropper(source, drop, remove, slot);
+		return dispenseDropper(source, drop);
 	}
 
 	public static Packet<?> editSpawnPacket(Object packet, @Nullable Boolean isFlat, @Nullable World.Environment env) {

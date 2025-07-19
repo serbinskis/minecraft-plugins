@@ -8,7 +8,7 @@ public class BetterFurnaces extends CustomTweak {
     public static CustomTweak tweak;
 
     public BetterFurnaces() {
-        super(BetterFurnaces.class, false, false);
+        super(BetterFurnaces.class, true, false);
         this.setGameRule("doBetterFurnaces", true, false);
         this.setDescription("Adds more and faster furnaces.");
         BetterFurnaces.tweak = this;

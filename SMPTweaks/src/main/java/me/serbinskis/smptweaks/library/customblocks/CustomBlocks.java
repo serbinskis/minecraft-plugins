@@ -30,7 +30,7 @@ public class CustomBlocks extends CustomTweak {
 	public static ShapedRecipe EMPTY_RECIPE = new ShapedRecipe(new NamespacedKey(Main.plugin, "f9300cc0c1434e088d114b8869dd379e"), new ItemStack(Material.POISONOUS_POTATO));
 
 	public CustomBlocks() {
-		super(CustomBlocks.class, false, false, true);
+		super(CustomBlocks.class, true, false, true);
 		this.setCommand(new Commands(this, "cblocks"));
 		this.setDescription("Library for custom blocks");
 	}

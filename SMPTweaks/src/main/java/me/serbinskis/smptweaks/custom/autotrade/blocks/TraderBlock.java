@@ -18,10 +18,7 @@ import org.bukkit.block.Container;
 import org.bukkit.entity.*;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.MerchantRecipe;
-import org.bukkit.inventory.Recipe;
-import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.inventory.*;
 import org.bukkit.inventory.recipe.CraftingBookCategory;
 
 import javax.annotation.Nullable;
@@ -41,7 +38,6 @@ public class TraderBlock extends CustomBlock {
         this.setCustomTitle("Trader");
         this.setTexture("trader_block.png");
         this.setDispensable(Dispensable.CUSTOM);
-        this.setComparable(Comparable.IGNORE);
     }
 
     @Override
@@ -63,11 +59,10 @@ public class TraderBlock extends CustomBlock {
     }
 
     @Override
-    public boolean prepareDispense(Block block, HashMap<ItemStack, Map.Entry<ItemStack, Integer>> dispense) {
+    public boolean prepareDispense(Block block, Inventory inventory, HashMap<ItemStack, Map.Entry<ItemStack, Integer>> dispense) {
         if (!AutoTrade.tweak.getGameRuleBoolean(block.getWorld())) { return false; }
-        Map.Entry<Boolean, List<ItemStack>> result = Traders.handleTrader(block);
-        result.getValue().forEach(e -> dispense.put(e, Map.entry(new ItemStack(Material.AIR), -1)));
-        return result.getKey();
+        Traders.handleTrader(block).forEach(e -> dispense.put(e, Map.entry(new ItemStack(Material.AIR), -1)));
+        return true;
     }
 
     @Override
@@ -128,6 +123,10 @@ public class TraderBlock extends CustomBlock {
     public static void setMerchantRecipe(Block block, MerchantRecipe recipe) {
         if (!(block.getState() instanceof Container container)) { return; }
         PersistentUtils.setPersistentDataByteArray(container, TAG_AUTO_TRADE_RECIPE, VillagerUtils.encodeMerchantRecipe(recipe));
+    }
+
+    public static boolean hasMerchantRecipe(Block block) {
+        return PersistentUtils.hasPersistentDataByteArray(block, TAG_AUTO_TRADE_RECIPE);
     }
 
     public static @Nullable MerchantRecipe getMerchantRecipe(Block block) {

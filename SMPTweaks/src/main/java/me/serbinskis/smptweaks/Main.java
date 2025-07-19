@@ -10,6 +10,7 @@ import me.serbinskis.smptweaks.library.tinyprotocol.TinyProtocol;
 import me.serbinskis.smptweaks.tweaks.CustomTweak;
 import me.serbinskis.smptweaks.tweaks.TweakManager;
 import me.serbinskis.smptweaks.utils.GameRules;
+import me.serbinskis.smptweaks.utils.PaperUtils;
 import me.serbinskis.smptweaks.utils.ReflectionUtils;
 import me.serbinskis.smptweaks.utils.Utils;
 import org.bukkit.Bukkit;
@@ -55,7 +56,7 @@ public class Main extends JavaPlugin implements Listener {
 		Main.plugin.getCommand("smptweaks").setTabCompleter(new Commands());
 
 		PlaceholderAPI.register();
-		CustomBlocks.start();
+		if (PaperUtils.isPaper()) { CustomBlocks.start(); }
 		CustomItems.start();
 		CustomTextures.start();
 		TinyProtocol.start();
@@ -63,7 +64,7 @@ public class Main extends JavaPlugin implements Listener {
 
 	@Override
 	public void onDisable() {
-		manager.disableAll();
+		if (manager != null) { manager.disableAll(); }
 		TinyProtocol.stop();
 	}
 

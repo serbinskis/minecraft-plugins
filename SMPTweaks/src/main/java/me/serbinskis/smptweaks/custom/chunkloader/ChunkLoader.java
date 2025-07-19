@@ -22,7 +22,7 @@ public class ChunkLoader extends CustomTweak {
 	private int task;
 
 	public ChunkLoader() {
-		super(ChunkLoader.class, false, false);
+		super(ChunkLoader.class, true, false);
 		this.setConfigs(List.of("config.yml", "loaders.yml"));
 		this.setGameRule("doChunkLoaders", true, false);
 		this.setDescription("Allows loading chunks as if a player was standing there. " +

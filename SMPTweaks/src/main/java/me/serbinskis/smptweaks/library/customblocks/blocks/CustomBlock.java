@@ -39,7 +39,6 @@ public class CustomBlock implements Listener {
     public static String TAG_BLOCK = "SMPTWEAKS_CUSTOM_BLOCK";
     public static String TAG_MARKED_ITEM = "SMPTWEAKS_CBLOCK_MARKED";
     private Dispensable dispensable = Dispensable.IGNORE;
-    private Comparable comparable = Comparable.IGNORE;
     private ChatColor glow_color = ChatColor.RESET;
     private boolean tickable = true;
     private final Material block_base;
@@ -106,14 +105,6 @@ public class CustomBlock implements Listener {
 
     public Dispensable getDispensable() {
         return dispensable;
-    }
-
-    public void setComparable(Comparable comparable) {
-        this.comparable = comparable;
-    }
-
-    public Comparable getComparable() {
-        return comparable;
     }
 
     public void setGlowing(ChatColor glow_color) {
@@ -251,8 +242,7 @@ public class CustomBlock implements Listener {
     @Nullable
     public ItemStack prepareCraft(@Nullable PrepareItemCraftEvent event, World world, ItemStack result) { return result; }
     public Recipe prepareRecipe(NamespacedKey key, ItemStack itemStack) { return null; }
-    public int preparePower(Block block) { return -1; }
-    public boolean prepareDispense(Block block, HashMap<ItemStack, Map.Entry<ItemStack, Integer>> dispense) { return false; }
+    public boolean prepareDispense(Block block, Inventory inventory, HashMap<ItemStack, Map.Entry<ItemStack, Integer>> dispense) { return false; }
     public boolean prepareInventory(InventoryOpenEvent event, Block block) { return true; }
     public ChatColor prepareGlowingColor(Block block) { return this.glow_color; }
     public void tick(Block block, long tick) {}
@@ -260,5 +250,4 @@ public class CustomBlock implements Listener {
     public void remove(Block block, boolean intentional) {}
 
     public enum Dispensable { DISABLE, IGNORE, CUSTOM }
-    public enum Comparable { DISABLE, IGNORE, CUSTOM }
 }

@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class CustomMerchant implements Listener {
     public static String TAG_CUSTOM_MERCHANT = "AUTO_TRADE_IS_CUSTOM_MERCHANT";
@@ -61,6 +62,14 @@ public class CustomMerchant implements Listener {
         MerchantRecipe merchantRecipe0 = TraderBlock.getMerchantRecipe(block);
         if (merchantRecipe0 != null) { recipeList.addFirst(merchantRecipe0); }
         recipeList = Utils.removeDupes(recipeList, CustomMerchant::tradeEquals);
+
+        /*if (TraderBlock.hasMerchantRecipe(block)) { //If recipe is out of stock, it will fail to load result slot in the menu
+            MerchantRecipe merchantRecipe0 = TraderBlock.getMerchantRecipe(block);
+            Stream<MerchantRecipe> recipeStream = recipeList.stream().filter(e -> CustomMerchant.tradeEquals(e, merchantRecipe0));
+            Boolean outOfStock = recipeStream.filter(e -> e.getMaxUses() < e.getUses()).map(e -> true).findFirst().orElse(false);
+            if (outOfStock) { merchantRecipe0.setUses(merchantRecipe0.getMaxUses()); }
+            recipeList.addFirst(merchantRecipe0);
+        }*/
 
         if (TraderBlock.getXp(block) > 0) {
             MerchantRecipe merchantRecipe1 = new MerchantRecipe(CustomItems.getItemStack("trader_get_experience", "", " (" + TraderBlock.getXp(block) + " EXP)"), 1);

@@ -8,6 +8,7 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
@@ -15,6 +16,7 @@ import org.bukkit.inventory.ShapedRecipe;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class TestBlock extends CustomBlock {
     public TestBlock() {
@@ -23,7 +25,6 @@ public class TestBlock extends CustomBlock {
         this.setCustomName(Main.SYM_COLOR + "rCustom Block");
         this.setCustomTitle("Custom Block");
         this.setDispensable(Dispensable.CUSTOM);
-        this.setComparable(Comparable.CUSTOM);
         this.setGlowing(ChatColor.WHITE);
     }
 
@@ -36,20 +37,9 @@ public class TestBlock extends CustomBlock {
     }
 
     @Override
-    public int preparePower(Block block) {
-        if (!(block.getState() instanceof Container)) { return 0; }
-        return (int) Arrays.stream(((Container) block.getState()).getInventory().getContents()).filter(e -> (e != null && e.getType() != Material.AIR)).count();
-    }
-
-    @Override
-    public boolean prepareDispense(Block block, HashMap<ItemStack, Map.Entry<ItemStack, Integer>> dispense) {
+    public boolean prepareDispense(Block block, Inventory inventory, HashMap<ItemStack, Map.Entry<ItemStack, Integer>> dispense) {
         if (!(block.getState() instanceof Container)) { return false; }
-
-        ItemStack drop = Arrays.stream(((Container) block.getState()).getInventory().getContents()).filter(e -> (e != null && e.getType() != Material.AIR)).findFirst().orElse(null);
-        if (drop == null) { return false; } else { drop = drop.clone(); }
-        //drop.setAmount(1);
-
-        //dispense.put(drop, Map.entry(new ItemStack(Material.AIR), -1));
+        ItemStack drop = Arrays.stream(inventory.getContents()).filter(Objects::nonNull).filter(e -> !Material.AIR.equals(e.getType())).findFirst().orElse(null);
         dispense.put(drop, Map.entry(drop, -1));
         return true;
     }

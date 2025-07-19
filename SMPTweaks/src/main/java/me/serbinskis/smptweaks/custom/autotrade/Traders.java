@@ -26,9 +26,9 @@ import org.bukkit.inventory.MerchantRecipe;
 import java.util.*;
 
 public class Traders {
-	public static Map.Entry<Boolean, List<ItemStack>> handleTrader(Block trader) {
+	public static List<ItemStack> handleTrader(Block trader) {
 		Inventory source = getTraderInventory(trader);
-		if (source == null) { return Map.entry(false, List.of()); }
+		if (source == null) { return List.of(); }
 
 		Location location = trader.getLocation().clone().add(0.5, 0.5, 0.5);
 		Collection<Entity> villagers = Utils.getNearbyEntities(location, EntityType.VILLAGER, AutoTrade.TRADE_DISTANCE+0.5, false);
@@ -36,10 +36,10 @@ public class Traders {
 
 		for (Entity villager : villagers) {
 			Map.Entry<Boolean, List<ItemStack>> result = handleVillager(trader, (Villager) villager, source, destination);
-			if (result.getKey()) { return result; }
+			if (result.getKey()) { return result.getValue(); }
 		}
 
-		return Map.entry(false, List.of());
+		return List.of();
 	}
 
 	public static Map.Entry<Boolean, List<ItemStack>> handleVillager(Block block, Villager villager, Inventory source, Inventory destination) {

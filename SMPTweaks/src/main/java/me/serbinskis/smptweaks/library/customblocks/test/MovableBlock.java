@@ -16,7 +16,6 @@ public class MovableBlock extends CustomBlock {
         super("movable_block", Material.DIAMOND_BLOCK);
         this.setCustomName(Main.SYM_COLOR + "rMovable Block");
         this.setCustomTitle("Movable Block");
-        this.setComparable(Comparable.DISABLE);
         this.setGlowing(ChatColor.BLACK);
     }
 

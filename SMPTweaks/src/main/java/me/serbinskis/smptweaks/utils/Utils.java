@@ -268,14 +268,23 @@ public class Utils {
 		return null;
 	}
 
-	public static void removeItem(Inventory inventory, ItemStack itemStack) {
-		for (int i = 0; i < inventory.getSize(); i++) {
-			ItemStack item = inventory.getItem(i);
-			if ((item == null) || !item.isSimilar(itemStack)) { continue; }
-			item.setAmount(Math.max(item.getAmount() - itemStack.getAmount(), 0));
-			if (item.getAmount() <= 0) { item = new ItemStack(Material.AIR); }
-			inventory.setItem(i, item);
+	public static void removeItem(Inventory inventory, ItemStack remove, int slot) {
+		if (slot >= 0) {
+			ItemStack itemStack = Objects.requireNonNullElse(inventory.getItem(slot), new ItemStack(Material.AIR));
+			itemStack.setAmount(Math.max((itemStack.getAmount() - remove.getAmount()), 0));
+			inventory.setItem(slot, itemStack);
 			return;
+		}
+
+		int amount = remove.getAmount(); //Btw, under specific conditions, this is possible remove == sourceItem
+
+		for (int i = 0; i < amount; i++) {
+			for (ItemStack sourceItem : inventory.getContents()) {
+				if ((sourceItem != null) && sourceItem.isSimilar(remove)) {
+					sourceItem.setAmount(sourceItem.getAmount()-1);
+					break;
+				}
+			}
 		}
 	}
 
