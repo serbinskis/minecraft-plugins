@@ -272,7 +272,7 @@ public class Utils {
 		for (int i = 0; i < inventory.getSize(); i++) {
 			ItemStack item = inventory.getItem(i);
 			if ((item == null) || !item.isSimilar(itemStack)) { continue; }
-			item.setAmount(Math.max(item.getAmount()-itemStack.getAmount(), 0));
+			item.setAmount(Math.max(item.getAmount() - itemStack.getAmount(), 0));
 			if (item.getAmount() <= 0) { item = new ItemStack(Material.AIR); }
 			inventory.setItem(i, item);
 			return;
