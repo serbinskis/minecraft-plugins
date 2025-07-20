@@ -16,7 +16,7 @@ import java.util.List;
 
 public class FirePotion extends CustomPotion {
 	public FirePotion() {
-		super(VanillaPotion.create(PotionType.AWKWARD), Material.BLAZE_ROD, "fire", Color.fromRGB(226, 88, 34));
+		super(VanillaPotion.create(PotionType.AWKWARD), Material.FIRE_CHARGE, "fire", Color.fromRGB(226, 88, 34));
 		this.setDisplayName("§r§fPotion of Fire");
 		this.setLore(List.of("§9Sets on fire"));
 		this.setTippedArrow(true, "§r§fArrow of Fire");

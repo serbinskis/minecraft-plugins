@@ -14,7 +14,7 @@ import java.util.List;
 
 public class EndRecallPotion extends CustomPotion {
 	public EndRecallPotion() {
-		super(UnregisteredPotion.create(NetherRecallPotion.class), Material.DRAGON_HEAD, "end_recall", Color.fromRGB(60, 0, 100));
+		super(UnregisteredPotion.create(RecallPotion.class), Material.SHULKER_SHELL, "end_recall", Color.fromRGB(60, 0, 100));
 		this.setDisplayName("§r§fPotion of End Recall");
 		this.setLore(List.of("§9Teleports to The End"));
 		this.setTippedArrow(true, "§r§fArrow of End Recall");

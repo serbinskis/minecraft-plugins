@@ -23,7 +23,7 @@ import java.util.UUID;
 
 public class WormholePotion extends CustomPotion {
 	public WormholePotion() {
-		super(UnregisteredPotion.create(RecallPotion.class), Material.ENDER_EYE, "wormhole", Color.fromRGB(120, 105, 235));
+		super(UnregisteredPotion.create(RecallPotion.class), Material.ECHO_SHARD, "wormhole", Color.fromRGB(120, 105, 235));
 		this.setDisplayName("§r§fPotion of Wormhole");
 		this.setLore(List.of("§9Shoot a player with arrow and then use the potion."));
 		this.setTippedArrow(true, "§r§fArrow of Wormhole");

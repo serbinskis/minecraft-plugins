@@ -21,7 +21,7 @@ public class NetherRecallPotion extends CustomPotion {
 	public ArrayList<UUID> TELEPORT_ALLOW = new ArrayList<>();
 
 	public NetherRecallPotion() {
-		super(UnregisteredPotion.create(RecallPotion.class), Material.CRYING_OBSIDIAN, "nether_recall", Color.fromRGB(174, 55, 255));
+		super(UnregisteredPotion.create(RecallPotion.class), Material.CRIMSON_FUNGUS, "nether_recall", Color.fromRGB(174, 55, 255));
 		this.setDisplayName("§r§fPotion of Nether Recall");
 		this.setLore(List.of("§9Teleports to Nether"));
 		this.setTippedArrow(true, "§r§fArrow of Nether Recall");
