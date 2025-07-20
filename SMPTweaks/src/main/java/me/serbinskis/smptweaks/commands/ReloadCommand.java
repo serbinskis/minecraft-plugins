@@ -3,6 +3,7 @@ package me.serbinskis.smptweaks.commands;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.serbinskis.smptweaks.tweaks.TweakManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
@@ -26,7 +27,7 @@ public class ReloadCommand {
 			return true;
 		}
 
-		CustomTweak tweak = Main.manager.getTweak(args[0].toLowerCase(), false);
+		CustomTweak tweak = TweakManager.getTweak(args[0].toLowerCase(), false);
 
 		if (tweak == null) {
 			Utils.sendMessage(sender, Commands.NO_TWEAK);
@@ -48,7 +49,7 @@ public class ReloadCommand {
 		if ((args.length == 2) && Utils.hasPermissions(sender, "smptweaks.reload")) {
 			ArrayList<String> tweaks = new ArrayList<String>();
 			
-			for (CustomTweak tweak : Main.manager.getTweaks()) {
+			for (CustomTweak tweak : TweakManager.getTweaks()) {
 				if (tweak.isReloadable()) { tweaks.add(tweak.getName()); }
 			}
 

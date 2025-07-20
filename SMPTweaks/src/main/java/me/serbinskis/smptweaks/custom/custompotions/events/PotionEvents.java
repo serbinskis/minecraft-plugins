@@ -72,12 +72,4 @@ public class PotionEvents implements Listener {
 		if ((customPotion == null) || !customPotion.isEnabled()) { return; }
 		customPotion.onProjectileHit(event);
 	}
-
-	/*@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-	public void onItemSpawn(ItemSpawnEvent event) {
-		ItemStack itemStack = event.getEntity().getItemStack();
-		CustomPotion customPotion = PotionManager.getCustomPotion(itemStack);
-		if (customPotion == null) { return; }
-		event.getEntity().setItemStack(ReflectionUtils.setPotionTag(itemStack, CustomPotion.PLACEHOLDER_POTION));
-	}*/
 }

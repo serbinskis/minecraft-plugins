@@ -25,33 +25,27 @@ public class Main extends JavaPlugin implements Listener {
 	public static boolean DEBUG_MODE = System.getenv("computername").equalsIgnoreCase("SERBIX-PC");
 	public static Sound DENY_SOUND_EFFECT = Sound.BLOCK_NOTE_BLOCK_HARP;
 	public static char SYM_COLOR = '§';
-	public static String TWEAKS_PACKAGE = "me.serbinskis.smptweaks";
 	public static String MESSAGE_COLOR = SYM_COLOR + "9";
 	public static String PREFIX = "SMPTweaks-";
-	public static GameRules gameRules;
-	public static TweakManager manager;
 	public static Main plugin;
 
 	@Override
 	public void onEnable() {
 		Main.plugin = this;
 		Main.plugin.saveDefaultConfig();
-		Main.gameRules = new GameRules(Main.plugin).register();
-		Main.manager = new TweakManager();
 
 		Utils.sendMessage("[SMPTweaks] Server Version: " + Bukkit.getBukkitVersion() + " (STARTUP)");
 		Bukkit.getPluginManager().registerEvents(Main.plugin, Main.plugin);
-		ReflectionUtils.getInstances(getPluginClassLoader(), TWEAKS_PACKAGE, CustomTweak.class, true, true, true).forEach(Main.manager::addTweak);
-		Main.manager.loadTweaks(true);
+		TweakManager.loadTweaks(true);
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
-	public void onServerLoadEvent(ServerLoadEvent event) {                                                    //Actually it is POSTWORLD -> MinecraftServer.java
+	public void onServerLoadEvent(ServerLoadEvent event) {                                            //Actually it is POSTWORLD -> MinecraftServer.java
 		if (event.getType() != ServerLoadEvent.LoadType.STARTUP) { return; }                                  //this.server.enablePlugins(org.bukkit.plugin.PluginLoadOrder.POSTWORLD);
 		Utils.sendMessage("[SMPTweaks] Server Version: " + Bukkit.getBukkitVersion() + " (POSTWORLD)");  //this.server.getPluginManager().callEvent(new ServerLoadEvent(ServerLoadEvent.LoadType.STARTUP));
 		FakePlayer.start();																					  //this.connection.acceptConnections();
 
-		Main.manager.loadTweaks(false);
+		TweakManager.loadTweaks(false);
 		Main.plugin.getCommand("smptweaks").setExecutor(new Commands());
 		Main.plugin.getCommand("smptweaks").setTabCompleter(new Commands());
 
@@ -64,11 +58,15 @@ public class Main extends JavaPlugin implements Listener {
 
 	@Override
 	public void onDisable() {
-		if (manager != null) { manager.disableAll(); }
+		TweakManager.disableAll();
 		TinyProtocol.stop();
 	}
 
-	public ClassLoader getPluginClassLoader() {
-		return this.getClassLoader();
+	public static ClassLoader getPluginClassLoader() {
+		return Main.plugin.getClassLoader();
+	}
+
+	public static JavaPlugin getPlugin() {
+		return Main.plugin;
 	}
 }

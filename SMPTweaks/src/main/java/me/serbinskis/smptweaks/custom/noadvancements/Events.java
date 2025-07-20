@@ -40,7 +40,7 @@ public class Events implements Listener {
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onPacketEvent(PacketEvent event) {
 		if ((event.getPacketType() == PacketType.SOUND) && (preventSoundPackets.remove(event.getPlayer().getUniqueId()) != null)) {
-			Sound sound = ReflectionUtils.getBukkitSound(event.getPacket());
+			Sound sound = ReflectionUtils.getBukkitSoundInfo(event.getPacket()).getKey();
 			if (sound.equals(Sound.ENTITY_PLAYER_LEVELUP)) { event.setCancelled(true); }
 		}
 

@@ -30,7 +30,7 @@ public class NoArrowInfinity extends CustomTweak {
             for (Player player : Bukkit.getOnlinePlayers()) { checkPlayer(player); }
         }, 1L, 1L);
 
-		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
+		Bukkit.getPluginManager().registerEvents(new Events(), Main.getPlugin());
 	}
 
 	//Instant build is not creative mode, and it gives different perks to player

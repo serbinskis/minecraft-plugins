@@ -20,7 +20,6 @@ import java.util.Random;
 import java.util.stream.Stream;
 
 public class PlayerStep extends CustomTweak {
-    public static CustomTweak tweak;
     public static String TAG_PLAYER_STEP = "isPlayerStep";
     public static String STEP_CHARACTER = "⬛";
     public static float STEP_SCALE = 1.3f;
@@ -28,6 +27,7 @@ public class PlayerStep extends CustomTweak {
     public static float STEP_RANDOM_OFFSET = 0.256f;
     public static float STEP_BASE_DISTANCE = 0.24f;
     public static long STEP_REMOVE_INTERVAL = 15 * 20L;
+    public static CustomTweak tweak;
 
     public PlayerStep() {
         super(PlayerStep.class, true);
@@ -37,7 +37,7 @@ public class PlayerStep extends CustomTweak {
     }
 
     public void onEnable() {
-        Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
+        Bukkit.getPluginManager().registerEvents(new Events(), Main.getPlugin());
     }
 
     public static boolean isPlayerStepNearby(Location location) {

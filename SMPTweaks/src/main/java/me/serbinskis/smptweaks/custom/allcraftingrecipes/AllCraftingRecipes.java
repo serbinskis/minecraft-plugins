@@ -31,6 +31,6 @@ public class AllCraftingRecipes extends CustomTweak {
 		}, 0);
 
 		//Filter STRUCTURE_VOID, it is support for Stellarity datapack, since they use special recipes for custom events
-		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
+		Bukkit.getPluginManager().registerEvents(new Events(), Main.getPlugin());
 	}
 }

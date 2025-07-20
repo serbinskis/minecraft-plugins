@@ -243,26 +243,26 @@ public class Utils {
 
 	//Get attacker from entity
 	public static Player getAttacker(Entity entity) {
-		if (entity instanceof Player) { return ((Player) entity); }
+		if (entity instanceof Player) { return (Player) entity; }
 
-		if ((entity instanceof Projectile)) {
+		if (entity instanceof Projectile) {
 			ProjectileSource attacker = ((Projectile) entity).getShooter();
-			if ((attacker instanceof Player)) { return ((Player) attacker); }
+			if (attacker instanceof Player) { return (Player) attacker; }
 		}
 
-		if ((entity instanceof AreaEffectCloud)) {
+		if (entity instanceof AreaEffectCloud) {
 			ProjectileSource attacker = ((AreaEffectCloud) entity).getSource();
-			if ((attacker instanceof Player)) { return ((Player) attacker); }
+			if (attacker instanceof Player) { return (Player) attacker; }
 		}
 
-		if ((entity instanceof TNTPrimed)) {
+		if (entity instanceof TNTPrimed) {
 			Entity attacker = ((TNTPrimed) entity).getSource();
-			if ((attacker instanceof Player)) { return ((Player) attacker); }
+			if (attacker instanceof Player) { return (Player) attacker; }
 		}
 
-		if ((entity instanceof Tameable)) {
+		if (entity instanceof Tameable) {
 			AnimalTamer attacker = ((Tameable) entity).getOwner();
-			if ((attacker instanceof Player)) { return ((Player) attacker); }
+			if (attacker instanceof Player) { return (Player) attacker; }
 		}
 
 		return null;

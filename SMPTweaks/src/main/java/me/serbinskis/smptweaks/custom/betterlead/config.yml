@@ -1,8 +1,0 @@
-#Max distance in blocks before lead will break
-#Note lead will stop rendering after 36 blocks
-maxDistance: 100
-
-#If you want to add only specific extra mobs that can be leashed then used this setting.
-#But it will not prevent leashing default mobs it only adds extra that can be leashed.
-#Example: custom: ["VILLAGER", "TURTLE"]
-custom: []

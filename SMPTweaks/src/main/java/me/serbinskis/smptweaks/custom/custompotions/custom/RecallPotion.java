@@ -26,7 +26,7 @@ public class RecallPotion extends CustomPotion {
 	}
 
 	public void respawnPlayer(Player player) {
-		Location location = player.getBedSpawnLocation();
+		Location location = player.getRespawnLocation();
 
 		if (location == null) {
 			World world = ReflectionUtils.getRespawnWorld(player);

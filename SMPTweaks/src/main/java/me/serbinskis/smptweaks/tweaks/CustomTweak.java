@@ -2,6 +2,7 @@ package me.serbinskis.smptweaks.tweaks;
 
 import me.serbinskis.smptweaks.Config;
 import me.serbinskis.smptweaks.Main;
+import me.serbinskis.smptweaks.utils.GameRules;
 import me.serbinskis.smptweaks.utils.Utils;
 import org.bukkit.World;
 
@@ -125,7 +126,7 @@ public class CustomTweak {
 	}
 
 	public <T> T getGameRule(World world) {
-		return (gamerule != null) ? Main.gameRules.getGameRule(world, gamerule) : null;
+		return (gamerule != null) ? GameRules.getGameRule(world, gamerule) : null;
 	}
 
 	public boolean getGameRuleBoolean(World world) {

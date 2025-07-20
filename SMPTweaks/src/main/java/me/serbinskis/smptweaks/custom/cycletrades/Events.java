@@ -53,7 +53,7 @@ public class Events implements Listener {
 		if (event.getInventory().getType() != InventoryType.MERCHANT) { return; }
 		if (!(event.getInventory().getHolder() instanceof Villager villager)) { return; }
 		if (!CycleTrades.tweak.getGameRuleBoolean(event.getPlayer().getWorld())) { return; }
-		if (FakePlayer.isFakePlayer((Player) event.getPlayer())) { return; }
+		if (FakePlayer.isFakePlayer(event.getPlayer())) { return; }
 		addCycleTradesButton(villager);
 	}
 

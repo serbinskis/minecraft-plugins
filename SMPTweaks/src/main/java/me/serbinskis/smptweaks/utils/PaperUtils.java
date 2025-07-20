@@ -1,18 +1,20 @@
 package me.serbinskis.smptweaks.utils;
 
-public class PaperUtils {
-	public static Class<?> EntityLookup;
-	public static Class<?> ServerEntityLookup;
-	public static boolean isPaper = isPaper();
+import io.papermc.paper.entity.Leashable;
+import org.bukkit.entity.*;
 
-	static {
-		if (isPaper) {
-			EntityLookup = ca.spottedleaf.moonrise.patches.chunk_system.level.entity.EntityLookup.class;
-			ServerEntityLookup = ca.spottedleaf.moonrise.patches.chunk_system.level.entity.server.ServerEntityLookup.class;
-		}
-	}
+public class PaperUtils {
+	private static final boolean isPaper = ReflectionUtils.loadClass("com.destroystokyo.paper.ParticleBuilder", false) != null;
 
 	public static boolean isPaper() {
-		return (ReflectionUtils.loadClass("com.destroystokyo.paper.ParticleBuilder", false) != null);
+		return isPaper;
+	}
+
+	public static boolean isLeashable(Entity entity) {
+		if (!(entity instanceof Leashable leashable)) { return false; }
+		if (entity instanceof Shulker) { return false; }
+		if (entity instanceof EnderDragon) { return false; }
+		if (entity instanceof Wither) { return false; }
+		return !leashable.isLeashed();
 	}
 }

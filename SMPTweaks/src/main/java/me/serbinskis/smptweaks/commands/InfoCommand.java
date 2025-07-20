@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
+import me.serbinskis.smptweaks.tweaks.TweakManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -21,7 +22,7 @@ public class InfoCommand {
 			return true;
 		}
 
-		CustomTweak tweak = Main.manager.getTweak(args[0].toLowerCase(), false);
+		CustomTweak tweak = TweakManager.getTweak(args[0].toLowerCase(), false);
 
 		if (tweak == null) {
 			Utils.sendMessage(sender, Commands.NO_TWEAK);
@@ -52,7 +53,7 @@ public class InfoCommand {
 
 	public static List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
 		if (args.length == 2) {
-			return new ArrayList<>(Main.manager.keySet());
+			return new ArrayList<>(TweakManager.keySet());
 		}
 
 		return null;

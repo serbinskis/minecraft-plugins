@@ -28,7 +28,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class CustomMerchant implements Listener {
     public static String TAG_CUSTOM_MERCHANT = "AUTO_TRADE_IS_CUSTOM_MERCHANT";
@@ -38,6 +37,7 @@ public class CustomMerchant implements Listener {
             wanderingTrader.setPersistent(false);
             wanderingTrader.setAI(false);
             wanderingTrader.setInvisible(true);
+            wanderingTrader.setCollidable(false);
             wanderingTrader.setGravity(false);
             wanderingTrader.setInvulnerable(true);
             wanderingTrader.setDespawnDelay(5);

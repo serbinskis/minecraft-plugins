@@ -472,12 +472,12 @@ public class ReflectionUtils {
 		}
 	}
 
-	public static Sound getBukkitSound(Object obj) {
+	public static Map.Entry<Sound, Location> getBukkitSoundInfo(Object obj) {
 		try {
-			if (obj instanceof ClientboundSoundPacket packet) { return getBukkitSound(packet.getSound().value()); }
-			if (!(obj instanceof SoundEvent)) { return null; }
+			if (!(obj instanceof ClientboundSoundPacket packet)) { return null; }
 			Method method = CraftSound.getDeclaredMethod("minecraftToBukkit", SoundEvent.class);
-			return (Sound) method.invoke(method, obj);
+			Sound sound = (Sound) method.invoke(method, packet.getSound().value());
+			return Map.entry(sound, new Location(Bukkit.getWorlds().get(0), packet.getX(), packet.getY(), packet.getZ()));
 		} catch (IllegalAccessException | IllegalArgumentException | SecurityException | NoSuchMethodException | InvocationTargetException e) {
 			e.printStackTrace();
 			return null;
@@ -548,7 +548,9 @@ public class ReflectionUtils {
 	public static World getRespawnWorld(Player player) {
 		ServerPlayer.RespawnConfig respawnConfig = getEntityPlayer(player).getRespawnConfig();
 		ResourceKey<Level> dimension = (respawnConfig != null) ? respawnConfig.dimension() : Level.OVERWORLD;
-		return MinecraftServer.getServer().getLevel(dimension).getWorld();
+		ServerLevel level = MinecraftServer.getServer().getLevel(dimension);
+		if (level == null) { level = MinecraftServer.getServer().overworld(); }
+		return level.getWorld();
 	}
 
 	//Get block destroy time per tick which is based on player
@@ -828,7 +830,7 @@ public class ReflectionUtils {
 	}
 
 	public static void setAnnounceChat(Advancement advancement, @Nullable PlayerAdvancementDoneEvent event, boolean announceChat) {
-		if (PaperUtils.isPaper && (event != null) && !announceChat) { event.message(null); }
+		if (PaperUtils.isPaper() && (event != null) && !announceChat) { event.message(null); }
 		DisplayInfo displayInfo = new DisplayInfo(null, null, null, null, null, false, true, false);
 		Field DisplayInfo_announceChat = getField(DisplayInfo.class, boolean.class, null, displayInfo, displayInfo.shouldAnnounceChat(), true);
 		getNMSAdvancement(advancement).display().ifPresent(display -> setValue(DisplayInfo_announceChat, display, announceChat));

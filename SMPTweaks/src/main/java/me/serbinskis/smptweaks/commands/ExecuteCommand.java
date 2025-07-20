@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import me.serbinskis.smptweaks.tweaks.TweakManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
@@ -21,7 +22,7 @@ public class ExecuteCommand {
 			return true;
 		}
 
-		CustomTweak tweak = Main.manager.getTweak(args[0].toLowerCase(), true);
+		CustomTweak tweak = TweakManager.getTweak(args[0].toLowerCase(), true);
 
 		if (tweak == null) {
 			Utils.sendMessage(sender, Commands.NO_TWEAK);
@@ -40,7 +41,7 @@ public class ExecuteCommand {
 		if (args.length == 2) {
 			ArrayList<String> tweaks = new ArrayList<String>();
 
-			for (CustomTweak tweak : Main.manager.getTweaks()) {
+			for (CustomTweak tweak : TweakManager.getTweaks()) {
 				if (tweak.getCommand() != null) { tweaks.add(tweak.getCommand().getCommand()); }
 			}
 
@@ -48,7 +49,7 @@ public class ExecuteCommand {
 		}
 
 		if (args.length >= 3) {
-			CustomTweak tweak = Main.manager.getTweak(args[1].toLowerCase(), true);
+			CustomTweak tweak = TweakManager.getTweak(args[1].toLowerCase(), true);
 			if ((tweak != null) && (tweak.getCommand() != null)) {
 				return tweak.getCommand().onTweakTabComplete(tweak, sender, command, alias, Arrays.copyOfRange(args, 2, args.length));
 			}

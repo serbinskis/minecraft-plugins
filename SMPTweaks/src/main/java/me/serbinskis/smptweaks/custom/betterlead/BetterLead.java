@@ -5,35 +5,33 @@ import me.serbinskis.smptweaks.tweaks.CustomTweak;
 import me.serbinskis.smptweaks.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class BetterLead extends CustomTweak {
+	public static int LEASH_MAX_DISTANCE = getLeashMaxDistance();
 	public static CustomTweak tweak;
-	public static String TAG_IS_UNBREAKABLE_LEASH = "isUnbreakableLeash";
-	public static int maxDistance = 100;
-	public static List<String> custom = new ArrayList<>();
 
 	public BetterLead() {
-		super(BetterLead.class, false, false);
+		super(BetterLead.class, true, false);
 		this.setConfigs(List.of("config.yml"));
 		this.setGameRule("doBetterLead", true, false);
-		this.setReloadable(true);
-		this.setDescription("Make lead much longer and allow lead other pre-configured mobs.");
+		this.setDescription("Make lead much longer and allow lead other mobs.");
 		BetterLead.tweak = this;
 	}
 
 	public void onEnable() {
-		this.onReload();
 		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
 	}
 
-	public void onReload() {
-		BetterLead.maxDistance = this.getConfig(0).getConfig().getInt("maxDistance");
-		BetterLead.custom = this.getConfig(0).getConfig().getStringList("custom");
+	public static int getLeashMaxDistance() {
+		YamlConfiguration spigotConfig = Bukkit.spigot().getSpigotConfig();
+		ConfigurationSection section = spigotConfig.getConfigurationSection("world-settings.default.entity-tracking-range");
+		return (section == null) ? 48 : Math.max(section.getInt("animals", 48), 96);
 	}
 
 	public static void setDeltaMovement(Entity holder, Entity target) {

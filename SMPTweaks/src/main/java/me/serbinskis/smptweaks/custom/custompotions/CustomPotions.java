@@ -24,6 +24,7 @@ public class CustomPotions extends CustomTweak {
 		super(CustomPotions.class, true, false);
 		this.setCommand(new Commands(this, "cpotions"));
 		this.setConfigs(List.of("config.yml"));
+		this.setReloadable(true);
 		this.setGameRule("doCustomPotions", true, false);
 		this.setDescription("Adds to the server different new potions and new brewing recipes. " +
 							"To get more info about potions use command /smptweaks execute info.");
@@ -32,22 +33,22 @@ public class CustomPotions extends CustomTweak {
 
 	public void onEnable() {
 		this.onReload();
-		boolean allowVillagerTrading = CustomPotions.config.getConfig().getConfigurationSection("config").getBoolean("allowVillagerTrading");
-
-		for (CustomPotion potion : ReflectionUtils.getInstances(Main.plugin.getPluginClassLoader(), POTIONS_PACKAGE, CustomPotion.class, true, false, true)) {
-			if (!allowVillagerTrading) { potion.setAllowVillagerTrades(false); }
-			PotionManager.registerPotion(potion);
-		}
-
-		Bukkit.getPluginManager().registerEvents(new PotionEvents(), Main.plugin);
-		Bukkit.getPluginManager().registerEvents(new InventoryEvents(), Main.plugin);
-		Bukkit.getPluginManager().registerEvents(new ProjectileEvents(), Main.plugin);
-		Bukkit.getPluginManager().registerEvents(new VillagerEvents(), Main.plugin);
-		CustomPotions.tweak.printMessage("Potions: " + PotionManager.getPotionsString(), true);
+		Bukkit.getPluginManager().registerEvents(new PotionEvents(), Main.getPlugin());
+		Bukkit.getPluginManager().registerEvents(new InventoryEvents(), Main.getPlugin());
+		Bukkit.getPluginManager().registerEvents(new ProjectileEvents(), Main.getPlugin());
+		Bukkit.getPluginManager().registerEvents(new VillagerEvents(), Main.getPlugin());
 	}
 
 	public void onReload() {
 		CustomPotions.config = this.getConfig(0);
+
+		PotionManager.unregisterAll();
+		boolean allowVillagerTrading = CustomPotions.config.getConfig().getConfigurationSection("config").getBoolean("allowVillagerTrading");
+		List<CustomPotion> instances = ReflectionUtils.getInstances(Main.getPluginClassLoader(), POTIONS_PACKAGE, CustomPotion.class, true, false, true);
+		instances.forEach(customPotion -> customPotion.setAllowVillagerTrades(allowVillagerTrading));
+		instances.forEach(PotionManager::registerPotion);
+		CustomPotions.tweak.printMessage("Potions: " + PotionManager.getPotionsString(), true);
+
 		CustomPotions.tradingPotionChance = CustomPotions.config.getConfig().getConfigurationSection("config").getInt("tradingPotionChance");
 		CustomPotions.tradingArrowChance = CustomPotions.config.getConfig().getConfigurationSection("config").getInt("tradingArrowChance");
 	}

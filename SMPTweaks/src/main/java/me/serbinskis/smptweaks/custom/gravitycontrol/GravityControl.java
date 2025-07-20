@@ -16,6 +16,6 @@ public class GravityControl extends CustomTweak {
 	}
 
 	public void onEnable() {
-		Bukkit.getPluginManager().registerEvents(new Events(), Main.plugin);
+		Bukkit.getPluginManager().registerEvents(new Events(), Main.getPlugin());
 	}
 }

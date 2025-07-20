@@ -1,5 +1,6 @@
 package me.serbinskis.smptweaks.utils;
 
+import me.serbinskis.smptweaks.Main;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -15,33 +16,27 @@ import java.util.HashMap;
 import java.util.List;
 
 public class GameRules implements Listener {
-	public HashMap<String, Object> rules = new HashMap<>();
-	public List<String> globals = new ArrayList<>();
-	public List<?> allowed = Arrays.asList(Boolean.class, Integer.class);
-	private final Plugin plugin;
+	private static final HashMap<String, Object> rules = new HashMap<>();
+	private static final List<String> globals = new ArrayList<>();
+	private static final List<?> allowed = Arrays.asList(Boolean.class, Integer.class);
+	private static boolean registered = false;
 
-	public GameRules(Plugin plugin) {
-		this.plugin = plugin;
-	}
+	public static boolean addGameRule(String name, Object value, boolean global) {
+		if (!registered) { Bukkit.getPluginManager().registerEvents(new GameRules(), Main.getPlugin()); }
+		registered = true;
 
-	public GameRules register() {
-		Bukkit.getPluginManager().registerEvents(this, this.plugin);
-		return this;
-	}
-
-	public boolean addGameRule(String name, Object value, boolean global) {
 		if (!allowed.contains(value.getClass())) { return false; }
 		rules.put(name, value);
 		if (global) { globals.add(name); }
 		return true;
 	}
 
-	public boolean removeGameRule(String name) {
+	public static boolean removeGameRule(String name) {
 		if (!globals.contains(name)) { globals.remove(name); }
 		return (rules.remove(name) != null);
 	}
 
-	public boolean setGameRule(World world, String name, Object value) {
+	public static boolean setGameRule(World world, String name, Object value) {
 		if (!rules.containsKey(name)) { return false; }
 		Object object = rules.get(name);
 		if (!value.getClass().equals(object.getClass())) { return false; }
@@ -61,7 +56,7 @@ public class GameRules implements Listener {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T> T getGameRule(World world, String name) {
+	public static <T> T getGameRule(World world, String name) {
 		if (!rules.containsKey(name)) { return null; }
 		Object object = rules.get(name);
 		if (globals.contains(name)) { world = Bukkit.getWorlds().get(0); }
@@ -79,7 +74,7 @@ public class GameRules implements Listener {
 		return null;
 	}
 
-	public boolean sendGameRule(Player player, String name) {
+	public static boolean sendGameRule(Player player, String name) {
 		Object object = rules.get(name);
 
 		if (object.getClass().equals(Boolean.class)) {
@@ -97,7 +92,7 @@ public class GameRules implements Listener {
 		return false;
 	}
 
-	public boolean queryGameRule(Player player, String name, String value) {
+	public static boolean queryGameRule(Player player, String name, String value) {
 		Object object = rules.get(name);
 
 		if (object.getClass().equals(Boolean.class)) {

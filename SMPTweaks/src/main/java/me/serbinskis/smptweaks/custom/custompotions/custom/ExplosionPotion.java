@@ -2,6 +2,7 @@ package me.serbinskis.smptweaks.custom.custompotions.custom;
 
 import me.serbinskis.smptweaks.custom.custompotions.potions.CustomPotion;
 import me.serbinskis.smptweaks.custom.custompotions.potions.VanillaPotion;
+import me.serbinskis.smptweaks.utils.Utils;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -10,6 +11,7 @@ import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.potion.PotionType;
+import oshi.jna.platform.linux.LinuxLibc;
 
 import java.util.List;
 
@@ -34,13 +36,13 @@ public class ExplosionPotion extends CustomPotion {
 
 	public void onProjectileHit(ProjectileHitEvent event) {
 		if (event.getEntity() instanceof Arrow arrow) {
-			createExplosion((Player) arrow.getShooter(), arrow.getLocation(), 0.75f, false, false);
+			createExplosion(Utils.getAttacker(arrow), arrow.getLocation(), 0.75f, false, false);
 			arrow.remove();
 		}
 
 		if (event.getEntity() instanceof ThrownPotion thrownPotion) {
 			if (thrownPotion.getItem().getType() != Material.SPLASH_POTION) { return; }
-			createExplosion((Player) thrownPotion.getShooter(), thrownPotion.getLocation(), 2.0f, false, true);
+			createExplosion(Utils.getAttacker(thrownPotion), thrownPotion.getLocation(), 2.0f, false, true);
 		}
 	}
 

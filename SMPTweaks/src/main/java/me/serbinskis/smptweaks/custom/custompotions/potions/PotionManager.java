@@ -7,6 +7,7 @@ import me.serbinskis.smptweaks.custom.custompotions.CustomPotions;
 import org.bukkit.Bukkit;
 import org.bukkit.block.BrewingStand;
 import org.bukkit.entity.Entity;
+import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
@@ -32,6 +33,16 @@ public class PotionManager {
 		return potions.keySet();
 	}
 
+	public static void unregisterAll() {
+		for (CustomPotion potion : potions.values()) {
+			HandlerList.unregisterAll(potion);
+			potion.getPotionMixes().forEach(mix -> Bukkit.getPotionBrewer().removePotionMix(mix.getKey()));
+			CustomPotions.tweak.printMessage("Unregistered '" + potion.getName() + "' with the base '" + potion.getBase().getName() + "'", true);
+		}
+
+		potions.clear();
+	}
+
 	public static CustomPotion registerPotion(CustomPotion potion) {
 		if (potions.containsKey(potion.getName())) { return potions.get(potion.getName()); }
 		if (!potion.isEnabled()) { CustomPotions.tweak.printMessage("Skipping registering disabled potion: " + potion.getName(), true); }
@@ -45,50 +56,10 @@ public class PotionManager {
 			if (success == null) { return null; } else { potion.setBase(success); }
 		}
 
-		Bukkit.getPluginManager().registerEvents(potion, Main.plugin);
-		potion.getPotionMixes().forEach((mix) -> Bukkit.getPotionBrewer().addPotionMix(mix));
+		Bukkit.getPluginManager().registerEvents(potion, Main.getPlugin());
+		potion.getPotionMixes().forEach(mix -> Bukkit.getPotionBrewer().addPotionMix(mix));
 		CustomPotions.tweak.printMessage("Registered '" + potion.getName() + "' with the base '" + potion.getBase().getName() + "'", true);
 		return potions.compute(potion.getName(), (k, v) -> potion);
-
-
-
-		/*//If base of potion is custom and not yet registered, save it for later
-		if ((potion.getBase() == null) && !registry.containsKey(potion.getBaseName())) {
-			CustomPotions.tweak.printMessage("Potion '" + potion.getName() + "' is waiting for base '" + potion.getBaseName() + "'", true);
-			waiting.put(potion, potion.getBaseName());
-			return;
-		} else if (potion.getBase() == null) {
-			potion.setBase(registry.get(potion.getBaseName()));
-		}
-
-		CustomPotions.tweak.printMessage("Registering '" + potion.getName() + "' with the base '" + potion.getBaseName() + "'", true);
-		Object result = ReflectionUtils.registerInstantPotion(potion.getName());
-		potions.put(potion.getName(), potion);
-		registry.put(potion.getName(), result);
-
-		while (true) {
-			CustomPotion toRemove = null;
-
-			for (Entry<CustomPotion, String> entry : waiting.entrySet()) {
-				if (entry.getValue().equals(potion.getName())) {
-					entry.getKey().setBase(result);
-					toRemove = entry.getKey();
-					registerPotion(toRemove);
-					break;
-				}
-			}
-
-			if (toRemove != null) { waiting.remove(toRemove); }
-			if (toRemove == null) { break; }
-		}
-
-		//If potion disabled register it, but don't add brew recipe and events
-		if (!potion.isEnabled()) { return; }
-		Bukkit.getPluginManager().registerEvents(potion, Main.plugin);
-
-		//Don't add brew recipe if material is null, used for custom events
-		if (potion.getMaterial() == null) { return; }
-		ReflectionUtils.registerBrewingRecipe(potion.getBase(), potion.getMaterial(), result);*/
 	}
 
 	public static void convertPotion(String from, String to, BrewingStand where) {

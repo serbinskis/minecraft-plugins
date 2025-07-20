@@ -13,7 +13,7 @@ import org.bukkit.inventory.MerchantRecipe;
 import java.util.Collections;
 
 public class CycleTrades extends CustomTweak {
-	public static String CYCLE_ITEM_TAG = "isCycleItemTag";
+	public static String CYCLE_ITEM_TAG = "SMPTWEAKS_CYCLE_ITEM";
 	public static CustomTweak tweak;
 
 	public CycleTrades() {
