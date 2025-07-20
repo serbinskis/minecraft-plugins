@@ -135,7 +135,7 @@ public class VillagerUtils {
         );
 
         clone.setIngredients(recipe.getIngredients());
-        clone.setIgnoreDiscounts(recipe.shouldIgnoreDiscounts());
+        if (PaperUtils.isPaper()) { clone.setIgnoreDiscounts(recipe.shouldIgnoreDiscounts()); }
         return clone;
     }
 }
