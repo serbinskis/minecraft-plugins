@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Random;
 
 public class VillagerEvents implements Listener {
-	List<Material> potionTypes = Arrays.asList(Material.POTION, Material.SPLASH_POTION, Material.LINGERING_POTION);
+	List<Material> potionTypes = Arrays.asList(Material.POTION, Material.SPLASH_POTION);
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onVillagerAcquireTradeEvent(VillagerAcquireTradeEvent event) {
