@@ -10,8 +10,11 @@ import org.bukkit.inventory.MerchantRecipe;
 import org.bukkit.inventory.view.MerchantView;
 import org.bukkit.potion.PotionEffectType;
 
+import javax.annotation.Nullable;
 import java.io.*;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class VillagerUtils {
     public static byte[] encodeMerchantRecipe(MerchantRecipe recipe) {
@@ -42,7 +45,7 @@ public class VillagerUtils {
         }
     }
 
-    public static MerchantRecipe decodeMerchantRecipe(byte[] data) {
+    public static @Nullable MerchantRecipe decodeMerchantRecipe(byte[] data) {
         try {
             DataInputStream input = new DataInputStream(new ByteArrayInputStream(data));
 
@@ -65,7 +68,9 @@ public class VillagerUtils {
 
             return merchantRecipe;
         } catch (IOException e) {
-            throw new RuntimeException("Error decoding MerchantRecipe", e);
+            System.err.println("Error decoding MerchantRecipe: " + e.getMessage());
+            System.err.println(Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.joining("\n")));
+            return null;
         }
     }
 

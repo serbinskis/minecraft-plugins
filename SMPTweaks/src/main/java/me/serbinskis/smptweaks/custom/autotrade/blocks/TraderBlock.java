@@ -24,7 +24,6 @@ import org.bukkit.inventory.recipe.CraftingBookCategory;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class TraderBlock extends CustomBlock {
@@ -79,14 +78,6 @@ public class TraderBlock extends CustomBlock {
         nearbyEntities.stream().map(WanderingTrader.class::cast).forEach(e -> e.getTrader().closeInventory()); //If it exists, then it is opened
     }
 
-    /*@Override
-    public void tick(Block block, long tick) {
-        CrafterInventory inventory = (CrafterInventory) ((Container) block.getState()).getInventory();
-        CraftInventoryCrafter inventory1 = (CraftInventoryCrafter) inventory;
-        inventory1.getResultInventory().setItem(0, Objects.requireNonNull(ReflectionUtils.asNMSCopy(new ItemStack(Material.DIAMOND))));
-        CrafterBlock;
-    }*/
-
     public static void storeXp(Block block, int xp) {
         int amountXP = 0;
 
@@ -125,16 +116,12 @@ public class TraderBlock extends CustomBlock {
         PersistentUtils.setPersistentDataByteArray(container, TAG_AUTO_TRADE_RECIPE, VillagerUtils.encodeMerchantRecipe(recipe));
     }
 
-    public static boolean hasMerchantRecipe(Block block) {
-        return PersistentUtils.hasPersistentDataByteArray(block, TAG_AUTO_TRADE_RECIPE);
-    }
-
     public static @Nullable MerchantRecipe getMerchantRecipe(Block block) {
         if (!(block.getState() instanceof Container container)) { return null; }
         if (!PersistentUtils.hasPersistentDataByteArray(block, TAG_AUTO_TRADE_RECIPE)) { return null; }
         byte[] persistentDataByteArray = PersistentUtils.getPersistentDataByteArray(container, TAG_AUTO_TRADE_RECIPE);
         MerchantRecipe merchantRecipe = VillagerUtils.decodeMerchantRecipe(persistentDataByteArray);
-        merchantRecipe.setUses(0);
+        if (merchantRecipe != null) { merchantRecipe.setUses(0); }
         return merchantRecipe;
     }
 }
