@@ -42,7 +42,7 @@ public class PotionEvents implements Listener {
 			AreaEffectCloud effectCloud = event.getAreaEffectCloud();
 			effectCloud.clearCustomEffects();
 			if (customPotion.getCloudEffect() != null) { effectCloud.addCustomEffect(customPotion.getCloudEffect(), true); }
-			effectCloud.addCustomEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 0, 0), false);
+			effectCloud.addCustomEffect(new PotionEffect(PotionEffectType.UNLUCK, 0, 0), false); //This is needed to trigger AreaEffectCloudApplyEvent
 			PersistentUtils.setPersistentDataString(effectCloud, CustomPotions.TAG_CUSTOM_POTION, customPotion.getName());
 			effectCloud.setColor(customPotion.getColor());
 		}

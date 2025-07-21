@@ -15,6 +15,16 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 public class InventoryEvents implements Listener {
+	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+	public void onPrepareItemCraft(PrepareItemCraftEvent event) {
+		ItemStack result = event.getInventory().getResult();
+		if ((result == null) || (result.getType() != Material.TIPPED_ARROW)) { return; }
+
+		ItemStack item = event.getInventory().getMatrix()[4];
+		CustomPotion customPotion = PotionManager.getCustomPotion(item);
+		if (customPotion != null) { event.getInventory().setResult(customPotion.getTippedArrow(false, 8)); }
+	}
+
 	/*@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onBrew(BrewEvent event) {
 		boolean gameRule = CustomPotions.tweak.getGameRuleBoolean(event.getBlock().getWorld());
@@ -103,14 +113,4 @@ public class InventoryEvents implements Listener {
 			}, 1L);
 		}
 	}*/
-
-	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-	public void onPrepareItemCraft(PrepareItemCraftEvent event) {
-		ItemStack result = event.getInventory().getResult();
-		if ((result == null) || (result.getType() != Material.TIPPED_ARROW)) { return; }
-
-		ItemStack item = event.getInventory().getMatrix()[4];
-		CustomPotion customPotion = PotionManager.getCustomPotion(item);
-		if (customPotion != null) { event.getInventory().setResult(customPotion.getTippedArrow(false, 8)); }
-	}
 }
