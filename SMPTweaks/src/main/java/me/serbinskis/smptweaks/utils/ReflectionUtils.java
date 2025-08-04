@@ -688,17 +688,19 @@ public class ReflectionUtils {
 		player.kick();
 	}
 
+	//For reference: GameTestHelper#makeMockServerPlayerInLevel()
 	public static Player addFakePlayer(Location location, UUID uuid, boolean addPlayer, boolean hideOnline, boolean hideWorld) {
 		if (uuid == null) { uuid = UUID.randomUUID(); }
 
 		MinecraftServer server = MinecraftServer.getServer();
 		ServerLevel world = getWorld(location.getWorld());
-		ServerPlayer entityPlayer = new ServerPlayer(server, world, new GameProfile(uuid, " ".repeat(5)), ClientInformation.createDefault());
+		GameProfile gameProfile = new GameProfile(uuid, " ".repeat(5));
+		ServerPlayer entityPlayer = new ServerPlayer(server, world, gameProfile, ClientInformation.createDefault());
 
-		Connection networkManager = new Connection(PacketFlow.SERVERBOUND);
-		EmbeddedChannel embeddedChannel = new EmbeddedChannel(networkManager); //For some reason this is needed: GameTestHelper#makeMockServerPlayerInLevel()
+		Connection connection = new Connection(PacketFlow.SERVERBOUND);
+		EmbeddedChannel embeddedChannel = new EmbeddedChannel(connection); //For some reason this is needed: GameTestHelper#makeMockServerPlayerInLevel()
 		CommonListenerCookie commonListenerCookie = CommonListenerCookie.createInitial(new GameProfile(uuid, " ".repeat(5)), false);
-        entityPlayer.connection = new ServerGamePacketListenerImpl(server, networkManager, entityPlayer, commonListenerCookie) {};
+		entityPlayer.connection = new ServerGamePacketListenerImpl(server, connection, entityPlayer, commonListenerCookie);
 		entityPlayer.connection.teleport(location);
 
 		if (addPlayer) { world.addNewPlayer(entityPlayer); }
