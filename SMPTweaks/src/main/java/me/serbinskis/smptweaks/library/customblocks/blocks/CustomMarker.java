@@ -1,8 +1,8 @@
 package me.serbinskis.smptweaks.library.customblocks.blocks;
 
 import me.serbinskis.smptweaks.library.customblocks.CustomBlocks;
+import me.serbinskis.smptweaks.utils.PaperUtils;
 import me.serbinskis.smptweaks.utils.PersistentUtils;
-import me.serbinskis.smptweaks.utils.ServerUtils;
 import me.serbinskis.smptweaks.utils.TaskUtils;
 import me.serbinskis.smptweaks.utils.Utils;
 import org.bukkit.Bukkit;
@@ -164,7 +164,6 @@ public class CustomMarker implements Runnable {
     }
 
     public void run() {
-        if (ServerUtils.isPaused()) { return; }
         Block block = display.getLocation().getBlock();
         Location location = display.getLocation();
         if (!location.getWorld().isChunkLoaded(location.getBlockX() >> 4, location.getBlockZ() >> 4)) { remove(false); return; }
@@ -177,6 +176,6 @@ public class CustomMarker implements Runnable {
             return;
         }
 
-        if (customBlock.isTickable()) { customBlock.tick(block, ServerUtils.getTick()); }
+        if (customBlock.isTickable()) { customBlock.tick(block, PaperUtils.getTick()); }
     }
 }

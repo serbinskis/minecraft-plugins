@@ -1,6 +1,7 @@
 package me.serbinskis.smptweaks.utils;
 
 import io.papermc.paper.entity.Leashable;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.*;
 
 public class PaperUtils {
@@ -16,5 +17,9 @@ public class PaperUtils {
 		if (entity instanceof EnderDragon) { return false; }
 		if (entity instanceof Wither) { return false; }
 		return !leashable.isLeashed();
+	}
+
+	public static int getTick() {
+		return Bukkit.getServer().getCurrentTick();
 	}
 }

@@ -6,7 +6,7 @@ import me.serbinskis.smptweaks.custom.chunkloader.loaders.Border;
 import me.serbinskis.smptweaks.custom.chunkloader.loaders.Chunks;
 import me.serbinskis.smptweaks.custom.chunkloader.loaders.Fakes;
 import me.serbinskis.smptweaks.library.customblocks.blocks.CustomBlock;
-import me.serbinskis.smptweaks.utils.ServerUtils;
+import me.serbinskis.smptweaks.utils.PaperUtils;
 import me.serbinskis.smptweaks.utils.Utils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -61,7 +61,7 @@ public class LoaderBlock extends CustomBlock {
     public void create(Block block, boolean new_block) {
         if (new_block) { block.getWorld().playSound(block.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 1, 1); }
         busy = true;
-        tick(block, ServerUtils.getTick()); //Prevent repeating sound when placing block
+        tick(block, PaperUtils.getTick()); //Prevent repeating sound when placing block
         busy = false;
         saveAll();
     }

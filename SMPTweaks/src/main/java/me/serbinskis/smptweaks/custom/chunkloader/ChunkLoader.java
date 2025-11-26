@@ -6,7 +6,6 @@ import me.serbinskis.smptweaks.custom.chunkloader.events.PlayerEvents;
 import me.serbinskis.smptweaks.custom.chunkloader.loaders.Border;
 import me.serbinskis.smptweaks.library.customblocks.CustomBlocks;
 import me.serbinskis.smptweaks.tweaks.CustomTweak;
-import me.serbinskis.smptweaks.utils.ServerUtils;
 import me.serbinskis.smptweaks.utils.TaskUtils;
 import me.serbinskis.smptweaks.utils.Utils;
 import org.bukkit.Bukkit;
@@ -38,7 +37,6 @@ public class ChunkLoader extends CustomTweak {
 		CustomBlocks.registerBlock(new LoaderBlock());
 
 		this.task = TaskUtils.scheduleSyncRepeatingTask(() -> {
-			if (ServerUtils.isPaused()) { return; }
 			Border.update();
 		}, 1L, 5L);
 

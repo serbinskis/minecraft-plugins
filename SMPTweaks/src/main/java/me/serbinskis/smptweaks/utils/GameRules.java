@@ -10,6 +10,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.plugin.Plugin;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -56,10 +57,11 @@ public class GameRules implements Listener {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> T getGameRule(World world, String name) {
+	public static <T> T getGameRule(@Nullable World world, String name) {
 		if (!rules.containsKey(name)) { return null; }
 		Object object = rules.get(name);
-		if (globals.contains(name)) { world = Bukkit.getWorlds().get(0); }
+		if (globals.contains(name)) { world = Bukkit.getWorlds().getFirst(); }
+		if (world == null) { throw new RuntimeException("Global gamerule not found!"); }
 
 		if (object.getClass().equals(Boolean.class)) {
 			if (!PersistentUtils.hasPersistentDataBoolean(world, name)) { return (T) object; }

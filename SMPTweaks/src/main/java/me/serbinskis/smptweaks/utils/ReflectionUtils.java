@@ -547,7 +547,7 @@ public class ReflectionUtils {
 
 	public static World getRespawnWorld(Player player) {
 		ServerPlayer.RespawnConfig respawnConfig = getEntityPlayer(player).getRespawnConfig();
-		ResourceKey<Level> dimension = (respawnConfig != null) ? respawnConfig.dimension() : Level.OVERWORLD;
+		ResourceKey<Level> dimension = (respawnConfig != null) ? respawnConfig.respawnData().dimension() : Level.OVERWORLD;
 		ServerLevel level = MinecraftServer.getServer().getLevel(dimension);
 		if (level == null) { level = MinecraftServer.getServer().overworld(); }
 		return level.getWorld();
@@ -701,7 +701,7 @@ public class ReflectionUtils {
 		EmbeddedChannel embeddedChannel = new EmbeddedChannel(connection); //For some reason this is needed: GameTestHelper#makeMockServerPlayerInLevel()
 		CommonListenerCookie commonListenerCookie = CommonListenerCookie.createInitial(new GameProfile(uuid, " ".repeat(5)), false);
 		entityPlayer.connection = new ServerGamePacketListenerImpl(server, connection, entityPlayer, commonListenerCookie);
-		entityPlayer.connection.teleport(location);
+		entityPlayer.connection.internalTeleport(location);
 
 		if (addPlayer) { world.addNewPlayer(entityPlayer); }
 		Player player = (Player) getBukkitEntity(entityPlayer);

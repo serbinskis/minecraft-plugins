@@ -1,5 +1,0 @@
-# Delay in ticks before server pauses when last player leaves
-pauseDelay: 0
-
-# If false will notify when server resumed because of console commands
-quiteCommands: true
