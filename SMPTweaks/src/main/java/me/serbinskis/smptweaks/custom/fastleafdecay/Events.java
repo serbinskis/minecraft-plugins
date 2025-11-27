@@ -14,10 +14,12 @@ public class Events implements Listener {
 	public void onBlockPhysicsEvent(BlockPhysicsEvent event) {
 		if (!Tag.LEAVES.isTagged(event.getBlock().getType())) { return; }
 		if (!event.getBlock().getBlockData().isRandomlyTicked()) { return; }
+		if (!FastLeafDecay.tweak.getGameRuleBoolean(event.getBlock().getWorld())) { return; }
 		Integer randomTickSpeed = event.getBlock().getWorld().getGameRuleValue(GameRule.RANDOM_TICK_SPEED);
 		if (randomTickSpeed == null || randomTickSpeed == 0) { return; }
 
 		TaskUtils.scheduleSyncDelayedTask(() -> {
+			if (!FastLeafDecay.tweak.getGameRuleBoolean(event.getBlock().getWorld())) { return; }
 			Block block = event.getBlock().getWorld().getBlockAt(event.getBlock().getLocation());
 			if (Tag.LEAVES.isTagged(block.getType())) { block.randomTick(); }
 		}, 1 + (int)(Math.random() * 100));
