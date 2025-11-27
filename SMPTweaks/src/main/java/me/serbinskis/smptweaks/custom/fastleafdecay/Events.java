@@ -1,4 +1,4 @@
-package me.serbinskis.smptweaks.custom.fastleafedecay;
+package me.serbinskis.smptweaks.custom.fastleafdecay;
 
 import me.serbinskis.smptweaks.utils.TaskUtils;
 import org.bukkit.GameRule;

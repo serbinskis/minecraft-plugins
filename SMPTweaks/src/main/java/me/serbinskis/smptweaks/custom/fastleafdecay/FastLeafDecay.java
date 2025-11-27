@@ -1,4 +1,4 @@
-package me.serbinskis.smptweaks.custom.fastleafedecay;
+package me.serbinskis.smptweaks.custom.fastleafdecay;
 
 import me.serbinskis.smptweaks.Main;
 import me.serbinskis.smptweaks.tweaks.CustomTweak;
