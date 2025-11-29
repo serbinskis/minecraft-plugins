@@ -52,6 +52,10 @@ public class CustomItem {
         }
     }
 
+    public ItemStack getItemStack() {
+        return getItemStack(0);
+    }
+
     public ItemStack getItemStack(int textureIndex) {
         return getItemStack(textureIndex, "", "");
     }

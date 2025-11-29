@@ -40,7 +40,7 @@ public class GetCommand {
 			return true;
 		}
 
-		ItemStack item = customItem.getItemStack(0);
+		ItemStack item = customItem.getItemStack();
 		item = Utils.cloneItem(item, item.getMaxStackSize());
 		((Player) sender).getInventory().addItem(item);
 		return true;

@@ -19,6 +19,7 @@ import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.io.ByteArrayInputStream;
@@ -213,12 +214,17 @@ public class Utils {
 		return best;
 	}
 
-	//Get nearest entities
+	public static <T extends Entity> List<T> getNearbyEntities(Location location, @NotNull Class<T> entityClass, double distance, boolean maxHeight) {
+		double height = maxHeight ? location.getWorld().getMaxHeight()*2 : distance;
+		Collection<Entity> nearbyEntities = location.getWorld().getNearbyEntities(location, distance, height, distance);
+		return nearbyEntities.stream().filter(entityClass::isInstance).map(entityClass::cast).collect(Collectors.toList());
+	}
+
 	public static Collection<Entity> getNearbyEntities(Location location, @Nullable EntityType type, double distance, boolean maxHeight) {
 		double height = maxHeight ? location.getWorld().getMaxHeight()*2 : distance;
-		Collection<Entity> nearbyEntites = location.getWorld().getNearbyEntities(location, distance, height, distance);
-		if (type != null) { nearbyEntites.removeIf(entity -> entity.getType() != type); }
-		return nearbyEntites;
+		Collection<Entity> nearbyEntities = location.getWorld().getNearbyEntities(location, distance, height, distance);
+		if (type != null) { nearbyEntities.removeIf(entity -> entity.getType() != type); }
+		return nearbyEntities;
 	}
 
 	//Get nearest blocks
