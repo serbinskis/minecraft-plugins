@@ -1,12 +1,14 @@
 package me.serbinskis.smptweaks.utils;
 
+import me.serbinskis.smptweaks.annotations.Paper;
+import me.serbinskis.smptweaks.library.fakeplayer.FakePlayer;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.Event;
 import org.bukkit.event.inventory.TradeSelectEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.MerchantRecipe;
+import org.bukkit.inventory.*;
 import org.bukkit.inventory.view.MerchantView;
 import org.bukkit.potion.PotionEffectType;
 
@@ -14,10 +16,12 @@ import javax.annotation.Nullable;
 import java.io.*;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class VillagerUtils {
-    public static byte[] encodeMerchantRecipe(MerchantRecipe recipe) {
+    public static @Paper byte[] encodeMerchantRecipe(MerchantRecipe recipe) {
         try {
             ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
             DataOutputStream output = new DataOutputStream(byteOut);
@@ -45,7 +49,7 @@ public class VillagerUtils {
         }
     }
 
-    public static @Nullable MerchantRecipe decodeMerchantRecipe(byte[] data) {
+    public static @Paper @Nullable MerchantRecipe decodeMerchantRecipe(byte[] data) {
         try {
             DataInputStream input = new DataInputStream(new ByteArrayInputStream(data));
 
@@ -91,6 +95,33 @@ public class VillagerUtils {
         Bukkit.getPluginManager().callEvent(event);
         player.closeInventory();
         return (event.getResult() != Event.Result.DENY);
+    }
+
+    public static @Paper int tradeVillager(Player player, Villager villager, int trade, boolean force) {
+        if (!canBuy(player, villager, trade)) { return -1; }
+        InventoryView inventoryView = player.openMerchant(villager, force);
+        if ((inventoryView == null) || !(inventoryView.getTopInventory() instanceof MerchantInventory)) { return -1; }
+
+        //In case if we don't have required resources add them
+        MerchantRecipe recipe = villager.getRecipes().get(trade);
+        Stream<ItemStack> itemStream = recipe.getIngredients().stream().map(i -> i.add(999));
+        itemStream.forEach(player.getInventory()::addItem);
+
+        //Select trade and move item from result, to trigger trade
+        ReflectionUtils.selectTrade(player, trade);
+        ReflectionUtils.quickMoveStack(player, 2);
+
+        //Close inventory and clear it if player is fake
+        player.closeInventory();
+        if (FakePlayer.isFakePlayer(player)) { player.getInventory().clear(); }
+
+        //net.minecraft.world.entity.npc.Villager#rewardTradeXp
+        AtomicInteger experience = new AtomicInteger(); //Count all the xp orb's experience and remove them
+        List<ExperienceOrb> orbsList = Utils.getNearbyEntities(villager.getLocation().add(0, 0.5, 0), ExperienceOrb.class, 0.05, false); //Get xp orbs around the villager
+        orbsList = orbsList.stream().filter(orb -> player.getUniqueId().equals(orb.getSourceEntityId())).toList();
+        orbsList.forEach(orb -> { experience.addAndGet(orb.getExperience()); orb.remove(); }); //Count and remove
+
+        return experience.get();
     }
 
     //Reference: net.minecraft.world.entity.npc.Villager@updateSpecialPrices(Player player)
