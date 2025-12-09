@@ -42,7 +42,7 @@ public class Events implements Listener {
 
 		TaskUtils.scheduleSyncDelayedTask(() -> {
 			if (villager.getTrader() == null) { return; }
-			Stream<MerchantRecipe> recipeStream = villager.getRecipes().stream().filter(recipe -> !PersistentUtils.hasPersistentDataBoolean(recipe.getResult(), CycleTrades.CYCLE_ITEM_TAG));
+			Stream<MerchantRecipe> recipeStream = villager.getRecipes().stream().filter(recipe -> !CycleTrades.isCycleTradeItem(recipe.getResult()));
 			villager.setRecipes(Stream.concat(Stream.of(CycleTrades.getMerchantRecipe(true)), recipeStream).toList());
 			ReflectionUtils.sendMerchantOffers(event.getPlayer(), villager);
 		}, 0L);
@@ -79,7 +79,7 @@ public class Events implements Listener {
 		if (villager.getVillagerLevel() > 1) { return; }
 
 		villager.setRecipes(villager.getRecipes().stream().filter(merchantRecipe -> {
-			return !PersistentUtils.hasPersistentDataBoolean(merchantRecipe.getResult(), CycleTrades.CYCLE_ITEM_TAG);
+			return !CycleTrades.isCycleTradeItem(merchantRecipe.getResult());
 		}).toList());
 
 		if (player != null) { player.openMerchant(villager, true); }

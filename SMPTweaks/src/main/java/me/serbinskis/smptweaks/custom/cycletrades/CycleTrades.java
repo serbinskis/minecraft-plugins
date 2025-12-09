@@ -35,4 +35,8 @@ public class CycleTrades extends CustomTweak {
 		merchantRecipe.setIngredients(Collections.nCopies(2, merchantRecipe.getResult()));
 		return merchantRecipe;
 	}
+	
+	public static boolean isCycleTradeItem(ItemStack itemStack) {
+		return PersistentUtils.hasPersistentDataBoolean(itemStack, CycleTrades.CYCLE_ITEM_TAG);
+	}
 }

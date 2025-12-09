@@ -4,6 +4,7 @@ import io.papermc.paper.event.player.PlayerTradeEvent;
 import me.serbinskis.smptweaks.Main;
 import me.serbinskis.smptweaks.custom.autotrade.AutoTrade;
 import me.serbinskis.smptweaks.custom.autotrade.blocks.TraderBlock;
+import me.serbinskis.smptweaks.custom.cycletrades.CycleTrades;
 import me.serbinskis.smptweaks.library.customitems.CustomItems;
 import me.serbinskis.smptweaks.library.customitems.items.CustomItem;
 import me.serbinskis.smptweaks.utils.*;
@@ -62,6 +63,7 @@ public class CustomMerchant implements Listener {
         MerchantRecipe merchantRecipe0 = TraderBlock.getMerchantRecipe(block);
         if (merchantRecipe0 != null) { recipeList.addFirst(merchantRecipe0); }
         recipeList = Utils.removeDupes(recipeList, CustomMerchant::tradeEquals);
+        recipeList.removeIf(recipe -> CycleTrades.isCycleTradeItem(recipe.getResult()));
 
         /*if (TraderBlock.hasMerchantRecipe(block)) { //If recipe is out of stock, it will fail to load result slot in the menu
             MerchantRecipe merchantRecipe0 = TraderBlock.getMerchantRecipe(block);
