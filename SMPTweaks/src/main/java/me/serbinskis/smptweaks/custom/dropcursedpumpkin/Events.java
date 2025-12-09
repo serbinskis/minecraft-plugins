@@ -12,6 +12,7 @@ public class Events implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerDeathEvent(PlayerDeathEvent event) {
 		if (!event.getKeepInventory()) { return; }
+		if (!DropCursedPumpkin.tweak.getGameRuleBoolean(event.getEntity().getWorld())) { return; }
 
 		ItemStack helmetSlot = event.getEntity().getInventory().getHelmet();
 		if (helmetSlot == null || helmetSlot.getType() != Material.CARVED_PUMPKIN) { return; }

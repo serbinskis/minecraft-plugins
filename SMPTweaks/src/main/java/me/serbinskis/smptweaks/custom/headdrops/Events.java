@@ -14,6 +14,7 @@ public class Events implements Listener {
 	public void onPlayerDeathEvent(PlayerDeathEvent event) {
 		Player killer = event.getEntity().getKiller();
 		if ((killer == null) || killer.getUniqueId().equals(event.getEntity().getUniqueId())) { return; }
+		if (!HeadDrops.tweak.getGameRuleBoolean(event.getEntity().getWorld())) { return; }
 
 		ItemStack playerHead = new ItemStack(Material.PLAYER_HEAD);
 		SkullMeta skullMeta = (SkullMeta) playerHead.getItemMeta();

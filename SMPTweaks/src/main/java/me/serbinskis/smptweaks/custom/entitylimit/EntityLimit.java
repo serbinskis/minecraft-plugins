@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EntityLimit extends CustomTweak {
+	public static CustomTweak tweak;
 	public static List<String> excludeReason = new ArrayList<>();
 	public static String tooManyEntity = "";
 	public static int maximumDistance = 0;
@@ -15,9 +16,11 @@ public class EntityLimit extends CustomTweak {
 
 	public EntityLimit() {
 		super(EntityLimit.class, false, false);
+		this.setDescription("Limits entity spawn for each entity type.");
+		this.setGameRule("doEntityLimit", true, false);
 		this.setConfigs(List.of("config.yml"));
 		this.setReloadable(true);
-		this.setDescription("Limits entity spawn for each entity type.");
+		EntityLimit.tweak = this;
 	}
 
 	public void onEnable() {

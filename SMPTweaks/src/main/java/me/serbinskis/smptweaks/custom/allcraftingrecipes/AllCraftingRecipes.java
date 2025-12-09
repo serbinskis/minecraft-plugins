@@ -15,11 +15,14 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public class AllCraftingRecipes extends CustomTweak {
+	public static CustomTweak tweak;
 	public static List<NamespacedKey> recipeKeys = new ArrayList<>();
 
 	public AllCraftingRecipes() {
 		super(AllCraftingRecipes.class, false, false);
 		this.setDescription("Give all crafting recipes when player joins.");
+		this.setGameRule("doAllCraftingRecipes", true, false);
+		AllCraftingRecipes.tweak = this;
 	}
 
 	public void onEnable() {

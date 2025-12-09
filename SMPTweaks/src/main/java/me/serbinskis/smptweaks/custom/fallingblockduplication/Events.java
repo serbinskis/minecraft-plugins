@@ -1,4 +1,4 @@
-package me.serbinskis.smptweaks.custom.gravitycontrol;
+package me.serbinskis.smptweaks.custom.fallingblockduplication;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -31,7 +31,7 @@ public class Events implements Listener {
 	public void onEntityChangeBlockEvent(EntityChangeBlockEvent event) {
 		if (exclude.contains(event.getTo())) { return; }
 		if (!(event.getEntity() instanceof FallingBlock falling)) { return; }
-		if (!GravityControl.tweak.getGameRuleBoolean(event.getEntity().getWorld())) { return; }
+		if (!FallingBlockDuplication.tweak.getGameRuleBoolean(event.getEntity().getWorld())) { return; }
 		BoundingBox boundingBox = falling.getBoundingBox().expand(-0.01D);
 
 		for (Vector direction : DIRECTIONS) {

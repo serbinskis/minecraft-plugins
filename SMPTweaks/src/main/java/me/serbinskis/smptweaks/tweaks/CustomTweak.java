@@ -5,6 +5,7 @@ import me.serbinskis.smptweaks.Main;
 import me.serbinskis.smptweaks.utils.GameRules;
 import me.serbinskis.smptweaks.utils.Utils;
 import org.bukkit.World;
+import org.bukkit.entity.Entity;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -129,8 +130,16 @@ public class CustomTweak {
 		return (gamerule != null) ? GameRules.getGameRule(world, gamerule) : null;
 	}
 
+	public boolean getGameRuleBoolean(Entity entity) {
+		return this.getGameRule(entity.getWorld());
+	}
+
 	public boolean getGameRuleBoolean(World world) {
 		return this.getGameRule(world);
+	}
+
+	public int getGameRuleInteger(Entity entity) {
+		return this.getGameRule(entity.getWorld());
 	}
 
 	public int getGameRuleInteger(World world) {

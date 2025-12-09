@@ -12,6 +12,9 @@ import me.serbinskis.smptweaks.utils.Utils;
 public class Events implements Listener {
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onCreatureSpawnEvent(CreatureSpawnEvent event) {
+		//Return if gamerule disabled
+		if (!EntityLimit.tweak.getGameRuleBoolean(event.getEntity().getWorld())) { return; }
+
 		//Return if disabled or spawn reason is excluded
 		if (EntityLimit.excludeReason.contains(event.getSpawnReason().toString())) { return; }
 
