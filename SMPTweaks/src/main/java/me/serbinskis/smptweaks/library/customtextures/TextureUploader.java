@@ -4,6 +4,7 @@ import me.serbinskis.smptweaks.Main;
 import me.serbinskis.smptweaks.utils.TaskUtils;
 import me.serbinskis.smptweaks.utils.Utils;
 
+import javax.annotation.Nullable;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -208,25 +209,22 @@ public class TextureUploader {
      *         - key: the generated multipart boundary string
      *         - value: the multipart payload as a byte array
      */
-    private static Map.Entry<String, byte[]> buildMultipartPayload(Map<String, String> fields, String fileFieldName, String fileName, byte[] fileData) {
+    private static Map.Entry<String, byte[]> buildMultipartPayload(@Nullable Map<String, String> fields, String fileFieldName, @Nullable String fileName, byte[] fileData) {
         String boundary = "----SMPTweaksBoundary" + System.currentTimeMillis();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         if (fileName == null) { fileName = Utils.randomString(8, false); }
 
-        try {
-            for (Map.Entry<?, ?> entry : Objects.requireNonNullElse(fields, Map.of()).entrySet()) {
-                String fieldPart = "--" + boundary + "\r\n" + "Content-Disposition: form-data; name=\"" + entry.getKey() + "\"\r\n\r\n" + entry.getValue() + "\r\n";
-                outputStream.write(fieldPart.getBytes(StandardCharsets.UTF_8));
-            }
-
-            String fileHeader = "--" + boundary + "\r\n" + "Content-Disposition: form-data; name=\"" + fileFieldName + "\"; filename=\"" + fileName + "\"\r\n" + "Content-Type: application/octet-stream\r\n\r\n";
-            outputStream.write(fileHeader.getBytes(StandardCharsets.UTF_8));
-            outputStream.write(fileData);
-            outputStream.write(("\r\n--" + boundary + "--\r\n").getBytes(StandardCharsets.UTF_8));
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to build multipart payload", e);
+        for (Map.Entry<?, ?> entry : Objects.requireNonNullElse(fields, Map.of()).entrySet()) {
+            String fieldPart = "--" + boundary + "\r\n" + "Content-Disposition: form-data; name=\"" + entry.getKey() + "\"\r\n\r\n" + entry.getValue() + "\r\n";
+            try { outputStream.write(fieldPart.getBytes(StandardCharsets.UTF_8)); } catch (Exception ignored) {}
         }
 
+        String header = "--" + boundary + "\r\n" + "Content-Disposition: form-data; name=\"" + fileFieldName + "\"; filename=\"" + fileName + "\"\r\n" + "Content-Type: application/octet-stream\r\n\r\n";
+        String footer = "\r\n--" + boundary + "--\r\n";
+
+        try { outputStream.write(header.getBytes(StandardCharsets.UTF_8)); } catch (Exception ignored) {}
+        try { outputStream.write(fileData); } catch (Exception ignored) {}
+        try { outputStream.write(footer.getBytes(StandardCharsets.UTF_8)); } catch (Exception ignored) {}
         return Map.entry(boundary, outputStream.toByteArray());
     }
 }
