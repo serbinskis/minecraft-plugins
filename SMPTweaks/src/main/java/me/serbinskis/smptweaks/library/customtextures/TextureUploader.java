@@ -25,10 +25,11 @@ public class TextureUploader {
     public static void upload(TextureGenerator generator, Consumer<String> setter) {
         if (retryTimer > -1) { return; }
 
-        TextureUploader.uploadFileBin(generator, setter);
+        TextureUploader.uploadFileBin(generator, setter); //But this runs cdn update, so we must check time separately inside each of them
         if (RESOURCE_PACK_URL == null) { TextureUploader.uploadLitterbox(generator, setter); }
         if (RESOURCE_PACK_URL == null) { TextureUploader.uploadCatbox(generator, setter); }
 
+        if (System.currentTimeMillis() - lastUploadTime < 1000 * 60 * 60 * 23) { return; } //We don't want to update lastUploadTime, every time on AsyncPlayerPreLoginEvent
         if (RESOURCE_PACK_URL != null) { lastUploadTime = System.currentTimeMillis(); return; }
         retryTimer = TaskUtils.scheduleAsyncDelayedTask(() -> { retryTimer = -1; TextureUploader.upload(generator, setter); }, RETRY_TIME_INTERVAL);
     }
