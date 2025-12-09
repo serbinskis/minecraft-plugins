@@ -23,6 +23,20 @@ public class TaskUtils implements Listener {
 		return task;
 	}
 
+	@SuppressWarnings("deprecation")
+	public static int scheduleAsyncDelayedTask(Runnable runnable, long ticks) {
+		Runnable wrapper = new Runnable() { public void run() {
+			Integer task = runnables1.remove(this);
+			if (task != null) { runnables0.remove(task); }
+			runnable.run();
+		}};
+
+		int task = Bukkit.getScheduler().scheduleAsyncDelayedTask(Main.plugin, wrapper, ticks);
+		runnables0.put(task, wrapper);
+		runnables1.put(wrapper, task);
+		return task;
+	}
+
 	public static int rescheduleSyncDelayedTask(int task, long ticks) {
 		if (!runnables0.containsKey(task)) { return -1; }
 		Bukkit.getScheduler().cancelTask(task);
@@ -59,6 +73,11 @@ public class TaskUtils implements Listener {
 		Bukkit.getScheduler().cancelTask(task);
 		Runnable runnable = runnables0.remove(task);
 		return scheduleSyncRepeatingTask(runnable, first, interval);
+	}
+
+	public static void runTask(int task) {
+		if (!runnables0.containsKey(task)) { return; }
+		runnables0.get(task).run();
 	}
 
 	public static void finishTask(int task) {

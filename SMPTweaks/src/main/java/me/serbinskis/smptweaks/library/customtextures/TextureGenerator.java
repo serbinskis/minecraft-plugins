@@ -134,21 +134,4 @@ public class TextureGenerator {
         texture_pack_data  = byteArrayOutputStream.toByteArray();
         return texture_pack_data;
     }
-
-    public String upload() {
-        String url = "https://filebin.net/" + Utils.randomString(56, false) + "/resourcepack.zip";
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .header("Content-Type", "application/octet-stream")
-                .POST(HttpRequest.BodyPublishers.ofByteArray(this.generate()))
-                .build();
-
-        try {
-            HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-            return (response.statusCode() == 201) ? url : null;
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }

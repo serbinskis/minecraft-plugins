@@ -11,12 +11,12 @@ public class TextureEvents implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onAsyncPlayerPreLoginEvent(AsyncPlayerPreLoginEvent event) {
         if ((CustomBlocks.getSize() == 0) || (CustomTextures.RESOURCE_PACK_URL == null)) { return; }
-        CustomTextures.updateCdnRedirect();
+        CustomTextures.upload();
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerJoin(PlayerJoinEvent event) {
-        if ((CustomTextures.getSize() == 0) || (CustomTextures.RESOURCE_PACK_CDN_URL == null) || (CustomTextures.RESOURCE_PACK_HASH.length == 0)) { return; }
-        event.getPlayer().addResourcePack(CustomTextures.RESOURCE_PACK_UUID, CustomTextures.RESOURCE_PACK_CDN_URL, CustomTextures.RESOURCE_PACK_HASH, CustomTextures.RESOURCE_PACK_PROMPT, true);
+        if ((CustomTextures.getSize() == 0) || (CustomTextures.RESOURCE_PACK_URL == null) || (CustomTextures.RESOURCE_PACK_HASH.length == 0)) { return; }
+        event.getPlayer().addResourcePack(CustomTextures.RESOURCE_PACK_UUID, CustomTextures.RESOURCE_PACK_URL, CustomTextures.RESOURCE_PACK_HASH, CustomTextures.RESOURCE_PACK_PROMPT, true);
     }
 }
