@@ -37,7 +37,7 @@ Allows to automatically trade with villagers within a distance of 2 blocks.
 
 <p align="center" float="left">
   <img width="500" height="325" src="https://i.imgur.com/cGCJNSP.png">
-  <img width="500" height="325" src="https://i.imgur.com/WhysGgw.gif">
+  <img width="500" height="325" src="https://i.imgur.com/0AHLowt.gif">
 </p>
 
 ## Magnet Block
