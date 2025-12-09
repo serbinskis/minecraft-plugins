@@ -13,6 +13,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public class TextureUploader {
@@ -36,25 +38,14 @@ public class TextureUploader {
 
     private static void uploadLitterbox(TextureGenerator generator, Consumer<String> setter) {
         if (System.currentTimeMillis() - lastUploadTime < 1000 * 60 * 60 * 23) { return; }
-
-        String boundary = "----SMPTweaksBoundary" + System.currentTimeMillis();
-        String fieldReq = "--" + boundary + "\r\n" + "Content-Disposition: form-data; name=\"reqtype\"\r\n\r\n" + "fileupload\r\n";
-        String fieldTime = "--" + boundary + "\r\n" + "Content-Disposition: form-data; name=\"time\"\r\n\r\n" + "72h\r\n";
-        String fieldFile = "--" + boundary + "\r\n" + "Content-Disposition: form-data; name=\"fileToUpload\"; filename=\"" + Utils.randomString(8, false) + "\"\r\n" + "Content-Type: application/octet-stream\r\n\r\n";
-        String footer = "\r\n--" + boundary + "--\r\n";
-
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        try { outputStream.write(fieldReq.getBytes(StandardCharsets.UTF_8)); } catch (Exception ignored) {}
-        try { outputStream.write(fieldTime.getBytes(StandardCharsets.UTF_8)); } catch (Exception ignored) {}
-        try { outputStream.write(fieldFile.getBytes(StandardCharsets.UTF_8)); } catch (Exception ignored) {}
-        try { outputStream.write(generator.generate()); } catch (Exception ignored) {}
-        try { outputStream.write(footer.getBytes(StandardCharsets.UTF_8)); } catch (Exception ignored) {}
+        Map<String, String> fields = Map.of("reqtype", "fileupload","time", "72h");
+        Map.Entry<String, byte[]> payload = buildMultipartPayload(fields, "fileToUpload", null, generator.generate());
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://litterbox.catbox.moe/resources/internals/api.php"))
-                .header("Content-Type", "multipart/form-data; boundary=" + boundary)
+                .header("Content-Type", "multipart/form-data; boundary=" + payload.getKey())
                 .header("User-Agent", "Mozilla/5.0")
-                .POST(HttpRequest.BodyPublishers.ofByteArray(outputStream.toByteArray()))
+                .POST(HttpRequest.BodyPublishers.ofByteArray(payload.getValue()))
                 .build();
 
         try {
@@ -73,28 +64,14 @@ public class TextureUploader {
 
     private static void uploadCatbox(TextureGenerator generator, Consumer<String> setter) {
         if (System.currentTimeMillis() - lastUploadTime < 1000 * 60 * 60 * 23) { return; }
-        String boundary = "----SMPTweaksBoundary" + System.currentTimeMillis();
-        String footer = "\r\n--" + boundary + "--\r\n";
-
-        String reqType = "--" + boundary + "\r\n" +
-                "Content-Disposition: form-data; name=\"reqtype\"\r\n\r\n" +
-                "fileupload\r\n";
-
-        String fileHeader = "--" + boundary + "\r\n" +
-                "Content-Disposition: form-data; name=\"fileToUpload\"; filename=\"" + Utils.randomString(8, false) + ".zip\"\r\n" +
-                "Content-Type: application/octet-stream\r\n\r\n";
-
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        try { outputStream.write(reqType.getBytes(StandardCharsets.UTF_8)); } catch (Exception ignored) {}
-        try { outputStream.write(fileHeader.getBytes(StandardCharsets.UTF_8)); } catch (Exception ignored) {}
-        try { outputStream.write(generator.generate()); } catch (Exception ignored) {}
-        try { outputStream.write(footer.getBytes(StandardCharsets.UTF_8)); } catch (Exception ignored) {}
+        Map<String, String> fields = Map.of("reqtype", "fileupload");
+        Map.Entry<String, byte[]> payload = buildMultipartPayload(fields, "fileToUpload", null, generator.generate());
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://catbox.moe/user/api.php"))
-                .header("Content-Type", "multipart/form-data; boundary=" + boundary)
+                .header("Content-Type", "multipart/form-data; boundary=" + payload.getKey())
                 .header("User-Agent", "Mozilla/5.0")
-                .POST(HttpRequest.BodyPublishers.ofByteArray(outputStream.toByteArray()))
+                .POST(HttpRequest.BodyPublishers.ofByteArray(payload.getValue()))
                 .build();
 
         try {
@@ -114,24 +91,14 @@ public class TextureUploader {
     //FUCKING SHIT ASS DEV, BLOCKS JAVA USER AGENT, MEANING NO DOWNLOADS
     private static void upload0x0st(TextureGenerator generator, Consumer<String> setter) {
         if (System.currentTimeMillis() - lastUploadTime < 1000 * 60 * 60 * 23) { return; }
-
-        String boundary = "----SMPTweaksBoundary" + System.currentTimeMillis();
-        String footer = "\r\n--" + boundary + "--\r\n";
-        String header = "--" + boundary + "\r\n" +
-                "Content-Disposition: form-data; name=\"file\"; filename=\"" + Utils.randomString(8, false) + ".zip\"\r\n" +
-                "Content-Type: application/octet-stream\r\n\r\n";
-
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        try { outputStream.write(header.getBytes(StandardCharsets.UTF_8)); } catch (Exception ignored) {}
-        try { outputStream.write(generator.generate()); } catch (Exception ignored) {}
-        try { outputStream.write(footer.getBytes(StandardCharsets.UTF_8)); } catch (Exception ignored) {}
+        Map.Entry<String, byte[]> payload = buildMultipartPayload(null, "file", null, generator.generate());
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://0x0.st"))
                 .version(HttpClient.Version.HTTP_1_1)
-                .header("Content-Type", "multipart/form-data; boundary=" + boundary)
+                .header("Content-Type", "multipart/form-data; boundary=" + payload.getKey())
                 .header("User-Agent", "SMPTweaks-Plugin/" + Main.getPlugin().getDescription().getVersion())
-                .POST(HttpRequest.BodyPublishers.ofByteArray(outputStream.toByteArray()))
+                .POST(HttpRequest.BodyPublishers.ofByteArray(payload.getValue()))
                 .build();
 
         try {
@@ -151,23 +118,12 @@ public class TextureUploader {
     //FUCKING GARBAGE, REQUIRES TOKEN TO DOWNLOAD, WTF, SO UPLOADING IS FREE, BUT DOWNLOADING NO?
     private static void uploadGoFile(TextureGenerator generator, Consumer<String> setter) {
         if (System.currentTimeMillis() - lastUploadTime < 1000 * 60 * 60 * 23) { return; }
-        byte[] fileData = generator.generate();
-        String boundary = "----SMPTweaksBoundary" + System.currentTimeMillis();
-        String bodySuffix = "\r\n--" + boundary + "--\r\n";
-
-        String bodyPrefix = "--" + boundary + "\r\n" +
-                "Content-Disposition: form-data; name=\"file\"; filename=\"" + Utils.randomString(8, false) + ".zip\"\r\n" +
-                "Content-Type: application/octet-stream\r\n\r\n";
-
-        byte[] body = new byte[bodyPrefix.getBytes().length + fileData.length + bodySuffix.getBytes().length];
-        System.arraycopy(bodyPrefix.getBytes(), 0, body, 0, bodyPrefix.getBytes().length);
-        System.arraycopy(fileData, 0, body, bodyPrefix.getBytes().length, fileData.length);
-        System.arraycopy(bodySuffix.getBytes(), 0, body, bodyPrefix.getBytes().length + fileData.length, bodySuffix.getBytes().length);
+        Map.Entry<String, byte[]> payload = buildMultipartPayload(null, "file", null, generator.generate());
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://upload.gofile.io/uploadFile"))
-                .header("Content-Type", "multipart/form-data; boundary=" + boundary)
-                .POST(HttpRequest.BodyPublishers.ofByteArray(body))
+                .header("Content-Type", "multipart/form-data; boundary=" + payload.getKey())
+                .POST(HttpRequest.BodyPublishers.ofByteArray(payload.getValue()))
                 .build();
 
         try {
@@ -239,5 +195,38 @@ public class TextureUploader {
             lastUpdateCdnTime = 1;
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Builds a multipart/form-data payload with arbitrary fields and a single file.
+     *
+     * @param fields Map of form field names -> values (e.g., "reqtype" -> "fileupload")
+     * @param fileFieldName Name of the file field (e.g., "fileToUpload")
+     * @param fileName File name for upload. If null, a random 8-character file name will be generated.
+     * @param fileData File contents as byte[]
+     * @return a Map.Entry containing:
+     *         - key: the generated multipart boundary string
+     *         - value: the multipart payload as a byte array
+     */
+    private static Map.Entry<String, byte[]> buildMultipartPayload(Map<String, String> fields, String fileFieldName, String fileName, byte[] fileData) {
+        String boundary = "----SMPTweaksBoundary" + System.currentTimeMillis();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        if (fileName == null) { fileName = Utils.randomString(8, false); }
+
+        try {
+            for (Map.Entry<?, ?> entry : Objects.requireNonNullElse(fields, Map.of()).entrySet()) {
+                String fieldPart = "--" + boundary + "\r\n" + "Content-Disposition: form-data; name=\"" + entry.getKey() + "\"\r\n\r\n" + entry.getValue() + "\r\n";
+                outputStream.write(fieldPart.getBytes(StandardCharsets.UTF_8));
+            }
+
+            String fileHeader = "--" + boundary + "\r\n" + "Content-Disposition: form-data; name=\"" + fileFieldName + "\"; filename=\"" + fileName + "\"\r\n" + "Content-Type: application/octet-stream\r\n\r\n";
+            outputStream.write(fileHeader.getBytes(StandardCharsets.UTF_8));
+            outputStream.write(fileData);
+            outputStream.write(("\r\n--" + boundary + "--\r\n").getBytes(StandardCharsets.UTF_8));
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to build multipart payload", e);
+        }
+
+        return Map.entry(boundary, outputStream.toByteArray());
     }
 }
