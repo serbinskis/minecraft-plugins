@@ -26,10 +26,48 @@ public class TextureUploader {
         if (retryTimer > -1) { return; }
 
         TextureUploader.uploadFileBin(generator, setter);
+        if (RESOURCE_PACK_URL == null) { TextureUploader.uploadLitterbox(generator, setter); }
         if (RESOURCE_PACK_URL == null) { TextureUploader.uploadCatbox(generator, setter); }
 
         if (RESOURCE_PACK_URL != null) { lastUploadTime = System.currentTimeMillis(); return; }
         retryTimer = TaskUtils.scheduleAsyncDelayedTask(() -> { retryTimer = -1; TextureUploader.upload(generator, setter); }, RETRY_TIME_INTERVAL);
+    }
+
+    private static void uploadLitterbox(TextureGenerator generator, Consumer<String> setter) {
+        if (System.currentTimeMillis() - lastUploadTime < 1000 * 60 * 60 * 23) { return; }
+
+        String boundary = "----SMPTweaksBoundary" + System.currentTimeMillis();
+        String fieldReq = "--" + boundary + "\r\n" + "Content-Disposition: form-data; name=\"reqtype\"\r\n\r\n" + "fileupload\r\n";
+        String fieldTime = "--" + boundary + "\r\n" + "Content-Disposition: form-data; name=\"time\"\r\n\r\n" + "72h\r\n";
+        String fieldFile = "--" + boundary + "\r\n" + "Content-Disposition: form-data; name=\"fileToUpload\"; filename=\"" + Utils.randomString(8, false) + "\"\r\n" + "Content-Type: application/octet-stream\r\n\r\n";
+        String footer = "\r\n--" + boundary + "--\r\n";
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try { outputStream.write(fieldReq.getBytes(StandardCharsets.UTF_8)); } catch (Exception ignored) {}
+        try { outputStream.write(fieldTime.getBytes(StandardCharsets.UTF_8)); } catch (Exception ignored) {}
+        try { outputStream.write(fieldFile.getBytes(StandardCharsets.UTF_8)); } catch (Exception ignored) {}
+        try { outputStream.write(generator.generate()); } catch (Exception ignored) {}
+        try { outputStream.write(footer.getBytes(StandardCharsets.UTF_8)); } catch (Exception ignored) {}
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://litterbox.catbox.moe/resources/internals/api.php"))
+                .header("Content-Type", "multipart/form-data; boundary=" + boundary)
+                .header("User-Agent", "Mozilla/5.0")
+                .POST(HttpRequest.BodyPublishers.ofByteArray(outputStream.toByteArray()))
+                .build();
+
+        try {
+            HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+            if ((response.statusCode() == 200) && !response.body().isEmpty()) { RESOURCE_PACK_URL = response.body().trim(); }
+        } catch (Exception e) { RESOURCE_PACK_URL = null; }
+
+        if (RESOURCE_PACK_URL == null) {
+            Utils.sendMessage("[SMPTweaks] Failed to upload resource pack litterbox.catbox.moe.");
+            return;
+        }
+
+        Utils.sendMessage("[SMPTweaks] Successfully uploaded custom resource pack to: " + RESOURCE_PACK_URL);
+        setter.accept(RESOURCE_PACK_URL);
     }
 
     private static void uploadCatbox(TextureGenerator generator, Consumer<String> setter) {
