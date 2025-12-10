@@ -131,7 +131,7 @@ public class TextureGenerator {
             throw new RuntimeException(e);
         }
 
-        texture_pack_data  = byteArrayOutputStream.toByteArray();
+        texture_pack_data = byteArrayOutputStream.toByteArray();
         return texture_pack_data;
     }
 }
