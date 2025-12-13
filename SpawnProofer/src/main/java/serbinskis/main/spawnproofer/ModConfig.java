@@ -1,4 +1,4 @@
-package wobbychip.main.spawnproofer;
+package serbinskis.main.spawnproofer;
 
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;

@@ -1,4 +1,4 @@
-package wobbychip.main.spawnproofer;
+package serbinskis.main.spawnproofer;
 
 import me.shedaniel.autoconfig.AutoConfig;
 import net.minecraft.block.*;
