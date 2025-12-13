@@ -1,6 +1,6 @@
-package wobbychip.main.spawnproofer.mixins;
+package serbinskis.main.spawnproofer.mixins;
 
-import wobbychip.main.spawnproofer.SpawnProoferHelper;
+import serbinskis.main.spawnproofer.SpawnProoferHelper;
 import net.minecraft.client.network.ClientPlayerInteractionManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
