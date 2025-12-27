@@ -23,7 +23,7 @@ public class AutoTrade extends CustomTweak {
 
 	public AutoTrade() {
 		super(AutoTrade.class, true, false);
-		this.setGameRule("doAutoTrade", true, false);
+		this.setGameRule("auto_trade", true, false);
 		this.setDescription("Allows to automatically trade with villagers. Crafted inside crafting table.");
 		AutoTrade.tweak = this;
 	}

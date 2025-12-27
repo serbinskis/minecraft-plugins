@@ -11,7 +11,7 @@ public class HeadDrops extends CustomTweak {
 	public HeadDrops() {
 		super(HeadDrops.class, false, false);
 		this.setDescription("Drop player head on death if killed by player.");
-		this.setGameRule("doHeadDrops", false, false);
+		this.setGameRule("player_head_drops", false, false);
 		HeadDrops.tweak = this;
 	}
 

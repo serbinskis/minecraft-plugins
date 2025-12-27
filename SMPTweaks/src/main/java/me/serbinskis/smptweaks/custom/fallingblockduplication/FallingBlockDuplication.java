@@ -11,7 +11,7 @@ public class FallingBlockDuplication extends CustomTweak {
 	public FallingBlockDuplication() {
 		super(FallingBlockDuplication.class, true, false);
 		this.setDescription("Enable falling block duplication glitch with end portal on PaperMC servers.");
-		this.setGameRule("doFallingBlockDuplication", true, false);
+		this.setGameRule("falling_block_duplication", true, false);
 		FallingBlockDuplication.tweak = this;
 	}
 

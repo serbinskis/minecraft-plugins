@@ -10,7 +10,7 @@ public class NoAdvancements extends CustomTweak {
 
 	public NoAdvancements() {
 		super(NoAdvancements.class, false, false);
-		this.setGameRule("doAdvancements", true, false);
+		this.setGameRule("allow_advancements", true, false);
 		this.setDescription("Disable advancements with custom gamerule.");
 		NoAdvancements.tweak = this;
 	}

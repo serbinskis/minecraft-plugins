@@ -28,6 +28,9 @@ public class TextureUploader {
     public static void upload(TextureGenerator generator, Consumer<String> setter) {
         if (retryTimer > -1) { return; }
 
+        //gofile.io -> FUCKING GARBAGE, REQUIRES TOKEN TO DOWNLOAD, WTF, SO UPLOADING IS FREE, BUT DOWNLOADING NO?
+        //0x0.st -> FUCKING SHIT ASS DEV, BLOCKS JAVA USER AGENT, MEANING NO DOWNLOADS
+
         TextureUploader.uploadFileBin(generator, setter); //But this runs cdn update, so we must check time separately inside each of them
         if (RESOURCE_PACK_URL == null) { TextureUploader.uploadLitterbox(generator, setter); }
         if (RESOURCE_PACK_URL == null) { TextureUploader.uploadCatbox(generator, setter); }
@@ -82,62 +85,6 @@ public class TextureUploader {
 
         if (RESOURCE_PACK_URL == null) {
             Utils.sendMessage("[SMPTweaks] Failed to upload resource pack to catbox.moe.");
-            return;
-        }
-
-        Utils.sendMessage("[SMPTweaks] Successfully uploaded custom resource pack to: " + RESOURCE_PACK_URL);
-        setter.accept(RESOURCE_PACK_URL);
-    }
-
-    //FUCKING SHIT ASS DEV, BLOCKS JAVA USER AGENT, MEANING NO DOWNLOADS
-    private static void upload0x0st(TextureGenerator generator, Consumer<String> setter) {
-        if (System.currentTimeMillis() - lastUploadTime < 1000 * 60 * 60 * 23) { return; }
-        Map.Entry<String, byte[]> payload = buildMultipartPayload(null, "file", null, generator.generate());
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://0x0.st"))
-                .version(HttpClient.Version.HTTP_1_1)
-                .header("Content-Type", "multipart/form-data; boundary=" + payload.getKey())
-                .header("User-Agent", "SMPTweaks-Plugin/" + Main.getPlugin().getDescription().getVersion())
-                .POST(HttpRequest.BodyPublishers.ofByteArray(payload.getValue()))
-                .build();
-
-        try {
-            HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-            if ((response.statusCode() == 200) && !response.body().isEmpty()) { RESOURCE_PACK_URL = response.body().trim(); }
-        } catch (Exception e) { RESOURCE_PACK_URL = null; }
-
-        if (RESOURCE_PACK_URL == null) {
-            Utils.sendMessage("[SMPTweaks] Failed to upload resource pack to 0x0.st.");
-            return;
-        }
-
-        Utils.sendMessage("[SMPTweaks] Successfully uploaded custom resource pack to: " + RESOURCE_PACK_URL);
-        setter.accept(RESOURCE_PACK_URL);
-    }
-
-    //FUCKING GARBAGE, REQUIRES TOKEN TO DOWNLOAD, WTF, SO UPLOADING IS FREE, BUT DOWNLOADING NO?
-    private static void uploadGoFile(TextureGenerator generator, Consumer<String> setter) {
-        if (System.currentTimeMillis() - lastUploadTime < 1000 * 60 * 60 * 23) { return; }
-        Map.Entry<String, byte[]> payload = buildMultipartPayload(null, "file", null, generator.generate());
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://upload.gofile.io/uploadFile"))
-                .header("Content-Type", "multipart/form-data; boundary=" + payload.getKey())
-                .POST(HttpRequest.BodyPublishers.ofByteArray(payload.getValue()))
-                .build();
-
-        try {
-            HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-            if ((response.statusCode() != 200) || !response.body().contains("\"status\":\"ok\"")) { throw new RuntimeException(); }
-            String fileId = response.body().split("\"id\":\"")[1].split("\"")[0];
-            String server = response.body().split("\"servers\":\\[\"")[1].split("\"")[0];
-            String fileName = response.body().split("\"name\":\"")[1].split("\"")[0];
-            RESOURCE_PACK_URL = "https://" + server + ".gofile.io/download/" + fileId + "/" + fileName;
-        } catch (Exception e) { RESOURCE_PACK_URL = null; }
-
-        if (RESOURCE_PACK_URL == null) {
-            Utils.sendMessage("[SMPTweaks] Failed to upload resource pack to gofile.io.");
             return;
         }
 

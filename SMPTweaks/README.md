@@ -6,7 +6,7 @@ This is the source code of SMPTweaks. SMPTweaks is a plugin that tweaks some gam
 
 Adds to the server different new potions and new brewing recipes. To get more info about potions use the command: `/smptweaks execute cpotions info`.
 
-- `/gamerule doCustomPotions false` (default: true)
+- `/gamerule custom_potions false` (default: true)
 
 </br>
 
@@ -21,7 +21,7 @@ Adds to the server different new potions and new brewing recipes. To get more in
 ## No Arrow Infinity
 
 Allows players to use a bow with infinity without arrows.
-- `/gamerule doInfinityArrows false` (default: true)
+- `/gamerule bow_infinity_arrows false` (default: true)
 
 ## Holograms
 
@@ -33,7 +33,7 @@ Admin tool to make holograms with display text entity. Crouch and right-click a 
 
 Allows to automatically trade with villagers within a distance of 2 blocks.
 
-- `/gamerule doAutoTrade false` (default: true)
+- `/gamerule auto_trade false` (default: true)
 
 <p align="center" float="left">
   <img width="500" height="325" src="https://i.imgur.com/cGCJNSP.png">
@@ -44,7 +44,7 @@ Allows to automatically trade with villagers within a distance of 2 blocks.
 
 Allows to pull nearby items toward the block from a set distance and at a set speed.
 
-- `/gamerule doMagnets false` (default: true)
+- `/gamerule magnet_block false` (default: true)
 
 <p align="center" float="left">
   <img width="500" height="325" src="https://i.imgur.com/tXmRkff.png">
@@ -55,7 +55,7 @@ Allows to pull nearby items toward the block from a set distance and at a set sp
 
 Allows loading chunks as if a player were standing there. Crops do grow and mobs also spawn.
 
-- `/gamerule doChunkLoaders false` (default: true)
+- `/gamerule chunk_loaders false` (default: true)
 
 <p align="center" float="left">
   <img width="500" height="325" src="https://i.imgur.com/UchF5xf.png">
@@ -66,7 +66,7 @@ Allows loading chunks as if a player were standing there. Crops do grow and mobs
 
 Adds more and faster furnaces.
 
-- `/gamerule doBetterFurnaces false` (default: true)
+- `/gamerule better_furnaces false` (default: true)
 
 <p align="center" float="left">
   <img width="500" height="325" src="https://i.imgur.com/G87HGUY.png">
@@ -77,7 +77,7 @@ Adds more and faster furnaces.
 
 Makes leafs decay much faster.
 
-- `/gamerule doFastLeafDecay false` (default: true)
+- `/gamerule fast_leaf_decay false` (default: true)
 
 <p align="center"><img width="800" height="500" src="https://i.imgur.com/z3X7h7E.gif" style="border-radius:12px;border:2px solid #555;"></p>
 
@@ -85,7 +85,7 @@ Makes leafs decay much faster.
 
 Allows cycling trades inside a villager.
 
-- `/gamerule doTradeCycle false` (default: true)
+- `/gamerule villager_trade_cycle false` (default: true)
 
 <p align="center"><img width="550" height="330" src="https://i.imgur.com/oyIcjc2.png"></p>
 
@@ -93,76 +93,76 @@ Allows cycling trades inside a villager.
 
 Disable end portal with custom gamerule. This will prevent placing ender eyes, and also prevent from going through the end portal.
 
-- `/gamerule doEndPortal false` (default: true)
+- `/gamerule allow_end_portal false` (default: true)
 
 ## No Advancements
 
 Disable advancements per world with custom gamerule.
 
-- `/gamerule doAdvancements false` (default: true)
+- `/gamerule allow_advancements false` (default: true)
 
 ## Global Trading
 
 Allows to share cured villager prices among all players.
 
-- `/gamerule doGlobalTrading false` (default: true)
+- `/gamerule villager_global_trading false` (default: true)
 
 ## Falling Block Duplication
 
 Allows falling block duplication glitch with end portal on PaperMC servers.
 
-- `/gamerule doFallingBlockDuplication false` (default: true)
+- `/gamerule falling_block_duplication false` (default: true)
 
 ## No Too Expensive
 
 Removes "Too expensive" from anvils and allows you to spend any level if you have enough.
 
-- `/gamerule doNoTooExpensive false` (default: true)
+- `/gamerule disable_anvil_too_expensive false` (default: true)
 
 ## Repair With XP
 
 Allow repairing mending tools with XP. Put item with mending in offhand and crouch.
 
-- `/gamerule doRepairWithXP false` (default: true)
+- `/gamerule repair_with_xp false` (default: true)
 
 ## Head Drops
 
 Drop player head on death if killed by player.
 
-- `/gamerule doHeadDrops true` (default: false)
+- `/gamerule player_head_drops true` (default: false)
 
 ## Instant Curing
 
 Makes curing villagers instant.
 
-- `/gamerule doInstantCuring true` (default: false)
+- `/gamerule villager_instant_curing false` (default: true)
 
 ## All Crafting Recipes
 
 Give all crafting recipes when a player joins.
 
-- `/gamerule doAllCraftingRecipes false` (default: true)
+- `/gamerule all_crafting_recipes false` (default: true)
 
 ## Anti Creeper Grief
 
 Prevent creepers from exploding blocks.
 
-- `/gamerule doCreeperGrief false` (default: true)
+- `/gamerule creeper_grief false` (default: true)
 
 ## Anti Enderman Grief
 
 Prevent enderman from picking up blocks.
 
-- `/gamerule doEndermanGrief false` (default: true)
+- `/gamerule enderman_grief false` (default: true)
 
 ## Drop Cursed Pumpkin
 
 Drop cursed pumpkin on death when keep inventory is on.
 
-- `/gamerule doDropCursedPumpkin false` (default: true)
+- `/gamerule drop_cursed_pumpkin false` (default: true)
 
 ## Entity Limit
 
 Limits entity spawn.
 
-- `/gamerule doEntityLimit false` (default: true)
+- `/gamerule entity_limit false` (default: true)

@@ -17,7 +17,7 @@ public class EntityLimit extends CustomTweak {
 	public EntityLimit() {
 		super(EntityLimit.class, false, false);
 		this.setDescription("Limits entity spawn for each entity type.");
-		this.setGameRule("doEntityLimit", true, false);
+		this.setGameRule("entity_limit", true, false);
 		this.setConfigs(List.of("config.yml"));
 		this.setReloadable(true);
 		EntityLimit.tweak = this;

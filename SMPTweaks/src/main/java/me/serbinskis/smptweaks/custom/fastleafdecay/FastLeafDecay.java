@@ -9,7 +9,7 @@ public class FastLeafDecay extends CustomTweak {
 
     public FastLeafDecay() {
         super(FastLeafDecay.class, true, false);
-        this.setGameRule("doFastLeafDecay", true, false);
+        this.setGameRule("fast_leaf_decay", true, false);
         this.setDescription("Leafs will decay much faster.");
         FastLeafDecay.tweak = this;
     }

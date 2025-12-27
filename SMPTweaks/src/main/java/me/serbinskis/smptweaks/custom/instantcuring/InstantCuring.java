@@ -9,7 +9,7 @@ public class InstantCuring extends CustomTweak {
 
 	public InstantCuring() {
 		super(InstantCuring.class, false, false);
-		this.setGameRule("doInstantCuring", false, false);
+		this.setGameRule("villager_instant_curing", true, false);
 		this.setDescription("Makes curing villagers instant.");
 		InstantCuring.tweak = this;
 	}

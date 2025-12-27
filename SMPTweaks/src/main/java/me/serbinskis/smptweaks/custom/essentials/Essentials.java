@@ -10,7 +10,7 @@ public class Essentials extends CustomTweak {
 
 	public Essentials() {
 		super(Essentials.class, false, false);
-		this.setGameRule("doCustomEssentials", true, false);
+		this.setGameRule("custom_essentials", true, false);
 		this.setDescription("Adds custom tweaks to EssentialsX Vanish.");
 		Essentials.tweak = this;
 	}

@@ -121,6 +121,7 @@ public class TraderBlock extends CustomBlock {
         if (!PersistentUtils.hasPersistentDataByteArray(block, TAG_AUTO_TRADE_RECIPE)) { return null; }
         byte[] persistentDataByteArray = PersistentUtils.getPersistentDataByteArray(container, TAG_AUTO_TRADE_RECIPE);
         MerchantRecipe merchantRecipe = VillagerUtils.decodeMerchantRecipe(persistentDataByteArray);
+        if (merchantRecipe == null) { PersistentUtils.removePersistentData(block, TAG_AUTO_TRADE_RECIPE); }
         if (merchantRecipe != null) { merchantRecipe.setUses(0); }
         return merchantRecipe;
     }

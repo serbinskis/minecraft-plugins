@@ -10,7 +10,7 @@ public class NoEndPortal extends CustomTweak {
 
 	public NoEndPortal() {
 		super(NoEndPortal.class, false, false);
-		this.setGameRule("doEndPortal", true, false);
+		this.setGameRule("allow_end_portal", true, false);
 		this.setDescription("Disable end portal with custom gamerule.");
 		NoEndPortal.tweak = this;
 	}

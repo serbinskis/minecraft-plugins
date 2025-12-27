@@ -26,7 +26,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.ServerFunctionManager;
@@ -189,8 +189,8 @@ public class ReflectionUtils {
 		GossipContainer_gossips = Objects.requireNonNull(getField(GossipContainer.class, Map.class, null, true));
 		GossipContainer_EntityGossips = Objects.requireNonNull((Class<?>) ((ParameterizedType) GossipContainer_gossips.getGenericType()).getActualTypeArguments()[1]);
 		EntityGossips_entries = Objects.requireNonNull(getField(GossipContainer_EntityGossips, Object2IntMap.class, null, true));
-		EntityVillager_startTrading_Or_updateSpecialPrices = Objects.requireNonNull(findMethod(false, Modifier.PRIVATE, net.minecraft.world.entity.npc.Villager.class, Void.TYPE, null, net.minecraft.world.entity.player.Player.class));
-		IRegistry_keySet = Objects.requireNonNull(findMethod(true, null, Registry.class, Set.class, ResourceLocation.class));
+		EntityVillager_startTrading_Or_updateSpecialPrices = Objects.requireNonNull(findMethod(false, Modifier.PRIVATE, net.minecraft.world.entity.npc.villager.Villager.class, Void.TYPE, null, net.minecraft.world.entity.player.Player.class));
+		IRegistry_keySet = Objects.requireNonNull(findMethod(true, null, Registry.class, Set.class, Identifier.class));
 		Potions_register = Objects.requireNonNull(findMethod(false, Modifier.PRIVATE, Potions.class, Holder.class, null, String.class, Potion.class));
 		RegistryMaterials_getHolder = Objects.requireNonNull(findMethod(true, null, Registry.class, Optional.class, null, int.class));
 		Level_dimensionTypeRegistration = Objects.requireNonNull(getField(Level.class, Holder.class, DimensionType.class, true));
@@ -200,7 +200,7 @@ public class ReflectionUtils {
 		Holder_value = Objects.requireNonNull(getField(Holder.Reference.class, Object.class, null, true));
 		ServerCommonPacketListenerImpl_connection = Objects.requireNonNull(getField(ServerCommonPacketListenerImpl.class, Connection.class, null, true));
 		ServerConnectionListener_channels = Objects.requireNonNull(getField(ServerConnectionListener.class, List.class, ChannelFuture.class, true));
-		CacheableFunction_id = Objects.requireNonNull(getField(CacheableFunction.class, ResourceLocation.class, null, true));
+		CacheableFunction_id = Objects.requireNonNull(getField(CacheableFunction.class, Identifier.class, null, true));
 		CacheableFunction_resolved = Objects.requireNonNull(getField(CacheableFunction.class, boolean.class, null, true));
 		CacheableFunction_function = Objects.requireNonNull(getField(CacheableFunction.class, Optional.class, CommandFunction.class, true));
 	}
@@ -435,10 +435,10 @@ public class ReflectionUtils {
 		}
 	}
 
-	public static net.minecraft.world.entity.npc.Villager getEntityVillager(Villager villager) {
+	public static net.minecraft.world.entity.npc.villager.Villager getEntityVillager(Villager villager) {
 		try {
 			Object craftEntity = CraftVillager.cast(villager);
-			return (net.minecraft.world.entity.npc.Villager) villager.getClass().getDeclaredMethod("getHandle").invoke(craftEntity);
+			return (net.minecraft.world.entity.npc.villager.Villager) villager.getClass().getDeclaredMethod("getHandle").invoke(craftEntity);
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 			return null;
@@ -631,7 +631,7 @@ public class ReflectionUtils {
 		}
 	}
 
-	public static void setChatVisibility(Player player, String visibility) {
+	/*public static void setChatVisibility(Player player, String visibility) {
 		if (player == null) { return; }
 
 		try {
@@ -642,11 +642,11 @@ public class ReflectionUtils {
 		} catch (IllegalAccessException | IllegalArgumentException e) {
 			e.printStackTrace();
 		}
-	}
+	}*/
 
-	public static String getChatVisibility(Player player) {
+	/*public static @NotNull String getChatVisibility(Player player) {
 		return getEntityPlayer(player).getChatVisibility().getKey();
-	}
+	}*/
 
 	public static int getTickCount() {
 		return MinecraftServer.getServer().getTickCount();
@@ -774,7 +774,7 @@ public class ReflectionUtils {
 	//Open trading screen of a villager
 	public static void startTrading(Player player, Villager villager) {
 		try {
-			net.minecraft.world.entity.npc.Villager entityVillager = getEntityVillager(villager);
+			net.minecraft.world.entity.npc.villager.Villager entityVillager = getEntityVillager(villager);
 			ServerPlayer entityPlayer = getEntityPlayer(player);
 			EntityVillager_startTrading_Or_updateSpecialPrices.invoke(entityVillager, entityPlayer);
 			player.openMerchant(villager, false);
@@ -813,7 +813,7 @@ public class ReflectionUtils {
 		Optional<CacheableFunction> function = getNMSAdvancement(advancement).rewards().function();
 		if (function.isEmpty()) { return null; }
 
-		ResourceLocation resourceLocation = (ResourceLocation) getValue(CacheableFunction_id, function.get());
+		Identifier resourceLocation = (Identifier) getValue(CacheableFunction_id, function.get());
 		return new String[] { resourceLocation.getNamespace(), resourceLocation.getPath() };
 	}
 
@@ -823,7 +823,7 @@ public class ReflectionUtils {
 
 		setValue(CacheableFunction_resolved, function.get(), false);
 		setValue(CacheableFunction_function, function.get(), null);
-		setResourceLocation((ResourceLocation) getValue(CacheableFunction_id, function.get()), namespace, path);
+		setResourceLocation((Identifier) getValue(CacheableFunction_id, function.get()), namespace, path);
 	}
 
 	public static boolean getAnnounceChat(Advancement advancement) {
@@ -839,20 +839,20 @@ public class ReflectionUtils {
 	}
 
 	public static String[] getResourceLocation(ResourceKey<?> resourceKey) {
-		return getResourceLocation(resourceKey.location());
+		return getResourceLocation(resourceKey.identifier());
 	}
 
-	public static String[] getResourceLocation(ResourceLocation resourceLocation) {
+	public static String[] getResourceLocation(Identifier resourceLocation) {
 		return new String[] { resourceLocation.getNamespace(), resourceLocation.getPath() };
 	}
 
 	public static void setResourceLocation(ResourceKey<?> resourceKey, String namespace, String path) {
-		setResourceLocation(resourceKey.location(), namespace, path);
+		setResourceLocation(resourceKey.identifier(), namespace, path);
 	}
 
-	public static void setResourceLocation(ResourceLocation resourceLocation, String namespace, String path) {
-		Field ResourceLocation_namespace = getField(ResourceLocation.class, String.class, null, resourceLocation, resourceLocation.getNamespace(), true, null, Modifier.STATIC);
-		Field ResourceLocation_path = getField(ResourceLocation.class, String.class, null, resourceLocation, resourceLocation.getPath(), true, null, Modifier.STATIC);
+	public static void setResourceLocation(Identifier resourceLocation, String namespace, String path) {
+		Field ResourceLocation_namespace = getField(Identifier.class, String.class, null, resourceLocation, resourceLocation.getNamespace(), true, null, Modifier.STATIC);
+		Field ResourceLocation_path = getField(Identifier.class, String.class, null, resourceLocation, resourceLocation.getPath(), true, null, Modifier.STATIC);
 		setValue(ResourceLocation_namespace, resourceLocation, namespace);
 		setValue(ResourceLocation_path, resourceLocation, path);
 	}
@@ -1345,7 +1345,7 @@ public class ReflectionUtils {
 		return null;
 	}
 
-	public static ClientboundLevelChunkWithLightPacket setPacketChunkBiome(World world, Object packet, Object customNmsBiome, @Nullable String customBiomeName, @Nullable HashMap<String, Object> customBiomeMap) {
+	/*public static ClientboundLevelChunkWithLightPacket setPacketChunkBiome(World world, Object packet, Object customNmsBiome, @Nullable String customBiomeName, @Nullable HashMap<String, Object> customBiomeMap) {
 		ServerLevel level = getWorld(world);
 		int chunkX = ((ClientboundLevelChunkWithLightPacket) packet).getX();
 		int chunkZ = ((ClientboundLevelChunkWithLightPacket) packet).getZ();
@@ -1361,7 +1361,7 @@ public class ReflectionUtils {
 					for (int y = 0; y < 4; ++y) {
 						Holder<Biome> saved_biome = section.getNoiseBiome(x, y, z);
 						saved_biomes.add(saved_biome.value());
-						String biomeName = saved_biome.unwrapKey().get().location().toString().replaceAll("[:/]", "_");
+						String biomeName = saved_biome.unwrapKey().get().identifier().toString().replaceAll("[:/]", "_");
 
 						Object adaptedCustomBiome = ((customBiomeName != null) && (customBiomeMap != null)) ? customBiomeMap.get(customBiomeName + "_" + biomeName) : null;
 						section.setBiome(x, y, z, Holder.direct((Biome) ((adaptedCustomBiome != null) ? adaptedCustomBiome : customNmsBiome)));
@@ -1385,7 +1385,7 @@ public class ReflectionUtils {
 		}
 
 		return npacket;
-	}
+	}*/
 
 	public static CommonPlayerSpawnInfo editCommonPlayerSpawnInfo(CommonPlayerSpawnInfo commonPlayerSpawnInfo, @Nullable Boolean isFlat, @Nullable World.Environment env) {
 		Holder<DimensionType> dimensionType = commonPlayerSpawnInfo.dimensionType();
@@ -1404,15 +1404,15 @@ public class ReflectionUtils {
 		return new CommonPlayerSpawnInfo(dimensionType, dimension, seed, gameType, previousGameType, isDebug, isFlat, lastDeathLocation, portalCooldown, commonPlayerSpawnInfo.seaLevel());
 	}
 
-	public static List<String> getBiomes(String exnamespace) {
+	/*public static List<String> getBiomes(String exnamespace) {
 		ArrayList<ResourceLocation> resourceLocations = new ArrayList<>(getRegistry(Registries.BIOME).keySet());
 		if (!exnamespace.isEmpty()) { resourceLocations.removeIf(e -> e.getNamespace().equalsIgnoreCase(exnamespace)); }
 		return resourceLocations.stream().map(ResourceLocation::toString).toList();
-	}
+	}*/
 
 	//This will crash client if he will not rejoin and receive custom biome, because client only receives biomes when joining,
 	// but if we create new biome and send it to client, he won't know what to do with it and crash
-	public static Biome registerBiome(String basename, String namespace, String name, int skyColor, int fogColor, int waterColor, int waterFogColor, int foliageColor, int grassColor, boolean effectsEnabled) {
+	/*public static Biome registerBiome(String basename, String namespace, String name, int skyColor, int fogColor, int waterColor, int waterFogColor, int foliageColor, int grassColor, boolean effectsEnabled) {
 		ResourceKey<Biome> minecraftKey = ResourceKey.create(Registries.BIOME, ResourceLocation.fromNamespaceAndPath(basename.split(":")[0], basename.split(":")[1]));
 		ResourceKey<Biome> customKey = ResourceKey.create(Registries.BIOME, ResourceLocation.fromNamespaceAndPath(namespace, name));
 		WritableRegistry<Biome> biomeRegirsty = (WritableRegistry<Biome>) getRegistry(Registries.BIOME);
@@ -1460,12 +1460,13 @@ public class ReflectionUtils {
 		fixHolder(biomeRegirsty, customBiome);
 
 		return customBiome;
-	}
+	}*/
 
 	public static float getLocalDifficulty(Player player, boolean real) {
 		Difficulty difficulty = player.getWorld().getDifficulty();
+		BlockPos blockPos = ReflectionUtils.getEntityPlayer(player).getOnPos();
 		float timeOfDay = getWorld(player.getWorld()).getLevelData().getDayTime();
-		float moonSize = getWorld(player.getWorld()).getMoonBrightness();
+		float moonSize = getWorld(player.getWorld()).getMoonBrightness(blockPos);
 		long inhabitedTime = real ? player.getChunk().getInhabitedTime() : 0L;
 		if (difficulty == Difficulty.PEACEFUL) { return 0.0F; }
 

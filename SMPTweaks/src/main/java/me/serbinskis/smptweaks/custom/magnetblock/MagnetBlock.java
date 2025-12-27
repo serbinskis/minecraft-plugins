@@ -12,7 +12,7 @@ public class MagnetBlock extends CustomTweak {
     public MagnetBlock() {
         super(MagnetBlock.class, true, false);
         this.setConfigs(List.of("config.yml"));
-        this.setGameRule("doMagnets", true, false);
+        this.setGameRule("magnet_block", true, false);
         this.setDescription("Adds magnetic block that collects items.");
         this.setReloadable(true);
         MagnetBlock.tweak = this;

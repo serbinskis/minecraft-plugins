@@ -18,7 +18,7 @@ public class CycleTrades extends CustomTweak {
 
 	public CycleTrades() {
 		super(CycleTrades.class, true, false);
-		this.setGameRule("doTradeCycle", true, false);
+		this.setGameRule("villager_trade_cycle", true, false);
 		this.setDescription("Allows cycling trades inside villager.");
 		CycleTrades.tweak = this;
 	}

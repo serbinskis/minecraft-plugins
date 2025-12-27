@@ -44,7 +44,7 @@ public class VillagerUtils {
             output.write(ingredients);
 
             return byteOut.toByteArray();
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException("Error encoding MerchantRecipe", e);
         }
     }
@@ -52,7 +52,6 @@ public class VillagerUtils {
     public static @Paper @Nullable MerchantRecipe decodeMerchantRecipe(byte[] data) {
         try {
             DataInputStream input = new DataInputStream(new ByteArrayInputStream(data));
-
             ItemStack result = ItemStack.deserializeBytes(input.readNBytes(input.readInt()));
             MerchantRecipe merchantRecipe = new MerchantRecipe(result, input.readInt());
 
@@ -71,7 +70,7 @@ public class VillagerUtils {
             merchantRecipe.setIngredients(ingredients);
 
             return merchantRecipe;
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.err.println("Error decoding MerchantRecipe: " + e.getMessage());
             System.err.println(Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.joining("\n")));
             return null;

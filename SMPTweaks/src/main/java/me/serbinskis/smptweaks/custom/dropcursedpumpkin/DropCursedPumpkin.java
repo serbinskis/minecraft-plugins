@@ -11,7 +11,7 @@ public class DropCursedPumpkin extends CustomTweak {
 	public DropCursedPumpkin() {
 		super(DropCursedPumpkin.class, false, false);
 		this.setDescription("Drop cursed pumpkin on death when keep inventory is enabled.");
-		this.setGameRule("doDropCursedPumpkin", true, false);
+		this.setGameRule("drop_cursed_pumpkin", true, false);
 		DropCursedPumpkin.tweak = this;
 	}
 

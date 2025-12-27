@@ -11,7 +11,7 @@ public class NoTooExpensive extends CustomTweak {
 
 	public NoTooExpensive() {
 		super(NoTooExpensive.class, false, false);
-		this.setGameRule("doNoTooExpensive", true, false);
+		this.setGameRule("disable_anvil_too_expensive", true, false);
 		this.setDescription("Removes \"Too expensive\" from anvils and allows you to spend any level if you have enough.");
 		NoTooExpensive.tweak = this;
 	}

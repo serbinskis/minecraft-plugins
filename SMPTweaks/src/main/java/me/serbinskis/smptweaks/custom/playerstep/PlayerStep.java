@@ -31,7 +31,7 @@ public class PlayerStep extends CustomTweak {
 
     public PlayerStep() {
         super(PlayerStep.class, true);
-        this.setGameRule("doPlayerSteps", false, false);
+        this.setGameRule("player_steps", false, false);
         this.setDescription("Add player steps for atmosphere.");
         PlayerStep.tweak = this;
     }
