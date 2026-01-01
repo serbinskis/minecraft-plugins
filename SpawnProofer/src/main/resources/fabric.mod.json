@@ -18,10 +18,10 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "wobbychip.main.spawnproofer.SpawnProofer"
+      "serbinskis.main.spawnproofer.SpawnProofer"
     ],
     "modmenu": [
-      "wobbychip.main.spawnproofer.ModMenuIntegration"
+      "serbinskis.main.spawnproofer.ModMenuIntegration"
     ]
   },
   "mixins": [
