@@ -5,19 +5,14 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.logging.LogUtils;
 import io.netty.channel.*;
 import io.netty.channel.embedded.EmbeddedChannel;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.DisplayInfo;
 import net.minecraft.commands.CacheableFunction;
 import net.minecraft.commands.functions.CommandFunction;
 import net.minecraft.core.*;
-import net.minecraft.core.Registry;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.PacketSendListener;
@@ -29,7 +24,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerAdvancements;
-import net.minecraft.server.ServerFunctionManager;
 import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -42,61 +36,35 @@ import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity.RemovalReason;
 import net.minecraft.world.entity.PortalProcessor;
-import net.minecraft.world.entity.ai.gossip.GossipContainer;
-import net.minecraft.world.entity.ai.gossip.GossipType;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Abilities;
-import net.minecraft.world.entity.player.ChatVisiblity;
-import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MerchantMenu;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.alchemy.Potion;
-import net.minecraft.world.item.alchemy.PotionBrewing;
-import net.minecraft.world.item.alchemy.PotionContents;
-import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.trading.Merchant;
-import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.SignalGetter;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.BiomeSpecialEffects;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.*;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.chunk.LevelChunkSection;
-import net.minecraft.world.level.dimension.DimensionType;
-import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.portal.TeleportTransition;
-import net.minecraft.world.level.redstone.ExperimentalRedstoneUtils;
 import net.minecraft.world.level.redstone.NeighborUpdater;
-import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.loot.LootTable;
 import org.bukkit.*;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.DoubleChest;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
-import org.bukkit.block.data.type.Comparator;
-import org.bukkit.craftbukkit.potion.CraftPotionType;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
-import org.bukkit.event.block.BlockDropItemEvent;
-import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionType;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -107,102 +75,74 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @SuppressWarnings("unchecked")
 public class ReflectionUtils {
-	public static Registry<Potion> POTION = BuiltInRegistries.POTION;
-	public static HashMap<String, GossipType> reputations = new HashMap<>();
 	public static Class<?> CraftAdvancement;
 	public static Class<?> CraftServer;
 	public static Class<?> CraftEntity;
 	public static Class<?> CraftHumanEntity;
 	public static Class<?> CraftPlayer;
 	public static Class<?> CraftVillager;
-	public static Class<?> CraftInventory;
 	public static Class<?> CraftItemStack;
 	public static Class<?> CraftWorld;
 	public static Class<?> CraftSound;
 	public static Class<?> CraftMagicNumbers;
-	public static Class<?> GossipContainer_EntityGossips;
 	public static Field Entity_bukkitEntity;
 	public static Field EntityPlayer_playerConnection;
-	public static Field EntityPlayer_chatVisibility;
 	public static Field EntityPlayer_advancements;
-	public static Field MinecraftServer_levels;
-	public static Field CustomFunctionData_ticking;
-	public static Field CustomFunctionData_postReload;
-	public static Field RegistryMaterials_frozen;
-	public static Field BlockPhysicsEvent_changed;
 	public static Field PotionSplashEvent_affectedEntities;
 	public static Field AreaEffectCloudApplyEvent_affectedEntities;
-	public static Field Level_dimensionTypeRegistration;
-	public static Field Holder_owner;
-	public static Field Holder_tags;
-	public static Field Holder_key;
-	public static Field Holder_value;
 	public static Field ServerCommonPacketListenerImpl_connection;
 	public static Field ServerConnectionListener_channels;
 	public static Field CacheableFunction_id;
 	public static Field CacheableFunction_resolved;
 	public static Field CacheableFunction_function;
-	public static Field GossipContainer_gossips;
-	public static Field EntityGossips_entries;
-	public static Field PotionBrewing_potionMixes;
-	public static Method EntityVillager_startTrading_Or_updateSpecialPrices;
-	public static Method IRegistry_keySet;
-	public static Method Potions_register;
-	public static Method RegistryMaterials_getHolder;
+
+	// Fuck it I am not interested in updating nms every time
+	// So I will just search fields and methods by their types and arguments
 
 	static {
-		CraftAdvancement = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.advancement.CraftAdvancement"));
-		CraftServer = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.CraftServer"));
-		CraftEntity = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.entity.CraftEntity"));
-		CraftHumanEntity = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.entity.CraftHumanEntity"));
-		CraftPlayer = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.entity.CraftPlayer"));
-		CraftVillager = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.entity.CraftVillager"));
-		CraftInventory = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.inventory.CraftInventory"));
-		CraftItemStack = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.inventory.CraftItemStack"));
-		CraftWorld = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.CraftWorld"));
-		CraftSound = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.CraftSound"));
-		CraftMagicNumbers = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.util.CraftMagicNumbers"));
+		CraftAdvancement = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.advancement.CraftAdvancement"), "ReflectionUtils (NULL): CraftAdvancement");
+		CraftServer = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.CraftServer"), "ReflectionUtils (NULL): CraftServer");
+		CraftEntity = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.entity.CraftEntity"), "ReflectionUtils (NULL): CraftEntity");
+		CraftHumanEntity = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.entity.CraftHumanEntity"), "ReflectionUtils (NULL): CraftHumanEntity");
+		CraftPlayer = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.entity.CraftPlayer"), "ReflectionUtils (NULL): CraftPlayer");
+		CraftVillager = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.entity.CraftVillager"), "ReflectionUtils (NULL): CraftVillager");
+		CraftItemStack = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.inventory.CraftItemStack"), "ReflectionUtils (NULL): CraftItemStack");
+		CraftWorld = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.CraftWorld"), "ReflectionUtils (NULL): CraftWorld");
+		CraftSound = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.CraftSound"), "ReflectionUtils (NULL): CraftSound");
+		CraftMagicNumbers = Objects.requireNonNull(getCraftBukkitClass("org.bukkit.craftbukkit.util.CraftMagicNumbers"), "ReflectionUtils (NULL): CraftMagicNumbers");
 
-		//Fuck it I am not interested in updating nms every time
-		//So I will just search fields and methods by their types and arguments
+		PotionSplashEvent_affectedEntities = Objects.requireNonNull(getField(PotionSplashEvent.class, Map.class, null, true), "ReflectionUtils (NULL): PotionSplashEvent_affectedEntities");
+		AreaEffectCloudApplyEvent_affectedEntities = Objects.requireNonNull(getField(AreaEffectCloudApplyEvent.class, List.class, null, true), "ReflectionUtils (NULL): AreaEffectCloudApplyEvent_affectedEntities");
+		Entity_bukkitEntity = Objects.requireNonNull(getField(net.minecraft.world.entity.Entity.class, CraftEntity, null, true), "ReflectionUtils (NULL): Entity_bukkitEntity");
+		EntityPlayer_playerConnection = Objects.requireNonNull(getField(ServerPlayer.class, ServerGamePacketListenerImpl.class, null, true), "ReflectionUtils (NULL): EntityPlayer_playerConnection");
+		EntityPlayer_advancements = Objects.requireNonNull(getField(ServerPlayer.class, PlayerAdvancements.class, null, true), "ReflectionUtils (NULL): EntityPlayer_advancements");
+		ServerCommonPacketListenerImpl_connection = Objects.requireNonNull(getField(ServerCommonPacketListenerImpl.class, Connection.class, null, true), "ReflectionUtils (NULL): ServerCommonPacketListenerImpl_connection");
+		ServerConnectionListener_channels = Objects.requireNonNull(getField(ServerConnectionListener.class, List.class, ChannelFuture.class, true), "ReflectionUtils (NULL): ServerConnectionListener_channels");
+		CacheableFunction_id = Objects.requireNonNull(getField(CacheableFunction.class, Identifier.class, null, true), "ReflectionUtils (NULL): CacheableFunction_id");
+		CacheableFunction_resolved = Objects.requireNonNull(getField(CacheableFunction.class, boolean.class, null, true), "ReflectionUtils (NULL): CacheableFunction_resolved");
+		CacheableFunction_function = Objects.requireNonNull(getField(CacheableFunction.class, Optional.class, CommandFunction.class, true), "ReflectionUtils (NULL): CacheableFunction_function");
 
-		for (GossipType type : GossipType.values()) { reputations.put(type.getSerializedName().toUpperCase(), type); }
-		setRegistryMap(POTION, new HashMap<>());
-
-		MinecraftServer_levels = Objects.requireNonNull(getField(MinecraftServer.class, Map.class, null, true));
-		CustomFunctionData_ticking = Objects.requireNonNull(getField(ServerFunctionManager.class, List.class, null, true));
-		CustomFunctionData_postReload = Objects.requireNonNull(getField(ServerFunctionManager.class, boolean.class, null, true));
-		BlockPhysicsEvent_changed = Objects.requireNonNull(getField(BlockPhysicsEvent.class, BlockData.class, null, true));
-		PotionSplashEvent_affectedEntities = Objects.requireNonNull(getField(PotionSplashEvent.class, Map.class, null, true));
-		AreaEffectCloudApplyEvent_affectedEntities = Objects.requireNonNull(getField(AreaEffectCloudApplyEvent.class, List.class, null, true));
-		Entity_bukkitEntity = Objects.requireNonNull(getField(net.minecraft.world.entity.Entity.class, CraftEntity, null, true));
-		EntityPlayer_playerConnection = Objects.requireNonNull(getField(ServerPlayer.class, ServerGamePacketListenerImpl.class, null, true));
-		EntityPlayer_chatVisibility = Objects.requireNonNull(getField(ServerPlayer.class, ChatVisiblity.class, null, true));
-		EntityPlayer_advancements = Objects.requireNonNull(getField(ServerPlayer.class, PlayerAdvancements.class, null, true));
-		RegistryMaterials_frozen = Objects.requireNonNull(getField(MappedRegistry.class, boolean.class, null, true));
-		GossipContainer_gossips = Objects.requireNonNull(getField(GossipContainer.class, Map.class, null, true));
-		GossipContainer_EntityGossips = Objects.requireNonNull((Class<?>) ((ParameterizedType) GossipContainer_gossips.getGenericType()).getActualTypeArguments()[1]);
-		EntityGossips_entries = Objects.requireNonNull(getField(GossipContainer_EntityGossips, Object2IntMap.class, null, true));
-		EntityVillager_startTrading_Or_updateSpecialPrices = Objects.requireNonNull(findMethod(false, Modifier.PRIVATE, net.minecraft.world.entity.npc.villager.Villager.class, Void.TYPE, null, net.minecraft.world.entity.player.Player.class));
-		IRegistry_keySet = Objects.requireNonNull(findMethod(true, null, Registry.class, Set.class, Identifier.class));
-		Potions_register = Objects.requireNonNull(findMethod(false, Modifier.PRIVATE, Potions.class, Holder.class, null, String.class, Potion.class));
-		RegistryMaterials_getHolder = Objects.requireNonNull(findMethod(true, null, Registry.class, Optional.class, null, int.class));
-		Level_dimensionTypeRegistration = Objects.requireNonNull(getField(Level.class, Holder.class, DimensionType.class, true));
-		Holder_owner = Objects.requireNonNull(getField(Holder.Reference.class, HolderOwner.class, null, true));
-		Holder_tags = Objects.requireNonNull(getField(Holder.Reference.class, Set.class, null, true));
-		Holder_key = Objects.requireNonNull(getField(Holder.Reference.class, ResourceKey.class, null, true));
-		Holder_value = Objects.requireNonNull(getField(Holder.Reference.class, Object.class, null, true));
-		ServerCommonPacketListenerImpl_connection = Objects.requireNonNull(getField(ServerCommonPacketListenerImpl.class, Connection.class, null, true));
-		ServerConnectionListener_channels = Objects.requireNonNull(getField(ServerConnectionListener.class, List.class, ChannelFuture.class, true));
-		CacheableFunction_id = Objects.requireNonNull(getField(CacheableFunction.class, Identifier.class, null, true));
-		CacheableFunction_resolved = Objects.requireNonNull(getField(CacheableFunction.class, boolean.class, null, true));
-		CacheableFunction_function = Objects.requireNonNull(getField(CacheableFunction.class, Optional.class, CommandFunction.class, true));
+		//BlockPhysicsEvent_changed = Objects.requireNonNull(getField(BlockPhysicsEvent.class, BlockData.class, null, true), "ReflectionUtils (NULL): BlockPhysicsEvent_changed");
+		//EntityPlayer_chatVisibility = Objects.requireNonNull(getField(ServerPlayer.class, ChatVisiblity.class, null, true), "ReflectionUtils (NULL): EntityPlayer_chatVisibility");
+		//RegistryMaterials_frozen = Objects.requireNonNull(getField(MappedRegistry.class, boolean.class, null, true), "ReflectionUtils (NULL): RegistryMaterials_frozen");
+		//EntityGossips_entries = Objects.requireNonNull(getField(GossipContainer_EntityGossips, Object2IntMap.class, null, true), "ReflectionUtils (NULL): EntityGossips_entries");
+		//IRegistry_keySet = Objects.requireNonNull(findMethod(true, null, Registry.class, Set.class, Identifier.class), "ReflectionUtils (NULL): IRegistry_keySet");
+		//Potions_register = Objects.requireNonNull(findMethod(false, Modifier.PRIVATE, Potions.class, Holder.class, null, String.class, Potion.class), "ReflectionUtils (NULL): Potions_register");
+		//RegistryMaterials_getHolder = Objects.requireNonNull(findMethod(true, null, Registry.class, Optional.class, null, int.class), "ReflectionUtils (NULL): RegistryMaterials_getHolder");
+		//Level_dimensionTypeRegistration = Objects.requireNonNull(getField(Level.class, Holder.class, DimensionType.class, true), "ReflectionUtils (NULL): Level_dimensionTypeRegistration");
+		//Holder_owner = Objects.requireNonNull(getField(Holder.Reference.class, HolderOwner.class, null, true), "ReflectionUtils (NULL): Holder_owner");
+		//Holder_tags = Objects.requireNonNull(getField(Holder.Reference.class, Set.class, null, true), "ReflectionUtils (NULL): Holder_tags");
+		//Holder_key = Objects.requireNonNull(getField(Holder.Reference.class, ResourceKey.class, null, true), "ReflectionUtils (NULL): Holder_key");
+		//GossipContainer_EntityGossips = Objects.requireNonNull((Class<?>) ((ParameterizedType) GossipContainer_gossips.getGenericType()).getActualTypeArguments()[1], "ReflectionUtils (NULL): GossipContainer_EntityGossips");
+		//EntityVillager_startTrading_Or_updateSpecialPrices = Objects.requireNonNull(findMethod(false, Modifier.PRIVATE, net.minecraft.world.entity.npc.villager.Villager.class, Void.TYPE, null, net.minecraft.world.entity.player.Player.class), "EntityVillager_startTrading_Or_updateSpecialPrices (NULL): CraftMagicNumbers");
+		//MinecraftServer_levels = Objects.requireNonNull(getField(MinecraftServer.class, Map.class, null, true), "ReflectionUtils (NULL): MinecraftServer_levels");
+		//CustomFunctionData_ticking = Objects.requireNonNull(getField(ServerFunctionManager.class, List.class, null, true), "ReflectionUtils (NULL): CustomFunctionData_ticking");
+		//CustomFunctionData_postReload = Objects.requireNonNull(getField(ServerFunctionManager.class, boolean.class, null, true), "ReflectionUtils (NULL): CustomFunctionData_postReload");
+		//GossipContainer_gossips = Objects.requireNonNull(getField(GossipContainer.class, Map.class, null, true), "ReflectionUtils (NULL): GossipContainer_gossips");
+		//Holder_value = Objects.requireNonNull(getField(Holder.Reference.class, Object.class, null, true), "ReflectionUtils (NULL): Holder_value");
 	}
 
 	public static Class<?> loadClass(String name, boolean verbose) {
@@ -553,12 +493,12 @@ public class ReflectionUtils {
 		return level.getWorld();
 	}
 
-	//Get block destroy time per tick which is based on player
+	// Get block destroy time per tick which is based on player
 	public static float getPlayerDestroyTime(Player player, Material block) {
 		return getEntityHuman(player).getDestroySpeed(getBlock(block).defaultBlockState());
 	}
 
-	//Get raw block destroy time which is not based on player
+	// Get raw block destroy time which is not based on player
 	public static float getBlockDestroyTime(Material block) {
 		return getBlock(block).defaultBlockState().destroySpeed;
 	}
@@ -598,22 +538,36 @@ public class ReflectionUtils {
 		}
 	}
 
-	public static Collection<Channel> getConnections() {
-		List<Connection> serverConnection = MinecraftServer.getServer().getConnection().getConnections();
-		return serverConnection.stream().collect(Collectors.toMap(e -> e, e -> e.channel)).values();
-	}
+	public static void createServerChannelHandler(Consumer<Channel> consumer) {
+		ServerConnectionListener connection = MinecraftServer.getServer().getConnection();
 
-	//Doesn't work in creative, it sets an actual item
-	public static void setGhostItem(Player player, ItemStack item, int slot) {
-		if (slot < 9) {
-			slot += 36;
-		} else if (slot > 39) {
-			slot += 5;
-		} else if (slot > 35) {
-			slot = 8 - (slot - 36);
-		}
+		ChannelInitializer<Channel> endInitProtocol = new ChannelInitializer<>() {
+			@Override
+			protected void initChannel(Channel channel) {
+				synchronized (connection.getConnections()) {
+					channel.eventLoop().submit(() -> consumer.accept(channel));
+				}
+			}
+		};
 
-		sendPacket(player, new ClientboundContainerSetSlotPacket(0, 0, slot, asNMSCopy(item)));
+		ChannelInitializer<Channel> beginInitProtocol = new ChannelInitializer<>() {
+			@Override
+			protected void initChannel(Channel channel) {
+				channel.pipeline().addLast(endInitProtocol);
+			}
+		};
+
+		ChannelInboundHandlerAdapter serverChannelHandler = new ChannelInboundHandlerAdapter() {
+			@Override
+			public void channelRead(ChannelHandlerContext ctx, @NotNull Object msg) {
+				Channel channel = (Channel) msg;
+				channel.pipeline().addFirst(beginInitProtocol);
+				ctx.fireChannelRead(msg);
+			}
+		};
+
+		List<ChannelFuture> channels = (List<ChannelFuture>) getValue(ServerConnectionListener_channels, connection);
+		channels.get(0).channel().pipeline().addFirst(serverChannelHandler);
 	}
 
 	public static void setInstantBuild(Player player, boolean instantbuild, boolean clientSide, boolean serverSide) {
@@ -629,27 +583,6 @@ public class ReflectionUtils {
 		if (serverSide) {
 			abilities.instabuild = instantbuild;
 		}
-	}
-
-	/*public static void setChatVisibility(Player player, String visibility) {
-		if (player == null) { return; }
-
-		try {
-			for (ChatVisiblity chat : ChatVisiblity.values()) {
-				if (!chat.getKey().equalsIgnoreCase(visibility)) { continue; }
-				EntityPlayer_chatVisibility.set(getEntityPlayer(player), chat);
-			}
-		} catch (IllegalAccessException | IllegalArgumentException e) {
-			e.printStackTrace();
-		}
-	}*/
-
-	/*public static @NotNull String getChatVisibility(Player player) {
-		return getEntityPlayer(player).getChatVisibility().getKey();
-	}*/
-
-	public static int getTickCount() {
-		return MinecraftServer.getServer().getTickCount();
 	}
 
 	public static Channel getChannel(Player player) {
@@ -688,7 +621,7 @@ public class ReflectionUtils {
 		player.kick();
 	}
 
-	//For reference: GameTestHelper#makeMockServerPlayerInLevel()
+	// For reference: GameTestHelper#makeMockServerPlayerInLevel()
 	public static Player addFakePlayer(Location location, UUID uuid, boolean addPlayer, boolean hideOnline, boolean hideWorld) {
 		if (uuid == null) { uuid = UUID.randomUUID(); }
 
@@ -706,13 +639,13 @@ public class ReflectionUtils {
 		if (addPlayer) { world.addNewPlayer(entityPlayer); }
 		Player player = (Player) getBukkitEntity(entityPlayer);
 
-		//Will hide from Bukkit.getOnlinePlayers()
+		// Will hide from Bukkit.getOnlinePlayers()
 		if (addPlayer && hideOnline) {
 			List<ServerPlayer> players = server.getPlayerList().players;
 			players.removeIf(e -> getBukkitEntity(e).getUniqueId().equals(player.getUniqueId()));
 		}
 
-		//Will hide from World.getPlayers(), but also will prevent mob spawning
+		// Will hide from World.getPlayers(), but also will prevent mob spawning
 		if (addPlayer && hideWorld) {
 			world.players().removeIf(e -> getBukkitEntity(e).getUniqueId().equals(player.getUniqueId()));
 		}
@@ -765,22 +698,10 @@ public class ReflectionUtils {
 		return player;
 	}
 
-	//This needed to update player chunks and make them tickable
+	// This needed to update player chunks and make them tickable
 	public static void updateFakePlayerChunks(Player player) {
 		ServerLevel world = getWorld(player.getWorld());
 		world.getChunkSource().move(getEntityPlayer(player));
-	}
-
-	//Open trading screen of a villager
-	public static void startTrading(Player player, Villager villager) {
-		try {
-			net.minecraft.world.entity.npc.villager.Villager entityVillager = getEntityVillager(villager);
-			ServerPlayer entityPlayer = getEntityPlayer(player);
-			EntityVillager_startTrading_Or_updateSpecialPrices.invoke(entityVillager, entityPlayer);
-			player.openMerchant(villager, false);
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | SecurityException e) {
-			e.printStackTrace();
-		}
 	}
 
 	public static void selectTrade(Player player, int index) {
@@ -857,202 +778,34 @@ public class ReflectionUtils {
 		setValue(ResourceLocation_path, resourceLocation, path);
 	}
 
-	//Simulate shift+click on specific slot on opened inventory
+	// Simulate shift+click on specific slot on opened inventory
 	public static void quickMoveStack(Player player, int slot) {
 		ServerPlayer entityPlayer = getEntityPlayer(player);
 		entityPlayer.containerMenu.quickMoveStack(entityPlayer, slot);
 	}
 
-	//Gets player's reputation from villager (all types)
+	public static float getLocalDifficulty(Player player, boolean real) {
+		Difficulty difficulty = player.getWorld().getDifficulty();
+		BlockPos blockPos = ReflectionUtils.getEntityPlayer(player).getOnPos();
+		float timeOfDay = getWorld(player.getWorld()).getOverworldClockTime();
+		float moonSize = getWorld(player.getWorld()).getMoonBrightness(blockPos);
+		long inhabitedTime = real ? player.getChunk().getInhabitedTime() : 0L;
+		if (difficulty == Difficulty.PEACEFUL) { return 0.0F; }
+
+		float daytimeFactor = Utils.clamp((timeOfDay - 72000.0F) / 1440000.0F, 0.0F, 1.0F) * 0.25F;
+		float chunkFactor = Utils.clamp((float) inhabitedTime / 3600000.0F, 0.0F, 1.0F) * ((difficulty == Difficulty.HARD) ? 1.0F : 0.75F);
+		chunkFactor += Utils.clamp(moonSize * 0.25F, 0.0F, daytimeFactor);
+		if (difficulty == Difficulty.EASY) { chunkFactor *= 0.5F; }
+		return (float) difficulty.getValue() * (0.75F + daytimeFactor + chunkFactor);
+	}
+
+	// Gets player's reputation from villager (all types)
 	public static int getPlayerReputation(Villager villager, Player player) {
 		return getEntityVillager(villager).getPlayerReputation(getEntityPlayer(player));
 	}
 
-	public static int getPlayerReputation(Villager villager, UUID uuid, String type) {
-		try {
-			GossipType gossipType = reputations.get(type);
-			GossipContainer container = getEntityVillager(villager).getGossips();
-			Map<UUID, Object> gossips = (Map<UUID, Object>) GossipContainer_gossips.get(container);
-			if (!gossips.containsKey(uuid)) { return -1; }
-			Object2IntMap<GossipType> entries = (Object2IntMap<GossipType>) EntityGossips_entries.get(gossips.get(uuid));
-			return entries.getOrDefault(gossipType, -1);
-		} catch (IllegalAccessException ex) {
-			ex.printStackTrace();
-			return -1;
-		}
-	}
-
-	public static void setPlayerReputation(Villager villager, UUID uuid, String type, int amount) {
-		try {
-			GossipType gossipType = reputations.get(type);
-			GossipContainer container = getEntityVillager(villager).getGossips();
-			Map<UUID, Object> gossips = (Map<UUID, Object>) GossipContainer_gossips.get(container);
-			if (!gossips.containsKey(uuid)) { gossips.put(uuid, newInstance(GossipContainer_EntityGossips, null, null, true, false)); }
-			Object2IntMap<GossipType> entries = (Object2IntMap<GossipType>) EntityGossips_entries.get(gossips.get(uuid));
-			entries.put(gossipType, amount);
-		} catch (IllegalAccessException ex) {
-			ex.printStackTrace();
-		}
-	}
-
-	public static boolean registerBrewingRecipe(Object base, Material ingredient, Object result) {
-		return registerBrewingRecipe((Holder<Potion>) base, ingredient, (Holder<Potion>) result);
-	}
-
-	public static Holder<Potion> getNMSPotion(PotionType potionType) {
-		return CraftPotionType.bukkitToMinecraftHolder(potionType);
-	}
-
-	public static String getPotionRegistryName(Object potion) {
-		return getPotionRegistryName((Holder<Potion>) potion);
-	}
-
-	public static String getPotionRegistryName(Holder<Potion> potion) {
-		return potion.value().name();
-	}
-
-	public static String getPotionTag(ItemStack item) {
-		PotionContents potionContents = asNMSCopy(item).get(DataComponents.POTION_CONTENTS);
-		if (potionContents == null) { return ""; }
-		Holder<Potion> potionHolder = potionContents.potion().orElse(null);
-		if (potionHolder == null) { return ""; }
-		return getPotionRegistryName(potionHolder).replace("minecraft:", "");
-	}
-
-	//!!! This will soft lock the game, because FUCKING MOJANG cannot decode custom potion tag client side
-	/*public static ItemStack setPotionTag(ItemStack item, String name) {
-		return setItemNbt(item, List.of("components", "minecraft:potion_contents", "potion"), name);
-	}*/
-
-	/*public static Object fakePotionTags(Object pck, String potionTag, Predicate<ItemStack> predicate) {
-		if (pck instanceof ClientboundContainerSetSlotPacket packet) {
-			ItemStack itemStack = asBukkitMirror(packet.getItem());
-			if (!predicate.test(itemStack)) { return packet; }
-			net.minecraft.world.item.ItemStack nmsStack = asNMSCopy(setPotionTag(itemStack, potionTag));
-			return new ClientboundContainerSetSlotPacket(packet.getContainerId(), packet.getStateId(), packet.getSlot(), Objects.requireNonNull(nmsStack));
-		}
-
-		if (pck instanceof ClientboundContainerSetContentPacket packet) {
-			ItemStack carriedItem = asBukkitMirror(packet.carriedItem());
-
-			net.minecraft.world.item.ItemStack[] collect = packet.items().stream().map(e -> {
-				ItemStack itemStack = asBukkitMirror(e);
-				if (!predicate.test(itemStack)) { return e; }
-				return asNMSCopy(setPotionTag(itemStack, potionTag));
-			}).toArray(net.minecraft.world.item.ItemStack[]::new);
-
-			if (predicate.test(carriedItem)) { carriedItem = setPotionTag(carriedItem, potionTag); }
-			net.minecraft.world.item.ItemStack nmsStack = Objects.requireNonNull(asNMSCopy(carriedItem));
-			NonNullList<net.minecraft.world.item.ItemStack> contents = NonNullList.of(net.minecraft.world.item.ItemStack.EMPTY, collect);
-			return new ClientboundContainerSetContentPacket(packet.containerId(), packet.stateId(), contents, nmsStack);
-		}
-
-		return pck;
-	}*/
-
-	public static <E> Registry<E> getRegistry(ResourceKey<? extends Registry<? extends E>> key) {
-		return MinecraftServer.getServer().registries().compositeAccess().lookupOrThrow(key);
-	}
-
-	public static void setRegistryFrozen(Object registry, boolean frozen) {
-		try {
-			RegistryMaterials_frozen.set(registry, frozen);
-		} catch (SecurityException | IllegalArgumentException | IllegalAccessException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public static void setRegistryMap(Object registry, Object hashMap) {
-		Field[] fields = MappedRegistry.class.getDeclaredFields();
-
-		for (Field field : fields) {
-			if (!field.getType().equals(Map.class)) { continue; }
-			if (getValue(field, registry) != null) { continue; }
-			setValue(field, registry, hashMap); break;
-		}
-	}
-
-	public static Holder<Potion> registerInstantPotion(String name) {
-		try {
-			setRegistryFrozen(POTION, false);
-			Potion placeHolder = new Potion(name);
-			POTION.createIntrusiveHolder(placeHolder);
-			Holder<Potion> potionHolder = (Holder<Potion>) Potions_register.invoke(Potions_register, name, placeHolder);
-			setRegistryFrozen(POTION, true);
-
-			Field SimpleRegistry_map = Objects.requireNonNull(getField(org.bukkit.Registry.SimpleRegistry.class, Map.class, null, true));
-			Map<NamespacedKey, Object> immutableMap = (Map<NamespacedKey, Object>) getValue(SimpleRegistry_map, org.bukkit.Registry.POTION);
-			HashMap<NamespacedKey, Object> map = new HashMap<>(immutableMap);
-			map.put(NamespacedKey.minecraft(name), PotionType.WATER);
-			setValue(SimpleRegistry_map, org.bukkit.Registry.POTION, map);
-			return potionHolder;
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | SecurityException e) {
-			e.printStackTrace();
-		}
-
-		return null;
-	}
-
-	public static boolean registerBrewingRecipe(Holder<Potion> base, Material ingredient, Holder<Potion> result) {
-		try {
-			Item potionIngredient = getItem(new ItemStack(ingredient));
-			PotionBrewing.Builder builder = new PotionBrewing.Builder(FeatureFlags.VANILLA_SET);
-			builder.addMix(base, potionIngredient, result);
-			PotionBrewing brewing = builder.build();
-
-			if (PotionBrewing_potionMixes == null) {
-				for (Field field : PotionBrewing.class.getDeclaredFields()) {
-					field.setAccessible(true);
-					if (!field.getType().equals(List.class)) { continue; }
-					List<?> potions = (List<?>) field.get(brewing);
-					if (potions.isEmpty()) { continue; }
-					PotionBrewing_potionMixes = field;
-				}
-			}
-
-			PotionBrewing potionBrewing = MinecraftServer.getServer().potionBrewing();
-			ArrayList<Object> potionMixes = new ArrayList<>((List<?>) PotionBrewing_potionMixes.get(potionBrewing));
-			potionMixes.add(((List<Object>) PotionBrewing_potionMixes.get(brewing)).get(0));
-			PotionBrewing_potionMixes.set(potionBrewing, potionMixes);
-			return true;
-		} catch (IllegalAccessException | IllegalArgumentException e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
-
-	public static List<String> getVanillaPotions(boolean brewable, boolean custom, Predicate<String> predicate) {
-		Stream<Potion> potionStream = POTION.stream().filter(potion -> !potion.getEffects().isEmpty());
-		if (brewable) { potionStream = potionStream.filter(e -> MinecraftServer.getServer().potionBrewing().isBrewablePotion(Holder.direct(e))); }
-
-		//Goofy way to get rid of "minecraft:" or "anything:", or ":"
-		List<String> potions = potionStream.map(e -> Arrays.stream(e.name().split(":")).reduce((a, b) -> b).stream().toList().get(0)).toList();
-		if (!custom) { potions = potions.stream().filter(predicate).toList(); }
-		return potions;
-	}
-
-	//FUCK MOJANG DEVELOPERS, how the fuck do you forget to set value of a holder
-	//when registering a new mapping, how brain-damaged you must be.
-	public static void fixHolder(Registry<?> registry, Object value, int ...currentId)
-	{
-		try {
-			if ((currentId.length == 0) || (currentId[0] < 0)) { currentId = new int[] { registry.size()-1 }; }
-			Optional<Holder<?>> holder = (Optional<Holder<?>>) RegistryMaterials_getHolder.invoke(registry, currentId[0]);
-			Holder.Reference<?> custom_holder_value = (Holder.Reference<?>) holder.orElseThrow();
-			Holder.Reference<?> dummy_holder_value = registry.get(0).orElseThrow();
-
-			for (Field field : Holder.Reference.class.getDeclaredFields()) {
-				field.setAccessible(true);
-				if (field.get(dummy_holder_value) != dummy_holder_value.value()) { continue; }
-				field.set(custom_holder_value, value);
-			}
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			e.printStackTrace();
-		}
-	}
-
-	//MIX_ID is required to prevent weird visual bug when client side and server side breaking are overlapping
-	//Making two animations replace each other at the same time
+	// MIX_ID is required to prevent weird visual bug when client side and server side breaking are overlapping
+	// Making two animations replace each other at the same time
 	public static void destroyBlockProgress(org.bukkit.block.Block block, int progress, int mix_id) {
 		for (Player player : block.getWorld().getPlayers()) {
 			double d0 = (double) block.getX() - player.getLocation().getX();
@@ -1063,76 +816,6 @@ public class ReflectionUtils {
 			BlockPos location = new BlockPos(block.getX(), block.getY(), block.getZ());
 			sendPacket(player, new ClientboundBlockDestructionPacket(player.getEntityId()+mix_id, location, progress));
 		}
-	}
-
-	public static void destroyBlock(Player player, org.bukkit.block.Block block) {
-		destroyBlockProgress(block, -1, 0);
-		BlockPos location = new BlockPos(block.getX(), block.getY(), block.getZ());
-		int id = getBlockId(block.getType());
-		sendPacket(player, new ClientboundLevelEventPacket(2001, location, id, false));
-		player.breakBlock(block);
-	}
-
-	public static void dropBlockItem(org.bukkit.block.Block block, @Nullable Player player, ItemStack itemStack) {
-		double x = block.getLocation().getX() + 0.5;
-		double y = block.getLocation().getY() + 0.5;
-		double z = block.getLocation().getZ() + 0.5;
-
-		double f = (Utils.ITEM_HEIGHT / 2.0F);
-		double d0 = x + Utils.randomRange(-Utils.ITEM_SPAWN_OFFSET, Utils.ITEM_SPAWN_OFFSET);
-		double d1 = y + Utils.randomRange(-Utils.ITEM_SPAWN_OFFSET, Utils.ITEM_SPAWN_OFFSET) - f;
-		double d2 = z + Utils.randomRange(-Utils.ITEM_SPAWN_OFFSET, Utils.ITEM_SPAWN_OFFSET);
-
-		ItemEntity entityItem = new ItemEntity(getWorld(block.getWorld()), d0, d1, d2, asNMSCopy(itemStack));
-		getBukkitEntity(entityItem).setVelocity(new Vector(Math.random()*0.2F-0.1F, 0.2F, Math.random()*0.2F-0.1F));
-		List<org.bukkit.entity.Item> items = new ArrayList<>(Arrays.asList((org.bukkit.entity.Item) getBukkitEntity(entityItem)));
-
-		if (player != null) {
-			BlockDropItemEvent dropEvent = new BlockDropItemEvent(block, block.getState(), player, items);
-			Bukkit.getServer().getPluginManager().callEvent(dropEvent);
-			if (dropEvent.isCancelled()) { return; } else { items = dropEvent.getItems(); }
-		}
-
-		for (org.bukkit.entity.Item drop : items) {
-			block.getWorld().spawn(drop.getLocation(), org.bukkit.entity.Item.class, (item) -> {
-				item.setItemStack(drop.getItemStack());
-				item.setVelocity(drop.getVelocity());
-			});
-		}
-	}
-
-	public static Object getSetLevels(Object obj) throws IllegalAccessException {
-		Object levels = MinecraftServer_levels.get(MinecraftServer.getServer());
-		MinecraftServer_levels.set(MinecraftServer.getServer(), obj);
-		return levels;
-	}
-
-	public static Object getSetCustomFunctionDataTicking(Object obj) throws IllegalAccessException {
-		Object functionManager = MinecraftServer.getServer().getFunctions();
-		Object ticking = CustomFunctionData_ticking.get(functionManager);
-		CustomFunctionData_ticking.set(functionManager, obj);
-		return ticking;
-	}
-
-	public static Object getSetCustomFunctionPostReload(Object obj) throws IllegalAccessException {
-		Object functionManager = MinecraftServer.getServer().getFunctions();
-		Object postReload = CustomFunctionData_postReload.get(functionManager);
-		CustomFunctionData_postReload.set(functionManager, obj);
-		return postReload;
-	}
-
-	public static Object getSetImageFrame_itemFrames(Object obj, boolean checkNull) {
-		Class<?> ImageFrame = loadClass("com.loohp.imageframe.ImageFrame", false);
-		if ((ImageFrame == null) || (checkNull && (obj == null))) { return null; }
-
-		Class<?> AnimatedFakeMapManager = loadClass("com.loohp.imageframe.objectholders.AnimatedFakeMapManager", true);
-		Field ImageFrame_animatedFakeMapManager = getField(ImageFrame, AnimatedFakeMapManager, null, false);
-		Field AnimatedFakeMapManager_itemFrames = getField(AnimatedFakeMapManager, Map.class, UUID.class, true);
-
-		Object animatedFakeMapManager = getValue(ImageFrame_animatedFakeMapManager, null);
-		Object itemFrames = getValue(AnimatedFakeMapManager_itemFrames, animatedFakeMapManager);
-		setValue(AnimatedFakeMapManager_itemFrames, animatedFakeMapManager, obj);
-		return itemFrames;
 	}
 
 	public static void setBlockNbt(org.bukkit.block.Block block, String name, Object value, boolean applyPhysics) {
@@ -1170,59 +853,6 @@ public class ReflectionUtils {
 		}
 	}
 
-	public static void updateNeighborsInFront(org.bukkit.block.Block block) {
-		BlockPos block_pos = new BlockPos(block.getX(), block.getY(), block.getZ());
-		ServerLevel block_world = getWorld(block.getWorld());
-		BlockState block_sate = block_world.getBlockState(block_pos);
-		net.minecraft.world.level.block.ComparatorBlock block_nms = (net.minecraft.world.level.block.ComparatorBlock) block_sate.getBlock();
-
-		Direction enumdirection = block_sate.getValue(DiodeBlock.FACING);
-		BlockPos blockposition1 = block_pos.relative(enumdirection.getOpposite());
-		Orientation orientation = ExperimentalRedstoneUtils.initialOrientation(block_world, enumdirection.getOpposite(), null);
-
-		block_world.neighborChanged(blockposition1, block_nms, orientation);
-		block_world.updateNeighborsAtExceptFromFacing(blockposition1, block_nms, enumdirection, orientation);
-	}
-
-	public static int getComparatorOutputSignal(org.bukkit.block.Block block, @Nullable BlockData blockData, int power) {
-		int j = getAlternateSignal(block);
-		if (blockData == null) { blockData = block.getBlockData(); }
-		return ((((Comparator) blockData).getMode() == Comparator.Mode.SUBTRACT)) ? Math.max(power-j, 0) : power;
-	}
-
-	//This is useless and will only set power for 1 tick, because in next tick it will calculate power signal again
-	public static void setComparatorPower(org.bukkit.block.Block block, int power, boolean applyPhysics) {
-		org.bukkit.block.data.type.Comparator comparator = ((Comparator) block.getBlockData());
-		comparator.setPowered(power > 0);
-		block.setBlockData(comparator, false);
-		setBlockNbt(block, "OutputSignal", power, applyPhysics);
-	}
-
-	public static boolean isRedstoneConductor(org.bukkit.block.Block block) {
-		BlockPos blockPos = new BlockPos(block.getX(), block.getY(), block.getZ());
-		ServerLevel serverLevel = getWorld(block.getLocation().getWorld());
-		BlockState blockState = serverLevel.getBlockState(blockPos);
-		return blockState.isRedstoneConductor(serverLevel, blockPos);
-	}
-
-	//This is used to get signal that is going inside comparator
-	public static int getAlternateSignal(org.bukkit.block.Block block) {
-		if (block.getType() != Material.COMPARATOR) { return 0; }
-
-		BlockPos pos = new BlockPos(block.getX(), block.getY(), block.getZ());
-		ServerLevel serverLevel = getWorld(block.getLocation().getWorld());
-		BlockEntity blockEntity = serverLevel.getBlockEntity(pos);
-		BlockState state = blockEntity.getBlockState();
-		SignalGetter world = blockEntity.getLevel();
-
-		Direction enumdirection = state.getValue(DiodeBlock.FACING);
-		Direction enumdirection1 = enumdirection.getClockWise();
-		Direction enumdirection2 = enumdirection.getCounterClockWise();
-		boolean flag = false;
-
-		return Math.max(world.getControlInputSignal(pos.relative(enumdirection1), enumdirection1, flag), world.getControlInputSignal(pos.relative(enumdirection2), enumdirection2, flag));
-	}
-
 	public static void unpackLoot(org.bukkit.block.Block block) {
 		if (!(block.getState() instanceof org.bukkit.block.Container)) { return; }
 
@@ -1235,10 +865,6 @@ public class ReflectionUtils {
 		lootableBlock.unpackLootTable(null);
 	}
 
-	public static BlockData getChangedBlockData(BlockPhysicsEvent event) {
-		return (BlockData) getValue(BlockPhysicsEvent_changed, event);
-	}
-
 	public static Map<org.bukkit.entity.LivingEntity, Double> getAffectedEntities(PotionSplashEvent event) {
 		return (Map<org.bukkit.entity.LivingEntity, Double>) getValue(PotionSplashEvent_affectedEntities, event);
 	}
@@ -1247,9 +873,9 @@ public class ReflectionUtils {
 		return (List<org.bukkit.entity.LivingEntity>) getValue(AreaEffectCloudApplyEvent_affectedEntities, event);
 	}
 
-	//ItemStack to remove can be null which means it will not take any items at all from source inventory and only dispense.
-	//If slot is positive it will try to take item from that slot, but if it fails it will take from first available,
-	//slot can be also negative, then it will immediately take from first available slot, if item is not found it will (TODO: fail or succeed?)
+	// ItemStack to remove can be null which means it will not take any items at all from source inventory and only dispense.
+	// If slot is positive it will try to take item from that slot, but if it fails it will take from first available,
+	// slot can be also negative, then it will immediately take from first available slot, if item is not found it will (TODO: fail or succeed?)
 	public static boolean dispenseItem(org.bukkit.block.Block source, ItemStack drop) {
 		if (source.getType() == Material.DISPENSER) { return dispenseDispenser(source, drop); }
 		if (source.getType() == Material.DROPPER) { return dispenseDropper(source, drop); }
@@ -1269,10 +895,10 @@ public class ReflectionUtils {
 		DispenseItemBehavior dispenseItemBehavior = DispenserBlock.getDispenseBehavior(blockSource, asNMSCopy(drop));
 		if (source.getType() == Material.DROPPER) { dispenseItemBehavior = new DefaultDispenseItemBehavior(); }
 		net.minecraft.world.item.ItemStack result = dispenseItemBehavior.dispense(blockSource, asNMSCopy(drop));
-		if (result.getCount() == drop.getAmount()) { return false; } //It failed to dispense or item was modified inside called event
+		if (result.getCount() == drop.getAmount()) { return false; } // It failed to dispense or item was modified inside called event
 
 		drop = Utils.cloneItem(drop, result.getCount());
-		return dispenseDispenser(source, drop); //Sadly, but dispense only can dispense by 1 item
+		return dispenseDispenser(source, drop); // Sadly, but dispense only can dispense by 1 item
 	}
 
 	private static boolean dispenseDropper(org.bukkit.block.Block source, ItemStack drop) {
@@ -1288,25 +914,366 @@ public class ReflectionUtils {
 		BlockFace blockFace = ((Directional) source.getBlockData()).getFacing();
 		org.bukkit.block.Block dblock = source.getRelative(blockFace);
 
-		//If there is no container in front then just act like dispenser
+		// If there is no container in front then just act like dispenser
 		if (!(dblock.getState() instanceof org.bukkit.block.Container container)) {
 			return dispenseDispenser(source, drop);
 		}
 
-		ItemStack event_item = Utils.cloneItem(drop, 1); //We always move by 1 item
+		ItemStack event_item = Utils.cloneItem(drop, 1); // We always move by 1 item
 		Inventory destinationInventory = (dblock.getState() instanceof DoubleChest) ? ((DoubleChest) dblock.getState()).getInventory() : container.getInventory();
 		InventoryMoveItemEvent event = new InventoryMoveItemEvent(tileentitydispenser.getOwner().getInventory(), event_item, destinationInventory, true);
 		Bukkit.getPluginManager().callEvent(event);
 		if (event.isCancelled()) { return false; }
 
 		net.minecraft.world.item.ItemStack itemstack1 = HopperBlockEntity.addItem(tileentitydispenser, iinventory, asNMSCopy(event.getItem()), enumdirection.getOpposite());
-		if (!(event.getItem().equals(event_item) && itemstack1.isEmpty())) { return false; } //If item was modified or was not moved successfully return
+		if (!(event.getItem().equals(event_item) && itemstack1.isEmpty())) { return false; } // If item was modified or was not moved successfully return
 
-		drop.setAmount(drop.getAmount()-1); //Update drop amount after moving
+		drop.setAmount(drop.getAmount()-1); // Update drop amount after moving
 		return dispenseDropper(source, drop);
 	}
 
-	public static Packet<?> editSpawnPacket(Object packet, @Nullable Boolean isFlat, @Nullable World.Environment env) {
+	/*public static BlockData getChangedBlockData(BlockPhysicsEvent event) {
+		return (BlockData) getValue(BlockPhysicsEvent_changed, event);
+	}*/
+
+	/*public static int getComparatorOutputSignal(org.bukkit.block.Block block, @Nullable BlockData blockData, int power) {
+		int j = getAlternateSignal(block);
+		if (blockData == null) { blockData = block.getBlockData(); }
+		return ((((Comparator) blockData).getMode() == Comparator.Mode.SUBTRACT)) ? Math.max(power-j, 0) : power;
+	}*/
+
+	// This is useless and will only set power for 1 tick, because in next tick it will calculate power signal again
+	/*public static void setComparatorPower(org.bukkit.block.Block block, int power, boolean applyPhysics) {
+		org.bukkit.block.data.type.Comparator comparator = ((Comparator) block.getBlockData());
+		comparator.setPowered(power > 0);
+		block.setBlockData(comparator, false);
+		setBlockNbt(block, "OutputSignal", power, applyPhysics);
+	}*/
+
+	/*public static boolean isRedstoneConductor(org.bukkit.block.Block block) {
+		BlockPos blockPos = new BlockPos(block.getX(), block.getY(), block.getZ());
+		ServerLevel serverLevel = getWorld(block.getLocation().getWorld());
+		BlockState blockState = serverLevel.getBlockState(blockPos);
+		return blockState.isRedstoneConductor(serverLevel, blockPos);
+	}*/
+
+	// This is used to get signal that is going inside comparator
+	/*public static int getAlternateSignal(org.bukkit.block.Block block) {
+		if (block.getType() != Material.COMPARATOR) { return 0; }
+
+		BlockPos pos = new BlockPos(block.getX(), block.getY(), block.getZ());
+		ServerLevel serverLevel = getWorld(block.getLocation().getWorld());
+		BlockEntity blockEntity = serverLevel.getBlockEntity(pos);
+		BlockState state = blockEntity.getBlockState();
+		SignalGetter world = blockEntity.getLevel();
+
+		Direction enumdirection = state.getValue(DiodeBlock.FACING);
+		Direction enumdirection1 = enumdirection.getClockWise();
+		Direction enumdirection2 = enumdirection.getCounterClockWise();
+		boolean flag = false;
+
+		return Math.max(world.getControlInputSignal(pos.relative(enumdirection1), enumdirection1, flag), world.getControlInputSignal(pos.relative(enumdirection2), enumdirection2, flag));
+	}*/
+
+	/*public static void updateNeighborsInFront(org.bukkit.block.Block block) {
+		BlockPos block_pos = new BlockPos(block.getX(), block.getY(), block.getZ());
+		ServerLevel block_world = getWorld(block.getWorld());
+		BlockState block_sate = block_world.getBlockState(block_pos);
+		net.minecraft.world.level.block.ComparatorBlock block_nms = (net.minecraft.world.level.block.ComparatorBlock) block_sate.getBlock();
+
+		Direction enumdirection = block_sate.getValue(DiodeBlock.FACING);
+		BlockPos blockposition1 = block_pos.relative(enumdirection.getOpposite());
+		Orientation orientation = ExperimentalRedstoneUtils.initialOrientation(block_world, enumdirection.getOpposite(), null);
+
+		block_world.neighborChanged(blockposition1, block_nms, orientation);
+		block_world.updateNeighborsAtExceptFromFacing(blockposition1, block_nms, enumdirection, orientation);
+	}*/
+
+	/*public static Collection<Channel> getConnections() {
+		List<Connection> serverConnection = MinecraftServer.getServer().getConnection().getConnections();
+		return serverConnection.stream().collect(Collectors.toMap(e -> e, e -> e.channel)).values();
+	}*/
+
+	// Doesn't work in creative, it sets an actual item
+	/*public static void setGhostItem(Player player, ItemStack item, int slot) {
+		if (slot < 9) {
+			slot += 36;
+		} else if (slot > 39) {
+			slot += 5;
+		} else if (slot > 35) {
+			slot = 8 - (slot - 36);
+		}
+
+		sendPacket(player, new ClientboundContainerSetSlotPacket(0, 0, slot, asNMSCopy(item)));
+	}*/
+
+	// Open trading screen of a villager
+	/*public static void startTrading(Player player, Villager villager) {
+		try {
+			net.minecraft.world.entity.npc.villager.Villager entityVillager = getEntityVillager(villager);
+			ServerPlayer entityPlayer = getEntityPlayer(player);
+			EntityVillager_startTrading_Or_updateSpecialPrices.invoke(entityVillager, entityPlayer);
+			player.openMerchant(villager, false);
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | SecurityException e) {
+			e.printStackTrace();
+		}
+	}*/
+
+	/*public static void destroyBlock(Player player, org.bukkit.block.Block block) {
+		destroyBlockProgress(block, -1, 0);
+		BlockPos location = new BlockPos(block.getX(), block.getY(), block.getZ());
+		int id = getBlockId(block.getType());
+		sendPacket(player, new ClientboundLevelEventPacket(2001, location, id, false));
+		player.breakBlock(block);
+	}*/
+
+	/*public static void dropBlockItem(org.bukkit.block.Block block, @Nullable Player player, ItemStack itemStack) {
+		double x = block.getLocation().getX() + 0.5;
+		double y = block.getLocation().getY() + 0.5;
+		double z = block.getLocation().getZ() + 0.5;
+
+		double f = (Utils.ITEM_HEIGHT / 2.0F);
+		double d0 = x + Utils.randomRange(-Utils.ITEM_SPAWN_OFFSET, Utils.ITEM_SPAWN_OFFSET);
+		double d1 = y + Utils.randomRange(-Utils.ITEM_SPAWN_OFFSET, Utils.ITEM_SPAWN_OFFSET) - f;
+		double d2 = z + Utils.randomRange(-Utils.ITEM_SPAWN_OFFSET, Utils.ITEM_SPAWN_OFFSET);
+
+		ItemEntity entityItem = new ItemEntity(getWorld(block.getWorld()), d0, d1, d2, asNMSCopy(itemStack));
+		getBukkitEntity(entityItem).setVelocity(new Vector(Math.random()*0.2F-0.1F, 0.2F, Math.random()*0.2F-0.1F));
+		List<org.bukkit.entity.Item> items = new ArrayList<>(Arrays.asList((org.bukkit.entity.Item) getBukkitEntity(entityItem)));
+
+		if (player != null) {
+			BlockDropItemEvent dropEvent = new BlockDropItemEvent(block, block.getState(), player, items);
+			Bukkit.getServer().getPluginManager().callEvent(dropEvent);
+			if (dropEvent.isCancelled()) { return; } else { items = dropEvent.getItems(); }
+		}
+
+		for (org.bukkit.entity.Item drop : items) {
+			block.getWorld().spawn(drop.getLocation(), org.bukkit.entity.Item.class, (item) -> {
+				item.setItemStack(drop.getItemStack());
+				item.setVelocity(drop.getVelocity());
+			});
+		}
+	}*/
+
+	/*public static Object getSetLevels(Object obj) throws IllegalAccessException {
+		Object levels = MinecraftServer_levels.get(MinecraftServer.getServer());
+		MinecraftServer_levels.set(MinecraftServer.getServer(), obj);
+		return levels;
+	}*/
+
+	/*public static Object getSetCustomFunctionDataTicking(Object obj) throws IllegalAccessException {
+		Object functionManager = MinecraftServer.getServer().getFunctions();
+		Object ticking = CustomFunctionData_ticking.get(functionManager);
+		CustomFunctionData_ticking.set(functionManager, obj);
+		return ticking;
+	}*/
+
+	/*public static Object getSetCustomFunctionPostReload(Object obj) throws IllegalAccessException {
+		Object functionManager = MinecraftServer.getServer().getFunctions();
+		Object postReload = CustomFunctionData_postReload.get(functionManager);
+		CustomFunctionData_postReload.set(functionManager, obj);
+		return postReload;
+	}*/
+
+	/*public static Object getSetImageFrame_itemFrames(Object obj, boolean checkNull) {
+		Class<?> ImageFrame = loadClass("com.loohp.imageframe.ImageFrame", false);
+		if ((ImageFrame == null) || (checkNull && (obj == null))) { return null; }
+
+		Class<?> AnimatedFakeMapManager = loadClass("com.loohp.imageframe.objectholders.AnimatedFakeMapManager", true);
+		Field ImageFrame_animatedFakeMapManager = getField(ImageFrame, AnimatedFakeMapManager, null, false);
+		Field AnimatedFakeMapManager_itemFrames = getField(AnimatedFakeMapManager, Map.class, UUID.class, true);
+
+		Object animatedFakeMapManager = getValue(ImageFrame_animatedFakeMapManager, null);
+		Object itemFrames = getValue(AnimatedFakeMapManager_itemFrames, animatedFakeMapManager);
+		setValue(AnimatedFakeMapManager_itemFrames, animatedFakeMapManager, obj);
+		return itemFrames;
+	}*/
+
+	/*public static int getPlayerReputation(Villager villager, UUID uuid, String type) {
+		try {
+			GossipType gossipType = reputations.get(type);
+			GossipContainer container = getEntityVillager(villager).getGossips();
+			Map<UUID, Object> gossips = (Map<UUID, Object>) GossipContainer_gossips.get(container);
+			if (!gossips.containsKey(uuid)) { return -1; }
+			Object2IntMap<GossipType> entries = (Object2IntMap<GossipType>) EntityGossips_entries.get(gossips.get(uuid));
+			return entries.getOrDefault(gossipType, -1);
+		} catch (IllegalAccessException ex) {
+			ex.printStackTrace();
+			return -1;
+		}
+	}*/
+
+	/*public static void setPlayerReputation(Villager villager, UUID uuid, String type, int amount) {
+		try {
+			GossipType gossipType = reputations.get(type);
+			GossipContainer container = getEntityVillager(villager).getGossips();
+			Map<UUID, Object> gossips = (Map<UUID, Object>) GossipContainer_gossips.get(container);
+			if (!gossips.containsKey(uuid)) { gossips.put(uuid, newInstance(GossipContainer_EntityGossips, null, null, true, false)); }
+			Object2IntMap<GossipType> entries = (Object2IntMap<GossipType>) EntityGossips_entries.get(gossips.get(uuid));
+			entries.put(gossipType, amount);
+		} catch (IllegalAccessException ex) {
+			ex.printStackTrace();
+		}
+	}*/
+
+	/*public static boolean registerBrewingRecipe(Object base, Material ingredient, Object result) {
+		return registerBrewingRecipe((Holder<Potion>) base, ingredient, (Holder<Potion>) result);
+	}*/
+
+	/*public static Holder<Potion> getNMSPotion(PotionType potionType) {
+		return CraftPotionType.bukkitToMinecraftHolder(potionType);
+	}*/
+
+	/*public static String getPotionRegistryName(Object potion) {
+		return getPotionRegistryName((Holder<Potion>) potion);
+	}*/
+
+	/*public static String getPotionRegistryName(Holder<Potion> potion) {
+		return potion.value().name();
+	}*/
+
+	/*public static String getPotionTag(ItemStack item) {
+		PotionContents potionContents = asNMSCopy(item).get(DataComponents.POTION_CONTENTS);
+		if (potionContents == null) { return ""; }
+		Holder<Potion> potionHolder = potionContents.potion().orElse(null);
+		if (potionHolder == null) { return ""; }
+		return getPotionRegistryName(potionHolder).replace("minecraft:", "");
+	}*/
+
+	//!!! This will soft lock the game, because FUCKING MOJANG cannot decode custom potion tag client side
+	/*public static ItemStack setPotionTag(ItemStack item, String name) {
+		return setItemNbt(item, List.of("components", "minecraft:potion_contents", "potion"), name);
+	}*/
+
+	/*public static Object fakePotionTags(Object pck, String potionTag, Predicate<ItemStack> predicate) {
+		if (pck instanceof ClientboundContainerSetSlotPacket packet) {
+			ItemStack itemStack = asBukkitMirror(packet.getItem());
+			if (!predicate.test(itemStack)) { return packet; }
+			net.minecraft.world.item.ItemStack nmsStack = asNMSCopy(setPotionTag(itemStack, potionTag));
+			return new ClientboundContainerSetSlotPacket(packet.getContainerId(), packet.getStateId(), packet.getSlot(), Objects.requireNonNull(nmsStack));
+		}
+
+		if (pck instanceof ClientboundContainerSetContentPacket packet) {
+			ItemStack carriedItem = asBukkitMirror(packet.carriedItem());
+
+			net.minecraft.world.item.ItemStack[] collect = packet.items().stream().map(e -> {
+				ItemStack itemStack = asBukkitMirror(e);
+				if (!predicate.test(itemStack)) { return e; }
+				return asNMSCopy(setPotionTag(itemStack, potionTag));
+			}).toArray(net.minecraft.world.item.ItemStack[]::new);
+
+			if (predicate.test(carriedItem)) { carriedItem = setPotionTag(carriedItem, potionTag); }
+			net.minecraft.world.item.ItemStack nmsStack = Objects.requireNonNull(asNMSCopy(carriedItem));
+			NonNullList<net.minecraft.world.item.ItemStack> contents = NonNullList.of(net.minecraft.world.item.ItemStack.EMPTY, collect);
+			return new ClientboundContainerSetContentPacket(packet.containerId(), packet.stateId(), contents, nmsStack);
+		}
+
+		return pck;
+	}*/
+
+	/*public static <E> Registry<E> getRegistry(ResourceKey<? extends Registry<? extends E>> key) {
+		return MinecraftServer.getServer().registries().compositeAccess().lookupOrThrow(key);
+	}*/
+
+	/*public static void setRegistryFrozen(Object registry, boolean frozen) {
+		try {
+			RegistryMaterials_frozen.set(registry, frozen);
+		} catch (SecurityException | IllegalArgumentException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
+	}*/
+
+	/*public static void setRegistryMap(Object registry, Object hashMap) {
+		//setRegistryMap(POTION, new HashMap<>());
+		Field[] fields = MappedRegistry.class.getDeclaredFields();
+
+		for (Field field : fields) {
+			if (!field.getType().equals(Map.class)) { continue; }
+			if (getValue(field, registry) != null) { continue; }
+			setValue(field, registry, hashMap); break;
+		}
+	}*/
+
+	/*public static Holder<Potion> registerInstantPotion(String name) {
+		try {
+			setRegistryFrozen(POTION, false);
+			Potion placeHolder = new Potion(name);
+			POTION.createIntrusiveHolder(placeHolder);
+			Holder<Potion> potionHolder = (Holder<Potion>) Potions_register.invoke(Potions_register, name, placeHolder);
+			setRegistryFrozen(POTION, true);
+
+			Field SimpleRegistry_map = Objects.requireNonNull(getField(org.bukkit.Registry.SimpleRegistry.class, Map.class, null, true));
+			Map<NamespacedKey, Object> immutableMap = (Map<NamespacedKey, Object>) getValue(SimpleRegistry_map, org.bukkit.Registry.POTION);
+			HashMap<NamespacedKey, Object> map = new HashMap<>(immutableMap);
+			map.put(NamespacedKey.minecraft(name), PotionType.WATER);
+			setValue(SimpleRegistry_map, org.bukkit.Registry.POTION, map);
+			return potionHolder;
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | SecurityException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}*/
+
+	/*public static boolean registerBrewingRecipe(Holder<Potion> base, Material ingredient, Holder<Potion> result) {
+		try {
+			Item potionIngredient = getItem(new ItemStack(ingredient));
+			PotionBrewing.Builder builder = new PotionBrewing.Builder(FeatureFlags.VANILLA_SET);
+			builder.addMix(base, potionIngredient, result);
+			PotionBrewing brewing = builder.build();
+
+			if (PotionBrewing_potionMixes == null) {
+				for (Field field : PotionBrewing.class.getDeclaredFields()) {
+					field.setAccessible(true);
+					if (!field.getType().equals(List.class)) { continue; }
+					List<?> potions = (List<?>) field.get(brewing);
+					if (potions.isEmpty()) { continue; }
+					PotionBrewing_potionMixes = field;
+				}
+			}
+
+			PotionBrewing potionBrewing = MinecraftServer.getServer().potionBrewing();
+			ArrayList<Object> potionMixes = new ArrayList<>((List<?>) PotionBrewing_potionMixes.get(potionBrewing));
+			potionMixes.add(((List<Object>) PotionBrewing_potionMixes.get(brewing)).get(0));
+			PotionBrewing_potionMixes.set(potionBrewing, potionMixes);
+			return true;
+		} catch (IllegalAccessException | IllegalArgumentException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}*/
+
+	/*public static List<String> getVanillaPotions(boolean brewable, boolean custom, Predicate<String> predicate) {
+		Stream<Potion> potionStream = POTION.stream().filter(potion -> !potion.getEffects().isEmpty());
+		if (brewable) { potionStream = potionStream.filter(e -> MinecraftServer.getServer().potionBrewing().isBrewablePotion(Holder.direct(e))); }
+
+		//Goofy way to get rid of "minecraft:" or "anything:", or ":"
+		List<String> potions = potionStream.map(e -> Arrays.stream(e.name().split(":")).reduce((a, b) -> b).stream().toList().get(0)).toList();
+		if (!custom) { potions = potions.stream().filter(predicate).toList(); }
+		return potions;
+	}*/
+
+	//FUCK MOJANG DEVELOPERS, how the fuck do you forget to set value of a holder
+	//when registering a new mapping, how brain-damaged you must be.
+	/*public static void fixHolder(Registry<?> registry, Object value, int ...currentId)
+	{
+		try {
+			if ((currentId.length == 0) || (currentId[0] < 0)) { currentId = new int[] { registry.size()-1 }; }
+			Optional<Holder<?>> holder = (Optional<Holder<?>>) RegistryMaterials_getHolder.invoke(registry, currentId[0]);
+			Holder.Reference<?> custom_holder_value = (Holder.Reference<?>) holder.orElseThrow();
+			Holder.Reference<?> dummy_holder_value = registry.get(0).orElseThrow();
+
+			for (Field field : Holder.Reference.class.getDeclaredFields()) {
+				field.setAccessible(true);
+				if (field.get(dummy_holder_value) != dummy_holder_value.value()) { continue; }
+				field.set(custom_holder_value, value);
+			}
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			e.printStackTrace();
+		}
+	}*/
+
+	/*public static Packet<?> editSpawnPacket(Object packet, @Nullable Boolean isFlat, @Nullable World.Environment env) {
 		if (packet instanceof ClientboundLoginPacket lPacket) {
 			int playerId = lPacket.playerId();
 			boolean hardcore = lPacket.hardcore();
@@ -1329,9 +1296,9 @@ public class ReflectionUtils {
 		}
 
 		return null;
-	}
+	}*/
 
-	public static World getSpawnPacketWorld(Object packet) {
+	/*public static World getSpawnPacketWorld(Object packet) {
 		if (packet instanceof ClientboundLoginPacket lPacket) {
 			ResourceKey<Level> dimension = lPacket.commonPlayerSpawnInfo().dimension();
 			return MinecraftServer.getServer().getLevel(dimension).getWorld();
@@ -1343,7 +1310,7 @@ public class ReflectionUtils {
 		}
 
 		return null;
-	}
+	}*/
 
 	/*public static ClientboundLevelChunkWithLightPacket setPacketChunkBiome(World world, Object packet, Object customNmsBiome, @Nullable String customBiomeName, @Nullable HashMap<String, Object> customBiomeMap) {
 		ServerLevel level = getWorld(world);
@@ -1387,7 +1354,7 @@ public class ReflectionUtils {
 		return npacket;
 	}*/
 
-	public static CommonPlayerSpawnInfo editCommonPlayerSpawnInfo(CommonPlayerSpawnInfo commonPlayerSpawnInfo, @Nullable Boolean isFlat, @Nullable World.Environment env) {
+	/*public static CommonPlayerSpawnInfo editCommonPlayerSpawnInfo(CommonPlayerSpawnInfo commonPlayerSpawnInfo, @Nullable Boolean isFlat, @Nullable World.Environment env) {
 		Holder<DimensionType> dimensionType = commonPlayerSpawnInfo.dimensionType();
 		if (env == World.Environment.NORMAL) { dimensionType = getRegistry(Registries.LEVEL_STEM).get(LevelStem.OVERWORLD).orElseThrow().value().type(); }
 		if (env == World.Environment.NETHER) { dimensionType = getRegistry(Registries.LEVEL_STEM).get(LevelStem.NETHER).orElseThrow().value().type(); }
@@ -1402,7 +1369,7 @@ public class ReflectionUtils {
 		Optional<GlobalPos> lastDeathLocation = commonPlayerSpawnInfo.lastDeathLocation();
 		int portalCooldown = commonPlayerSpawnInfo.portalCooldown();
 		return new CommonPlayerSpawnInfo(dimensionType, dimension, seed, gameType, previousGameType, isDebug, isFlat, lastDeathLocation, portalCooldown, commonPlayerSpawnInfo.seaLevel());
-	}
+	}*/
 
 	/*public static List<String> getBiomes(String exnamespace) {
 		ArrayList<ResourceLocation> resourceLocations = new ArrayList<>(getRegistry(Registries.BIOME).keySet());
@@ -1410,7 +1377,7 @@ public class ReflectionUtils {
 		return resourceLocations.stream().map(ResourceLocation::toString).toList();
 	}*/
 
-	//This will crash client if he will not rejoin and receive custom biome, because client only receives biomes when joining,
+	// This will crash client if he will not rejoin and receive custom biome, because client only receives biomes when joining,
 	// but if we create new biome and send it to client, he won't know what to do with it and crash
 	/*public static Biome registerBiome(String basename, String namespace, String name, int skyColor, int fogColor, int waterColor, int waterFogColor, int foliageColor, int grassColor, boolean effectsEnabled) {
 		ResourceKey<Biome> minecraftKey = ResourceKey.create(Registries.BIOME, ResourceLocation.fromNamespaceAndPath(basename.split(":")[0], basename.split(":")[1]));
@@ -1462,61 +1429,35 @@ public class ReflectionUtils {
 		return customBiome;
 	}*/
 
-	public static float getLocalDifficulty(Player player, boolean real) {
-		Difficulty difficulty = player.getWorld().getDifficulty();
-		BlockPos blockPos = ReflectionUtils.getEntityPlayer(player).getOnPos();
-		float timeOfDay = getWorld(player.getWorld()).getLevelData().getDayTime();
-		float moonSize = getWorld(player.getWorld()).getMoonBrightness(blockPos);
-		long inhabitedTime = real ? player.getChunk().getInhabitedTime() : 0L;
-		if (difficulty == Difficulty.PEACEFUL) { return 0.0F; }
+	/*public static void setChatVisibility(Player player, String visibility) {
+		if (player == null) { return; }
 
-		float daytimeFactor = Utils.clamp((timeOfDay - 72000.0F) / 1440000.0F, 0.0F, 1.0F) * 0.25F;
-		float chunkFactor = Utils.clamp((float) inhabitedTime / 3600000.0F, 0.0F, 1.0F) * ((difficulty == Difficulty.HARD) ? 1.0F : 0.75F);
-		chunkFactor += Utils.clamp(moonSize * 0.25F, 0.0F, daytimeFactor);
-		if (difficulty == Difficulty.EASY) { chunkFactor *= 0.5F; }
-		return (float) difficulty.getValue() * (0.75F + daytimeFactor + chunkFactor);
-	}
+		try {
+			for (ChatVisiblity chat : ChatVisiblity.values()) {
+				if (!chat.getKey().equalsIgnoreCase(visibility)) { continue; }
+				EntityPlayer_chatVisibility.set(getEntityPlayer(player), chat);
+			}
+		} catch (IllegalAccessException | IllegalArgumentException e) {
+			e.printStackTrace();
+		}
+	}*/
 
-	public static int[] getEntityLinkPacketIds(Object packet) {
+	/*public static @NotNull String getChatVisibility(Player player) {
+		return getEntityPlayer(player).getChatVisibility().getKey();
+	}*/
+
+	/*public static int getTickCount() {
+		return MinecraftServer.getServer().getTickCount();
+	}*/
+
+	/*public static int[] getEntityLinkPacketIds(Object packet) {
 		if (!(packet instanceof ClientboundSetEntityLinkPacket)) { return new int[] { -1, -1 }; }
 		int sourceId = ((ClientboundSetEntityLinkPacket) packet).getSourceId();
 		int destId = ((ClientboundSetEntityLinkPacket) packet).getDestId();
 		return new int[] { sourceId, destId };
-	}
+	}*/
 
-	public static void createServerChannelHandler(Consumer<Channel> consumer) {
-		ServerConnectionListener connection = MinecraftServer.getServer().getConnection();
-
-		ChannelInitializer<Channel> endInitProtocol = new ChannelInitializer<>() {
-			@Override
-			protected void initChannel(Channel channel) {
-				synchronized (connection.getConnections()) {
-					channel.eventLoop().submit(() -> consumer.accept(channel));
-				}
-			}
-		};
-
-		ChannelInitializer<Channel> beginInitProtocol = new ChannelInitializer<>() {
-			@Override
-			protected void initChannel(Channel channel) {
-				channel.pipeline().addLast(endInitProtocol);
-			}
-		};
-
-		ChannelInboundHandlerAdapter serverChannelHandler = new ChannelInboundHandlerAdapter() {
-			@Override
-			public void channelRead(ChannelHandlerContext ctx, @NotNull Object msg) {
-				Channel channel = (Channel) msg;
-				channel.pipeline().addFirst(beginInitProtocol);
-				ctx.fireChannelRead(msg);
-			}
-		};
-
-		List<ChannelFuture> channels = (List<ChannelFuture>) getValue(ServerConnectionListener_channels, connection);
-		channels.get(0).channel().pipeline().addFirst(serverChannelHandler);
-	}
-
-		/*public static <T> T getItemNbt(ItemStack itemStack, List<String> location) {
+	/*public static <T> T getItemNbt(ItemStack itemStack, List<String> location) {
 		if (location.isEmpty()) { return null; }
 		location = new ArrayList<>(location); //Convert list to mutable list
 		net.minecraft.world.item.ItemStack item = Objects.requireNonNull(asNMSCopy(itemStack));

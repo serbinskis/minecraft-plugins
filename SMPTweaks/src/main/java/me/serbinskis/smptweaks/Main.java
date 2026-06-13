@@ -35,6 +35,9 @@ public class Main extends JavaPlugin implements Listener {
 		Main.plugin.saveDefaultConfig();
 
 		Utils.sendMessage("[SMPTweaks] Server Version: " + Bukkit.getBukkitVersion() + " (STARTUP)");
+		if (!PaperUtils.isPaper()) { Utils.sendMessage("[SMPTweaks] Disabling Plugin: Only Supported On PaperMC"); }
+		if (!PaperUtils.isPaper()) { getServer().getPluginManager().disablePlugin(this); }
+		if (!PaperUtils.isPaper()) { return; }
 		Bukkit.getPluginManager().registerEvents(Main.plugin, Main.plugin);
 		TweakManager.loadTweaks(true);
 	}
