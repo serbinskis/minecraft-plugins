@@ -574,10 +574,9 @@ public class ReflectionUtils {
 		Abilities abilities = getPlayerAbilities(player);
 
 		if (clientSide) {
-			boolean temp = abilities.instabuild;
-			abilities.instabuild = instantbuild;
-			sendPacket(player, new ClientboundPlayerAbilitiesPacket(abilities));
-			abilities.instabuild = temp;
+			Abilities copy = new Abilities();
+			copy.apply(abilities.pack());
+			sendPacket(player, new ClientboundPlayerAbilitiesPacket(copy));
 		}
 
 		if (serverSide) {

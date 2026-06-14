@@ -33,10 +33,10 @@ public class NoArrowInfinity extends CustomTweak {
 		Bukkit.getPluginManager().registerEvents(new Events(), Main.getPlugin());
 	}
 
-	//Instant build is not creative mode, and it gives different perks to player
-	//Such as shooting with no arrows, infinite consumables and infinite durability
-	//To prevent everything from above and get only shooting with no arrows
-	//Give instant build only to client and not server
+	// Instant build is not creative mode, and it gives different perks to player
+	// Such as shooting with no arrows, infinite consumables and infinite durability
+	// To prevent everything from above and get only shooting with no arrows
+	// Give instant build only to client and not server
 	@SuppressWarnings("removal")
 	public void checkPlayer(Player player) {
 		if (!this.getGameRuleBoolean(player.getWorld())) { return; }
@@ -45,18 +45,19 @@ public class NoArrowInfinity extends CustomTweak {
 		ItemStack mainahnd = player.getInventory().getItemInMainHand();
 		ItemStack offhand = player.getInventory().getItemInOffHand();
 
-		//Ignore creative players, they already have instant build
-		//Prevent check if any inventory opened, except default players inventory
-		//Can't check that because if no any other opened, then default will be always opened
+		// Ignore creative players, they already have instant build
+		// Prevent check if any inventory opened, except default players inventory
+		// Can't check that because if no any other opened, then default will be always opened
 
-		//Allow instant build only if infinity bow is in main hand or offhand
-		//But if it is in offhand check if there is no any other bow or crossbow in mainhand
+		// Allow instant build only if infinity bow is in main hand or offhand
+		// But if it is in offhand check if there is no any other bow or crossbow in mainhand
+		// NOTE: serverSide: true -> Allows to draw arrow when looking at block, otherwise it requires looking in far distance
 
 		if (isInfinityBow(mainahnd) || (isInfinityBow(offhand) && (mainahnd.getType() != Material.BOW) && (mainahnd.getType() != Material.CROSSBOW))) {
-			ReflectionUtils.setInstantBuild(player, !hasArrow(player), true, false);
+			ReflectionUtils.setInstantBuild(player, !hasArrow(player), true, true);
 		} else {
 			if (player.getItemInUse() != null) { return; }
-			ReflectionUtils.setInstantBuild(player, false, true, true);
+			ReflectionUtils.setInstantBuild(player, false, true, false);
 		}
 	}
 
