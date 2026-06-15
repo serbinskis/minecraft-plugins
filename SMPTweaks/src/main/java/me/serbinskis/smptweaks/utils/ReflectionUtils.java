@@ -514,6 +514,10 @@ public class ReflectionUtils {
 		return getEntityPlayer(player).getAbilities();
 	}
 
+	public static boolean hasInstaBuild(Player player) {
+		return getPlayerAbilities(player).instabuild;
+	}
+
 	public static EquipmentSlot getUseItemOnEventHand(Object packet) {
 		if (!(packet instanceof ServerboundUseItemOnPacket pck)) { return null; }
 		if (InteractionHand.MAIN_HAND.equals(pck.getHand())) { return EquipmentSlot.HAND; }
@@ -585,6 +589,7 @@ public class ReflectionUtils {
 		if (clientSide) {
 			Abilities copy = new Abilities();
 			copy.apply(abilities.pack());
+			abilities.instabuild = instantbuild;
 			sendPacket(player, new ClientboundPlayerAbilitiesPacket(copy));
 		}
 

@@ -136,6 +136,10 @@ public class Events implements Listener {
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("useInteractedBlock: " + event.useInteractedBlock()); }
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("======================================="); }
 
+		player.updateInventory(); // To prevent ghost item modification because of extra packet
+		// NOTE: We can't sync ghost block, because it is not actually world based, but rather prediction layer based
+		// NOTE: Which means you cannot manually send block update packet, it won't do anything
+
 		// In case if player don't shoot make a timer and do checks
 		int[] task = { 0 };
 		task[0] = TaskUtils.scheduleSyncRepeatingTask(() -> {
@@ -148,6 +152,8 @@ public class Events implements Listener {
 
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPacketEvent(PacketEvent event) {
+		// HAHA: THIS WAS ENTIRELY BECAUSE I FORGOT TO UPDATE ABILITIES FIELD IN setInstantBuild, FUCK ME
+
 		// When in creative mode client only sends 2 packets: USE_ITEM_ON (MAINHAND) -> USE_ITEM
 		// But if in survival we receive 3 packets: USE_ITEM_ON (MAINHAND) -> USE_ITEM -> USE_ITEM_ON (OFFHAND)
 		// The third packet breaks the logic and doesn't allow drawing bow while looking at the ground

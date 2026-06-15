@@ -63,7 +63,7 @@ public class NoArrowInfinity extends CustomTweak {
 
 		if (isInfinityBow(mainahnd) || (isInfinityBow(offhand) && (mainahnd.getType() != Material.BOW) && (mainahnd.getType() != Material.CROSSBOW))) {
 			setInstaBuildTag(player, !hasArrow(player));
-			ReflectionUtils.setInstantBuild(player, !hasArrow(player), true, false);
+			ReflectionUtils.setInstantBuild(player, !hasArrow(player), false, false);
 			//if (DEBUG) { Utils.sendMessage(ReflectionUtils.getPlayerAbilities(player).instabuild); }
 		} else {
 			if (player.getItemInUse() != null) { return; } else { setInstaBuildTag(player, false); }
