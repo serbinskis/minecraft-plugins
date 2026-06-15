@@ -2,6 +2,8 @@ package me.serbinskis.smptweaks.custom.notooexpensive;
 
 import me.serbinskis.smptweaks.Main;
 import me.serbinskis.smptweaks.utils.ReflectionUtils;
+import me.serbinskis.smptweaks.utils.TaskUtils;
+import me.serbinskis.smptweaks.utils.Utils;
 import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.entity.HumanEntity;
@@ -35,9 +37,14 @@ public class Events implements Listener {
 		if (event.getWhoClicked().getGameMode() == GameMode.CREATIVE) { return; }
 		if (!NoTooExpensive.tweak.getGameRuleBoolean(inventory.getLocation().getWorld())) { return; }
 		if (inventory.getRepairCost() <= NoTooExpensive.MAXIMUM_REPAIR_COST) { return; }
+
+		// Set back to false so that it would consume levels
+		ReflectionUtils.setInstantBuild((Player) event.getWhoClicked(), false, true, false);
+
+		// If we don't have enough levels we revert back and play sound
 		if (((Player) event.getWhoClicked()).getLevel() >= inventory.getRepairCost()) { return; }
 
-		event.setCancelled(true);
+		event.setCancelled(true); // Send twice, IDK, why
 		((Player) event.getWhoClicked()).playSound(event.getWhoClicked().getLocation(), Main.DENY_SOUND_EFFECT, 1f, 1f);
 		ReflectionUtils.setInstantBuild((Player) event.getWhoClicked(), false, true, false);
 	}
