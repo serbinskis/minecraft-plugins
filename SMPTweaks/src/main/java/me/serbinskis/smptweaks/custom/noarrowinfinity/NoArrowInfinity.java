@@ -57,6 +57,10 @@ public class NoArrowInfinity extends CustomTweak {
 		// NOTE: serverSide: true -> Allows to draw arrow when looking at block, otherwise it requires looking in far distance
 		// NOTE: cannot use true anymore, because that opens instabreak and dupe exploits
 
+		// BUG FOUND: FOR SOME REASON, INSTABUILD IS NOT BEING UPDATED FOR CLIENT, BUT LETS KEEP IT THAT WAY
+		// BECAUSE OTHERWISE, CLIENT WILL BE ABLE TO OPEN INVENTORY AND SEE CREATIVE MENU, OF COURSE HE WON'T BE ABLE
+		// TO USE IT, BUT I DON'T THINK IT STILL LOOKS PRETTY
+
 		if (isInfinityBow(mainahnd) || (isInfinityBow(offhand) && (mainahnd.getType() != Material.BOW) && (mainahnd.getType() != Material.CROSSBOW))) {
 			setInstaBuildTag(player, !hasArrow(player));
 			ReflectionUtils.setInstantBuild(player, !hasArrow(player), true, false);
