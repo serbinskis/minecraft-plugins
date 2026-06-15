@@ -20,7 +20,7 @@ public class NoArrowInfinity extends CustomTweak {
 	public final static String TAG_IS_CREATIVE_ONLY = "SMPTWEAKS_IS_CREATIVE_ONLY";
 	public final static String TAG_IS_INSTABUILD = "SMPTWEAKS_IS_INSTABUILD";
 	public static List<String> infinity = Arrays.asList("mendfinity", "infinity");
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 
 	public NoArrowInfinity() {
 		super(NoArrowInfinity.class, false, false);
