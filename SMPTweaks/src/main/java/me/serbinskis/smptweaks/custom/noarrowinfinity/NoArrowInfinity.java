@@ -1,6 +1,7 @@
 package me.serbinskis.smptweaks.custom.noarrowinfinity;
 
 import me.serbinskis.smptweaks.tweaks.CustomTweak;
+import me.serbinskis.smptweaks.utils.PersistentUtils;
 import me.serbinskis.smptweaks.utils.ReflectionUtils;
 import me.serbinskis.smptweaks.utils.TaskUtils;
 import me.serbinskis.smptweaks.utils.Utils;
@@ -17,7 +18,9 @@ import java.util.List;
 
 public class NoArrowInfinity extends CustomTweak {
 	public final static String TAG_IS_CREATIVE_ONLY = "SMPTWEAKS_IS_CREATIVE_ONLY";
+	public final static String TAG_IS_INSTABUILD = "SMPTWEAKS_IS_INSTABUILD";
 	public static List<String> infinity = Arrays.asList("mendfinity", "infinity");
+	public static boolean DEBUG = true;
 
 	public NoArrowInfinity() {
 		super(NoArrowInfinity.class, false, false);
@@ -52,13 +55,26 @@ public class NoArrowInfinity extends CustomTweak {
 		// Allow instant build only if infinity bow is in main hand or offhand
 		// But if it is in offhand check if there is no any other bow or crossbow in mainhand
 		// NOTE: serverSide: true -> Allows to draw arrow when looking at block, otherwise it requires looking in far distance
+		// NOTE: cannot use true anymore, because that opens instabreak and dupe exploits
 
 		if (isInfinityBow(mainahnd) || (isInfinityBow(offhand) && (mainahnd.getType() != Material.BOW) && (mainahnd.getType() != Material.CROSSBOW))) {
-			ReflectionUtils.setInstantBuild(player, !hasArrow(player), true, true);
+			setInstaBuildTag(player, !hasArrow(player));
+			ReflectionUtils.setInstantBuild(player, !hasArrow(player), true, false);
+			//if (DEBUG) { Utils.sendMessage(ReflectionUtils.getPlayerAbilities(player).instabuild); }
 		} else {
-			if (player.getItemInUse() != null) { return; }
-			ReflectionUtils.setInstantBuild(player, false, true, false);
+			if (player.getItemInUse() != null) { return; } else { setInstaBuildTag(player, false); }
+			ReflectionUtils.setInstantBuild(player, false, true, true);
+			//if (DEBUG) { Utils.sendMessage(ReflectionUtils.getPlayerAbilities(player).instabuild); }
 		}
+	}
+
+	public static void setInstaBuildTag(Player player, boolean instabuild) {
+		if (instabuild) { PersistentUtils.setPersistentDataBoolean(player, TAG_IS_INSTABUILD, instabuild); }
+		if (!instabuild) { PersistentUtils.removePersistentData(player, TAG_IS_INSTABUILD); }
+	}
+
+	public static boolean hasInstaBuildTag(Player player) {
+		return PersistentUtils.hasPersistentDataBoolean(player, TAG_IS_INSTABUILD);
 	}
 
 	public static boolean isInfinityBow(ItemStack item) {

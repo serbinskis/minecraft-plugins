@@ -34,6 +34,7 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.Container;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity.RemovalReason;
 import net.minecraft.world.entity.PortalProcessor;
 import net.minecraft.world.entity.player.Abilities;
@@ -63,6 +64,7 @@ import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.player.PlayerAdvancementDoneEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -512,6 +514,13 @@ public class ReflectionUtils {
 		return getEntityPlayer(player).getAbilities();
 	}
 
+	public static EquipmentSlot getUseItemOnEventHand(Object packet) {
+		if (!(packet instanceof ServerboundUseItemOnPacket pck)) { return null; }
+		if (InteractionHand.MAIN_HAND.equals(pck.getHand())) { return EquipmentSlot.HAND; }
+		if (InteractionHand.OFF_HAND.equals(pck.getHand())) { return EquipmentSlot.OFF_HAND; }
+		return null;
+	}
+
 	public static int getEntityId(Entity entity) {
 		return Objects.requireNonNull(getEntity(entity)).getId();
 	}
@@ -582,6 +591,14 @@ public class ReflectionUtils {
 		if (serverSide) {
 			abilities.instabuild = instantbuild;
 		}
+	}
+
+	public static void startUsingItem(Player player, org.bukkit.inventory.@org.jetbrains.annotations.Nullable EquipmentSlot hand) {
+		InteractionHand interactionHand = null;
+		if (EquipmentSlot.HAND.equals(hand)) { interactionHand = InteractionHand.MAIN_HAND; }
+		if (EquipmentSlot.OFF_HAND.equals(hand)) { interactionHand = InteractionHand.OFF_HAND; }
+		if (interactionHand == null) { return; }
+		getEntityPlayer(player).startUsingItem(interactionHand);
 	}
 
 	public static Channel getChannel(Player player) {
