@@ -598,6 +598,19 @@ public class ReflectionUtils {
 		}
 	}
 
+	// Doesn't work in creative, it sets an actual item
+	public static void setGhostItem(Player player, ItemStack item, int slot) {
+		if (slot < 9) {
+			slot += 36;
+		} else if (slot > 39) {
+			slot += 5;
+		} else if (slot > 35) {
+			slot = 8 - (slot - 36);
+		}
+
+		sendPacket(player, new ClientboundContainerSetSlotPacket(0, 0, slot, asNMSCopy(item)));
+	}
+
 	public static void startUsingItem(Player player, org.bukkit.inventory.@org.jetbrains.annotations.Nullable EquipmentSlot hand) {
 		InteractionHand interactionHand = null;
 		if (EquipmentSlot.HAND.equals(hand)) { interactionHand = InteractionHand.MAIN_HAND; }
@@ -1013,19 +1026,6 @@ public class ReflectionUtils {
 	/*public static Collection<Channel> getConnections() {
 		List<Connection> serverConnection = MinecraftServer.getServer().getConnection().getConnections();
 		return serverConnection.stream().collect(Collectors.toMap(e -> e, e -> e.channel)).values();
-	}*/
-
-	// Doesn't work in creative, it sets an actual item
-	/*public static void setGhostItem(Player player, ItemStack item, int slot) {
-		if (slot < 9) {
-			slot += 36;
-		} else if (slot > 39) {
-			slot += 5;
-		} else if (slot > 35) {
-			slot = 8 - (slot - 36);
-		}
-
-		sendPacket(player, new ClientboundContainerSetSlotPacket(0, 0, slot, asNMSCopy(item)));
 	}*/
 
 	// Open trading screen of a villager

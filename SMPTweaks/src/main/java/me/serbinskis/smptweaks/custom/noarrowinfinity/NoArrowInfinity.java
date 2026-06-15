@@ -21,6 +21,7 @@ public class NoArrowInfinity extends CustomTweak {
 	public final static String TAG_IS_INSTABUILD = "SMPTWEAKS_IS_INSTABUILD";
 	public static List<String> infinity = Arrays.asList("mendfinity", "infinity");
 	public static boolean DEBUG = false;
+	public static int GHOST_SLOT = DEBUG ? 8 : 17;
 
 	public NoArrowInfinity() {
 		super(NoArrowInfinity.class, false, false);
@@ -62,14 +63,24 @@ public class NoArrowInfinity extends CustomTweak {
 		// TO USE IT, BUT I DON'T THINK IT STILL LOOKS PRETTY
 
 		if (isInfinityBow(mainahnd) || (isInfinityBow(offhand) && (mainahnd.getType() != Material.BOW) && (mainahnd.getType() != Material.CROSSBOW))) {
-			setInstaBuildTag(player, !hasArrow(player));
-			ReflectionUtils.setInstantBuild(player, !hasArrow(player), false, false);
+			boolean hasArrow = hasArrow(player);
+			setInstaBuildTag(player, !hasArrow);
+			setGhostArrow(player, !hasArrow);
+			ReflectionUtils.setInstantBuild(player, !hasArrow, false, false);
 			//if (DEBUG) { Utils.sendMessage(ReflectionUtils.getPlayerAbilities(player).instabuild); }
 		} else {
-			if (player.getItemInUse() != null) { return; } else { setInstaBuildTag(player, false); }
+			if (player.getItemInUse() != null) { return; }
+			setInstaBuildTag(player, false);
+			setGhostArrow(player, false);
 			ReflectionUtils.setInstantBuild(player, false, true, true);
 			//if (DEBUG) { Utils.sendMessage(ReflectionUtils.getPlayerAbilities(player).instabuild); }
 		}
+	}
+
+	@SuppressWarnings("removal")
+	public static void setGhostArrow(Player player, boolean ghost) {
+		if (ghost) { ReflectionUtils.setGhostItem(player, new ItemStack(Material.ARROW), GHOST_SLOT); }
+		if (!ghost && player.getItemInUse() == null) { player.updateInventory(); }
 	}
 
 	public static void setInstaBuildTag(Player player, boolean instabuild) {
