@@ -9,7 +9,7 @@ TestPlugin/
 
 */build/*
 !*/build/*.jar
-#!*/build/libs
+!*/build/libs/
 # */build/libs/*
 # !*/build/libs/*[!sources].jar
 SMPTweaks/qodana.yaml
