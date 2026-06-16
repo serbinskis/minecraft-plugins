@@ -61,7 +61,7 @@ public class NoArrowInfinity extends CustomTweak {
 
 		// NOTE: Giving instabuild to client makes him try to instabreak blocks and also gives ghost creative inventory
 		// NOTE: Not giving instabreak to client makes him send 3 packets instead of 2, which allows to place ghost blocks in offhand while trying to use bow
-		// NOTE: Ugly workaround use ghost arrows in the corner of the inventory
+		// NOTE: Ugly workaround use ghost arrows in the corner of the inventory, or use packet manipulations
 
 		if (isInfinityBow(mainahnd) || (isInfinityBow(offhand) && (mainahnd.getType() != Material.BOW) && (mainahnd.getType() != Material.CROSSBOW))) {
 			boolean hasArrow = hasArrow(player);

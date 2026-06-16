@@ -127,6 +127,9 @@ public class Events implements Listener {
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("ReflectionUtils.setInstantBuild"); }
 
 		// Even tho we start using item, at the end of this event it for some reason reverts it
+		// That reason is extra packet, but it doesn't matter since we still need instabuild
+		// When releasing bow, otherwise it won't shoot bow, and we can't detect bow shoot
+		// So we just have to hold instabuild while drawing bow the entire time
 		//ReflectionUtils.startUsingItem(player, event.getHand());
 
 		// Give instant build and remove it in onEntityShootBowEvent or if player stops using bow
@@ -134,13 +137,10 @@ public class Events implements Listener {
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("isCancelled: " + event.isCancelled()); }
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("useItemInHand: " + event.useItemInHand()); }
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("useInteractedBlock: " + event.useInteractedBlock()); }
-
-		// To prevent ghost item modification because of extra packet
-		if (!NoArrowInfinity.USE_GHOST_PATCH) { player.updateInventory(); }
-
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("======================================="); }
-		// NOTE: We can't sync ghost block, because it is not actually world based, but rather prediction layer based
-		// NOTE: Which means you cannot manually send block update packet, it won't do anything
+
+		// This prevents ghost item modification because of extra packet
+		if (!NoArrowInfinity.USE_GHOST_PATCH) { player.updateInventory(); }
 
 		// In case if player don't shoot make a timer and do checks
 		int[] task = { 0 };
@@ -154,13 +154,11 @@ public class Events implements Listener {
 
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPacketEvent(PacketEvent event) {
-		// HAHA: THIS WAS ENTIRELY BECAUSE I FORGOT TO UPDATE ABILITIES FIELD IN setInstantBuild, FUCK ME
-
 		// When in creative mode client only sends 2 packets: USE_ITEM_ON (MAINHAND) -> USE_ITEM
 		// But if in survival we receive 3 packets: USE_ITEM_ON (MAINHAND) -> USE_ITEM -> USE_ITEM_ON (OFFHAND)
 		// The third packet breaks the logic and doesn't allow drawing bow while looking at the ground
 		// So the only way I found was to remove this packet if player is holding infinity bow
-		// BUG: THERE IS NOW A GHOST PLACEMENT WHEN HOLDING BLOCK IN OFFHAND, SINCE SERVER DOESN'T SYNC
+		// BUG: THERE IS NOW A GHOST PLACEMENT WHEN HOLDING BLOCK IN OFFHAND, SINCE SERVER DOESN'T SYNC (KINDA FIXED)
 
 		if (!List.of(PacketType.USE_ITEM_ON, PacketType.USE_ITEM).contains(event.getPacketType())) { return; }
 		boolean hasInstaBuildTag = NoArrowInfinity.hasInstaBuildTag(event.getPlayer());
