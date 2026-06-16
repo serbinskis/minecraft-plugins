@@ -21,7 +21,7 @@ public class NoArrowInfinity extends CustomTweak {
 	public final static String TAG_IS_INSTABUILD = "SMPTWEAKS_IS_INSTABUILD";
 	public static List<String> infinity = Arrays.asList("mendfinity", "infinity");
 	public static boolean DEBUG = false;
-	public static boolean USE_GHOST_PATCH = true;
+	public static boolean USE_GHOST_PATCH = false;
 	public static int GHOST_SLOT = DEBUG ? 8 : 17;
 
 	public NoArrowInfinity() {

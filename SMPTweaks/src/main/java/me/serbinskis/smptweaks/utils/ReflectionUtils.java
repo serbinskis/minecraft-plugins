@@ -598,15 +598,16 @@ public class ReflectionUtils {
 		}
 	}
 
-	public static void syncPlayer(Player player, boolean blockUpdate, @Nullable org.bukkit.block.Block block, @Nullable BlockFace face) {
+	public static void syncPlayer(Player player, boolean syncBlockPrediction, @Nullable Object packet) {
 		ServerPlayer serverPlayer = getEntityPlayer(player);
 		serverPlayer.resyncUsingItem(serverPlayer);
 		serverPlayer.containerMenu.sendAllDataToRemote();
-		if (!blockUpdate || block == null || face == null) { return; }
 
-		ServerLevel level = getWorld(player.getWorld());
-		sendPacket(player, new ClientboundBlockUpdatePacket(level, getBlockPos(block)));
-		sendPacket(player, new ClientboundBlockUpdatePacket(level, getBlockPos(block.getRelative(face))));
+		// net.minecraft.server.network.ServerGamePacketListenerImpl#tick()
+		// net.minecraft.server.network.ServerGamePacketListenerImpl#ackBlockChangesUpTo()
+		// net.minecraft.server.network.ServerGamePacketListenerImpl#handleUseItemOn()
+		int sequence = (packet instanceof ServerboundUseItemOnPacket pck) ? pck.getSequence() : 99;
+		if (syncBlockPrediction) { sendPacket(player, new ClientboundBlockChangedAckPacket(sequence)); }
 	}
 
 	public static BlockPos getBlockPos(org.bukkit.block.Block block) {
