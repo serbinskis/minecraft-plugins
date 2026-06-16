@@ -598,6 +598,21 @@ public class ReflectionUtils {
 		}
 	}
 
+	public static void syncPlayer(Player player, boolean blockUpdate, @Nullable org.bukkit.block.Block block, @Nullable BlockFace face) {
+		ServerPlayer serverPlayer = getEntityPlayer(player);
+		serverPlayer.resyncUsingItem(serverPlayer);
+		serverPlayer.containerMenu.sendAllDataToRemote();
+		if (!blockUpdate || block == null || face == null) { return; }
+
+		ServerLevel level = getWorld(player.getWorld());
+		sendPacket(player, new ClientboundBlockUpdatePacket(level, getBlockPos(block)));
+		sendPacket(player, new ClientboundBlockUpdatePacket(level, getBlockPos(block.getRelative(face))));
+	}
+
+	public static BlockPos getBlockPos(org.bukkit.block.Block block) {
+		return new BlockPos(block.getX(), block.getY(), block.getZ());
+	}
+
 	// Doesn't work in creative, it sets an actual item
 	public static void setGhostItem(Player player, ItemStack item, int slot) {
 		if (slot < 9) {

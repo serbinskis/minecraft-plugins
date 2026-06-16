@@ -8,6 +8,7 @@ import me.serbinskis.smptweaks.utils.TaskUtils;
 import me.serbinskis.smptweaks.utils.Utils;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.AbstractArrow.PickupStatus;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
@@ -134,9 +135,14 @@ public class Events implements Listener {
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("isCancelled: " + event.isCancelled()); }
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("useItemInHand: " + event.useItemInHand()); }
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("useInteractedBlock: " + event.useInteractedBlock()); }
-		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("======================================="); }
 
-		player.updateInventory(); // To prevent ghost item modification because of extra packet
+		if (!NoArrowInfinity.USE_GHOST_PATCH) {
+			player.updateInventory(); } // To prevent ghost item modification because of extra packet
+			Block block = event.getPlayer().getTargetBlockExact(20); // STILL DOESN'T WORK
+			if (block != null) { ReflectionUtils.syncPlayer(event.getPlayer(), true, block, event.getBlockFace());
+		}
+
+		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("======================================="); }
 		// NOTE: We can't sync ghost block, because it is not actually world based, but rather prediction layer based
 		// NOTE: Which means you cannot manually send block update packet, it won't do anything
 
@@ -166,5 +172,8 @@ public class Events implements Listener {
 
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage(event.getPacketType() + " | offhand: " + isOffhand + " | instabuild: " + hasInstaBuildTag); }
 		if (hasInstaBuildTag && isOffhand) { event.setCancelled(true); }
+
+		// This fixes shield and swing bug, NOT THE GHOST BLOCK
+		if (!NoArrowInfinity.USE_GHOST_PATCH) { ReflectionUtils.syncPlayer(event.getPlayer(), false, null, null); }
 	}
 }
