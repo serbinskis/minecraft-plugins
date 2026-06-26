@@ -1,6 +1,5 @@
 package me.serbinskis.smptweaks.library.customtextures;
 
-import me.serbinskis.smptweaks.Main;
 import me.serbinskis.smptweaks.utils.TaskUtils;
 import me.serbinskis.smptweaks.utils.Utils;
 

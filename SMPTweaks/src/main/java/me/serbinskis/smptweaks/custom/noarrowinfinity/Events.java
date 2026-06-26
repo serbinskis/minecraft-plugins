@@ -10,6 +10,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.AbstractArrow.PickupStatus;
 import org.bukkit.entity.Arrow;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -18,6 +19,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerPickupArrowEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -153,6 +155,14 @@ public class Events implements Listener {
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
+	public void onPlayerInteractEntityEvent(PlayerInteractEntityEvent event) {
+		if (!EntityType.SULFUR_CUBE.equals(event.getRightClicked().getType())) { return; }
+		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("PlayerInteractEntityEvent -> SULFUR_CUBE"); }
+		if (!NoArrowInfinity.hasInstaBuildTag(event.getPlayer())) { return; }
+		event.setCancelled(true); // Prevent item duplication via sulfur cubes
+	}
+
+	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPacketEvent(PacketEvent event) {
 		// When in creative mode client only sends 2 packets: USE_ITEM_ON (MAINHAND) -> USE_ITEM
 		// But if in survival we receive 3 packets: USE_ITEM_ON (MAINHAND) -> USE_ITEM -> USE_ITEM_ON (OFFHAND)
@@ -164,7 +174,7 @@ public class Events implements Listener {
 		boolean hasInstaBuildTag = NoArrowInfinity.hasInstaBuildTag(event.getPlayer());
 		boolean isOffhand = EquipmentSlot.OFF_HAND.equals(ReflectionUtils.getUseItemOnEventHand(event.getPacket()));
 
-		if (NoArrowInfinity.DEBUG) { Utils.sendMessage(event.getPacketType() + " | offhand: " + isOffhand + " | instabuild: " + hasInstaBuildTag); }
+		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("Packet: " + event.getPacketType() + " | offhand: " + isOffhand + " | instabuild: " + hasInstaBuildTag); }
 		if (hasInstaBuildTag && isOffhand) { event.setCancelled(true); }
 
 		// This fixes shield and swing bug, and also prediction ghost blocks

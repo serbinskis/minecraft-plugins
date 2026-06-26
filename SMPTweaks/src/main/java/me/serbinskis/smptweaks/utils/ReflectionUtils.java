@@ -500,11 +500,6 @@ public class ReflectionUtils {
 		return getEntityHuman(player).getDestroySpeed(getBlock(block).defaultBlockState());
 	}
 
-	// Get raw block destroy time which is not based on player
-	public static float getBlockDestroyTime(Material block) {
-		return getBlock(block).defaultBlockState().destroySpeed;
-	}
-
 	public static void popResource(Location location, ItemStack item) {
 		BlockPos position = new BlockPos((int) location.getX(), (int) location.getY(), (int) location.getZ());
 		Block.popResource(getWorld(location.getWorld()), position, asNMSCopy(item));
@@ -691,7 +686,7 @@ public class ReflectionUtils {
 
 		// Will hide from Bukkit.getOnlinePlayers()
 		if (addPlayer && hideOnline) {
-			List<ServerPlayer> players = server.getPlayerList().players;
+			List<ServerPlayer> players = server.getPlayerList().getPlayers();
 			players.removeIf(e -> getBukkitEntity(e).getUniqueId().equals(player.getUniqueId()));
 		}
 
@@ -939,7 +934,7 @@ public class ReflectionUtils {
 		BlockPos blockPos = new BlockPos(source.getX(), source.getY(), source.getZ());
 		ServerLevel serverLevel = getWorld(source.getLocation().getWorld());
 		BlockState blockState = serverLevel.getBlockState(blockPos);
-		DispenserBlockEntity tileentitydispenser = serverLevel.getBlockEntity(blockPos, BlockEntityType.DISPENSER).orElse(null);
+		DispenserBlockEntity tileentitydispenser = serverLevel.getBlockEntity(blockPos, BlockEntityTypes.DISPENSER).orElse(null);
 		BlockSource blockSource = new BlockSource(serverLevel, blockPos, blockState, tileentitydispenser);
 
 		DispenseItemBehavior dispenseItemBehavior = DispenserBlock.getDispenseBehavior(blockSource, asNMSCopy(drop));
@@ -958,7 +953,7 @@ public class ReflectionUtils {
 
 		BlockPos blockPos = new BlockPos(source.getX(), source.getY(), source.getZ());
 		ServerLevel serverLevel = getWorld(source.getLocation().getWorld());
-		DispenserBlockEntity tileentitydispenser = serverLevel.getBlockEntity(blockPos, BlockEntityType.DROPPER).orElse(null);
+		DispenserBlockEntity tileentitydispenser = serverLevel.getBlockEntity(blockPos, BlockEntityTypes.DROPPER).orElse(null);
 		Direction enumdirection = serverLevel.getBlockState(blockPos).getValue(DropperBlock.FACING);
 		Container iinventory = HopperBlockEntity.getContainerAt(serverLevel, blockPos.relative(enumdirection));
 		BlockFace blockFace = ((Directional) source.getBlockData()).getFacing();
@@ -981,6 +976,11 @@ public class ReflectionUtils {
 		drop.setAmount(drop.getAmount()-1); // Update drop amount after moving
 		return dispenseDropper(source, drop);
 	}
+
+	// Get raw block destroy time which is not based on player
+	/*public static float getBlockDestroyTime(Material block) {
+		return getBlock(block).defaultBlockState().destroySpeed;
+	}*/
 
 	/*public static BlockData getChangedBlockData(BlockPhysicsEvent event) {
 		return (BlockData) getValue(BlockPhysicsEvent_changed, event);

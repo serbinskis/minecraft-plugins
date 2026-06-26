@@ -7,9 +7,6 @@ import me.serbinskis.smptweaks.utils.TaskUtils;
 import me.serbinskis.smptweaks.utils.Utils;
 import org.bukkit.Bukkit;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.Collection;
 import java.util.UUID;
 

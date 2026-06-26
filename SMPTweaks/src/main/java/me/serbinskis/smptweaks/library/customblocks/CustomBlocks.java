@@ -7,6 +7,7 @@ import me.serbinskis.smptweaks.library.customblocks.commands.Commands;
 import me.serbinskis.smptweaks.library.customblocks.custom.PlayerResetBlock;
 import me.serbinskis.smptweaks.library.customblocks.events.BlockEvents;
 import me.serbinskis.smptweaks.library.customblocks.events.InventoryEvents;
+import me.serbinskis.smptweaks.library.customblocks.events.PlayerEvents;
 import me.serbinskis.smptweaks.library.customblocks.events.WorldEvents;
 import me.serbinskis.smptweaks.library.customblocks.test.MovableBlock;
 import me.serbinskis.smptweaks.library.customblocks.test.TestBlock;
@@ -49,6 +50,7 @@ public class CustomBlocks extends CustomTweak {
 			Bukkit.getPluginManager().registerEvents(customBlock, Main.plugin);
 			Bukkit.getPluginManager().registerEvents(new BlockEvents(customBlock), Main.plugin);
 			Bukkit.getPluginManager().registerEvents(new InventoryEvents(customBlock), Main.plugin);
+			Bukkit.getPluginManager().registerEvents(new PlayerEvents(customBlock), Main.plugin);
 			if (customBlock.getRecipe() != null) { Bukkit.addRecipe(customBlock.getRecipe()); }
 		}
 

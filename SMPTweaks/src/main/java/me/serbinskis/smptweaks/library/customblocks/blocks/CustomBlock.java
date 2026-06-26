@@ -41,6 +41,7 @@ public class CustomBlock implements Listener {
     private Dispensable dispensable = Dispensable.IGNORE;
     private ChatColor glow_color = ChatColor.RESET;
     private boolean tickable = true;
+    private boolean sulfurCubeInteractable = false;
     private final Material block_base;
     private final String id;
     private String name;
@@ -118,6 +119,10 @@ public class CustomBlock implements Listener {
 
     public ChatColor getGlowing() {
         return glow_color;
+    }
+
+    public boolean isSulfurCubeInteractable() {
+        return sulfurCubeInteractable;
     }
 
     public int prepareTextureIndex(Block block) {

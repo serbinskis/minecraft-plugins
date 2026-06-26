@@ -20,7 +20,7 @@ public class NoArrowInfinity extends CustomTweak {
 	public final static String TAG_IS_CREATIVE_ONLY = "SMPTWEAKS_IS_CREATIVE_ONLY";
 	public final static String TAG_IS_INSTABUILD = "SMPTWEAKS_IS_INSTABUILD";
 	public static List<String> infinity = Arrays.asList("mendfinity", "infinity");
-	public static boolean DEBUG = false;
+	public static boolean DEBUG = true;
 	public static boolean USE_GHOST_PATCH = false;
 	public static int GHOST_SLOT = DEBUG ? 8 : 17;
 
@@ -67,7 +67,7 @@ public class NoArrowInfinity extends CustomTweak {
 			boolean hasArrow = hasArrow(player);
 			setInstaBuildTag(player, !hasArrow);
 			if (!offhand.getType().equals(Material.AIR)) { setGhostArrow(player, !hasArrow); };
-			ReflectionUtils.setInstantBuild(player, !hasArrow, false, false);
+			ReflectionUtils.setInstantBuild(player, !hasArrow, false, false); // YEAH, THIS DOES ABSOLUTELY NOTHING BTW
 			//if (DEBUG) { Utils.sendMessage(ReflectionUtils.getPlayerAbilities(player).instabuild); }
 		} else {
 			if (player.getItemInUse() != null) { return; }
