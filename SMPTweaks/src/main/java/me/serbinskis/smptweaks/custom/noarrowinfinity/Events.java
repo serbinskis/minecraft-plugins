@@ -65,7 +65,6 @@ public class Events implements Listener {
 		// In case if we have bow with infinity in main hand, but trying to use offhand, prevent event
 		if (hasInfinityMainHand && EquipmentSlot.OFF_HAND.equals(event.getHand())) {
 			if (NoArrowInfinity.DEBUG) { Utils.sendMessage("PlayerInteractEvent -> catch third packet"); }
-			event.getPlayer().startUsingItem(EquipmentSlot.HAND);
 			event.setCancelled(true); // This also sets both block and hand interaction to deny
 			return;
 		}
@@ -83,7 +82,7 @@ public class Events implements Listener {
 		//event.getPlayer().startUsingItem(event.getHand());
 		NoArrowInfinity.doInstantBuild(event.getPlayer(), true);
 
-		// NOTE: Using doInstantBuild(), allows 1 tick exploit frame, in which modified clients
+		// NOTE: Using doInstantBuild(), allows same tick exploit frame, in which modified clients
 		// NOTE: can send multiple packets and exploit instabuild flag to for example duplicate items
 
 		// NOTE: Using startUsingItem(), the block interactions like right clicking bell
