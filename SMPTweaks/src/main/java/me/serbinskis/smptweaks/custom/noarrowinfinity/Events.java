@@ -80,10 +80,14 @@ public class Events implements Listener {
 		ReflectionUtils.syncPlayer(event.getPlayer(), false, null);
 
 		// Start using item, aka the bow
-		event.getPlayer().startUsingItem(event.getHand());
+		//event.getPlayer().startUsingItem(event.getHand());
+		NoArrowInfinity.doInstantBuild(event.getPlayer(), true);
 
-		// NOTE: Since we are manually starting using item, the block interactions like right
-		// NOTE: clicking bell will not prevent bow from drawing like in standard creative mode
+		// NOTE: Using doInstantBuild(), allows 1 tick exploit frame, in which modified clients
+		// NOTE: can send multiple packets and exploit instabuild flag to for example duplicate items
+
+		// NOTE: Using startUsingItem(), the block interactions like right clicking bell
+		// NOTE: will not prevent bow from drawing like in standard creative mode
 
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("isCancelled: " + event.isCancelled()); }
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("useItemInHand: " + event.useItemInHand()); }
