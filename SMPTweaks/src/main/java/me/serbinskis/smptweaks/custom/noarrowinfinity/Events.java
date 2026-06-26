@@ -24,12 +24,11 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 public class Events implements Listener {
-	// When player starts using bow on client side we get interaction event
-	// So we can also set instant build on server side for moment when player shoots
-
 	@SuppressWarnings("removal")
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlayerInteractEvent(PlayerInteractEvent event) {
+		// NOTE: There is still no way to prevent ghost swings, even with fully blocked OFF_HAND it still swings it
+
 		Player player = event.getPlayer();
 		if ((player.getGameMode() == GameMode.CREATIVE) || (event.getHand() == null)) { return; }
 
