@@ -46,12 +46,12 @@ public class NoArrowInfinity extends CustomTweak {
 		return ((item != null) && ((item.getType() == Material.ARROW) || (item.getType() == Material.TIPPED_ARROW) || (item.getType() == Material.SPECTRAL_ARROW)));
 	}
 
-	public static void setInstantBuild(Player player, boolean createNewTask) {
+	public static void doInstantBuild(Player player, boolean createNewTask) {
 		UUID playerId = player.getUniqueId();
 
 		// In case if task already exists finish it
 		Integer taskId = NoArrowInfinity.delayed.remove(playerId);
-		if (taskId != null) { TaskUtils.finishTask(taskId); return; }
+		if (taskId != null) { TaskUtils.finishTask(taskId); }
 
 		// In case if we are only checking existing tasks
 		if (!createNewTask) { return; }

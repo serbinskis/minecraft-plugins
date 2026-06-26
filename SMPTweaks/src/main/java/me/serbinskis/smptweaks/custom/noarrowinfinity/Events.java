@@ -129,7 +129,7 @@ public class Events implements Listener {
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("======================================="); }
 
 		// Set instabuild and revert this change in the next tick or inside EntityShootBowEvent
-		NoArrowInfinity.setInstantBuild(event.getPlayer(), true);
+		NoArrowInfinity.doInstantBuild(event.getPlayer(), true);
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -139,6 +139,6 @@ public class Events implements Listener {
 		if (!(event.getProjectile() instanceof Arrow) || (event.getConsumable() == null)) { return; }
 
 		// Fix infinite bow durability & tipped arrow bug, aka, just remove instabuild after shooting bow
-		if (player.getGameMode() != GameMode.CREATIVE) { NoArrowInfinity.setInstantBuild(player, false); }
+		if (player.getGameMode() != GameMode.CREATIVE) { NoArrowInfinity.doInstantBuild(player, false); }
 	}
 }
