@@ -1,24 +1,22 @@
 package me.serbinskis.smptweaks.custom.noarrowinfinity;
 
 import me.serbinskis.smptweaks.tweaks.CustomTweak;
-import me.serbinskis.smptweaks.utils.PersistentUtils;
+import me.serbinskis.smptweaks.utils.ReflectionUtils;
 import me.serbinskis.smptweaks.utils.TaskUtils;
 import me.serbinskis.smptweaks.utils.Utils;
 import me.serbinskis.smptweaks.Main;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
+import org.checkerframework.checker.units.qual.N;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class NoArrowInfinity extends CustomTweak {
 	public final static String TAG_IS_CREATIVE_ONLY = "SMPTWEAKS_IS_CREATIVE_ONLY";
-	public final static String TAG_IS_INFTAG = "SMPTWEAKS_IS_INFTAG";
 	public static List<String> infinity = Arrays.asList("mendfinity", "infinity");
+	public static HashMap<UUID, Integer> delayed = new HashMap<>();
 	public static boolean DEBUG = true;
 
 	public NoArrowInfinity() {
@@ -28,54 +26,7 @@ public class NoArrowInfinity extends CustomTweak {
 	}
 
 	public void onEnable() {
-		TaskUtils.scheduleSyncRepeatingTask(() -> {
-            for (Player player : Bukkit.getOnlinePlayers()) { checkPlayer(player); }
-        }, 1L, 1L);
-
 		Bukkit.getPluginManager().registerEvents(new Events(), Main.getPlugin());
-	}
-
-	// Instant build is not creative mode, and it gives different perks to player
-	// Such as shooting with no arrows, infinite consumables and infinite durability
-	// To prevent everything from above and get only shooting with no arrows
-	// Give instant build only to client and not server
-	@SuppressWarnings("removal")
-	public void checkPlayer(Player player) {
-		if (!this.getGameRuleBoolean(player.getWorld())) { return; }
-		if (player.getGameMode() == GameMode.CREATIVE) { return; }
-		if (player.getOpenInventory().getTopInventory().getType() != InventoryType.CRAFTING) { return; }
-		ItemStack mainahnd = player.getInventory().getItemInMainHand();
-		ItemStack offhand = player.getInventory().getItemInOffHand();
-
-		// Ignore creative players, they already have instant build
-		// Prevent check if any inventory opened, except default players inventory
-		// Can't check that because if no any other opened, then default will be always opened
-
-		// Allow instant build only if infinity bow is in main hand or offhand
-		// But if it is in offhand check if there is no any other bow or crossbow in mainhand
-		// NOTE: serverSide: true -> Allows to draw arrow when looking at block, otherwise it requires looking in far distance
-		// NOTE: cannot use true anymore, because that opens instabreak and dupe exploits
-
-		// NOTE: Giving instabuild to client makes him try to instabreak blocks and also gives ghost creative inventory
-		// NOTE: Not giving instabreak to client makes him send 3 packets instead of 2, which allows to place ghost blocks in offhand while trying to use bow
-		// NOTE: Ugly workaround use ghost arrows in the corner of the inventory, or use packet manipulations
-
-		if (isInfinityBow(mainahnd) || (isInfinityBow(offhand) && (mainahnd.getType() != Material.BOW) && (mainahnd.getType() != Material.CROSSBOW))) {
-			boolean hasArrow = hasArrow(player);
-			setPlayerInfinityTag(player, !hasArrow);
-		} else {
-			if (player.getItemInUse() != null) { return; }
-			setPlayerInfinityTag(player, false);
-		}
-	}
-
-	public static void setPlayerInfinityTag(Player player, boolean inftag) {
-		if (inftag) { PersistentUtils.setPersistentDataBoolean(player, TAG_IS_INFTAG, inftag); }
-		if (!inftag) { PersistentUtils.removePersistentData(player, TAG_IS_INFTAG); }
-	}
-
-	public static boolean hasPlayerInfinityTag(Player player) {
-		return PersistentUtils.hasPersistentDataBoolean(player, TAG_IS_INFTAG);
 	}
 
 	public static boolean isInfinityBow(ItemStack item) {
@@ -95,5 +46,25 @@ public class NoArrowInfinity extends CustomTweak {
 
 	public static boolean isArrow(ItemStack item) {
 		return ((item != null) && ((item.getType() == Material.ARROW) || (item.getType() == Material.TIPPED_ARROW) || (item.getType() == Material.SPECTRAL_ARROW)));
+	}
+
+	public static void setInstantBuild(Player player, boolean createNewTask) {
+		UUID playerId = player.getUniqueId();
+
+		// In case if task already exists finish it
+		Integer taskId = NoArrowInfinity.delayed.remove(playerId);
+		if (taskId != null) { TaskUtils.finishTask(taskId); return; }
+
+		// In case if we are only checking existing tasks
+		if (!createNewTask) { return; }
+
+		// Create new delayed task for instabuild reversion
+		taskId = TaskUtils.scheduleSyncDelayedTask(() -> {
+			ReflectionUtils.setInstantBuild(player, false, false, true);
+			NoArrowInfinity.delayed.remove(playerId);
+		}, 0L);
+
+		ReflectionUtils.setInstantBuild(player, true, false, true);
+		NoArrowInfinity.delayed.put(playerId, taskId);
 	}
 }

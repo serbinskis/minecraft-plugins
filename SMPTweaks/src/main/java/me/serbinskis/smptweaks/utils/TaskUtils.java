@@ -83,12 +83,12 @@ public class TaskUtils implements Listener {
 	public static void finishTask(int task) {
 		if (!runnables0.containsKey(task)) { return; }
 		Bukkit.getScheduler().cancelTask(task);
-		runnables0.remove(task).run(); //Don't care, because inside wrapper we also use runnables0.remove()
+		runnables0.remove(task).run(); // Don't care, because inside wrapper we also use runnables0.remove()
 	}
 
 	public static void cancelTask(int task) {
 		if (!runnables0.containsKey(task)) { return; }
 		Bukkit.getScheduler().cancelTask(task);
-		runnables1.remove(runnables0.remove(task)); //I do not care if runnables1.remove() will return null
+		runnables1.remove(runnables0.remove(task)); // I do not care if runnables1.remove() will return null
 	}
 }
