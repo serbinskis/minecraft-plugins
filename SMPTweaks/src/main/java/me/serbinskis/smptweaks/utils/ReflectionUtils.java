@@ -514,9 +514,13 @@ public class ReflectionUtils {
 	}
 
 	public static EquipmentSlot getUseItemOnEventHand(Object packet) {
-		if (!(packet instanceof ServerboundUseItemOnPacket pck)) { return null; }
-		if (InteractionHand.MAIN_HAND.equals(pck.getHand())) { return EquipmentSlot.HAND; }
-		if (InteractionHand.OFF_HAND.equals(pck.getHand())) { return EquipmentSlot.OFF_HAND; }
+		InteractionHand hand = null;
+
+		if (packet instanceof ServerboundUseItemOnPacket pck) { hand = pck.getHand(); }
+		if (packet instanceof ServerboundInteractPacket pck) { hand = pck.hand(); }
+		if (InteractionHand.MAIN_HAND.equals(hand)) { return EquipmentSlot.HAND; }
+		if (InteractionHand.OFF_HAND.equals(hand)) { return EquipmentSlot.OFF_HAND; }
+
 		return null;
 	}
 
