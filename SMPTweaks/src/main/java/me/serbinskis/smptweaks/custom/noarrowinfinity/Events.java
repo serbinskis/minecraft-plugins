@@ -1,5 +1,6 @@
 package me.serbinskis.smptweaks.custom.noarrowinfinity;
 
+import io.papermc.paper.event.player.PlayerStopUsingItemEvent;
 import me.serbinskis.smptweaks.library.tinyprotocol.PacketEvent;
 import me.serbinskis.smptweaks.library.tinyprotocol.PacketType;
 import me.serbinskis.smptweaks.utils.PersistentUtils;
@@ -92,9 +93,6 @@ public class Events implements Listener {
 	@SuppressWarnings("removal")
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlayerInteractEvent(PlayerInteractEvent event) {
-		// There is some something that happens before this event, that requires isntabuild: true
-		// Otherwise we won't start drawing bow while looking at block
-
 		Player player = event.getPlayer();
 		if ((player.getGameMode() == GameMode.CREATIVE) || (event.getHand() == null)) { return; }
 
@@ -109,7 +107,6 @@ public class Events implements Listener {
 
 		// When player interacts with block while holding infinity bow the order is HAND -> startUsingItem -> OFF_AND
 		// So we need prevent second OFF_HAND interaction to keep using the bow
-		// Or prevent dupe exploits while drawing a bow, because while drawing a bow we have instabuild on server side
 		//if (NoArrowInfinity.DEBUG) { Utils.sendMessage(hasInfinityMainHand + " | " + (player.getItemInUse() != null) + " | " + event.getHand().equals(EquipmentSlot.OFF_HAND)); }
 		if (hasInfinityMainHand && (player.getItemInUse() != null) && event.getHand().equals(EquipmentSlot.OFF_HAND)) {
 			if (NoArrowInfinity.DEBUG) { Utils.sendMessage("STOP DUPE EVENT"); }
@@ -120,46 +117,48 @@ public class Events implements Listener {
 		}
 
 		// In case if we have bow with infinity in main hand, but trying to use offhand, prevent event
-		if (hasInfinityMainHand && event.getHand().equals(EquipmentSlot.OFF_HAND)) { event.setUseItemInHand(Event.Result.DENY); return; }
+		if (hasInfinityMainHand && EquipmentSlot.OFF_HAND.equals(event.getHand())) {
+			event.setUseItemInHand(Event.Result.DENY);
+			event.setUseItemInHand(Event.Result.DENY);
+			event.setUseInteractedBlock(Event.Result.DENY);
+			event.setCancelled(true);
+			return;
+		}
 
 		// If we are not trying to use infinity bow in this event, just return
 		if (!hasInfinityEventHand) { return; }
 
 		// If we are trying to use bow then start using it
-		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("ReflectionUtils.setInstantBuild"); }
+		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("getPlayer().startUsingItem()"); }
 
-		// Even tho we start using item, at the end of this event it for some reason reverts it
-		// That reason is extra packet, but it doesn't matter since we still need instabuild
-		// When releasing bow, otherwise it won't shoot bow, and we can't detect bow shoot
-		// So we just have to hold instabuild while drawing bow the entire time
-		//ReflectionUtils.startUsingItem(player, event.getHand());
+		// Start using item, aka the bow
+		event.getPlayer().startUsingItem(event.getHand());
 
-		// Give instant build and remove it in onEntityShootBowEvent or if player stops using bow
-		ReflectionUtils.setInstantBuild(player, true, false, true);
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("isCancelled: " + event.isCancelled()); }
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("useItemInHand: " + event.useItemInHand()); }
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("useInteractedBlock: " + event.useInteractedBlock()); }
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("======================================="); }
-
-		// This prevents ghost item modification because of extra packet
-		if (!NoArrowInfinity.USE_GHOST_PATCH) { player.updateInventory(); }
-
-		// In case if player don't shoot make a timer and do checks
-		int[] task = { 0 };
-		task[0] = TaskUtils.scheduleSyncRepeatingTask(() -> {
-			if (player.getItemInUse() == null) {
-				ReflectionUtils.setInstantBuild(player, false, false, true);
-				TaskUtils.cancelTask(task[0]);
-			}
-		}, 1L, 1L);
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
-	public void onPlayerInteractEntityEvent(PlayerInteractEntityEvent event) {
-		if (!EntityType.SULFUR_CUBE.equals(event.getRightClicked().getType())) { return; }
-		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("PlayerInteractEntityEvent -> SULFUR_CUBE"); }
-		if (!NoArrowInfinity.hasInstaBuildTag(event.getPlayer())) { return; }
-		event.setCancelled(true); // Prevent item duplication via sulfur cubes
+	public void onPlayerStopUsingItemEvent(PlayerStopUsingItemEvent event) {
+		Player player = event.getPlayer();
+
+		// We don't care if player is already in creative
+		if (player.getGameMode() == GameMode.CREATIVE) { return; }
+
+		// If player stoped using infinity bow continue, means we about to try to shoot an arrow
+		if (!NoArrowInfinity.isInfinityBow(event.getItem())) { return; }
+
+		// Also check if player has arrow, if he does then we don't actually care to do workaround
+		if (NoArrowInfinity.hasArrow(player)) { return; }
+
+		// We need to set instabuild true for server to allow to use bow without any arrows inside the inventory
+		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("PlayerStopUsingItemEvent -> setInstantBuild"); }
+		ReflectionUtils.setInstantBuild(player, true, false, true);
+
+		// Revert this change in the next tick
+		TaskUtils.scheduleSyncDelayedTask(() -> ReflectionUtils.setInstantBuild(player, false, false, true), 0L);
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
@@ -169,16 +168,16 @@ public class Events implements Listener {
 		// The third packet breaks the logic and doesn't allow drawing bow while looking at the ground
 		// So the only way I found was to remove this packet if player is holding infinity bow
 		// BUG: THERE IS NOW A GHOST PLACEMENT WHEN HOLDING BLOCK IN OFFHAND, SINCE SERVER DOESN'T SYNC (KINDA FIXED)
+		// NOTE: INTERACT -> Event for entities (used to prevent sulfur cube interaction)
 
-		// INTERACT -> Event for entities
-		if (!List.of(PacketType.USE_ITEM_ON, PacketType.USE_ITEM).contains(event.getPacketType())) { return; }
-		boolean hasInstaBuildTag = NoArrowInfinity.hasInstaBuildTag(event.getPlayer());
+		if (!List.of(PacketType.USE_ITEM_ON, PacketType.USE_ITEM, PacketType.INTERACT).contains(event.getPacketType())) { return; }
+		boolean hasInstaBuildTag = NoArrowInfinity.hasPlayerInfinityTag(event.getPlayer());
 		boolean isOffhand = EquipmentSlot.OFF_HAND.equals(ReflectionUtils.getUseItemOnEventHand(event.getPacket()));
 
-		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("Packet: " + event.getPacketType() + " | offhand: " + isOffhand + " | instabuild: " + hasInstaBuildTag); }
+		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("Packet: " + event.getPacketType() + " | offhand: " + isOffhand + " | hasPlayerInfinityTag: " + hasInstaBuildTag); }
 		if (hasInstaBuildTag && isOffhand) { event.setCancelled(true); }
 
 		// This fixes shield and swing bug, and also prediction ghost blocks
-		if (!NoArrowInfinity.USE_GHOST_PATCH) { ReflectionUtils.syncPlayer(event.getPlayer(), true, event.getPacket()); }
+		ReflectionUtils.syncPlayer(event.getPlayer(), true, event.getPacket());
 	}
 }

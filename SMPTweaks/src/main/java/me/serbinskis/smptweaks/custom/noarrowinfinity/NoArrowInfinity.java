@@ -2,7 +2,6 @@ package me.serbinskis.smptweaks.custom.noarrowinfinity;
 
 import me.serbinskis.smptweaks.tweaks.CustomTweak;
 import me.serbinskis.smptweaks.utils.PersistentUtils;
-import me.serbinskis.smptweaks.utils.ReflectionUtils;
 import me.serbinskis.smptweaks.utils.TaskUtils;
 import me.serbinskis.smptweaks.utils.Utils;
 import me.serbinskis.smptweaks.Main;
@@ -18,14 +17,12 @@ import java.util.List;
 
 public class NoArrowInfinity extends CustomTweak {
 	public final static String TAG_IS_CREATIVE_ONLY = "SMPTWEAKS_IS_CREATIVE_ONLY";
-	public final static String TAG_IS_INSTABUILD = "SMPTWEAKS_IS_INSTABUILD";
+	public final static String TAG_IS_INFTAG = "SMPTWEAKS_IS_INFTAG";
 	public static List<String> infinity = Arrays.asList("mendfinity", "infinity");
 	public static boolean DEBUG = true;
-	public static boolean USE_GHOST_PATCH = false;
-	public static int GHOST_SLOT = DEBUG ? 8 : 17;
 
 	public NoArrowInfinity() {
-		super(NoArrowInfinity.class, false, false);
+		super(NoArrowInfinity.class, true, false);
 		this.setGameRule("bow_infinity_arrows", true, false);
 		this.setDescription("Allows players to use a bow with infinity without arrows.");
 	}
@@ -65,33 +62,20 @@ public class NoArrowInfinity extends CustomTweak {
 
 		if (isInfinityBow(mainahnd) || (isInfinityBow(offhand) && (mainahnd.getType() != Material.BOW) && (mainahnd.getType() != Material.CROSSBOW))) {
 			boolean hasArrow = hasArrow(player);
-			setInstaBuildTag(player, !hasArrow);
-			if (!offhand.getType().equals(Material.AIR)) { setGhostArrow(player, !hasArrow); };
-			ReflectionUtils.setInstantBuild(player, !hasArrow, false, false); // YEAH, THIS DOES ABSOLUTELY NOTHING BTW
-			//if (DEBUG) { Utils.sendMessage(ReflectionUtils.getPlayerAbilities(player).instabuild); }
+			setPlayerInfinityTag(player, !hasArrow);
 		} else {
 			if (player.getItemInUse() != null) { return; }
-			setInstaBuildTag(player, false);
-			setGhostArrow(player, false);
-			ReflectionUtils.setInstantBuild(player, false, true, true);
-			//if (DEBUG) { Utils.sendMessage(ReflectionUtils.getPlayerAbilities(player).instabuild); }
+			setPlayerInfinityTag(player, false);
 		}
 	}
 
-	@SuppressWarnings("removal")
-	public static void setGhostArrow(Player player, boolean ghost) {
-		if (!USE_GHOST_PATCH) { return; }
-		if (ghost) { ReflectionUtils.setGhostItem(player, new ItemStack(Material.ARROW), GHOST_SLOT); }
-		if (!ghost && player.getItemInUse() == null) { player.updateInventory(); }
+	public static void setPlayerInfinityTag(Player player, boolean inftag) {
+		if (inftag) { PersistentUtils.setPersistentDataBoolean(player, TAG_IS_INFTAG, inftag); }
+		if (!inftag) { PersistentUtils.removePersistentData(player, TAG_IS_INFTAG); }
 	}
 
-	public static void setInstaBuildTag(Player player, boolean instabuild) {
-		if (instabuild) { PersistentUtils.setPersistentDataBoolean(player, TAG_IS_INSTABUILD, instabuild); }
-		if (!instabuild) { PersistentUtils.removePersistentData(player, TAG_IS_INSTABUILD); }
-	}
-
-	public static boolean hasInstaBuildTag(Player player) {
-		return PersistentUtils.hasPersistentDataBoolean(player, TAG_IS_INSTABUILD);
+	public static boolean hasPlayerInfinityTag(Player player) {
+		return PersistentUtils.hasPersistentDataBoolean(player, TAG_IS_INFTAG);
 	}
 
 	public static boolean isInfinityBow(ItemStack item) {
