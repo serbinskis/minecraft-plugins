@@ -54,6 +54,7 @@ public class Events implements Listener {
 		if (hasInfinityMainHand && isOffhand) { event.setCancelled(true); }
 
 		// This fixes shield and swing bug, and also prediction ghost blocks
+		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("PacketEvent -> setCancelled(true)"); }
 		ReflectionUtils.syncPlayer(event.getPlayer(), true, event.getPacket());
 	}
 
@@ -89,7 +90,8 @@ public class Events implements Listener {
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("PlayerInteractEvent -> startUsingItem()"); }
 
 		// Start using item, aka the bow
-		//event.getPlayer().startUsingItem(event.getHand());
+		event.getPlayer().startUsingItem(event.getHand());
+		//event.setCancelled(false);
 
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("isCancelled: " + event.isCancelled()); }
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("useItemInHand: " + event.useItemInHand()); }
