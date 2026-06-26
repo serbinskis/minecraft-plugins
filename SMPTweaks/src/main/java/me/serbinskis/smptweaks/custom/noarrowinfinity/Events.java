@@ -49,6 +49,7 @@ public class Events implements Listener {
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlayerInteractEvent(PlayerInteractEvent event) {
 		// NOTE: There is still no way to prevent ghost swings, even with fully blocked OFF_HAND it still swings it
+		// NOTE This is in case if main hand is bow and offhand is block
 
 		Player player = event.getPlayer();
 		if ((player.getGameMode() == GameMode.CREATIVE) || (event.getHand() == null)) { return; }
