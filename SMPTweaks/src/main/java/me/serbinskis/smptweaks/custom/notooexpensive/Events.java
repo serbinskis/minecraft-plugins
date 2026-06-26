@@ -15,6 +15,7 @@ import org.bukkit.event.inventory.*;
 import org.bukkit.inventory.AnvilInventory;
 
 public class Events implements Listener {
+	@SuppressWarnings("removal")
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPrepareAnvilEvent(PrepareAnvilEvent event) {
 		World world = event.getInventory().getLocation().getWorld();
@@ -30,6 +31,7 @@ public class Events implements Listener {
 		event.getInventory().setMaximumRepairCost(Integer.MAX_VALUE);
 	}
 
+	@SuppressWarnings("removal")
 	@EventHandler(priority = EventPriority.MONITOR)
 	public static void onInventoryClickEvent(InventoryClickEvent event) {
 		if (!(event.getInventory() instanceof AnvilInventory inventory)) { return; }
@@ -49,6 +51,7 @@ public class Events implements Listener {
 		ReflectionUtils.setInstantBuild((Player) event.getWhoClicked(), false, true, false);
 	}
 
+	@SuppressWarnings("removal")
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onInventoryOpenEvent(InventoryOpenEvent event) {
 		if (event.getInventory().getType() != InventoryType.ANVIL) { return; }
