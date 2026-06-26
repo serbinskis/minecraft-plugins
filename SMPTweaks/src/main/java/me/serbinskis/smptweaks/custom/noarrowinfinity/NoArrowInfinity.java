@@ -9,12 +9,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.checkerframework.checker.units.qual.N;
 
 import java.util.*;
 
 public class NoArrowInfinity extends CustomTweak {
-	public final static String TAG_IS_CREATIVE_ONLY = "SMPTWEAKS_IS_CREATIVE_ONLY";
 	public static List<String> infinity = Arrays.asList("mendfinity", "infinity");
 	public static HashMap<UUID, Integer> delayed = new HashMap<>();
 	public static boolean DEBUG = true;

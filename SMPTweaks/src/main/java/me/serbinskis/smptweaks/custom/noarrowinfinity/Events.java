@@ -1,13 +1,9 @@
 package me.serbinskis.smptweaks.custom.noarrowinfinity;
 
 import io.papermc.paper.event.player.PlayerStopUsingItemEvent;
-import me.serbinskis.smptweaks.utils.PersistentUtils;
 import me.serbinskis.smptweaks.utils.ReflectionUtils;
-import me.serbinskis.smptweaks.utils.TaskUtils;
 import me.serbinskis.smptweaks.utils.Utils;
 import org.bukkit.GameMode;
-import org.bukkit.Material;
-import org.bukkit.entity.AbstractArrow.PickupStatus;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -15,15 +11,40 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityShootBowEvent;
-import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerPickupArrowEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 public class Events implements Listener {
+	/*@EventHandler(priority = EventPriority.LOWEST)
+	public void onPacketEvent(PacketEvent event) {
+		// When in creative mode client only sends 2 packets: USE_ITEM_ON (MAINHAND) -> USE_ITEM
+		// But if in survival we receive 3 packets: USE_ITEM_ON (MAINHAND) -> USE_ITEM -> USE_ITEM_ON (OFFHAND)
+		// The third packet breaks the visuals making it use offhand item while also drawing bow
+		// The only way I found right now is to just cancel the third packet and do manual sync
+
+		// We only are interested in preventing third packet for offhand interaction
+		if (!List.of(PacketType.USE_ITEM_ON, PacketType.USE_ITEM).contains(event.getPacketType())) { return; }
+
+		// Check if player has infinity bow in main hand and also has no arrows
+		@NotNull ItemStack mainHandItem = event.getPlayer().getInventory().getItem(EquipmentSlot.HAND);
+		boolean hasInfinityMainHand = NoArrowInfinity.isInfinityBow(mainHandItem) && !NoArrowInfinity.hasArrow(event.getPlayer());
+
+		// In that case we check if this packet is for offhand
+		boolean isOffhand = EquipmentSlot.OFF_HAND.equals(ReflectionUtils.getUseItemOnEventHand(event.getPacket()));
+
+		// If so this packet the third offhand packet
+		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("Packet: " + event.getPacketType() + " | offhand: " + isOffhand + " | hasInfinityMainHand: " + hasInfinityMainHand); }
+		if (hasInfinityMainHand && isOffhand) { event.setCancelled(true); }
+
+		// This fixes shield and swing bug, and also prediction ghost blocks
+		if (NoArrowInfinity.DEBUG && event.isCancelled()) { Utils.sendMessage("PacketEvent -> setCancelled(true)"); }
+		ReflectionUtils.syncPlayer(event.getPlayer(), true, event.getPacket());
+	}*/
+
 	@SuppressWarnings("removal")
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlayerInteractEvent(PlayerInteractEvent event) {
@@ -45,7 +66,7 @@ public class Events implements Listener {
 		if (hasInfinityMainHand && EquipmentSlot.OFF_HAND.equals(event.getHand())) {
 			if (NoArrowInfinity.DEBUG) { Utils.sendMessage("PlayerInteractEvent -> catch third packet"); }
 			event.getPlayer().startUsingItem(EquipmentSlot.HAND);
-			event.setCancelled(true); // This also sets both block and hand interactiosn to deny
+			event.setCancelled(true); // This also sets both block and hand interaction to deny
 			return;
 		}
 
@@ -55,7 +76,7 @@ public class Events implements Listener {
 		// If we are trying to use bow then start using it
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("PlayerInteractEvent -> startUsingItem()"); }
 
-		// Sync visual to prevent client from visually using offhand instead of main hand
+		// Sync visual to prevent client from visually using offhand instead of main hand (IDK HOW THIS WORKS)
 		ReflectionUtils.syncPlayer(event.getPlayer(), false, null);
 
 		// Start using item, aka the bow
@@ -64,7 +85,16 @@ public class Events implements Listener {
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("isCancelled: " + event.isCancelled()); }
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("useItemInHand: " + event.useItemInHand()); }
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("useInteractedBlock: " + event.useInteractedBlock()); }
+	}
 
+	@SuppressWarnings("removal")
+	@EventHandler(priority = EventPriority.LOWEST)
+	public void onInventoryOpenEvent(InventoryOpenEvent event) {
+		// Check if we are currently using infinity bow
+		if (!NoArrowInfinity.isInfinityBow(event.getPlayer().getItemInUse())) { return; }
+
+		// Stop using infinity bow when opening inventory
+		event.getPlayer().clearActiveItem();
 	}
 
 	@SuppressWarnings("removal")
@@ -76,7 +106,7 @@ public class Events implements Listener {
 		// Then check if we are currently using infinity bow
 		if (!NoArrowInfinity.isInfinityBow(event.getPlayer().getItemInUse())) { return; }
 
-		// And if we are using infinity bow then using offhand is not allowed
+		// And if we are using infinity bow then using offhand on entities is not allowed
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("PlayerInteractEntityEvent -> setCancelled(true)"); }
 		event.setCancelled(true);
 	}
@@ -88,7 +118,7 @@ public class Events implements Listener {
 		// We don't care if player is already in creative
 		if (player.getGameMode() == GameMode.CREATIVE) { return; }
 
-		// If player stoped using infinity bow continue, means we about to try to shoot an arrow
+		// If player stopped using infinity bow continue, means we about to try to shoot an arrow
 		if (!NoArrowInfinity.isInfinityBow(event.getItem())) { return; }
 
 		// Also check if player has arrow, if he does then we don't actually care to do workaround
@@ -98,56 +128,17 @@ public class Events implements Listener {
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("PlayerStopUsingItemEvent -> setInstantBuild"); }
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("======================================="); }
 
-		// Set instabuild and revert this change in the next tick
+		// Set instabuild and revert this change in the next tick or inside EntityShootBowEvent
 		NoArrowInfinity.setInstantBuild(event.getPlayer(), true);
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onEntityShootBowEvent(EntityShootBowEvent event) {
+		// Check if player is shooting a bow without any consumable item stack
 		if (!(event.getEntity() instanceof Player player)) { return; }
 		if (!(event.getProjectile() instanceof Arrow) || (event.getConsumable() == null)) { return; }
 
-		// Fix infinite bow durability & tipped arrow bug
+		// Fix infinite bow durability & tipped arrow bug, aka, just remove instabuild after shooting bow
 		if (player.getGameMode() != GameMode.CREATIVE) { NoArrowInfinity.setInstantBuild(player, false); }
-
-		// Set isCreativeOnly if player is using infinity bow and arrow is normal arrow
-		if (NoArrowInfinity.isInfinityBow(event.getBow()) && (event.getConsumable().getType() == Material.ARROW)) {
-			PersistentUtils.setPersistentDataBoolean(event.getProjectile(), NoArrowInfinity.TAG_IS_CREATIVE_ONLY, true);
-		}
-
-		// Delay just in case if other plugins change pickup status
-		TaskUtils.scheduleSyncDelayedTask(() -> {
-			Arrow arrow = (Arrow) event.getProjectile();
-			if (arrow.getPickupStatus() != PickupStatus.CREATIVE_ONLY) { return; }
-			arrow.setPickupStatus(PickupStatus.ALLOWED);
-			PersistentUtils.setPersistentDataBoolean(event.getProjectile(), NoArrowInfinity.TAG_IS_CREATIVE_ONLY, true);
-		}, 1L);
-	}
-
-	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-	public void onProjectileLaunchEvent(ProjectileLaunchEvent event) {
-		if (!(event.getEntity() instanceof Arrow)) { return; }
-
-		TaskUtils.scheduleSyncDelayedTask(() -> {
-			Arrow arrow = (Arrow) event.getEntity();
-			if (arrow.getPickupStatus() != PickupStatus.CREATIVE_ONLY) { return; }
-			arrow.setPickupStatus(PickupStatus.ALLOWED);
-			PersistentUtils.setPersistentDataBoolean(event.getEntity(), NoArrowInfinity.TAG_IS_CREATIVE_ONLY, true);
-		}, 1L);
-	}
-
-	// If arrow is CREATIVE_ONLY then PlayerPickupArrowEvent will not fire (fuck you bukkit)
-	// So instead I implemented my own way of handling CREATIVE_ONLY arrows
-	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-	public void onPlayerPickupArrow(PlayerPickupArrowEvent event) {
-		if (!PersistentUtils.hasPersistentDataBoolean(event.getArrow(), NoArrowInfinity.TAG_IS_CREATIVE_ONLY)) { return; }
-
-		// If player in creative allow them pickup arrows
-		if (event.getPlayer().getGameMode() == GameMode.CREATIVE) {
-			event.getArrow().setPickupStatus(PickupStatus.CREATIVE_ONLY);
-		} else {
-			// Otherwise cancel event
-			event.setCancelled(true);
-		}
 	}
 }
