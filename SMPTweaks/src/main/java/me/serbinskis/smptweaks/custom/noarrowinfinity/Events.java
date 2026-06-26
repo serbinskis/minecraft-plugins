@@ -65,6 +65,7 @@ public class Events implements Listener {
 		// In case if we have bow with infinity in main hand, but trying to use offhand, prevent event
 		if (hasInfinityMainHand && EquipmentSlot.OFF_HAND.equals(event.getHand())) {
 			if (NoArrowInfinity.DEBUG) { Utils.sendMessage("PlayerInteractEvent -> catch third packet"); }
+			event.getPlayer().startUsingItem(EquipmentSlot.HAND); // Needed when right-clicking block
 			event.setCancelled(true); // This also sets both block and hand interaction to deny
 			return;
 		}
