@@ -37,8 +37,8 @@ public class Events implements Listener {
 		if (villager.getVillagerLevel() > 1) { return; }
 		if (villager.getVillagerExperience() > 0) { return; }
 
-		//Remove first item, which should be cycle_trade, and replace it with cycle_trade_disabled
-		//When closing inventory it should be removed automatically
+		// Remove first item, which should be cycle_trade, and replace it with cycle_trade_disabled
+		// When closing inventory it should be removed automatically
 
 		TaskUtils.scheduleSyncDelayedTask(() -> {
 			if (villager.getTrader() == null) { return; }
