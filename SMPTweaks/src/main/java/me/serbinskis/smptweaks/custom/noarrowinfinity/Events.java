@@ -80,15 +80,15 @@ public class Events implements Listener {
 		// Sync visual to prevent client from visually using offhand instead of main hand (IDK HOW THIS WORKS)
 		ReflectionUtils.syncPlayer(event.getPlayer(), false, null);
 
-		// Start using item, aka the bow
-		//event.getPlayer().startUsingItem(event.getHand());
-		NoArrowInfinity.doInstantBuild(event.getPlayer(), true);
-
 		// NOTE: Using doInstantBuild(), allows same tick exploit frame, in which modified clients
 		// NOTE: can send multiple packets and exploit instabuild flag to for example duplicate items
 
 		// NOTE: Using startUsingItem(), the block interactions like right clicking bell
 		// NOTE: will not prevent bow from drawing like in standard creative mode
+
+		// Start using item, aka the bow
+		//event.getPlayer().startUsingItem(event.getHand());
+		NoArrowInfinity.doInstantBuild(event.getPlayer(), true);
 
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("isCancelled: " + event.isCancelled()); }
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("useItemInHand: " + event.useItemInHand()); }
