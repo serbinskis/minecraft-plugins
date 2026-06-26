@@ -82,6 +82,9 @@ public class Events implements Listener {
 		// Start using item, aka the bow
 		event.getPlayer().startUsingItem(event.getHand());
 
+		// NOTE: Since we are manually starting using item, the block interactions like right clicking lever
+		// NOTE: will not prevent bow from drawing like in standard creative mode
+
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("isCancelled: " + event.isCancelled()); }
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("useItemInHand: " + event.useItemInHand()); }
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("useInteractedBlock: " + event.useInteractedBlock()); }
