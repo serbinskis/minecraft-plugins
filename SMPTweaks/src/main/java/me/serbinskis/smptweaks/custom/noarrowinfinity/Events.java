@@ -170,6 +170,7 @@ public class Events implements Listener {
 		// So the only way I found was to remove this packet if player is holding infinity bow
 		// BUG: THERE IS NOW A GHOST PLACEMENT WHEN HOLDING BLOCK IN OFFHAND, SINCE SERVER DOESN'T SYNC (KINDA FIXED)
 
+		// INTERACT -> Event for entities
 		if (!List.of(PacketType.USE_ITEM_ON, PacketType.USE_ITEM).contains(event.getPacketType())) { return; }
 		boolean hasInstaBuildTag = NoArrowInfinity.hasInstaBuildTag(event.getPlayer());
 		boolean isOffhand = EquipmentSlot.OFF_HAND.equals(ReflectionUtils.getUseItemOnEventHand(event.getPacket()));
