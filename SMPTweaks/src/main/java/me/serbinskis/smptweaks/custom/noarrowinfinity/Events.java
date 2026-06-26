@@ -1,7 +1,10 @@
 package me.serbinskis.smptweaks.custom.noarrowinfinity;
 
 import io.papermc.paper.event.player.PlayerStopUsingItemEvent;
+import me.serbinskis.smptweaks.library.tinyprotocol.PacketEvent;
+import me.serbinskis.smptweaks.library.tinyprotocol.PacketType;
 import me.serbinskis.smptweaks.utils.PersistentUtils;
+import me.serbinskis.smptweaks.utils.ReflectionUtils;
 import me.serbinskis.smptweaks.utils.TaskUtils;
 import me.serbinskis.smptweaks.utils.Utils;
 import org.bukkit.GameMode;
@@ -23,9 +26,37 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 public class Events implements Listener {
 	// When player starts using bow on client side we get interaction event
 	// So we can also set instant build on server side for moment when player shoots
+
+	@EventHandler(priority = EventPriority.LOWEST)
+	public void onPacketEvent(PacketEvent event) {
+		// When in creative mode client only sends 2 packets: USE_ITEM_ON (MAINHAND) -> USE_ITEM
+		// But if in survival we receive 3 packets: USE_ITEM_ON (MAINHAND) -> USE_ITEM -> USE_ITEM_ON (OFFHAND)
+		// The third packet breaks the visuals making it use offhand item while also drawing bow
+		// The only way I found right now is to just cancel the third packet and do manual sync
+
+		// We only are interested in preventing third packet for offhand interaction
+		if (!List.of(PacketType.USE_ITEM_ON, PacketType.USE_ITEM).contains(event.getPacketType())) { return; }
+
+		// Check if player has infinity bow in main hand and also has no arrows
+		@NotNull ItemStack mainHandItem = event.getPlayer().getInventory().getItem(EquipmentSlot.HAND);
+		boolean hasInfinityMainHand = NoArrowInfinity.isInfinityBow(mainHandItem) && !NoArrowInfinity.hasArrow(event.getPlayer());
+
+		// In that case we check if this packet is for offhand
+		boolean isOffhand = EquipmentSlot.OFF_HAND.equals(ReflectionUtils.getUseItemOnEventHand(event.getPacket()));
+
+		// If so this packet the third offhand packet
+		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("Packet: " + event.getPacketType() + " | offhand: " + isOffhand + " | hasInfinityMainHand: " + hasInfinityMainHand); }
+		if (hasInfinityMainHand && isOffhand) { event.setCancelled(true); }
+
+		// This fixes shield and swing bug, and also prediction ghost blocks
+		ReflectionUtils.syncPlayer(event.getPlayer(), true, event.getPacket());
+	}
+
 	@SuppressWarnings("removal")
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlayerInteractEvent(PlayerInteractEvent event) {
@@ -34,7 +65,7 @@ public class Events implements Listener {
 
 		// Ignore left click, we don't care about block breaking
 		if (Action.LEFT_CLICK_BLOCK.equals(event.getAction())) { return; }
-		if (NoArrowInfinity.DEBUG) { Utils.sendMessage(event.getAction() + " | " + event.getHand()); }
+		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("PlayerInteractEvent -> " + event.getAction() + " | " + event.getHand()); }
 
 		@NotNull ItemStack mainHandItem = player.getInventory().getItem(EquipmentSlot.HAND);
 		boolean hasInfinityMainHand = NoArrowInfinity.isInfinityBow(mainHandItem) && !NoArrowInfinity.hasArrow(player);
@@ -45,7 +76,6 @@ public class Events implements Listener {
 		if (hasInfinityMainHand && EquipmentSlot.OFF_HAND.equals(event.getHand())) {
 			if (NoArrowInfinity.DEBUG) { Utils.sendMessage("PlayerInteractEvent -> catch third packet"); }
 			event.getPlayer().startUsingItem(EquipmentSlot.HAND);
-			event.setUseItemInHand(Event.Result.DENY);
 			event.setUseItemInHand(Event.Result.DENY);
 			event.setUseInteractedBlock(Event.Result.DENY);
 			event.setCancelled(true);
@@ -59,7 +89,7 @@ public class Events implements Listener {
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("PlayerInteractEvent -> startUsingItem()"); }
 
 		// Start using item, aka the bow
-		event.getPlayer().startUsingItem(event.getHand());
+		//event.getPlayer().startUsingItem(event.getHand());
 
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("isCancelled: " + event.isCancelled()); }
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("useItemInHand: " + event.useItemInHand()); }
@@ -67,6 +97,7 @@ public class Events implements Listener {
 
 	}
 
+	@SuppressWarnings("removal")
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlayerInteractEntityEvent(PlayerInteractEntityEvent event) {
 		// First check if we are trying to use off hand
