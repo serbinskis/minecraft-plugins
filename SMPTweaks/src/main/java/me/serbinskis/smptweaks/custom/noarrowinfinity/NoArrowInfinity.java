@@ -15,7 +15,7 @@ import java.util.*;
 public class NoArrowInfinity extends CustomTweak {
 	public static List<String> infinity = Arrays.asList("mendfinity", "infinity");
 	public static HashMap<UUID, Integer> delayed = new HashMap<>();
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 
 	public NoArrowInfinity() {
 		super(NoArrowInfinity.class, true, false);
