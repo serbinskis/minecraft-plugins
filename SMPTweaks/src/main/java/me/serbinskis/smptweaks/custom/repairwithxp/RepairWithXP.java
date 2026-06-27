@@ -42,28 +42,28 @@ public class RepairWithXP extends CustomTweak {
 
 	@SuppressWarnings("deprecation")
 	public void checkPlayer(Player player) {
-		//Check if player is sneaking
+		// Check if player is sneaking
 		if (!player.isSneaking()) { return; }
 
-		//Check if gamerule enabled
+		// Check if gamerule enabled
 		if (!this.getGameRuleBoolean(player.getWorld())) { return; }
 
-		//Check if player has enough exp
+		// Check if player has enough exp
 		if (Utils.getPlayerExp(player) < amountXP) { return; }
 
-		//Get player offhand item
+		// Get player offhand item
 		ItemStack offHand = player.getInventory().getItemInOffHand();
 
-		//Check if item is damaged
+		// Check if item is damaged
 		if (offHand.getDurability() <= 0) { return; }
 
-		//Check if item has mending
+		// Check if item has mending
 		if (!Utils.containsEnchantment(offHand, mendings)) { return; }
 
-		//Remove specific amount of XP from player
+		// Remove specific amount of XP from player
 		player.giveExp(-amountXP);
 
-		//Spawn XP orb with specific amount of XP
+		// Spawn XP orb with specific amount of XP
 		ExperienceOrb orb = player.getWorld().spawn(player.getLocation(), ExperienceOrb.class);
 		orb.setExperience(amountXP);
 	}
