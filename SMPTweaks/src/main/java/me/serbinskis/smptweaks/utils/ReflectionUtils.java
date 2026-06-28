@@ -588,7 +588,7 @@ public class ReflectionUtils {
 		if (clientSide) {
 			Abilities copy = new Abilities();
 			copy.apply(abilities.pack());
-			abilities.instabuild = instantbuild;
+			copy.instabuild = instantbuild;
 			sendPacket(player, new ClientboundPlayerAbilitiesPacket(copy));
 		}
 
