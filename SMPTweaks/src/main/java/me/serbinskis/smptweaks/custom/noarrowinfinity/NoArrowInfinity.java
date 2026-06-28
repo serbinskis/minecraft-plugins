@@ -50,7 +50,7 @@ public class NoArrowInfinity extends CustomTweak {
 		UUID playerId = player.getUniqueId();
 
 		// In case if task already exists finish it
-		Integer taskId = NoArrowInfinity.delayed.remove(playerId);
+		Integer taskId = delayed.remove(playerId);
 		if (taskId != null) { TaskUtils.finishTask(taskId); }
 
 		// In case if we are only checking existing tasks
@@ -59,10 +59,14 @@ public class NoArrowInfinity extends CustomTweak {
 		// Create new delayed task for instabuild reversion
 		taskId = TaskUtils.scheduleSyncDelayedTask(() -> {
 			ReflectionUtils.setInstantBuild(player, false, false, true);
-			NoArrowInfinity.delayed.remove(playerId);
+			delayed.remove(playerId);
 		}, 0L);
 
 		ReflectionUtils.setInstantBuild(player, true, false, true);
-		NoArrowInfinity.delayed.put(playerId, taskId);
+		delayed.put(playerId, taskId);
+	}
+
+	public static boolean hasInstantBuild(Player player) {
+		return delayed.containsKey(player.getUniqueId());
 	}
 }

@@ -600,7 +600,7 @@ public class ReflectionUtils {
 	public static void syncPlayer(Player player, boolean syncBlockPrediction, @Nullable Object packet) {
 		ServerPlayer serverPlayer = getEntityPlayer(player);
 		serverPlayer.resyncUsingItem(serverPlayer);
-		serverPlayer.containerMenu.sendAllDataToRemote();
+		player.updateInventory(); // serverPlayer.containerMenu.sendAllDataToRemote();
 
 		// net.minecraft.server.network.ServerGamePacketListenerImpl#tick()
 		// net.minecraft.server.network.ServerGamePacketListenerImpl#ackBlockChangesUpTo()

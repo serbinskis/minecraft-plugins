@@ -10,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
@@ -78,6 +79,8 @@ public class Events implements Listener {
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("PlayerInteractEvent -> startUsingItem()"); }
 
 		// Sync visual to prevent client from visually using offhand instead of main hand (IDK HOW THIS WORKS)
+		// setPlayerProfile() -> this.refreshPlayer() -> sendAllPlayerInfo() -> refreshEntityData()
+		//event.getPlayer().setPlayerProfile(event.getPlayer().getPlayerProfile());
 		ReflectionUtils.syncPlayer(event.getPlayer(), false, null);
 
 		// NOTE: Using doInstantBuild(), allows same tick exploit frame, in which modified clients
@@ -103,6 +106,15 @@ public class Events implements Listener {
 
 		// Stop using infinity bow when opening inventory
 		event.getPlayer().clearActiveItem();
+	}
+
+	@EventHandler(priority = EventPriority.LOWEST)
+	public void onBlockBreakEvent(BlockBreakEvent event) {
+		// This is in case for that same tick exploit frame
+		if (!NoArrowInfinity.hasInstantBuild(event.getPlayer())) { return; }
+
+		// To prevent instabreak in case of using bow and somehow breaking block at the same time
+		event.setCancelled(true);
 	}
 
 	@SuppressWarnings("removal")
