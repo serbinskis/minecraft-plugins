@@ -152,7 +152,7 @@ public class Events implements Listener {
 		NoArrowInfinity.doInstantBuild(event.getPlayer(), true);
 	}
 
-	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onEntityShootBowEvent(EntityShootBowEvent event) {
 		// Check if player is shooting a bow without any consumable item stack
 		if (!(event.getEntity() instanceof Player player)) { return; }
