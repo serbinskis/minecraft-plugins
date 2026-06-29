@@ -79,7 +79,7 @@ public class Events implements Listener {
 		if (NoArrowInfinity.DEBUG) { Utils.sendMessage("PlayerInteractEvent -> startUsingItem()"); }
 
 		// Sync visual to prevent client from visually using offhand instead of main hand (IDK HOW THIS WORKS)
-		// NOTE: I checked, there is no any API that would allow to sync this data without using NMS
+		// NOTE: I checked, there is no any exposed API that would allow to sync this data without using NMS
 		// NMS: syncPlayer() -> serverPlayer.resyncUsingItem(serverPlayer) -> resendPossiblyDesyncedDataValues() -> ClientboundSetEntityDataPacket()
 		ReflectionUtils.syncPlayer(event.getPlayer(), false, null);
 
