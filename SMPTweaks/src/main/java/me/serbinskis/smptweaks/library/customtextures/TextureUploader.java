@@ -61,7 +61,7 @@ public class TextureUploader {
             return;
         }
 
-        Utils.sendMessage("[SMPTweaks] Successfully uploaded custom resource pack to: " + RESOURCE_PACK_URL);
+        Utils.sendMessage("[SMPTweaks] Successfully uploaded custom resource pack (MAJOR: " + TextureGenerator.PACK_FORMAT + ") to: " + RESOURCE_PACK_URL);
         setter.accept(RESOURCE_PACK_URL);
     }
 
@@ -87,7 +87,7 @@ public class TextureUploader {
             return;
         }
 
-        Utils.sendMessage("[SMPTweaks] Successfully uploaded custom resource pack to: " + RESOURCE_PACK_URL);
+        Utils.sendMessage("[SMPTweaks] Successfully uploaded custom resource pack (MAJOR: " + TextureGenerator.PACK_FORMAT + ") to: " + RESOURCE_PACK_URL);
         setter.accept(RESOURCE_PACK_URL);
     }
 
@@ -113,7 +113,7 @@ public class TextureUploader {
         }
 
         updateCdnRedirect(setter);
-        Utils.sendMessage("[SMPTweaks] Successfully uploaded custom resource pack to: " + RESOURCE_PACK_URL);
+        Utils.sendMessage("[SMPTweaks] Successfully uploaded custom resource pack (MAJOR: " + TextureGenerator.PACK_FORMAT + ") to: " + RESOURCE_PACK_URL);
     }
 
     private static void updateCdnRedirect(Consumer<String> setter) {

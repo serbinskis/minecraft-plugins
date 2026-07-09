@@ -5,6 +5,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.logging.LogUtils;
 import io.netty.channel.*;
 import io.netty.channel.embedded.EmbeddedChannel;
+import net.minecraft.SharedConstants;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.DisplayInfo;
 import net.minecraft.commands.CacheableFunction;
@@ -825,6 +826,10 @@ public class ReflectionUtils {
 		Field ResourceLocation_path = getField(Identifier.class, String.class, null, resourceLocation, resourceLocation.getPath(), true, null, Modifier.STATIC);
 		setValue(ResourceLocation_namespace, resourceLocation, namespace);
 		setValue(ResourceLocation_path, resourceLocation, path);
+	}
+
+	public static int getMajorPackFormat() {
+		return SharedConstants.getCurrentVersion().packVersion(net.minecraft.server.packs.PackType.CLIENT_RESOURCES).major();
 	}
 
 	// Simulate shift+click on specific slot on opened inventory
