@@ -101,20 +101,20 @@ public class VillagerUtils {
         InventoryView inventoryView = player.openMerchant(villager, force);
         if ((inventoryView == null) || !(inventoryView.getTopInventory() instanceof MerchantInventory)) { return -1; }
 
-        //In case if we don't have required resources add them
+        // In case if we don't have required resources add them
         MerchantRecipe recipe = villager.getRecipes().get(trade);
         Stream<ItemStack> itemStream = recipe.getIngredients().stream().map(i -> i.add(999));
         itemStream.forEach(player.getInventory()::addItem);
 
-        //Select trade and move item from result, to trigger trade
+        // Select trade and move item from result, to trigger trade
         ReflectionUtils.selectTrade(player, trade);
         ReflectionUtils.quickMoveStack(player, 2);
 
-        //Close inventory and clear it if player is fake
+        // Close inventory and clear it if player is fake
         player.closeInventory();
         if (FakePlayer.isFakePlayer(player)) { player.getInventory().clear(); }
 
-        //net.minecraft.world.entity.npc.Villager#rewardTradeXp
+        // net.minecraft.world.entity.npc.Villager#rewardTradeXp
         AtomicInteger experience = new AtomicInteger(); //Count all the xp orb's experience and remove them
         List<ExperienceOrb> orbsList = Utils.getNearbyEntities(villager.getLocation().add(0, 0.5, 0), ExperienceOrb.class, 0.05, false); //Get xp orbs around the villager
         orbsList = orbsList.stream().filter(orb -> player.getUniqueId().equals(orb.getSourceEntityId())).toList();
@@ -123,15 +123,15 @@ public class VillagerUtils {
         return experience.get();
     }
 
-    //Reference: net.minecraft.world.entity.npc.Villager@updateSpecialPrices(Player player)
-    //Reference: net.minecraft.world.entity.ai.gossip.GossipType
-    //They do reset automatically when inventory is closed
+    // Reference: net.minecraft.world.entity.npc.Villager@updateSpecialPrices(Player player)
+    // Reference: net.minecraft.world.entity.ai.gossip.GossipType
+    // They do reset automatically when inventory is closed
     public static void updateSpecialPrices(Player player, Villager villager) {
         int playerReputation = ReflectionUtils.getPlayerReputation(villager, player);
         List<MerchantRecipe> recipes = villager.getRecipes();
 
         for (MerchantRecipe merchantRecipe : recipes) {
-            merchantRecipe.setSpecialPrice(0); //Reset prices
+            merchantRecipe.setSpecialPrice(0); // Reset prices
             if (merchantRecipe.shouldIgnoreDiscounts()) { continue; }
             int specialPrice = (int) (merchantRecipe.getSpecialPrice() - Math.floor(playerReputation * merchantRecipe.getPriceMultiplier()));
             merchantRecipe.setSpecialPrice(specialPrice);
