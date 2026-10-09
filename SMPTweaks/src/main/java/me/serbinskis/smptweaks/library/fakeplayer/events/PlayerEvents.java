@@ -32,13 +32,13 @@ public class PlayerEvents implements Listener {
 	public void onPlayerTeleportEvent(PlayerTeleportEvent event) {
 		if (!FakePlayer.isFakePlayer(event.getPlayer())) { return; }
 		if (!allowTeleport) { event.setTo(event.getFrom()); }
-		event.setCancelled(allowTeleport); //For some reason this doesn't work
+		event.setCancelled(allowTeleport); // For some reason this doesn't work
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerAdvancementDoneEvent(PlayerAdvancementDoneEvent event) {
 		if (!FakePlayer.isFakePlayer(event.getPlayer()) || NoAdvancements.tweak.isEnabled()) { return; }
-		new Events().onPlayerAdvancementDoneEvent(event);
+		new Events().onPlayerAdvancementDoneEvent(event); // Something something, I don't remember, but probably related to scheduled task
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)

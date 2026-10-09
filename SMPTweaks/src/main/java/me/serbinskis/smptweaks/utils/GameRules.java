@@ -1,20 +1,21 @@
 package me.serbinskis.smptweaks.utils;
 
+import com.mojang.brigadier.arguments.StringArgumentType;
+import io.papermc.paper.command.brigadier.Commands;
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import me.serbinskis.smptweaks.Main;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
+import org.bukkit.command.BlockCommandSender;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.plugin.Plugin;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class GameRules implements Listener {
 	private static final HashMap<String, Object> rules = new HashMap<>();
@@ -76,42 +77,96 @@ public class GameRules implements Listener {
 		return null;
 	}
 
-	public static boolean sendGameRule(Player player, String name) {
+	public static boolean sendGameRule(CommandSender sender, String name) {
 		Object object = rules.get(name);
 
 		if (object.getClass().equals(Boolean.class)) {
-			boolean value = getGameRule(player.getWorld(), name);
-			Utils.sendMessage(player, String.format("Gamerule %s is currently set to: %b", name, value));
+			boolean value = getGameRule(resolveWorld(sender), name);
+			Utils.sendMessage(sender, String.format("Gamerule %s is currently set to: %b", name, value));
 			return true;
 		}
 
 		if (object.getClass().equals(Integer.class)) {
-			int value = getGameRule(player.getWorld(), name);
-			Utils.sendMessage(player, String.format("Gamerule %s is currently set to: %d", name, value));
+			int value = getGameRule(resolveWorld(sender), name);
+			Utils.sendMessage(sender, String.format("Gamerule %s is currently set to: %d", name, value));
 			return true;
 		}
 
 		return false;
 	}
 
-	public static boolean queryGameRule(Player player, String name, String value) {
+	public static boolean queryGameRule(CommandSender sender, String name, String value) {
 		Object object = rules.get(name);
 
 		if (object.getClass().equals(Boolean.class)) {
 			if (!value.equals("true") && !value.equals("false")) { return false; }
-			setGameRule(player.getWorld(), name, Boolean.valueOf(value));
-			Utils.sendMessage(player, String.format("Gamerule %s is now set to: %s", name, value));
+			setGameRule(resolveWorld(sender), name, Boolean.valueOf(value));
+			Utils.sendMessage(sender, String.format("Gamerule %s is now set to: %s", name, value));
 			return true;
 		}
 
 		if (object.getClass().equals(Integer.class)) {
 			if ((value.length()) > 9 || !value.matches("-?\\d+")) { return false; }
-			setGameRule(player.getWorld(), name, Integer.valueOf(value));
-			Utils.sendMessage(player, String.format("Gamerule %s is now set to: %d", name, Integer.valueOf(value)));
+			setGameRule(resolveWorld(sender), name, Integer.valueOf(value));
+			Utils.sendMessage(sender, String.format("Gamerule %s is now set to: %d", name, Integer.valueOf(value)));
 			return true;
 		}
 
 		return false;
+	}
+
+	public static World resolveWorld(CommandSender sender) {
+		if (sender instanceof Entity entity) { return entity.getWorld(); }
+		if (sender instanceof BlockCommandSender cb) { return cb.getBlock().getWorld(); }
+		return Bukkit.getWorlds().getFirst();
+	}
+
+	public static void registerGruleCommand() {
+		Main.getPlugin().getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
+			final Commands commands = event.registrar();
+			var gruleRoot = Commands.literal("grule").requires(source -> source.getSender().hasPermission("minecraft.command.gamerule"));
+
+			// Argument 1: Rule Name (suggests dynamically from map)
+			gruleRoot.then(Commands.argument("gamerule", StringArgumentType.word())
+				.suggests((ctx, builder) -> {
+					String remaining = builder.getRemaining().toLowerCase();
+					rules.keySet().stream().filter(rule -> rule.toLowerCase().startsWith(remaining)).forEach(builder::suggest);
+					return builder.buildFuture();
+				})
+				// Runs when typing: /grule <rule>
+				.executes(ctx -> {
+					String ruleName = StringArgumentType.getString(ctx, "gamerule");
+					CommandSender sender = ctx.getSource().getSender();
+					if (!rules.containsKey(ruleName)) { sender.sendMessage("§cUnknown gamerule: " + ruleName); return 0; }
+					GameRules.sendGameRule(sender, ruleName);
+					return 1;
+				})
+
+			// Argument 2: Value (optional)
+			.then(Commands.argument("value", StringArgumentType.word())
+				.suggests((ctx, builder) -> {
+					String ruleName = StringArgumentType.getString(ctx, "gamerule");
+					Object val = rules.get(ruleName);
+					if (val instanceof Boolean) { builder.suggest("true").suggest("false"); }
+					return builder.buildFuture();
+				})
+				// Runs when typing: /grule <rule> <value>
+				.executes(ctx -> {
+					String ruleName = StringArgumentType.getString(ctx, "gamerule");
+					String valueStr = StringArgumentType.getString(ctx, "value");
+					CommandSender sender = ctx.getSource().getSender();
+					if (!rules.containsKey(ruleName)) { sender.sendMessage("§cUnknown gamerule: " + ruleName); return 0; }
+
+					Object defaultValue = rules.get(ruleName);
+					World world = GameRules.resolveWorld(sender);
+					var result = GameRules.queryGameRule(sender, ruleName, valueStr);
+					if (!result) { sender.sendMessage("§cIncorrect value!"); return 0; }
+					return 1;
+				})
+			));
+
+			commands.register(gruleRoot.build(), "Manage custom gamerules");
+		});
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

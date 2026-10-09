@@ -3,7 +3,6 @@ package me.serbinskis.smptweaks.custom.notooexpensive;
 import me.serbinskis.smptweaks.Main;
 import me.serbinskis.smptweaks.utils.ReflectionUtils;
 import me.serbinskis.smptweaks.utils.TaskUtils;
-import me.serbinskis.smptweaks.utils.Utils;
 import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.entity.HumanEntity;
@@ -25,7 +24,7 @@ public class Events implements Listener {
 		for (HumanEntity player : event.getViewers()) {
 			if (player.getGameMode() == GameMode.CREATIVE) { continue; }
 			boolean flag = (cost > NoTooExpensive.MAXIMUM_REPAIR_COST);
-			ReflectionUtils.setInstantBuild((Player) player, flag, true, false);
+			TaskUtils.scheduleSyncDelayedTask(() -> ReflectionUtils.setInstantBuild((Player) player, flag, true, false), 1L);
 		}
 
 		event.getInventory().setMaximumRepairCost(Integer.MAX_VALUE);

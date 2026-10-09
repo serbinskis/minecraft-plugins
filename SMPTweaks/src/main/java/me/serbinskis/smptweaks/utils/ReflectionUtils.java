@@ -7,7 +7,6 @@ import io.netty.channel.*;
 import io.netty.channel.embedded.EmbeddedChannel;
 import net.minecraft.SharedConstants;
 import net.minecraft.advancements.AdvancementHolder;
-import net.minecraft.advancements.DisplayInfo;
 import net.minecraft.commands.CacheableFunction;
 import net.minecraft.commands.functions.CommandFunction;
 import net.minecraft.core.*;
@@ -42,7 +41,6 @@ import net.minecraft.world.entity.player.Abilities;
 import net.minecraft.world.inventory.MerchantMenu;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.trading.Merchant;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
@@ -51,7 +49,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.level.redstone.NeighborUpdater;
 import net.minecraft.world.level.storage.TagValueInput;
-import net.minecraft.world.level.storage.loot.LootTable;
 import org.bukkit.*;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.block.BlockFace;
@@ -64,7 +61,6 @@ import org.bukkit.entity.Villager;
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
-import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -514,17 +510,6 @@ public class ReflectionUtils {
 		return getPlayerAbilities(player).instabuild;
 	}
 
-	public static EquipmentSlot getUseItemOnEventHand(Object packet) {
-		InteractionHand hand = null;
-
-		if (packet instanceof ServerboundUseItemOnPacket pck) { hand = pck.getHand(); }
-		if (packet instanceof ServerboundInteractPacket pck) { hand = pck.hand(); }
-		if (InteractionHand.MAIN_HAND.equals(hand)) { return EquipmentSlot.HAND; }
-		if (InteractionHand.OFF_HAND.equals(hand)) { return EquipmentSlot.OFF_HAND; }
-
-		return null;
-	}
-
 	public static int getEntityId(Entity entity) {
 		return Objects.requireNonNull(getEntity(entity)).getId();
 	}
@@ -606,7 +591,7 @@ public class ReflectionUtils {
 		// net.minecraft.server.network.ServerGamePacketListenerImpl#tick()
 		// net.minecraft.server.network.ServerGamePacketListenerImpl#ackBlockChangesUpTo()
 		// net.minecraft.server.network.ServerGamePacketListenerImpl#handleUseItemOn()
-		int sequence = (packet instanceof ServerboundUseItemOnPacket pck) ? pck.getSequence() : 99;
+		int sequence = (packet instanceof ServerboundUseItemOnPacket pck) ? pck.sequence() : 99;
 		if (syncBlockPrediction) { sendPacket(player, new ClientboundBlockChangedAckPacket(sequence)); }
 	}
 
@@ -767,67 +752,6 @@ public class ReflectionUtils {
 		entityPlayer.sendMerchantOffers(entityPlayer.containerMenu.containerId, merhcant.getOffers(), level, merhcant.getVillagerXp(), merhcant.showProgressBar(), merhcant.canRestock());
 	}
 
-	public static int getAdvancementExperience(Advancement advancement) {
-		return getNMSAdvancement(advancement).rewards().experience();
-	}
-
-	public static List<ResourceKey<LootTable>> getAdvancementLoot(Advancement advancement) {
-		List<ResourceKey<LootTable>> loot = getNMSAdvancement(advancement).rewards().loot();
-		return loot.isEmpty() ? List.of() : loot;
-	}
-
-	public static List<ResourceKey<Recipe<?>>> getAdvancementRecipes(Advancement advancement) {
-		return getNMSAdvancement(advancement).rewards().recipes();
-	}
-
-	public static String[] getAdvancementFunction(Advancement advancement) {
-		Optional<CacheableFunction> function = getNMSAdvancement(advancement).rewards().function();
-		if (function.isEmpty()) { return null; }
-
-		Identifier resourceLocation = (Identifier) getValue(CacheableFunction_id, function.get());
-		return new String[] { resourceLocation.getNamespace(), resourceLocation.getPath() };
-	}
-
-	public static void setAdvancementFunction(Advancement advancement, String namespace, String path) {
-		Optional<CacheableFunction> function = getNMSAdvancement(advancement).rewards().function();
-		if (function.isEmpty()) { return; }
-
-		setValue(CacheableFunction_resolved, function.get(), false);
-		setValue(CacheableFunction_function, function.get(), null);
-		setResourceLocation((Identifier) getValue(CacheableFunction_id, function.get()), namespace, path);
-	}
-
-	public static boolean getAnnounceChat(Advancement advancement) {
-		DisplayInfo displayInfo = getNMSAdvancement(advancement).display().orElse(null);
-		return ((displayInfo != null) && displayInfo.shouldAnnounceChat());
-	}
-
-	public static void setAnnounceChat(Advancement advancement, @Nullable PlayerAdvancementDoneEvent event, boolean announceChat) {
-		if (PaperUtils.isPaper() && (event != null) && !announceChat) { event.message(null); }
-		DisplayInfo displayInfo = new DisplayInfo(null, null, null, null, null, false, true, false);
-		Field DisplayInfo_announceChat = getField(DisplayInfo.class, boolean.class, null, displayInfo, displayInfo.shouldAnnounceChat(), true);
-		getNMSAdvancement(advancement).display().ifPresent(display -> setValue(DisplayInfo_announceChat, display, announceChat));
-	}
-
-	public static String[] getResourceLocation(ResourceKey<?> resourceKey) {
-		return getResourceLocation(resourceKey.identifier());
-	}
-
-	public static String[] getResourceLocation(Identifier resourceLocation) {
-		return new String[] { resourceLocation.getNamespace(), resourceLocation.getPath() };
-	}
-
-	public static void setResourceLocation(ResourceKey<?> resourceKey, String namespace, String path) {
-		setResourceLocation(resourceKey.identifier(), namespace, path);
-	}
-
-	public static void setResourceLocation(Identifier resourceLocation, String namespace, String path) {
-		Field ResourceLocation_namespace = getField(Identifier.class, String.class, null, resourceLocation, resourceLocation.getNamespace(), true, null, Modifier.STATIC);
-		Field ResourceLocation_path = getField(Identifier.class, String.class, null, resourceLocation, resourceLocation.getPath(), true, null, Modifier.STATIC);
-		setValue(ResourceLocation_namespace, resourceLocation, namespace);
-		setValue(ResourceLocation_path, resourceLocation, path);
-	}
-
 	public static int getMajorPackFormat() {
 		return SharedConstants.getCurrentVersion().packVersion(net.minecraft.server.packs.PackType.CLIENT_RESOURCES).major();
 	}
@@ -985,6 +909,77 @@ public class ReflectionUtils {
 		drop.setAmount(drop.getAmount()-1); // Update drop amount after moving
 		return dispenseDropper(source, drop);
 	}
+
+	/*public static EquipmentSlot getUseItemOnEventHand(Object packet) {
+		InteractionHand hand = null;
+
+		if (packet instanceof ServerboundUseItemOnPacket pck) { hand = pck.getHand(); }
+		if (packet instanceof ServerboundInteractPacket pck) { hand = pck.hand(); }
+		if (InteractionHand.MAIN_HAND.equals(hand)) { return EquipmentSlot.HAND; }
+		if (InteractionHand.OFF_HAND.equals(hand)) { return EquipmentSlot.OFF_HAND; }
+
+		return null;
+	}*/
+
+	/*public static int getAdvancementExperience(Advancement advancement) {
+		return getNMSAdvancement(advancement).rewards().experience();
+	}*/
+
+	/*public static HolderSet<LootTable> getAdvancementLoot(Advancement advancement) {
+		return getNMSAdvancement(advancement).rewards().loot();
+	}*/
+
+	/*public static List<ResourceKey<Recipe<?>>> getAdvancementRecipes(Advancement advancement) {
+		return getNMSAdvancement(advancement).rewards().recipes();
+	}*/
+
+	/*public static String[] getAdvancementFunction(Advancement advancement) {
+		Optional<CacheableFunction> function = getNMSAdvancement(advancement).rewards().function();
+		if (function.isEmpty()) { return null; }
+
+		Identifier resourceLocation = (Identifier) getValue(CacheableFunction_id, function.get());
+		return new String[] { resourceLocation.getNamespace(), resourceLocation.getPath() };
+	}*/
+
+	/*public static void setAdvancementFunction(Advancement advancement, String namespace, String path) {
+		Optional<CacheableFunction> function = getNMSAdvancement(advancement).rewards().function();
+		if (function.isEmpty()) { return; }
+
+		setValue(CacheableFunction_resolved, function.get(), false);
+		setValue(CacheableFunction_function, function.get(), null);
+		setResourceLocation((Identifier) getValue(CacheableFunction_id, function.get()), namespace, path);
+	}*/
+
+	/*public static boolean getAnnounceChat(Advancement advancement) {
+		DisplayInfo displayInfo = getNMSAdvancement(advancement).display().orElse(null);
+		return ((displayInfo != null) && displayInfo.announceToChat());
+	}*/
+
+	/*public static void setAnnounceChat(Advancement advancement, @Nullable PlayerAdvancementDoneEvent event, boolean announceChat) {
+		if (PaperUtils.isPaper() && (event != null) && !announceChat) { event.message(null); }
+		DisplayInfo displayInfo = new DisplayInfo(null, null, null, null, null, false, true, false);
+		Field DisplayInfo_announceChat = getField(DisplayInfo.class, boolean.class, null, displayInfo, displayInfo.announceToChat(), true);
+		getNMSAdvancement(advancement).display().ifPresent(display -> setValue(DisplayInfo_announceChat, display, announceChat));
+	}
+
+	/*public static String[] getResourceLocation(ResourceKey<?> resourceKey) {
+		return getResourceLocation(resourceKey.identifier());
+	}*/
+
+	/*public static String[] getResourceLocation(Identifier resourceLocation) {
+		return new String[] { resourceLocation.getNamespace(), resourceLocation.getPath() };
+	}*/
+
+	/*public static void setResourceLocation(ResourceKey<?> resourceKey, String namespace, String path) {
+		setResourceLocation(resourceKey.identifier(), namespace, path);
+	}*/
+
+	/*public static void setResourceLocation(Identifier resourceLocation, String namespace, String path) {
+		Field ResourceLocation_namespace = getField(Identifier.class, String.class, null, resourceLocation, resourceLocation.getNamespace(), true, null, Modifier.STATIC);
+		Field ResourceLocation_path = getField(Identifier.class, String.class, null, resourceLocation, resourceLocation.getPath(), true, null, Modifier.STATIC);
+		setValue(ResourceLocation_namespace, resourceLocation, namespace);
+		setValue(ResourceLocation_path, resourceLocation, path);
+	}*/
 
 	// Get raw block destroy time which is not based on player
 	/*public static float getBlockDestroyTime(Material block) {

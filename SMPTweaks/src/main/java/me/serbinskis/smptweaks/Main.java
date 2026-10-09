@@ -38,7 +38,9 @@ public class Main extends JavaPlugin implements Listener {
 		if (!PaperUtils.isPaper()) { Utils.sendMessage("[SMPTweaks] Disabling Plugin: Only Supported On PaperMC"); }
 		if (!PaperUtils.isPaper()) { getServer().getPluginManager().disablePlugin(this); }
 		if (!PaperUtils.isPaper()) { return; }
+
 		Bukkit.getPluginManager().registerEvents(Main.plugin, Main.plugin);
+		GameRules.registerGruleCommand();
 		TweakManager.loadTweaks(true);
 	}
 

@@ -1,32 +1,35 @@
 package me.serbinskis.smptweaks.custom.noadvancements;
 
+import com.destroystokyo.paper.event.player.PlayerAdvancementCriterionGrantEvent;
 import me.serbinskis.smptweaks.library.fakeplayer.FakePlayer;
-import me.serbinskis.smptweaks.library.tinyprotocol.PacketEvent;
-import me.serbinskis.smptweaks.library.tinyprotocol.PacketType;
-import me.serbinskis.smptweaks.utils.ReflectionUtils;
-import me.serbinskis.smptweaks.utils.TaskUtils;
 import me.serbinskis.smptweaks.utils.Utils;
-import org.bukkit.Sound;
-import org.bukkit.advancement.Advancement;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.UUID;
-import java.util.stream.Stream;
 
 public class Events implements Listener {
 	public static List<String> EXCLUDE_ADVANCEMENT = List.of("recipes/decorations/crafting_table", "blazeandcave:technical/inventory_changed", "dungeons_arise:wda_root");
-	public static HashMap<UUID, String> preventSoundPackets = new HashMap<>();
-	public static HashMap<UUID, String> preventExperiencePackets = new HashMap<>();
-	public static List<Integer> scheduled = new LinkedList<>();
 
-	@EventHandler(priority = EventPriority.MONITOR)
+	@EventHandler(priority = EventPriority.LOWEST)
+	public void onPlayerAdvancementCriterionGrantEvent(PlayerAdvancementCriterionGrantEvent event) {
+		boolean isFakePlayer = FakePlayer.isFakePlayer(event.getPlayer());
+		if (!isFakePlayer && NoAdvancements.tweak.getGameRuleBoolean(event.getPlayer().getWorld())) { return; }
+		if (EXCLUDE_ADVANCEMENT.stream().anyMatch(e -> event.getAdvancement().getKey().toString().contains(e))) { return; }
+		event.setCancelled(true);
+	}
+
+	@EventHandler(priority = EventPriority.LOWEST)
+	public void onPlayerAdvancementDoneEvent(PlayerAdvancementDoneEvent event) {
+		boolean isFakePlayer = FakePlayer.isFakePlayer(event.getPlayer());
+		if (!isFakePlayer && NoAdvancements.tweak.getGameRuleBoolean(event.getPlayer().getWorld())) { return; }
+		if (EXCLUDE_ADVANCEMENT.stream().anyMatch(e -> event.getAdvancement().getKey().toString().contains(e))) { return; }
+		Utils.revokeAdvancement(event.getPlayer(), event.getAdvancement());
+	}
+
+	/*@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerAdvancementDoneEvent(PlayerAdvancementDoneEvent event) {
 		scheduled.removeIf(item -> { TaskUtils.finishTask(item); return true; });
 		boolean isFakePlayer = FakePlayer.isFakePlayer(event.getPlayer());
@@ -35,9 +38,9 @@ public class Events implements Listener {
 
 		Utils.revokeAdvancement(event.getPlayer(), event.getAdvancement());
 		hijackAdvancement(event.getPlayer(), event.getAdvancement(), event);
-	}
+	}*/
 
-	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+	/*@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onPacketEvent(PacketEvent event) {
 		if ((event.getPacketType() == PacketType.SOUND) && (preventSoundPackets.remove(event.getPlayer().getUniqueId()) != null)) {
 			Sound sound = ReflectionUtils.getBukkitSoundInfo(event.getPacket()).getKey();
@@ -47,9 +50,9 @@ public class Events implements Listener {
 		if ((event.getPacketType() == PacketType.SET_EXPERIENCE) && (preventExperiencePackets.remove(event.getPlayer().getUniqueId()) != null)) {
 			event.setCancelled(true);
 		}
-	}
+	}*/
 
-	private static void hijackAdvancement(Player player, Advancement advancement, PlayerAdvancementDoneEvent event) {
+	/*private static void hijackAdvancement(Player player, Advancement advancement, PlayerAdvancementDoneEvent event) {
 		//Utils.sendMessage("hijackAdvancement ->");
 
 		//Disable announce advancements to prevent chat messages
@@ -92,5 +95,5 @@ public class Events implements Listener {
 		scheduled.add(TaskUtils.scheduleSyncDelayedTask(() -> player.giveExp(-experience), 0L));
 		preventExperiencePackets.putIfAbsent(player.getUniqueId(), "");
 		preventSoundPackets.putIfAbsent(player.getUniqueId(), "");
-	}
+	}*/
 }
