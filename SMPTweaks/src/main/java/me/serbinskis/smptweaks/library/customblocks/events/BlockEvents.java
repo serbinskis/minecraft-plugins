@@ -114,8 +114,8 @@ public class BlockEvents implements Listener {
 		if (blockList.isEmpty()) { return; }
 		blockList.forEach((block, customBlock) -> customBlock.removeBlock(block));
 
-		//For some reason this event is applied later, because runnable execute before blocks are updated
-		//And runnable do run in the end or beginning of tick, so this means this operation is delayed
+		// For some reason this event is applied later, because runnable execute before blocks are updated
+		// And runnable do run in the end or beginning of tick, so this means this operation is delayed
 		TaskUtils.scheduleSyncDelayedTask(() -> {
 			blockList.forEach((block, customBlock) -> customBlock.createBlock(block.getRelative(event.getDirection()), true));
 		}, 2L);

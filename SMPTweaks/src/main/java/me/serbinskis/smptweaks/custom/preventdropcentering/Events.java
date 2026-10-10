@@ -9,35 +9,42 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.util.Vector;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class Events implements Listener {
 	public double ITEM_HEIGHT = 0.25F;
 	public double ITEM_SPAWN_OFFSET = 0.25F;
-	public double DISTANCE = 0.5F;
+	private final Set<Location> brokenBlocks = new HashSet<>(); // Tracks blocks broken on this tick
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockBreakEvent(BlockBreakEvent event) {
-		if (event.getPlayer() == null) { return; }
-		Location location = event.getBlock().getLocation().add(.5, .5, .5);
+		Location blockLoc = event.getBlock().getLocation();
+		brokenBlocks.add(blockLoc);
 
-		TaskUtils.scheduleSyncDelayedTask(() -> {
-			for (Entity entity : location.getWorld().getNearbyEntities(location, DISTANCE, DISTANCE, DISTANCE)) {
-				if (!(entity instanceof Item)) { continue; }
+		// Remove from tracking at the end of the tick (2L - BECAUSE OF SOME SHITTY ANOTHER PLUGIN)
+		TaskUtils.scheduleSyncDelayedTask(() -> brokenBlocks.remove(blockLoc), 2L);
+	}
 
-				double posX = Utils.afterDecimal(entity.getLocation().getX());
-				double posY = Utils.afterDecimal(entity.getLocation().getY());
-				double posZ = Utils.afterDecimal(entity.getLocation().getZ());
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void onItemSpawn(ItemSpawnEvent event) {
+		Item entity = event.getEntity();
+		Location blockLoc = entity.getLocation().getBlock().getLocation();
 
-				double velX = entity.getVelocity().getX();
-				double velY = entity.getVelocity().getY();
-				double velZ = entity.getVelocity().getZ();
+		// Only process if this item spawned inside a block broken by a player:
+		if (!brokenBlocks.contains(blockLoc)) { return; }
 
-				if ((velX == 0.0F) && (velY == 0.0F) && (velZ == 0.0F) && (posX == 0.5F) && (posY == 0.5F) && (posZ == 0.5F)) {
-					popResource(entity, location);
-				}
-			}
-		}, 1L);
+		double posX = Utils.afterDecimal(entity.getLocation().getX());
+		double posY = Utils.afterDecimal(entity.getLocation().getY());
+		double posZ = Utils.afterDecimal(entity.getLocation().getZ());
+
+		if ((posX != 0.5F) || (posY != 0.5F) || (posZ != 0.5F)) { return; }
+
+		// This is because of intervention of another plugin, aka, just doing popResource won't work
+		TaskUtils.scheduleSyncDelayedTask(() -> popResource(entity, entity.getLocation()), 0L);
 	}
 
 	public void popResource(Entity entity, Location location) {
@@ -50,3 +57,4 @@ public class Events implements Listener {
 		entity.setVelocity(new Vector(Math.random()*0.2F-0.1F, 0.2F, Math.random()*0.2F-0.1F));
 	}
 }
+

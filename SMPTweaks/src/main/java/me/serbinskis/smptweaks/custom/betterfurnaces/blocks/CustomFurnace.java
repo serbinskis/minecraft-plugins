@@ -38,8 +38,8 @@ public class CustomFurnace extends CustomBlock {
         String location = Utils.locationToString(block.getLocation());
         boolean isBurning = ((Furnace) block.getState()).getBurnTime() > 0;
         boolean previous = BLOCKS.computeIfAbsent(location, k -> !isBurning);
-        if (previous == isBurning) { return; } //Don't tick if power is the same as previous
-        BLOCKS.put(location, isBurning); //Update previous power to current
+        if (previous == isBurning) { return; } // Don't tick if power is the same as previous
+        BLOCKS.put(location, isBurning); // Update previous power to current
 
         CustomMarker marker = CustomMarker.getMarker(block);
         if (marker != null) { marker.updateTexture(block); }
