@@ -30,7 +30,7 @@ public class Events implements Listener {
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-	public void onItemSpawn(ItemSpawnEvent event) {
+	public void onItemSpawnEvent(ItemSpawnEvent event) {
 		Item entity = event.getEntity();
 		Location blockLoc = entity.getLocation().getBlock().getLocation();
 
