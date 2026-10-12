@@ -22,7 +22,7 @@ import org.bukkit.event.server.ServerLoadEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin implements Listener {
-	public static boolean DEBUG_MODE = System.getenv("computername").equalsIgnoreCase("SERBIX-PC");
+	public static boolean DEBUG_MODE = "SERBIX-PC".equalsIgnoreCase(System.getenv("COMPUTERNAME"));
 	public static Sound DENY_SOUND_EFFECT = Sound.BLOCK_NOTE_BLOCK_HARP;
 	public static char SYM_COLOR = '§';
 	public static String MESSAGE_COLOR = SYM_COLOR + "9";
